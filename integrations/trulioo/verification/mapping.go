@@ -1,9 +1,9 @@
 package verification
 
 import (
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/numbers"
-	"gitlab.com/modulusglobal/kyc/strings"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/numbers"
+	"gitlab.com/lambospeed/kyc/strings"
 	"time"
 )
 

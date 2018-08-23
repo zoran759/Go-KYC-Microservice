@@ -3,8 +3,8 @@ package shuftipro
 import (
 	"testing"
 
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/integrations/shuftipro/verification"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
 	"errors"
 	"github.com/stretchr/testify/assert"
 )

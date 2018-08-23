@@ -1,7 +1,7 @@
 package verification
 
 import (
-	"gitlab.com/modulusglobal/kyc/common"
+	"gitlab.com/lambospeed/kyc/common"
 	"encoding/base64"
 )
 

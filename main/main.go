@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo"
 	"log"
 	"time"
 )

@@ -1,8 +1,8 @@
 package shuftipro
 
 import (
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/integrations/shuftipro/verification"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
 	"github.com/pkg/errors"
 )
 

@@ -1,8 +1,8 @@
 package verification
 
 import (
-	"gitlab.com/modulusglobal/kyc/http"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/configuration"
+	"gitlab.com/lambospeed/kyc/http"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"encoding/json"
 )
 

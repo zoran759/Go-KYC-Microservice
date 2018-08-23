@@ -3,8 +3,8 @@ package trulioo
 import (
 	"testing"
 
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/configuration"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/verification"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
 	"encoding/base64"
 	"github.com/stretchr/testify/assert"
 )

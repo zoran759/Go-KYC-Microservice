@@ -1,7 +1,7 @@
 package documents
 
 import (
-	"gitlab.com/modulusglobal/kyc/http"
+	"gitlab.com/lambospeed/kyc/http"
 	"bytes"
 	"encoding/json"
 	"fmt"
