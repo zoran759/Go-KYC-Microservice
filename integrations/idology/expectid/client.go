@@ -2,6 +2,7 @@ package expectid
 
 import (
 	"errors"
+	"fmt"
 
 	"gitlab.com/lambospeed/kyc/common"
 )
@@ -21,22 +22,41 @@ func NewClient(config Config) *Client {
 }
 
 // CheckCustomer implements customer verification using IDology API.
-func (c *Client) CheckCustomer(customer *common.UserData) (common.KYCResult, *common.DetailedKYCResult, error) {
-	//  TODO: implement this.
+func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
 	if customer == nil {
-		return common.Error, nil, errors.New("No customer supplied")
+		result = common.Error
+		err = errors.New("No customer supplied")
+		return
 	}
 
 	requestBody := c.makeRequestBody(customer)
 
 	response, err := c.verify(requestBody)
-
-	//  TODO: process response.
-	_ = response
-
 	if err != nil {
-		return common.Error, nil, err
+		result = common.Error
+		return
 	}
 
-	return common.Approved, nil, nil
+	if response.Error != nil {
+		result = common.Error
+		err = fmt.Errorf("during verification: %q", *response.Error)
+		return
+	}
+
+	// FIXME: The <summary-result> and <results> tags are not the same.
+	// At this moment I don't count on <summary-result>.
+	// I need to clarify that.
+
+	switch response.Results.Key {
+	case Match, MatchRestricted:
+		result = common.Approved
+		details = &common.DetailedKYCResult{
+			Finality: common.Unknown,
+			Reasons:  []string{response.Results.Message},
+		}
+	case NoMatch:
+		result = common.Denied
+	}
+
+	return
 }

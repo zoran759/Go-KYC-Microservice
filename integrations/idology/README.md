@@ -1,5 +1,7 @@
 # IDology integration
 
+This manual describes how to use `idology` package.
+
 ## How to use the package
 
 1) Create new [config](../contract.go#9) for Idology API usage.
@@ -12,7 +14,7 @@
 
 Sample code:
 
-```Golang
+```go
 customer := &common.UserData{
     ...
 }

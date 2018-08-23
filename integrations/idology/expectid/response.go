@@ -18,6 +18,13 @@ type Results struct {
 	Message string    `xml:"message"`
 }
 
+// Qualifier defines "qualifiers" part of the response.
+type Qualifier struct {
+	XMLName xml.Name `xml:"qualifier"`
+	Key     string   `xml:"key"`
+	Message string   `xml:"message"`
+}
+
 // Response defines a response from IDology ExpectID® API.
 type Response struct {
 	XMLName       xml.Name      `xml:"response"`
@@ -25,4 +32,5 @@ type Response struct {
 	SummaryResult SummaryResult `xml:"summary-result"`
 	Results       Results       `xml:"results"`
 	Error         *string       `xml:"error"`
+	Qualifiers    []Qualifier   `xml:"qualifiers"`
 }
