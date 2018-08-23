@@ -3,27 +3,24 @@ package expectid
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"gitlab.com/modulusglobal/kyc/integrations/idology"
 )
 
 var _ = Describe("Client", func() {
 	Describe("new client should get correct config", func() {
 		It("should success", func() {
-			config := idology.Config{
+			config := Config{
 				Host:     "fake_host",
 				Username: "fake_name",
 				Password: "fake_password",
 			}
 
-			testclient := &client{
-				Config: config,
+			testclient := &Client{
+				config: config,
 			}
 
-			newclient := NewClient(config)
-			Expect(newclient).NotTo(BeNil())
+			client := NewClient(config)
 
-			client := newclient.(*client)
+			Expect(client).NotTo(BeNil())
 			Expect(client).To(Equal(testclient))
 		})
 	})
