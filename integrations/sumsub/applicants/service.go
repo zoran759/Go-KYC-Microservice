@@ -1,7 +1,7 @@
 package applicants
 
 import (
-	"gitlab.com/modulusglobal/kyc/http"
+	"gitlab.com/lambospeed/kyc/http"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"

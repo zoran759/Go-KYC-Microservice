@@ -1,6 +1,6 @@
 package verification
 
-import "gitlab.com/modulusglobal/kyc/integrations/trulioo/configuration"
+import "gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 
 type StartVerificationRequest struct {
 	AcceptTruliooTermsAndConditions bool
