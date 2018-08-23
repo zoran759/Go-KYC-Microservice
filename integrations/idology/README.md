@@ -6,7 +6,7 @@
 
 2) Obtain verifier's object by calling the [New()](../contract.go#25) constructor. As a parameter, pass it the configuration you created in step 1.
 
-3) Use verifier's checkers for the verification. You may use either `.ExpectID` for identity verification or `.AlertList` for check against Alert List of bad players or fraudsters or both of them.
+3) Use verifier's checkers for the verification. You may use either `.ExpectID` for identity verification or `.AlertList` for check against the alert list of bad players or fraudsters or them both.
 
 4) The method for the customer check is `CheckCustomer()`.
 
