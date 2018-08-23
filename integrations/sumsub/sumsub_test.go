@@ -3,10 +3,10 @@ package sumsub
 import (
 	"testing"
 
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/integrations/sumsub/applicants"
-	"gitlab.com/modulusglobal/kyc/integrations/sumsub/documents"
-	"gitlab.com/modulusglobal/kyc/integrations/sumsub/verification"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
+	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
+	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

@@ -3,9 +3,9 @@ package trulioo
 import (
 	"testing"
 
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/configuration"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/verification"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

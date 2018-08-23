@@ -3,7 +3,7 @@ package verification
 import (
 	"testing"
 
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/configuration"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"

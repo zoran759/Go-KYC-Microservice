@@ -1,7 +1,7 @@
 package verification
 
 import (
-	"gitlab.com/modulusglobal/kyc/http"
+	"gitlab.com/lambospeed/kyc/http"
 	"crypto/sha256"
 	"encoding/json"
 	"github.com/gofrs/uuid"

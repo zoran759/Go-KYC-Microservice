@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"gitlab.com/modulusglobal/kyc/http"
+	"gitlab.com/lambospeed/kyc/http"
 	"encoding/json"
 	"github.com/pkg/errors"
 	stdhttp "net/http"
