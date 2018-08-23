@@ -4,17 +4,17 @@ import (
 	"net/url"
 
 	"github.com/achiku/xml"
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/http"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/http"
 )
 
-func (c *client) verify(requestBody string) (resp *Response, err error) {
+func (c *Client) verify(requestBody string) (resp *Response, err error) {
 	// TODO: implement this.
 	headers := http.Headers{
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
 
-	status, response, err := http.Post(c.Host, headers, []byte(requestBody))
+	status, response, err := http.Post(c.config.Host, headers, []byte(requestBody))
 	if err != nil {
 		return
 	}
@@ -29,7 +29,7 @@ func (c *client) verify(requestBody string) (resp *Response, err error) {
 	return
 }
 
-func (c *client) makeRequestBody(customer *common.UserData) string {
+func (c *Client) makeRequestBody(customer *common.UserData) string {
 	// TODO: implement this.
 	values := url.Values{}
 
