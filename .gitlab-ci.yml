@@ -6,7 +6,7 @@ test-idology:
   image: golang:stretch
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
+  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/modulusglobal/kyc
   - go get -d -v ./...
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/idology/expectid
+  - cd $GOPATH/src/gitlab.com/modulusglobal/kyc/integrations/idology/expectid
   - go test
