@@ -8,5 +8,7 @@ test-idology:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/modulusglobal/kyc
   - go get -d -v ./...
+  - go get github.com/onsi/ginkgo/ginkgo
+  - go get github.com/onsi/gomega/...
   - cd $GOPATH/src/gitlab.com/modulusglobal/kyc/integrations/idology/expectid
   - go test
