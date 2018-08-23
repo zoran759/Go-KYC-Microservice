@@ -1,9 +1,9 @@
 package trulioo
 
 import (
-	"gitlab.com/modulusglobal/kyc/common"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/configuration"
-	"gitlab.com/modulusglobal/kyc/integrations/trulioo/verification"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
 	"fmt"
 	"github.com/pkg/errors"
 )

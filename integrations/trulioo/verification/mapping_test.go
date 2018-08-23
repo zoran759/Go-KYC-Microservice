@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/modulusglobal/kyc/common"
+	"gitlab.com/lambospeed/kyc/common"
 	"github.com/stretchr/testify/assert"
 )
 
