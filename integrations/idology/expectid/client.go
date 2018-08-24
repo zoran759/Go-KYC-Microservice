@@ -25,7 +25,7 @@ func NewClient(config Config) *Client {
 func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
 	if customer == nil {
 		result = common.Error
-		err = errors.New("No customer supplied")
+		err = errors.New("no customer supplied")
 		return
 	}
 
@@ -43,19 +43,54 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	// FIXME: The <summary-result> and <results> tags are not the same.
-	// At this moment I don't count on <summary-result>.
-	// I need to clarify that.
+	result, details, err = c.responseToResult(response)
 
-	switch response.Results.Key {
-	case Match, MatchRestricted:
-		result = common.Approved
-		details = &common.DetailedKYCResult{
-			Finality: common.Unknown,
-			Reasons:  []string{response.Results.Message},
+	return
+}
+
+// responseToResult processes the response and generates the verification result.
+func (c *Client) responseToResult(r *Response) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
+	detailsCreateIfNil := func(details *common.DetailedKYCResult) {
+		if details == nil {
+			details = &common.DetailedKYCResult{
+				Finality: common.Unknown,
+			}
 		}
-	case NoMatch:
-		result = common.Denied
+	}
+
+	switch c.config.UseSummaryResult {
+	case true:
+		switch r.SummaryResult.Key {
+		case Success:
+			result = common.Approved
+		case Failure:
+			result = common.Denied
+		case Partial:
+			result = common.Unclear
+		}
+	case false:
+		switch r.Results.Key {
+		case Match:
+			result = common.Approved
+		case NoMatch, MatchRestricted:
+			result = common.Denied
+		}
+	}
+
+	if r.Restriction != nil {
+		detailsCreateIfNil(details)
+		details.Reasons = []string{
+			r.Restriction.Message,
+			r.Restriction.PatriotAct.List,
+			fmt.Sprintf("Patriot Act score: %d", r.Restriction.PatriotAct.Score),
+		}
+	}
+
+	if len(r.Qualifiers) > 0 {
+		detailsCreateIfNil(details)
+		for _, q := range r.Qualifiers {
+			details.Reasons = append(details.Reasons, q.Message)
+		}
 	}
 
 	return

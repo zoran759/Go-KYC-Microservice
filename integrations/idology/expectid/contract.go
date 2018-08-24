@@ -7,7 +7,9 @@ const (
 
 // Config holds configuration settings for the IDology ExpectID® API client.
 type Config struct {
-	Host,
-	Username,
-	Password string
+	Host             string
+	Username         string
+	Password         string
+	UseSummaryResult bool
+	UseAlertList     bool
 }
