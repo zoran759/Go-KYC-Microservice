@@ -16,7 +16,7 @@ func MapCommonCustomerToApplicant(customer common.UserData) ApplicantInfo {
 		Gender:         strings.Pointerize(MapGender(customer.Gender)),
 		DateOfBirth:    strings.Pointerize(customer.DateOfBirth.Format("2006-01-02")),
 		PlaceOfBirth:   strings.Pointerize(customer.PlaceOfBirth),
-		CountryOfBirth: strings.Pointerize(customer.CountryOfBirth),
+		CountryOfBirth: strings.Pointerize(customer.CountryOfBirthAlpha2),
 		StateOfBirth:   strings.Pointerize(customer.StateOfBirth),
 		Country:        strings.Pointerize(customer.CountryAlpha2),
 		Nationality:    strings.Pointerize(customer.Nationality),
@@ -58,7 +58,7 @@ func MapCommonAddressToApplicantAddress(address common.Address) *Address {
 		return nil
 	}
 	return &Address{
-		Country:        strings.Pointerize(address.Country),
+		Country:        strings.Pointerize(address.CountryAlpha2),
 		PostCode:       strings.Pointerize(address.PostCode),
 		Town:           strings.Pointerize(address.Town),
 		Street:         strings.Pointerize(address.Street),

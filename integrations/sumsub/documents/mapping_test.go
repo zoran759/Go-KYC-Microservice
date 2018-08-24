@@ -11,20 +11,20 @@ import (
 func TestMapCommonDocumentToDocument(t *testing.T) {
 	testTime := common.Time(time.Now())
 	customer := common.UserData{
-		FirstName:      "FirstName",
-		LastName:       "LastName",
-		MiddleName:     "MiddleName",
-		LegalName:      "LegalName",
-		Email:          "Email",
-		Gender:         "Gender",
-		DateOfBirth:    testTime,
-		PlaceOfBirth:   "PlaceOfBirth",
-		CountryOfBirth: "CountryOfBirth",
-		StateOfBirth:   "StateOfBirth",
-		CountryAlpha2:  "CountryAlpha2",
-		Nationality:    "Nationality",
-		Phone:          "Phone",
-		MobilePhone:    "MobilePhone",
+		FirstName:            "FirstName",
+		LastName:             "LastName",
+		MiddleName:           "MiddleName",
+		LegalName:            "LegalName",
+		Email:                "Email",
+		Gender:               "Gender",
+		DateOfBirth:          testTime,
+		PlaceOfBirth:         "PlaceOfBirth",
+		CountryOfBirthAlpha2: "CountryOfBirth",
+		StateOfBirth:         "StateOfBirth",
+		CountryAlpha2:        "CountryAlpha2",
+		Nationality:          "Nationality",
+		Phone:                "Phone",
+		MobilePhone:          "MobilePhone",
 		Documents: []common.Document{
 			{
 				Metadata: common.DocumentMetadata{
@@ -73,20 +73,20 @@ func TestMapCommonDoubleSideDocument(t *testing.T) {
 	testTime := common.Time(time.Now())
 
 	customer := common.UserData{
-		FirstName:      "FirstName",
-		LastName:       "LastName",
-		MiddleName:     "MiddleName",
-		LegalName:      "LegalName",
-		Email:          "Email",
-		Gender:         "Gender",
-		DateOfBirth:    testTime,
-		PlaceOfBirth:   "PlaceOfBirth",
-		CountryOfBirth: "CountryOfBirth",
-		StateOfBirth:   "StateOfBirth",
-		CountryAlpha2:  "CountryAlpha2",
-		Nationality:    "Nationality",
-		Phone:          "Phone",
-		MobilePhone:    "MobilePhone",
+		FirstName:            "FirstName",
+		LastName:             "LastName",
+		MiddleName:           "MiddleName",
+		LegalName:            "LegalName",
+		Email:                "Email",
+		Gender:               "Gender",
+		DateOfBirth:          testTime,
+		PlaceOfBirth:         "PlaceOfBirth",
+		CountryOfBirthAlpha2: "CountryOfBirth",
+		StateOfBirth:         "StateOfBirth",
+		CountryAlpha2:        "CountryAlpha2",
+		Nationality:          "Nationality",
+		Phone:                "Phone",
+		MobilePhone:          "MobilePhone",
 		Documents: []common.Document{
 			{
 				Metadata: common.DocumentMetadata{

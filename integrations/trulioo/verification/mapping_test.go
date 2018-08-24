@@ -12,26 +12,26 @@ func TestMapCustomerToDataFields(t *testing.T) {
 	testTime := common.Time(time.Now())
 
 	customer := common.UserData{
-		FirstName:        "FirstName",
-		PaternalLastName: "PaternalLastName",
-		LastName:         "LastName",
-		MiddleName:       "MiddleName",
-		LegalName:        "LegalName",
-		LatinISO1Name:    "LATIN",
-		Email:            "Email",
-		Gender:           common.Male,
-		DateOfBirth:      testTime,
-		PlaceOfBirth:     "PlaceOfBirth",
-		CountryOfBirth:   "CountryOfBirth",
-		StateOfBirth:     "StateOfBirth",
-		CountryAlpha2:    "CountryAlpha2",
-		CountryAlpha3:    "CountryAlpha3",
-		CountryName:      "CountryName",
-		Nationality:      "Nationality",
-		Phone:            "Phone",
-		MobilePhone:      "MobilePhone",
+		FirstName:            "FirstName",
+		PaternalLastName:     "PaternalLastName",
+		LastName:             "LastName",
+		MiddleName:           "MiddleName",
+		LegalName:            "LegalName",
+		LatinISO1Name:        "LATIN",
+		Email:                "Email",
+		Gender:               common.Male,
+		DateOfBirth:          testTime,
+		PlaceOfBirth:         "PlaceOfBirth",
+		CountryOfBirthAlpha2: "CountryOfBirth",
+		StateOfBirth:         "StateOfBirth",
+		CountryAlpha2:        "CountryAlpha2",
+		CountryAlpha3:        "CountryAlpha3",
+		CountryName:          "CountryName",
+		Nationality:          "Nationality",
+		Phone:                "Phone",
+		MobilePhone:          "MobilePhone",
 		CurrentAddress: common.Address{
-			Country:           "Country1",
+			CountryAlpha2:     "Country1",
 			County:            "County1",
 			State:             "State1",
 			Town:              "Town1",
@@ -115,7 +115,7 @@ func TestMapCustomerToDataFields(t *testing.T) {
 	if assert.NotNil(t, dataFields.Location) {
 		location := dataFields.Location
 
-		assert.Equal(t, customer.CurrentAddress.Country, *location.Country)
+		assert.Equal(t, customer.CurrentAddress.CountryAlpha2, *location.Country)
 		assert.Equal(t, customer.CurrentAddress.County, *location.County)
 		assert.Equal(t, customer.CurrentAddress.Town, *location.City)
 		assert.Equal(t, customer.CurrentAddress.Suburb, *location.Suburb)
