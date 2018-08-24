@@ -53,7 +53,7 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	}
 	//  Conditional. State(2). City and State required if enabled.
 	if len(customer.CurrentAddress.State) > 0 {
-		v.Set("state", customer.CurrentAddress.State)
+		v.Set("state", customer.CurrentAddress.StateProvinceCode)
 	}
 	// Conditional. 5-digit zip code (5). Zip Code required if enabled.
 	if len(customer.CurrentAddress.PostCode) == 5 {
@@ -86,7 +86,9 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	}
 
 	// Optional. Month of Birth (2). Results improve with the addition of this field.
-	v.Set("dobMonth", time.Time(customer.DateOfBirth).Month().String())
+	v.Set("dobMonth",
+		fmt.Sprintf("%2d", time.Time(customer.DateOfBirth).Month()),
+	)
 	// Optional. Year of Birth (4). Results improve with the addition of this field. YOB is the minimum DOB information accepted by IDology.
 	v.Set("dobYear", fmt.Sprintf("%d", time.Time(customer.DateOfBirth).Year()))
 

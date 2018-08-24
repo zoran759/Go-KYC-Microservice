@@ -6,8 +6,8 @@ import (
 )
 
 // Service defines the verification services of IDology API.
-// It shouln't be instantiated directly.
-// Use New() constructor instead for convenience.
+// It shouldn't be instantiated directly.
+// Use New() constructor instead.
 type Service struct {
 	ExpectID common.CustomerChecker
 	// FIXME: AlertList has to be implemented yet.
