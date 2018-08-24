@@ -1,32 +1,41 @@
 package common
 
-// A type that defines the result of the KYC check.
+// KYCResult defines the result of the KYC check.
 type KYCResult int
 
-const Error KYCResult = -1
-const Approved KYCResult = 1
-const Denied KYCResult = 2
-const Unclear KYCResult = 3
+// Possible KYCResult values.
+const (
+	Error    KYCResult = -1
+	Approved KYCResult = 1
+	Denied   KYCResult = 2
+	Unclear  KYCResult = 3
+)
 
-// A type that defines the finality of the result of the KYC check.
+// KYCFinality defines the finality of the result of the KYC check.
 type KYCFinality int
 
-const Final KYCFinality = 1
-const NonFinal KYCFinality = 2
-const Unknown KYCFinality = 3
+// Possible KYCFinality values.
+const (
+	Final    KYCFinality = 1
+	NonFinal KYCFinality = 2
+	Unknown  KYCFinality = 3
+)
 
-// A type that defines user's gender.
+// Gender defines user's gender.
 type Gender int
 
-const Male Gender = 1
-const Female Gender = 2
+// Gender values.
+const (
+	Male   Gender = 1
+	Female Gender = 2
+)
 
-// A type that defines user's document type.
+// DocumentType defines user's document type.
 type DocumentType string
 
 // Different document types.
 const (
-	// An id card.
+	// An id card. (It'll be used as SSN in IDology.)
 	IDCard DocumentType = "ID_CARD"
 	// A passport.
 	Passport DocumentType = "PASSPORT"

@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// User data provided to KYC provider in order to check an individual.
+// UserData defines the model for user data provided to KYC provider in order to check an individual.
 type UserData struct {
 	FirstName             string
 	PaternalLastName      string
@@ -29,6 +29,7 @@ type UserData struct {
 	Business              Business
 }
 
+// Address defines user's address.
 type Address struct {
 	CountryAlpha2     string
 	County            string
@@ -48,8 +49,10 @@ type Address struct {
 	EndDate           Time
 }
 
+// Time defines the model for time values.
 type Time time.Time
 
+// Format returns time string formatted according to the provided layout.
 func (t Time) Format(layout string) string {
 	if !time.Time(t).IsZero() {
 		return time.Time(t).Format(layout)
@@ -57,6 +60,7 @@ func (t Time) Format(layout string) string {
 	return ""
 }
 
+// Business defines the model for a business.
 type Business struct {
 	Name                      string
 	RegistrationNumber        string
@@ -64,12 +68,14 @@ type Business struct {
 	IncorporationJurisdiction string
 }
 
+// Document defines user's document.
 type Document struct {
 	Metadata DocumentMetadata
 	Front    *DocumentFile
 	Back     *DocumentFile
 }
 
+// DocumentMetadata defines a part of the Document model.
 type DocumentMetadata struct {
 	Type       DocumentType
 	Country    string
@@ -78,12 +84,14 @@ type DocumentMetadata struct {
 	Number     string
 }
 
+// DocumentFile defines document's file containing its original or an image.
 type DocumentFile struct {
 	Filename    string
 	ContentType string
 	Data        []byte
 }
 
+// DetailedKYCResult defines additional details about the verification process result.
 type DetailedKYCResult struct {
 	Finality KYCFinality
 	Reasons  []string
