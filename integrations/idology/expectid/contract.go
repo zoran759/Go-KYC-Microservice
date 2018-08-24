@@ -11,5 +11,4 @@ type Config struct {
 	Username         string
 	Password         string
 	UseSummaryResult bool
-	UseAlertList     bool
 }

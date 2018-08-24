@@ -14,9 +14,10 @@ import (
 var _ = Describe("Service", func() {
 	Specify("should be properly created", func() {
 		config := Config{
-			Host:     "fake_host",
-			Username: "fake_username",
-			Password: "fake_password",
+			Host:             "fake_host",
+			Username:         "fake_username",
+			Password:         "fake_password",
+			UseSummaryResult: true,
 		}
 
 		service := &Service{
