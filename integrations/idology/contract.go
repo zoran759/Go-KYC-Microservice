@@ -6,9 +6,11 @@ import (
 
 // Config holds configuration settings for the verifiers.
 type Config struct {
-	Host,
-	Username,
-	Password string
+	Host             string
+	Username         string
+	Password         string
+	UseSummaryResult bool
+	UseAlertList     bool
 }
 
 var _ *Config = (*Config)(&expectid.Config{})

@@ -1,11 +1,11 @@
 package expectid
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/url"
 	"time"
 
-	"github.com/achiku/xml"
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/http"
 )
