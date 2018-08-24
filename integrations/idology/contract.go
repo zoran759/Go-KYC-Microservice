@@ -18,7 +18,6 @@ type Config struct {
 type Verifier struct {
 	ExpectID CustomerChecker
 	// FIXME: AlertList has to be implemented yet.
-	AlertList CustomerChecker
 }
 
 // New return new verifier to use with IDology services.

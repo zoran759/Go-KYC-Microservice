@@ -4,13 +4,13 @@ This manual describes how to use `idology` package.
 
 ## How to use the package
 
-1) Create new [config](../contract.go#9) for Idology API usage.
+1) Create new [config](contract.go#L9) for Idology API usage.
 
-2) Obtain verifier's object by calling the [New()](../contract.go#25) constructor. As a parameter, pass it the configuration you created in step 1.
+2) Obtain verifier's object by calling the [New()](contract.go#L24) constructor. As a parameter, pass it the configuration you created in step 1.
 
-3) Use verifier's checkers for the verification. You may use either `.ExpectID` for identity verification or `.AlertList` for check against the alert list of bad players or fraudsters or them both.
+3) Use verifier's checker [ExpectID](contract.go#L19) for the verification.
 
-4) The method for the customer check is `CheckCustomer()`.
+4) The method for the customer check is [CheckCustomer](contract.go#L32).
 
 Sample code:
 
@@ -30,9 +30,5 @@ config := idology.Config{
 verifier := idology.New(config)
 
 result, details, err := verifier.ExpectID.CheckCustomer(customer)
-
-...
-
-result, details, err = verifier.AlertList.CheckCustomer(customer)
 ...
 ```
