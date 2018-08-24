@@ -24,9 +24,7 @@ func (c *Client) verify(requestBody string) (resp *Response, err error) {
 	}
 
 	resp = &Response{}
-	if err = xml.Unmarshal(response, resp); err != nil {
-		return
-	}
+	err = xml.Unmarshal(response, resp)
 
 	return
 }
@@ -75,6 +73,17 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 
 	// "ssnLast4" - Optional. Last 4 digits of SSN (4) . Results improve with the addition of this field.
 	// "ssn" - Optional. Full ssn (9).
+	for _, d := range customer.Documents {
+		if d.Metadata.Type == common.IDCard {
+			ssnLast4 := d.Metadata.Number[len(d.Metadata.Number)-4:]
+			if len(ssnLast4) == 4 {
+				v.Set("ssnLast4", ssnLast4)
+			}
+			v.Set("ssn", d.Metadata.Number)
+
+			break
+		}
+	}
 
 	// Optional. Month of Birth (2). Results improve with the addition of this field.
 	v.Set("dobMonth", time.Time(customer.DateOfBirth).Month().String())
