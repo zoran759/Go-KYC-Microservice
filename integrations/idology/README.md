@@ -15,7 +15,7 @@ This manual describes how to use `idology` package.
 
 2) Obtain a new service object by calling the [New()](service.go#L17) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [ExpectID](contract.go#L12) for the customer verification.
+3) Use service's verifier [ExpectID](service.go#L12) for the customer verification.
 
 Sample code:
 

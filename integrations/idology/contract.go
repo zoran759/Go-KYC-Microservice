@@ -10,7 +10,6 @@ type Config struct {
 	Username         string
 	Password         string
 	UseSummaryResult bool
-	UseAlertList     bool
 }
 
 var _ *Config = (*Config)(&expectid.Config{})
