@@ -48,9 +48,9 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 	status, result, err := sumsubService.CheckCustomer(&common.UserData{
 		SupplementalAddresses: []common.Address{
 			{
-				Country:  "CountryAlpha2",
-				PostCode: "code",
-				Town:     "Possum Springs",
+				CountryAlpha2: "CountryAlpha2",
+				PostCode:      "code",
+				Town:          "Possum Springs",
 			},
 		},
 		Documents: []common.Document{
