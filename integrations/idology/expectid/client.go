@@ -8,7 +8,7 @@ import (
 )
 
 // Client defines the client for IDology ExpectID® API.
-// It shouln't be instantiated directly.
+// It shouldn't be instantiated directly.
 // Use NewClient() constructor instead.
 type Client struct {
 	config Config
