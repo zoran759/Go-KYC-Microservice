@@ -11,22 +11,22 @@ import (
 func TestMapCommonCustomerToApplicant(t *testing.T) {
 	testTime := common.Time(time.Now())
 	customer := common.UserData{
-		FirstName:      "FirstName",
-		LastName:       "LastName",
-		MiddleName:     "MiddleName",
-		LegalName:      "LegalName",
-		Email:          "Email",
-		Gender:         common.Male,
-		DateOfBirth:    testTime,
-		PlaceOfBirth:   "PlaceOfBirth",
-		CountryOfBirth: "CountryOfBirth",
-		StateOfBirth:   "StateOfBirth",
-		CountryAlpha2:  "CountryAlpha2",
-		Nationality:    "Nationality",
-		Phone:          "Phone",
-		MobilePhone:    "MobilePhone",
+		FirstName:            "FirstName",
+		LastName:             "LastName",
+		MiddleName:           "MiddleName",
+		LegalName:            "LegalName",
+		Email:                "Email",
+		Gender:               common.Male,
+		DateOfBirth:          testTime,
+		PlaceOfBirth:         "PlaceOfBirth",
+		CountryOfBirthAlpha2: "CountryOfBirth",
+		StateOfBirth:         "StateOfBirth",
+		CountryAlpha2:        "CountryAlpha2",
+		Nationality:          "Nationality",
+		Phone:                "Phone",
+		MobilePhone:          "MobilePhone",
 		CurrentAddress: common.Address{
-			Country:        "Country1",
+			CountryAlpha2:  "Country1",
 			PostCode:       "PostCode1",
 			Town:           "Town1",
 			Street:         "Street1",
@@ -40,7 +40,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 		},
 		SupplementalAddresses: []common.Address{
 			{
-				Country:        "CountryAlpha2",
+				CountryAlpha2:  "CountryAlpha2",
 				PostCode:       "PostCode",
 				Town:           "Town",
 				Street:         "Street",
@@ -53,7 +53,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 				EndDate:        testTime,
 			},
 			{
-				Country:        "Country1",
+				CountryAlpha2:  "Country1",
 				PostCode:       "PostCode1",
 				Town:           "Town1",
 				Street:         "Street1",
@@ -77,7 +77,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 	assert.Equal(t, "Male", *applicantInfo.Gender)
 	assert.Equal(t, customer.DateOfBirth.Format("2006-01-02"), *applicantInfo.DateOfBirth)
 	assert.Equal(t, customer.PlaceOfBirth, *applicantInfo.PlaceOfBirth)
-	assert.Equal(t, customer.CountryOfBirth, *applicantInfo.CountryOfBirth)
+	assert.Equal(t, customer.CountryOfBirthAlpha2, *applicantInfo.CountryOfBirth)
 	assert.Equal(t, customer.StateOfBirth, *applicantInfo.StateOfBirth)
 	assert.Equal(t, customer.CountryAlpha2, *applicantInfo.Country)
 	assert.Equal(t, customer.Nationality, *applicantInfo.Nationality)
@@ -85,7 +85,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 	assert.Equal(t, customer.MobilePhone, *applicantInfo.MobilePhone)
 
 	assert.Equal(t, 3, len(applicantInfo.Addresses))
-	assert.Equal(t, customer.SupplementalAddresses[0].Country, *applicantInfo.Addresses[0].Country)
+	assert.Equal(t, customer.SupplementalAddresses[0].CountryAlpha2, *applicantInfo.Addresses[0].Country)
 	assert.Equal(t, customer.SupplementalAddresses[0].PostCode, *applicantInfo.Addresses[0].PostCode)
 	assert.Equal(t, customer.SupplementalAddresses[0].Town, *applicantInfo.Addresses[0].Town)
 	assert.Equal(t, customer.SupplementalAddresses[0].SubStreet, *applicantInfo.Addresses[0].SubStreet)
@@ -96,7 +96,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 	assert.Equal(t, customer.SupplementalAddresses[0].StartDate.Format("2006-01-02"), *applicantInfo.Addresses[0].StartDate)
 	assert.Equal(t, customer.SupplementalAddresses[0].EndDate.Format("2006-01-02"), *applicantInfo.Addresses[0].EndDate)
 
-	assert.Equal(t, customer.SupplementalAddresses[1].Country, *applicantInfo.Addresses[1].Country)
+	assert.Equal(t, customer.SupplementalAddresses[1].CountryAlpha2, *applicantInfo.Addresses[1].Country)
 	assert.Equal(t, customer.SupplementalAddresses[1].PostCode, *applicantInfo.Addresses[1].PostCode)
 	assert.Equal(t, customer.SupplementalAddresses[1].Town, *applicantInfo.Addresses[1].Town)
 	assert.Equal(t, customer.SupplementalAddresses[1].SubStreet, *applicantInfo.Addresses[1].SubStreet)
@@ -107,7 +107,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 	assert.Equal(t, customer.SupplementalAddresses[1].StartDate.Format("2006-01-02"), *applicantInfo.Addresses[1].StartDate)
 	assert.Equal(t, customer.SupplementalAddresses[1].EndDate.Format("2006-01-02"), *applicantInfo.Addresses[1].EndDate)
 
-	assert.Equal(t, customer.CurrentAddress.Country, *applicantInfo.Addresses[2].Country)
+	assert.Equal(t, customer.CurrentAddress.CountryAlpha2, *applicantInfo.Addresses[2].Country)
 	assert.Equal(t, customer.CurrentAddress.PostCode, *applicantInfo.Addresses[2].PostCode)
 	assert.Equal(t, customer.CurrentAddress.Town, *applicantInfo.Addresses[2].Town)
 	assert.Equal(t, customer.CurrentAddress.SubStreet, *applicantInfo.Addresses[2].SubStreet)
@@ -130,7 +130,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 	customerWithOneAddress := common.UserData{
 		Gender: common.Female,
 		CurrentAddress: common.Address{
-			Country:        "Country1",
+			CountryAlpha2:  "Country1",
 			PostCode:       "PostCode1",
 			Town:           "Town1",
 			Street:         "Street1",
@@ -147,7 +147,7 @@ func TestMapCommonCustomerToApplicant(t *testing.T) {
 	applicantInfo = MapCommonCustomerToApplicant(customerWithOneAddress)
 	assert.Equal(t, "Female", *applicantInfo.Gender)
 	if assert.Equal(t, 1, len(applicantInfo.Addresses)) {
-		assert.Equal(t, customerWithOneAddress.CurrentAddress.Country, *applicantInfo.Addresses[0].Country)
+		assert.Equal(t, customerWithOneAddress.CurrentAddress.CountryAlpha2, *applicantInfo.Addresses[0].Country)
 		assert.Equal(t, customerWithOneAddress.CurrentAddress.PostCode, *applicantInfo.Addresses[0].PostCode)
 		assert.Equal(t, customerWithOneAddress.CurrentAddress.Town, *applicantInfo.Addresses[0].Town)
 		assert.Equal(t, customerWithOneAddress.CurrentAddress.SubStreet, *applicantInfo.Addresses[0].SubStreet)

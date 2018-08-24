@@ -47,7 +47,7 @@ func mapCustomerAddressToLocation(address common.Address) *Location {
 		City:              strings.Pointerize(address.Town),
 		Suburb:            strings.Pointerize(address.Suburb),
 		County:            strings.Pointerize(address.County),
-		Country:           strings.Pointerize(address.Country),
+		Country:           strings.Pointerize(address.CountryAlpha2),
 		StateProvinceCode: strings.Pointerize(address.StateProvinceCode),
 		PostalCode:        strings.Pointerize(address.PostCode),
 		POBox:             strings.Pointerize(address.PostOfficeBox),
