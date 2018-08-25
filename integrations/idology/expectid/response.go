@@ -18,7 +18,13 @@ type Results struct {
 	Message string    `xml:"message"`
 }
 
-// Qualifier defines "qualifiers" part in the response.
+// Qualifiers defines "qualifiers" part in the response.
+type Qualifiers struct {
+	XMLName    xml.Name    `xml:"qualifiers"`
+	Qualifiers []Qualifier `xml:"qualifier"`
+}
+
+// Qualifier defines "qualifier" part in the response.
 type Qualifier struct {
 	XMLName xml.Name `xml:"qualifier"`
 	Key     string   `xml:"key"`
@@ -55,7 +61,7 @@ type Response struct {
 	SummaryResult SummaryResult `xml:"summary-result"`
 	Results       Results       `xml:"results"`
 	Restriction   *Restriction  `xml:"restriction"`
+	Qualifiers    *Qualifiers   `xml:"qualifiers"`
 	Error         *string       `xml:"error"`
 	IDLiveQError  *IDLiveQError `xml:"idliveq-error"`
-	Qualifiers    []Qualifier   `xml:"qualifiers"`
 }
