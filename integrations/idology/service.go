@@ -13,7 +13,7 @@ type Service struct {
 	// FIXME: AlertList has to be implemented yet.
 }
 
-// New return new verifier to use with IDology services.
+// New returns new verifier to use with IDology services.
 func New(config Config) *Service {
 	return &Service{
 		ExpectID: expectid.NewClient(expectid.Config(config)),
