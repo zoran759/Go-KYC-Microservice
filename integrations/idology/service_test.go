@@ -128,16 +128,16 @@ var _ = Describe("The IDology KYC service", func() {
 		})
 
 		Context("when the test data for triggering ID Notes is provided", func() {
-			It("should return COPPA Alert", func() {
+			It("should deny and return COPPA Alert", func() {
 				skipFunc()
 
-				coppaCustomer := &common.UserData{}
-				*coppaCustomer = *customer
-				coppaCustomer.DateOfBirth = common.Time(
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.DateOfBirth = common.Time(
 					time.Date(2009, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(coppaCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Denied))
@@ -147,7 +147,373 @@ var _ = Describe("The IDology KYC service", func() {
 				Expect(details.Reasons).To(HaveLen(1))
 				Expect(details.Reasons[0]).To(Equal("COPPA Alert"))
 			})
-			// TODO: implement this.
+
+			// "Address Does Not Match" test actually returns more qualifiers.
+			It("should approve and return Address Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.AddressString = "2240 Magnolia, Atlanta, GA 30318"
+				noteCustomer.CurrentAddress.Street = "Magnolia"
+				noteCustomer.CurrentAddress.BuildingNumber = "2240"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(3))
+				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(details.Reasons[1]).To(Equal("Street Number Does Not Match"))
+				Expect(details.Reasons[2]).To(Equal("Street Name Does Not Match"))
+			})
+
+			// "Street Name Does Not Match" test actually returns more qualifiers.
+			It("should approve and return Street Name Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.AddressString = "222333 Magnolia, Atlanta, GA 30318"
+				noteCustomer.CurrentAddress.Street = "Magnolia"
+				noteCustomer.CurrentAddress.BuildingNumber = "222333"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(2))
+				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(details.Reasons[1]).To(Equal("Street Name Does Not Match"))
+			})
+
+			// "Street Number Does Not Match" test actually returns more qualifiers.
+			It("should approve and return Street Number Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.AddressString = "2240 PeachTree Place, Atlanta, GA 30318"
+				noteCustomer.CurrentAddress.BuildingNumber = "2240"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(2))
+				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(details.Reasons[1]).To(Equal("Street Number Does Not Match"))
+			})
+
+			// "Input Address is a PO Box" test actually returns more qualifiers.
+			It("should approve and return Input Address is a PO Box", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.AddressString = "PO Box 123, Atlanta, GA 30318"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(2))
+				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(details.Reasons[1]).To(Equal("Input Address is a PO Box"))
+			})
+
+			It("should approve and return ZIP Code Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.AddressString = "222333 PeachTree Place, Atlanta, GA 30316"
+				noteCustomer.CurrentAddress.PostCode = "30316"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("ZIP Code Does Not Match"))
+			})
+
+			It("should approve and return YOB Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.DateOfBirth = common.Time(
+					time.Date(1970, time.February, 28, 0, 0, 0, 0, time.UTC),
+				)
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("YOB Does Not Match"))
+			})
+
+			It("should approve and return YOB Does Not Match, Within 1 Year Tolerance", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.DateOfBirth = common.Time(
+					time.Date(1976, time.February, 28, 0, 0, 0, 0, time.UTC),
+				)
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("YOB Does Not Match, Within 1 Year Tolerance"))
+			})
+
+			It("should approve and return MOB Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.DateOfBirth = common.Time(
+					time.Date(1975, time.May, 28, 0, 0, 0, 0, time.UTC),
+				)
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("MOB Does Not Match"))
+			})
+
+			// "Newer Record Found" test doesn't return what is expected. Skipped.
+
+			It("should approve and return SSN Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.Documents[0].Metadata.Number = "112223345"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("SSN Does Not Match"))
+			})
+
+			It("should approve and return SSN Does Not Match, Within Tolerance", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.Documents[0].Metadata.Number = "112223334"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("SSN Does Not Match, Within Tolerance"))
+			})
+
+			It("should approve and return State Does Not Match", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.AddressString = "222333 PeachTree Place, Atlanta, AL 30318"
+				noteCustomer.CurrentAddress.State = "Alabama"
+				noteCustomer.CurrentAddress.StateProvinceCode = "AL"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("State Does Not Match"))
+			})
+
+			It("should approve and return Single Address in File", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.FirstName = "Jane"
+				noteCustomer.AddressString = "5432 Any Place, La Crescenta, CA 91214"
+				noteCustomer.CurrentAddress.State = "California"
+				noteCustomer.CurrentAddress.Town = "La Crescenta"
+				noteCustomer.CurrentAddress.Street = "Any Place"
+				noteCustomer.CurrentAddress.BuildingNumber = "5432"
+				noteCustomer.CurrentAddress.PostCode = "91214"
+				noteCustomer.CurrentAddress.StateProvinceCode = "CA"
+				noteCustomer.Documents[0].Metadata.Number = "112221111"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("Single Address in File"))
+			})
+
+			// "Thin File" test actually returns more qualifiers.
+			It("should approve and return Thin File", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.LastName = "Black"
+				noteCustomer.AddressString = "345 Some Avenu, Atlanta, GA 30303"
+				noteCustomer.CurrentAddress.Street = "Some Avenu"
+				noteCustomer.CurrentAddress.BuildingNumber = "345"
+				noteCustomer.CurrentAddress.PostCode = "30303"
+				noteCustomer.Documents = nil
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(4))
+				Expect(details.Reasons[0]).To(Equal("No DOB Available"))
+				Expect(details.Reasons[1]).To(Equal("SSN Not Found"))
+				Expect(details.Reasons[2]).To(Equal("Thin File"))
+				Expect(details.Reasons[3]).To(Equal("Data Strength Alert"))
+			})
+
+			// "DOB Not Available" test actually returns slightly different result.
+			It("should approve and return DOB Not Available", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.FirstName = "Jane"
+				noteCustomer.LastName = "Brown"
+				noteCustomer.AddressString = "9000 Any Street, La Crescenta, CA 91224"
+				noteCustomer.CurrentAddress.State = "California"
+				noteCustomer.CurrentAddress.Town = "La Crescenta"
+				noteCustomer.CurrentAddress.Street = "Any Street"
+				noteCustomer.CurrentAddress.BuildingNumber = "9000"
+				noteCustomer.CurrentAddress.PostCode = "91224"
+				noteCustomer.CurrentAddress.StateProvinceCode = "CA"
+				noteCustomer.Documents[0].Metadata.Number = "112221010"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(2))
+				Expect(details.Reasons[0]).To(Equal("No DOB Available"))
+				Expect(details.Reasons[1]).To(Equal("Data Strength Alert"))
+			})
+
+			// "SSN Not Available" test actually returns slightly different result.
+			It("should approve and return SSN Not Available", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{}
+				*noteCustomer = *customer
+				noteCustomer.FirstName = "Jane"
+				noteCustomer.LastName = "Black"
+				noteCustomer.AddressString = "12345 Magnolia Way, Atlanta, GA 30303"
+				noteCustomer.CurrentAddress.Street = "Magnolia Way"
+				noteCustomer.CurrentAddress.BuildingNumber = "12345"
+				noteCustomer.CurrentAddress.PostCode = "30303"
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("SSN Not Found"))
+			})
+
+			// "Subject Deceased" test doesn't return what is expected.
+
+			// "SSN Issue Prior to DOB" test doesn't return what is expected.
+			// "SSN Invalid" test doesn't return what is expected.
+			// Are they kidding me??? These two are identical in the table!
+
+			// "Warm Address" test actually returns slightly different result.
+			It("should approve and return Warm Address", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{
+					FirstName:     "Jane",
+					LastName:      "Williams",
+					DateOfBirth:   common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
+					AddressString: "8888 Any Street, Dallas, GA 30132",
+					CurrentAddress: common.Address{
+						CountryAlpha2:     "US",
+						State:             "Georgia",
+						Town:              "Dallas",
+						Street:            "Any Street",
+						BuildingNumber:    "8888",
+						PostCode:          "30132",
+						StateProvinceCode: "GA",
+					},
+				}
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Approved))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(2))
+				Expect(details.Reasons[0]).To(Equal("Warm Address Alert (hotel)"))
+				Expect(details.Reasons[1]).To(Equal("Data Strength Alert"))
+			})
 		})
 	})
 })

@@ -47,13 +47,6 @@ type Restriction struct {
 	PatriotAct PatriotAct `xml:"pa"`
 }
 
-// IDLiveQError defines "idliveq-error" part in the response.
-type IDLiveQError struct {
-	XMLName xml.Name `xml:"idliveq-error"`
-	Key     string   `xml:"key"`
-	Message string   `xml:"message"`
-}
-
 // Response defines a response from IDology ExpectID® API.
 type Response struct {
 	XMLName       xml.Name      `xml:"response"`
@@ -63,5 +56,4 @@ type Response struct {
 	Restriction   *Restriction  `xml:"restriction"`
 	Qualifiers    *Qualifiers   `xml:"qualifiers"`
 	Error         *string       `xml:"error"`
-	IDLiveQError  *IDLiveQError `xml:"idliveq-error"`
 }
