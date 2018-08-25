@@ -39,7 +39,7 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 	if response.Error != nil {
 		result = common.Error
-		err = fmt.Errorf("during verification: %q", *response.Error)
+		err = fmt.Errorf("during verification: %s", *response.Error)
 		return
 	}
 
@@ -50,9 +50,9 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 // responseToResult processes the response and generates the verification result.
 func (c *Client) responseToResult(r *Response) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	detailsCreateIfNil := func(details *common.DetailedKYCResult) {
-		if details == nil {
-			details = &common.DetailedKYCResult{
+	detailsCreateIfNil := func(details **common.DetailedKYCResult) {
+		if *details == nil {
+			*details = &common.DetailedKYCResult{
 				Finality: common.Unknown,
 			}
 		}
@@ -78,7 +78,7 @@ func (c *Client) responseToResult(r *Response) (result common.KYCResult, details
 	}
 
 	if r.Restriction != nil {
-		detailsCreateIfNil(details)
+		detailsCreateIfNil(&details)
 		details.Reasons = []string{
 			r.Restriction.Message,
 			r.Restriction.PatriotAct.List,
@@ -86,9 +86,9 @@ func (c *Client) responseToResult(r *Response) (result common.KYCResult, details
 		}
 	}
 
-	if len(r.Qualifiers) > 0 {
-		detailsCreateIfNil(details)
-		for _, q := range r.Qualifiers {
+	if r.Qualifiers != nil {
+		detailsCreateIfNil(&details)
+		for _, q := range r.Qualifiers.Qualifiers {
 			details.Reasons = append(details.Reasons, q.Message)
 		}
 	}

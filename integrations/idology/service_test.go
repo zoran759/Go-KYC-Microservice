@@ -2,7 +2,8 @@ package idology_test
 
 import (
 	"flag"
-	"net/http"
+	"fmt"
+	nethttp "net/http"
 	"net/url"
 	"reflect"
 	"time"
@@ -12,13 +13,14 @@ import (
 	. "gitlab.com/lambospeed/kyc/integrations/idology"
 
 	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/http"
 	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
 )
 
 // Use this to setup proxy when you run tests which interact with the API
 // and you're not in front of a whitelisted host.
-// Warning! This has sense only when using ssh-socks
-// because the proxy must be running on a whitelisted host anyway.
+// Warning! This has sense only when using ssh local “dynamic” application-level port forwarding.
+// So you have to have ssh-access to a whitelisted host as well.
 var proxyURL = "socks5://localhost:8000"
 
 var runLive bool
@@ -75,11 +77,11 @@ var _ = Describe("The IDology KYC service", func() {
 			},
 		}
 
-		var config = Config{
+		var service = New(Config{
 			Host:     expectid.APIendpoint,
 			Username: "modulus.dev2",
 			Password: "}$tRPfT1sZQmU@uh8@",
-		}
+		})
 
 		var skipFunc = func() {
 			if !runLive {
@@ -89,26 +91,66 @@ var _ = Describe("The IDology KYC service", func() {
 
 		BeforeEach(func() {
 			proxy, _ := url.Parse(proxyURL)
-			t := &http.Transport{
-				Proxy: http.ProxyURL(proxy),
+			t := &nethttp.Transport{
+				Proxy: nethttp.ProxyURL(proxy),
 			}
-			http.DefaultClient.Transport = t
+			http.Client.Transport = t
 		})
 
-		Describe("when the test data for the successful response is provided", func() {
+		Context("when using wrong credentials in config", func() {
+			It("should error", func() {
+				skipFunc()
+
+				failedService := New(Config{
+					Host:     expectid.APIendpoint,
+					Username: "modulus.dev2",
+					Password: "wrong_password",
+				})
+
+				result, details, err := failedService.ExpectID.CheckCustomer(customer)
+
+				Expect(result).To(Equal(common.Error))
+				Expect(details).To(BeNil())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("during verification: Invalid username and password"))
+			})
+		})
+
+		Context("when the test data for the successful response is provided", func() {
 			It("should return clean result", func() {
 				skipFunc()
 
-				service := New(config)
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(details).To(BeNil())
-				Expect(result).NotTo(BeNil())
+				Expect(result).To(Equal(common.Approved))
 			})
 		})
 
-		Describe("when the test data for triggering ID Notes is provided", func() {
+		Context("when the test data for triggering ID Notes is provided", func() {
+			It("should return COPPA Alert", func() {
+				skipFunc()
+
+				coppaCustomer := &common.UserData{}
+				*coppaCustomer = *customer
+				coppaCustomer.DateOfBirth = common.Time(
+					time.Date(2009, time.February, 28, 0, 0, 0, 0, time.UTC),
+				)
+
+				result, details, err := service.ExpectID.CheckCustomer(coppaCustomer)
+				if details != nil {
+					fmt.Println(details.Reasons)
+				}
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Denied))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(1))
+				Expect(details.Reasons[0]).To(Equal("COPPA Alert"))
+			})
 			// TODO: implement this.
 		})
 	})
