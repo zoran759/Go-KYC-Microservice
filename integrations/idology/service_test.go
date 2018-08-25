@@ -20,6 +20,7 @@ import (
 // and you're not in front of a whitelisted host.
 // Warning! This has sense only when using ssh local “dynamic” application-level port forwarding.
 // So you have to have ssh-access to a whitelisted host as well.
+// If you run tests on a whitelisted host leave this empty.
 var proxyURL = "socks5://localhost:8000"
 
 var runLive bool
@@ -48,6 +49,8 @@ var _ = Describe("The IDology KYC service", func() {
 		Expect(testservice).To(Equal(service))
 	})
 
+	// Below are the tests that should be run either on a whitelisted host
+	// or using some method to forward requests through a whitelisted host.
 	Context("when sending requests to IDology API", func() {
 		var runliveMsg = "use '-runlive' command-line flag to activate this test"
 
@@ -89,11 +92,13 @@ var _ = Describe("The IDology KYC service", func() {
 		}
 
 		BeforeEach(func() {
-			proxy, _ := url.Parse(proxyURL)
-			t := &nethttp.Transport{
-				Proxy: nethttp.ProxyURL(proxy),
+			if len(proxyURL) > 0 {
+				proxy, _ := url.Parse(proxyURL)
+				t := &nethttp.Transport{
+					Proxy: nethttp.ProxyURL(proxy),
+				}
+				http.Client.Transport = t
 			}
-			http.Client.Transport = t
 		})
 
 		Context("when using wrong credentials in config", func() {
@@ -359,6 +364,7 @@ var _ = Describe("The IDology KYC service", func() {
 				noteCustomer.AddressString = "222333 PeachTree Place, Atlanta, AL 30318"
 				noteCustomer.CurrentAddress.State = "Alabama"
 				noteCustomer.CurrentAddress.StateProvinceCode = "AL"
+				noteCustomer.Documents = nil
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
 
@@ -513,6 +519,50 @@ var _ = Describe("The IDology KYC service", func() {
 				Expect(details.Reasons).To(HaveLen(2))
 				Expect(details.Reasons[0]).To(Equal("Warm Address Alert (hotel)"))
 				Expect(details.Reasons[1]).To(Equal("Data Strength Alert"))
+			})
+		})
+
+		Context("when the test data for triggering Patriot Act Alert is provided", func() {
+			It("should deny and return Patriot Act Alert", func() {
+				skipFunc()
+
+				noteCustomer := &common.UserData{
+					FirstName:     "John",
+					LastName:      "Bredenkamp",
+					DateOfBirth:   common.Time(time.Date(1940, time.August, 1, 0, 0, 0, 0, time.UTC)),
+					AddressString: "147 Brentwood Drive, Nashville, TN 37214",
+					CurrentAddress: common.Address{
+						CountryAlpha2:     "US",
+						State:             "Tennessee",
+						Town:              "Nashville",
+						Street:            "Brentwood Drive",
+						BuildingNumber:    "147",
+						PostCode:          "37214",
+						StateProvinceCode: "TN",
+					},
+					Documents: []common.Document{
+						common.Document{
+							Metadata: common.DocumentMetadata{
+								Type:    common.IDCard,
+								Country: "USA",
+								Number:  "555667777",
+							},
+						},
+					},
+				}
+
+				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(common.Denied))
+				Expect(details).NotTo(BeNil())
+				Expect(details.Finality).To(Equal(common.Unknown))
+				Expect(details.Reasons).NotTo(BeNil())
+				Expect(details.Reasons).To(HaveLen(4))
+				Expect(details.Reasons[0]).To(Equal("Patriot Act Alert"))
+				Expect(details.Reasons[1]).To(Equal("Office of Foreign Asset Control"))
+				Expect(details.Reasons[2]).To(Equal("Patriot Act score: 100"))
+				Expect(details.Reasons[3]).To(Equal("PA DOB Match"))
 			})
 		})
 	})

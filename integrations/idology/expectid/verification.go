@@ -25,7 +25,6 @@ func (c *Client) verify(requestBody string) (resp *Response, err error) {
 
 	resp = &Response{}
 	err = xml.Unmarshal(response, resp)
-	fmt.Printf("\n\n:: RESPONSE ::\n\n%s\n\n", response)
 
 	return
 }
