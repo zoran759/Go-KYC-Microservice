@@ -7,14 +7,12 @@ import (
 	"reflect"
 	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
-
-	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	. "gitlab.com/lambospeed/kyc/integrations/idology"
+
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
 )
 
 // Use this to setup proxy when you run tests which interact with the API
@@ -25,7 +23,7 @@ var proxyURL = "socks5://localhost:8000"
 
 var runLive bool
 
-var _ = Describe("Service", func() {
+var _ = Describe("The IDology KYC service", func() {
 	Specify("should be properly created", func() {
 		config := Config{
 			Host:             "fake_host",
@@ -52,7 +50,7 @@ var _ = Describe("Service", func() {
 	Context("when sending requests to IDology API", func() {
 		var runliveMsg = "use '-runlive' command-line flag to activate this test"
 
-		var validCustomer = &common.UserData{
+		var customer = &common.UserData{
 			FirstName:     "John",
 			LastName:      "Smith",
 			DateOfBirth:   common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
@@ -83,6 +81,12 @@ var _ = Describe("Service", func() {
 			Password: "}$tRPfT1sZQmU@uh8@",
 		}
 
+		var skipFunc = func() {
+			if !runLive {
+				Skip(runliveMsg)
+			}
+		}
+
 		BeforeEach(func() {
 			proxy, _ := url.Parse(proxyURL)
 			t := &http.Transport{
@@ -91,17 +95,21 @@ var _ = Describe("Service", func() {
 			http.DefaultClient.Transport = t
 		})
 
-		It("should success", func() {
-			if !runLive {
-				Skip(runliveMsg)
-			}
+		Describe("when the test data for the successful response is provided", func() {
+			It("should return clean result", func() {
+				skipFunc()
 
-			service := New(config)
-			result, details, err := service.ExpectID.CheckCustomer(validCustomer)
+				service := New(config)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
-			Expect(err).NotTo(HaveOccurred())
-			Expect(details).To(BeNil())
-			Expect(result).NotTo(BeNil())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(details).To(BeNil())
+				Expect(result).NotTo(BeNil())
+			})
+		})
+
+		Describe("when the test data for triggering ID Notes is provided", func() {
+			// TODO: implement this.
 		})
 	})
 })
