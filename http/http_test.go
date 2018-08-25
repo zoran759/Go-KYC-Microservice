@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
+	"time"
 )
 
 func TestPost(t *testing.T) {
@@ -92,4 +93,24 @@ func TestGet(t *testing.T) {
 		assert.Nil(t, responseBody)
 		assert.Equal(t, "Get http://testpost.io/failure: failure", err.Error())
 	}
+}
+
+func TestTimeout(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(
+		http.MethodGet,
+		"http://testpost.io/ping",
+		func(request *http.Request) (*http.Response, error) {
+			time.Sleep(time.Second * 125)
+			resp := httpmock.NewStringResponse(200, "GetRequest")
+
+			return resp, nil
+		},
+	)
+
+	_, _, err := Get("http://testpost.io/ping", Headers{})
+
+	assert.Error(t, err)
 }
