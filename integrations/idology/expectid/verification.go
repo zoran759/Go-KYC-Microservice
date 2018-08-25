@@ -32,9 +32,12 @@ func (c *Client) verify(requestBody string) (resp *Response, err error) {
 // makeRequestBody returns url-encoded request body.
 // It expects a customer data as the param.
 func (c *Client) makeRequestBody(customer *common.UserData) string {
-	v := url.Values{}
+	// IDology recommends submitting all of the fields (even blank values)
+	// for optimal performance and full change management functionality.
 
 	// FIXME: probably, at this moment some fields have no corresponding value in the common data and some are I don't understand to what values they're related.
+
+	v := url.Values{}
 
 	// Required. IDology API username (128 bytes).
 	v.Set("username", c.config.Username)
@@ -46,7 +49,6 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	v.Set("lastName", customer.LastName)
 	// Required. Street address.
 	v.Set("address", customer.AddressString)
-
 	// Conditional. City. City and State required if enabled.
 	if len(customer.CurrentAddress.Town) > 0 {
 		v.Set("city", customer.CurrentAddress.Town)
@@ -59,18 +61,24 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	if len(customer.CurrentAddress.PostCode) == 5 {
 		v.Set("zip", customer.CurrentAddress.PostCode)
 	}
-
-	// "invoice" - Optional. Your invoice or order number.
-	// "amount" - Optional. Order amount.
-	// "shipping"  - Optional. Shipping amount.
-	// "tax" - Optional. Tax amount.
-	// "total" - Optional. Total amount(sum of the above).
-
-	// "idType" - Optional. Type of ID provided.
-	// "idIssuer" - Optional. Issuing agency of ID.
-	// "idNumber" - Optional. Number on ID.
-	// "paymentMethod" - Optional. Payment method.
-
+	// Optional. Your invoice or order number.
+	v.Set("invoice", "")
+	// Optional. Order amount.
+	v.Set("amount", "")
+	// Optional. Shipping amount.
+	v.Set("shipping", "")
+	// Optional. Tax amount.
+	v.Set("tax", "")
+	// Optional. Total amount(sum of the above).
+	v.Set("total", "")
+	// Optional. Type of ID provided.
+	v.Set("idType", "")
+	// Optional. Issuing agency of ID.
+	v.Set("idIssuer", "")
+	// Optional. Number on ID.
+	v.Set("idNumber", "")
+	// Optional. Payment method.
+	v.Set("paymentMethod", "")
 	// "ssnLast4" - Optional. Last 4 digits of SSN (4) . Results improve with the addition of this field.
 	// "ssn" - Optional. Full ssn (9).
 	for _, d := range customer.Documents {
@@ -84,40 +92,48 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 			break
 		}
 	}
-
 	// Optional. Month of Birth (2). Results improve with the addition of this field.
 	v.Set("dobMonth",
 		fmt.Sprintf("%2d", time.Time(customer.DateOfBirth).Month()),
 	)
 	// Optional. Year of Birth (4). Results improve with the addition of this field. YOB is the minimum DOB information accepted by IDology.
 	v.Set("dobYear", fmt.Sprintf("%d", time.Time(customer.DateOfBirth).Year()))
-
-	// "ipAddress" - Optional. IP Address . Include periods in the address,for example - 11.111.111.11
-
+	// Optional. IP Address . Include periods in the address,for example - 11.111.111.11
+	v.Set("ipAddress", "")
 	// Optional. Email address.
 	if len(customer.Email) > 0 {
 		v.Set("email", customer.Email)
 	}
-
 	// Optional. Phone number (10).
 	if len(customer.Phone) == 10 {
 		v.Set("telephone", customer.Phone)
 	} else if len(customer.MobilePhone) == 10 {
 		v.Set("telephone", customer.Phone)
 	}
-
-	// "sku" - Optional. SKU.
-	// "uid" - Optional. User ID (External application).
-	// "altAddress" - Optional. Alternate street address. Submit a secondary address for verification, such as a shipping address.
-	// "altCity" - Optional. Alternate city.
-	// "altState" - Optional. Alternate state(2) State in abbreviated format. i.e. for Georgia send "GA".
-	// "altZip" - Optional. Alternate 5-digit zip code (5).
-	// "purchaseDate" - Optional. Card purchase date.
-	// "captureQueryId" - Optional. This <id-number>should be submitted if data is being sent from the ExpectID Scan Onboard product. This field should be populated with the <id-number> provided in the API Response from the Scan Onboard polling service. This will couple calls to the ExpectID IQ API service to results from Scan Onboard.
-	// "score" - Optional. score.
-	// "c_custom_field_1" - Optional. Custom field 1.
-	// "c_custom_field_2" - Optional. Custom field 2.
-	// "c_custom_field_3" - Optional. Custom field 3.
+	// Optional. SKU.
+	v.Set("sku", "")
+	// Optional. User ID (External application).
+	v.Set("uid", "")
+	// Optional. Alternate street address. Submit a secondary address for verification, such as a shipping address.
+	v.Set("altAddress", "")
+	// Optional. Alternate city.
+	v.Set("altCity", "")
+	// Optional. Alternate state(2) State in abbreviated format. i.e. for Georgia send "GA".
+	v.Set("altState", "")
+	// Optional. Alternate 5-digit zip code (5).
+	v.Set("altZip", "")
+	// Optional. Card purchase date.
+	v.Set("purchaseDate", "")
+	// Optional. This <id-number>should be submitted if data is being sent from the ExpectID Scan Onboard product. This field should be populated with the <id-number> provided in the API Response from the Scan Onboard polling service. This will couple calls to the ExpectID IQ API service to results from Scan Onboard.
+	v.Set("captureQueryId", "")
+	// Optional. score.
+	v.Set("score", "")
+	// Optional. Custom field 1.
+	v.Set("c_custom_field_1", "")
+	// Optional. Custom field 2.
+	v.Set("c_custom_field_2", "")
+	// Optional. Custom field 3.
+	v.Set("c_custom_field_3", "")
 
 	return v.Encode()
 }

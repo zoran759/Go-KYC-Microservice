@@ -2,7 +2,6 @@ package idology_test
 
 import (
 	"flag"
-	"fmt"
 	nethttp "net/http"
 	"net/url"
 	"reflect"
@@ -139,9 +138,6 @@ var _ = Describe("The IDology KYC service", func() {
 				)
 
 				result, details, err := service.ExpectID.CheckCustomer(coppaCustomer)
-				if details != nil {
-					fmt.Println(details.Reasons)
-				}
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Denied))
