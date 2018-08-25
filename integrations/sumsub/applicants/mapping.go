@@ -2,7 +2,6 @@ package applicants
 
 import (
 	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/strings"
 )
 
 func MapCommonCustomerToApplicant(customer common.UserData) ApplicantInfo {
@@ -11,17 +10,17 @@ func MapCommonCustomerToApplicant(customer common.UserData) ApplicantInfo {
 	return ApplicantInfo{
 		FirstName:      customer.FirstName,
 		LastName:       customer.LastName,
-		MiddleName:     strings.Pointerize(customer.MiddleName),
-		LegalName:      strings.Pointerize(customer.LegalName),
-		Gender:         strings.Pointerize(MapGender(customer.Gender)),
-		DateOfBirth:    strings.Pointerize(customer.DateOfBirth.Format("2006-01-02")),
-		PlaceOfBirth:   strings.Pointerize(customer.PlaceOfBirth),
-		CountryOfBirth: strings.Pointerize(customer.CountryOfBirthAlpha2),
-		StateOfBirth:   strings.Pointerize(customer.StateOfBirth),
-		Country:        strings.Pointerize(customer.CountryAlpha2),
-		Nationality:    strings.Pointerize(customer.Nationality),
-		Phone:          strings.Pointerize(customer.Phone),
-		MobilePhone:    strings.Pointerize(customer.MobilePhone),
+		MiddleName:     customer.MiddleName,
+		LegalName:      customer.LegalName,
+		Gender:         MapGender(customer.Gender),
+		DateOfBirth:    customer.DateOfBirth.Format("2006-01-02"),
+		PlaceOfBirth:   customer.PlaceOfBirth,
+		CountryOfBirth: common.CountryAlpha2ToName[customer.CountryOfBirthAlpha2],
+		StateOfBirth:   customer.StateOfBirth,
+		Country:        common.CountryAlpha2ToAlpha3[customer.CountryAlpha2],
+		Nationality:    customer.Nationality,
+		Phone:          customer.Phone,
+		MobilePhone:    customer.MobilePhone,
 		Addresses:      addresses,
 	}
 }
@@ -31,8 +30,8 @@ func MapCommonAddressesToApplicantAddresses(customer common.UserData) []Address 
 	currentAddress := MapCommonAddressToApplicantAddress(customer.CurrentAddress)
 	if commonAddresses != nil && len(commonAddresses) > 0 {
 		addresses := make([]Address, 0)
-		for _, commmonAddress := range commonAddresses {
-			if address := MapCommonAddressToApplicantAddress(commmonAddress); address != nil {
+		for _, commonAddress := range commonAddresses {
+			if address := MapCommonAddressToApplicantAddress(commonAddress); address != nil {
 				addresses = append(addresses, *address)
 
 			}
@@ -58,17 +57,17 @@ func MapCommonAddressToApplicantAddress(address common.Address) *Address {
 		return nil
 	}
 	return &Address{
-		Country:        strings.Pointerize(address.CountryAlpha2),
-		PostCode:       strings.Pointerize(address.PostCode),
-		Town:           strings.Pointerize(address.Town),
-		Street:         strings.Pointerize(address.Street),
-		SubStreet:      strings.Pointerize(address.SubStreet),
-		State:          strings.Pointerize(address.State),
-		BuildingName:   strings.Pointerize(address.BuildingName),
-		FlatNumber:     strings.Pointerize(address.FlatNumber),
-		BuildingNumber: strings.Pointerize(address.BuildingNumber),
-		StartDate:      strings.Pointerize(address.StartDate.Format("2006-01-02")),
-		EndDate:        strings.Pointerize(address.EndDate.Format("2006-01-02")),
+		Country:        common.CountryAlpha2ToName[address.CountryAlpha2],
+		PostCode:       address.PostCode,
+		Town:           address.Town,
+		Street:         address.Street,
+		SubStreet:      address.SubStreet,
+		State:          address.State,
+		BuildingName:   address.BuildingName,
+		FlatNumber:     address.FlatNumber,
+		BuildingNumber: address.BuildingNumber,
+		StartDate:      address.StartDate.Format("2006-01-02"),
+		EndDate:        address.EndDate.Format("2006-01-02"),
 	}
 }
 

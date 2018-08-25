@@ -2,7 +2,7 @@ package main
 
 import (
 	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo"
+	"gitlab.com/lambospeed/kyc/integrations/sumsub"
 	"log"
 	"time"
 )
@@ -70,26 +70,24 @@ func main() {
 		},
 	}
 
-	/*
+	// Example integration for SumSub
 
-		// Example integration for SumSub
-
-		//
-		//sumsubService := sumsub.New(sumsub.Config{
-		//	Host:             "https://test-api.sumsub.com",
-		//	APIKey:           "GKTBNXNEPJHCXY",
-		//	TimeoutThreshold: int64(time.Hour.Seconds()),
-		//})
-		//
-		//log.Println(sumsubService.CheckCustomer(customer))
-	*/
-
-	// Example Trulioo integration
-	service := trulioo.New(trulioo.Config{
-		Host:         "https://api.globaldatacompany.com",
-		NAPILogin:    "Modulus.dev",
-		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	sumsubService := sumsub.New(sumsub.Config{
+		Host:             "https://test-api.sumsub.com",
+		APIKey:           "GKTBNXNEPJHCXY",
+		TimeoutThreshold: int64(time.Hour.Seconds()),
 	})
 
-	log.Println(service.CheckCustomer(customer))
+	log.Println(sumsubService.CheckCustomer(customer))
+
+	/*
+		// Example Trulioo integration
+		service := trulioo.New(trulioo.Config{
+			Host:         "https://api.globaldatacompany.com",
+			NAPILogin:    "Modulus.dev",
+			NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+		})
+
+		log.Println(service.CheckCustomer(customer))
+	*/
 }

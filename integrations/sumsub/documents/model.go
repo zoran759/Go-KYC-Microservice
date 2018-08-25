@@ -6,17 +6,17 @@ type Document struct {
 }
 
 type Metadata struct {
-	DocumentType    string  `json:"idDocType"`
-	DocumentSubType *string `json:"idDocSubType"`
-	Country         string  `json:"country"`
-	FirstName       *string `json:"firstName"`
-	MiddleName      *string `json:"middleName"`
-	LastName        *string `json:"lastName"`
-	DateIssued      *string `json:"issuedDate"`
-	ValidUntil      *string `json:"validUntil"`
-	Number          *string `json:"number"`
-	DateOfBirth     *string `json:"dob"`
-	PlaceOfBirth    *string `json:"placeOfBirth"`
+	DocumentType    string `json:"idDocType"`
+	DocumentSubType string `json:"idDocSubType,omitempty"`
+	Country         string `json:"country"`
+	FirstName       string `json:"firstName,omitempty"`
+	MiddleName      string `json:"middleName,omitempty"`
+	LastName        string `json:"lastName,omitempty"`
+	DateIssued      string `json:"issuedDate,omitempty"`
+	ValidUntil      string `json:"validUntil,omitempty"`
+	Number          string `json:"number,omitempty"`
+	DateOfBirth     string `json:"dob,omitempty"`
+	PlaceOfBirth    string `json:"placeOfBirth,omitempty"`
 }
 
 type File struct {
