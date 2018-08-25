@@ -25,6 +25,7 @@ func (c *Client) verify(requestBody string) (resp *Response, err error) {
 
 	resp = &Response{}
 	err = xml.Unmarshal(response, resp)
+	fmt.Printf("\n\n:: RESPONSE ::\n\n%s\n\n", response)
 
 	return
 }
@@ -52,14 +53,20 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	// Conditional. City. City and State required if enabled.
 	if len(customer.CurrentAddress.Town) > 0 {
 		v.Set("city", customer.CurrentAddress.Town)
+	} else {
+		v.Set("city", "")
 	}
 	//  Conditional. State(2). City and State required if enabled.
-	if len(customer.CurrentAddress.State) > 0 {
+	if len(customer.CurrentAddress.StateProvinceCode) > 0 {
 		v.Set("state", customer.CurrentAddress.StateProvinceCode)
+	} else {
+		v.Set("state", "")
 	}
 	// Conditional. 5-digit zip code (5). Zip Code required if enabled.
 	if len(customer.CurrentAddress.PostCode) == 5 {
 		v.Set("zip", customer.CurrentAddress.PostCode)
+	} else {
+		v.Set("zip", "")
 	}
 	// Optional. Your invoice or order number.
 	v.Set("invoice", "")
@@ -79,8 +86,10 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	v.Set("idNumber", "")
 	// Optional. Payment method.
 	v.Set("paymentMethod", "")
-	// "ssnLast4" - Optional. Last 4 digits of SSN (4) . Results improve with the addition of this field.
+	// "ssnLast4" - Optional. Last 4 digits of SSN (4). Results improve with the addition of this field.
+	v.Set("ssnLast4", "")
 	// "ssn" - Optional. Full ssn (9).
+	v.Set("ssn", "")
 	for _, d := range customer.Documents {
 		if d.Metadata.Type == common.IDCard {
 			ssnLast4 := d.Metadata.Number[len(d.Metadata.Number)-4:]
@@ -93,22 +102,31 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 		}
 	}
 	// Optional. Month of Birth (2). Results improve with the addition of this field.
-	v.Set("dobMonth",
-		fmt.Sprintf("%2d", time.Time(customer.DateOfBirth).Month()),
-	)
 	// Optional. Year of Birth (4). Results improve with the addition of this field. YOB is the minimum DOB information accepted by IDology.
-	v.Set("dobYear", fmt.Sprintf("%d", time.Time(customer.DateOfBirth).Year()))
+	if !time.Time(customer.DateOfBirth).IsZero() {
+		v.Set("dobMonth",
+			fmt.Sprintf("%2d", time.Time(customer.DateOfBirth).Month()),
+		)
+		v.Set("dobYear", fmt.Sprintf("%d", time.Time(customer.DateOfBirth).Year()))
+	} else {
+		v.Set("dobMonth", "")
+		v.Set("dobYear", "")
+	}
 	// Optional. IP Address . Include periods in the address,for example - 11.111.111.11
 	v.Set("ipAddress", "")
 	// Optional. Email address.
 	if len(customer.Email) > 0 {
 		v.Set("email", customer.Email)
+	} else {
+		v.Set("email", "")
 	}
 	// Optional. Phone number (10).
 	if len(customer.Phone) == 10 {
 		v.Set("telephone", customer.Phone)
 	} else if len(customer.MobilePhone) == 10 {
-		v.Set("telephone", customer.Phone)
+		v.Set("telephone", customer.MobilePhone)
+	} else {
+		v.Set("telephone", "")
 	}
 	// Optional. SKU.
 	v.Set("sku", "")
