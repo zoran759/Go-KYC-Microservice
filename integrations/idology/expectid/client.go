@@ -95,3 +95,6 @@ func (c *Client) responseToResult(r *Response) (result common.KYCResult, details
 
 	return
 }
+
+// Ensure implementation conformance to the interface.
+var _ common.CustomerChecker = (*Client)(nil)

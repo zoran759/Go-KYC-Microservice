@@ -13,12 +13,9 @@ type Service struct {
 	// FIXME: AlertList has to be implemented yet.
 }
 
-// New returns new verifier to use with IDology services.
+// New constructs new service object to use with IDology services.
 func New(config Config) *Service {
 	return &Service{
 		ExpectID: expectid.NewClient(expectid.Config(config)),
 	}
 }
-
-// Ensure implementation conformance to the interface.
-var _ common.CustomerChecker = (*expectid.Client)(nil)

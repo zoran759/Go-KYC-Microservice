@@ -51,7 +51,7 @@ var _ = Describe("The IDology KYC service", func() {
 
 	// Below are the tests that should be run either on a whitelisted host
 	// or using some method to forward requests through a whitelisted host.
-	Context("when sending requests to IDology API", func() {
+	Context("sandboxed testing of IDology API", func() {
 		var runliveMsg = "use '-runlive' command-line flag to activate this test"
 
 		var customer = &common.UserData{
