@@ -57,7 +57,6 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 			{
 				Metadata: common.DocumentMetadata{
 					Type:    "PASSPORT",
-					SubType: "FRONT_SIDE",
 					Country: "RUSSIA",
 				},
 				Front: &common.DocumentFile{
