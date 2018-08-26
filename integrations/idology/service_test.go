@@ -52,30 +52,32 @@ var _ = Describe("The IDology KYC service", func() {
 
 	// Below are the tests that should be run either on a whitelisted host
 	// or using some method to forward requests through a whitelisted host.
-	Context("sandboxed testing of IDology API", func() {
+	Context("using sandbox testing of IDology API", func() {
 		var runliveMsg = "use '-runlive' command-line flag to activate this test"
 
-		var customer = &common.UserData{
-			FirstName:   "John",
-			LastName:    "Smith",
-			DateOfBirth: common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
-			CurrentAddress: common.Address{
-				CountryAlpha2:     "US",
-				State:             "Georgia",
-				Town:              "Atlanta",
-				Street:            "222333 PeachTree Place",
-				PostCode:          "30318",
-				StateProvinceCode: "GA",
-			},
-			Documents: []common.Document{
-				common.Document{
-					Metadata: common.DocumentMetadata{
-						Type:    common.IDCard,
-						Country: "USA",
-						Number:  "112223333",
+		var newCustomer = func() *common.UserData {
+			return &common.UserData{
+				FirstName:   "John",
+				LastName:    "Smith",
+				DateOfBirth: common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
+				CurrentAddress: common.Address{
+					CountryAlpha2:     "US",
+					State:             "Georgia",
+					Town:              "Atlanta",
+					Street:            "222333 PeachTree Place",
+					PostCode:          "30318",
+					StateProvinceCode: "GA",
+				},
+				Documents: []common.Document{
+					common.Document{
+						Metadata: common.DocumentMetadata{
+							Type:    common.IDCard,
+							Country: "USA",
+							Number:  "112223333",
+						},
 					},
 				},
-			},
+			}
 		}
 
 		var service = New(Config{
@@ -110,6 +112,7 @@ var _ = Describe("The IDology KYC service", func() {
 					Password: "wrong_password",
 				})
 
+				customer := newCustomer()
 				result, details, err := failedService.ExpectID.CheckCustomer(customer)
 
 				Expect(result).To(Equal(common.Error))
@@ -123,6 +126,7 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should return clean result", func() {
 				skipFunc()
 
+				customer := newCustomer()
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
@@ -135,13 +139,12 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should deny and return COPPA Alert", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.DateOfBirth = common.Time(
+				customer := newCustomer()
+				customer.DateOfBirth = common.Time(
 					time.Date(2009, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Denied))
@@ -156,11 +159,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Address Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.CurrentAddress.Street = "2240 Magnolia"
+				customer := newCustomer()
+				customer.CurrentAddress.Street = "2240 Magnolia"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -177,11 +179,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Street Name Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.CurrentAddress.Street = "222333 Magnolia"
+				customer := newCustomer()
+				customer.CurrentAddress.Street = "222333 Magnolia"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -197,11 +198,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Street Number Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.CurrentAddress.Street = "2240 PeachTree Place"
+				customer := newCustomer()
+				customer.CurrentAddress.Street = "2240 PeachTree Place"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -217,11 +217,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Input Address is a PO Box", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.CurrentAddress.Street = "PO Box 123"
+				customer := newCustomer()
+				customer.CurrentAddress.Street = "PO Box 123"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -236,11 +235,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return ZIP Code Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.CurrentAddress.PostCode = "30316"
+				customer := newCustomer()
+				customer.CurrentAddress.PostCode = "30316"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -254,13 +252,12 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return YOB Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.DateOfBirth = common.Time(
+				customer := newCustomer()
+				customer.DateOfBirth = common.Time(
 					time.Date(1970, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -274,13 +271,12 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return YOB Does Not Match, Within 1 Year Tolerance", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.DateOfBirth = common.Time(
+				customer := newCustomer()
+				customer.DateOfBirth = common.Time(
 					time.Date(1976, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -294,13 +290,12 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return MOB Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.DateOfBirth = common.Time(
+				customer := newCustomer()
+				customer.DateOfBirth = common.Time(
 					time.Date(1975, time.May, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -316,11 +311,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return SSN Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.Documents[0].Metadata.Number = "112223345"
+				customer := newCustomer()
+				customer.Documents[0].Metadata.Number = "112223345"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -334,11 +328,10 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return SSN Does Not Match, Within Tolerance", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.Documents[0].Metadata.Number = "112223334"
+				customer := newCustomer()
+				customer.Documents[0].Metadata.Number = "112223334"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -352,13 +345,12 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return State Does Not Match", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.CurrentAddress.State = "Alabama"
-				noteCustomer.CurrentAddress.StateProvinceCode = "AL"
-				noteCustomer.Documents = nil
+				customer := newCustomer()
+				customer.CurrentAddress.State = "Alabama"
+				customer.CurrentAddress.StateProvinceCode = "AL"
+				customer.Documents = nil
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -372,17 +364,30 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Single Address in File", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.FirstName = "Jane"
-				noteCustomer.CurrentAddress.State = "California"
-				noteCustomer.CurrentAddress.Town = "La Crescenta"
-				noteCustomer.CurrentAddress.Street = "5432 Any Place"
-				noteCustomer.CurrentAddress.PostCode = "91214"
-				noteCustomer.CurrentAddress.StateProvinceCode = "CA"
-				noteCustomer.Documents[0].Metadata.Number = "112221111"
+				customer := &common.UserData{
+					FirstName:   "Jane",
+					LastName:    "Smith",
+					DateOfBirth: common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
+					CurrentAddress: common.Address{
+						CountryAlpha2:     "US",
+						State:             "California",
+						Town:              "La Crescenta",
+						Street:            "5432 Any Place",
+						PostCode:          "91214",
+						StateProvinceCode: "CA",
+					},
+					Documents: []common.Document{
+						common.Document{
+							Metadata: common.DocumentMetadata{
+								Type:    common.IDCard,
+								Country: "USA",
+								Number:  "112221111",
+							},
+						},
+					},
+				}
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -397,14 +402,13 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Thin File", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.LastName = "Black"
-				noteCustomer.CurrentAddress.Street = "345 Some Avenu"
-				noteCustomer.CurrentAddress.PostCode = "30303"
-				noteCustomer.Documents = nil
+				customer := newCustomer()
+				customer.LastName = "Black"
+				customer.CurrentAddress.Street = "345 Some Avenu"
+				customer.CurrentAddress.PostCode = "30303"
+				customer.Documents = nil
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -422,18 +426,29 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return DOB Not Available", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.FirstName = "Jane"
-				noteCustomer.LastName = "Brown"
-				noteCustomer.CurrentAddress.State = "California"
-				noteCustomer.CurrentAddress.Town = "La Crescenta"
-				noteCustomer.CurrentAddress.Street = "9000 Any Street"
-				noteCustomer.CurrentAddress.PostCode = "91224"
-				noteCustomer.CurrentAddress.StateProvinceCode = "CA"
-				noteCustomer.Documents[0].Metadata.Number = "112221010"
+				customer := &common.UserData{
+					FirstName: "Jane",
+					LastName:  "Brown",
+					CurrentAddress: common.Address{
+						CountryAlpha2:     "US",
+						State:             "California",
+						Town:              "La Crescenta",
+						Street:            "9000 Any Street",
+						PostCode:          "91224",
+						StateProvinceCode: "CA",
+					},
+					Documents: []common.Document{
+						common.Document{
+							Metadata: common.DocumentMetadata{
+								Type:    common.IDCard,
+								Country: "USA",
+								Number:  "112221010",
+							},
+						},
+					},
+				}
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -449,14 +464,13 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return SSN Not Available", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{}
-				*noteCustomer = *customer
-				noteCustomer.FirstName = "Jane"
-				noteCustomer.LastName = "Black"
-				noteCustomer.CurrentAddress.Street = "12345 Magnolia Way"
-				noteCustomer.CurrentAddress.PostCode = "30303"
+				customer := newCustomer()
+				customer.FirstName = "Jane"
+				customer.LastName = "Black"
+				customer.CurrentAddress.Street = "12345 Magnolia Way"
+				customer.CurrentAddress.PostCode = "30303"
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -477,7 +491,7 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should approve and return Warm Address", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{
+				customer := &common.UserData{
 					FirstName:   "Jane",
 					LastName:    "Williams",
 					DateOfBirth: common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
@@ -491,7 +505,7 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Approved))
@@ -508,7 +522,7 @@ var _ = Describe("The IDology KYC service", func() {
 			It("should deny and return Patriot Act Alert", func() {
 				skipFunc()
 
-				noteCustomer := &common.UserData{
+				customer := &common.UserData{
 					FirstName:   "John",
 					LastName:    "Bredenkamp",
 					DateOfBirth: common.Time(time.Date(1940, time.August, 1, 0, 0, 0, 0, time.UTC)),
@@ -531,7 +545,7 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
+				result, details, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result).To(Equal(common.Denied))

@@ -31,7 +31,7 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 	requestBody := c.makeRequestBody(customer)
 
-	response, err := c.verify(requestBody)
+	response, err := c.sendRequest(requestBody)
 	if err != nil {
 		result = common.Error
 		return
@@ -43,55 +43,7 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	result, details, err = c.responseToResult(response)
-
-	return
-}
-
-// responseToResult processes the response and generates the verification result.
-func (c *Client) responseToResult(r *Response) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	detailsCreateIfNil := func(details **common.DetailedKYCResult) {
-		if *details == nil {
-			*details = &common.DetailedKYCResult{
-				Finality: common.Unknown,
-			}
-		}
-	}
-
-	switch c.config.UseSummaryResult {
-	case true:
-		switch r.SummaryResult.Key {
-		case Success:
-			result = common.Approved
-		case Failure:
-			result = common.Denied
-		case Partial:
-			result = common.Unclear
-		}
-	case false:
-		switch r.Results.Key {
-		case Match:
-			result = common.Approved
-		case NoMatch, MatchRestricted:
-			result = common.Denied
-		}
-	}
-
-	if r.Restriction != nil {
-		detailsCreateIfNil(&details)
-		details.Reasons = []string{
-			r.Restriction.Message,
-			r.Restriction.PatriotAct.List,
-			fmt.Sprintf("Patriot Act score: %d", r.Restriction.PatriotAct.Score),
-		}
-	}
-
-	if r.Qualifiers != nil {
-		detailsCreateIfNil(&details)
-		for _, q := range r.Qualifiers.Qualifiers {
-			details.Reasons = append(details.Reasons, q.Message)
-		}
-	}
+	result, details, err = response.toResult(c.config.UseSummaryResult)
 
 	return
 }

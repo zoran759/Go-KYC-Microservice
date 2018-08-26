@@ -2,6 +2,9 @@ package expectid
 
 import (
 	"encoding/xml"
+	"fmt"
+
+	"gitlab.com/lambospeed/kyc/common"
 )
 
 // SummaryResult defines "summary-result" part in the response.
@@ -56,4 +59,52 @@ type Response struct {
 	Restriction   *Restriction  `xml:"restriction"`
 	Qualifiers    *Qualifiers   `xml:"qualifiers"`
 	Error         *string       `xml:"error"`
+}
+
+// toResult processes the response and generates the verification result.
+func (r *Response) toResult(useSummaryResult bool) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
+	detailsCreateIfNil := func(details **common.DetailedKYCResult) {
+		if *details == nil {
+			*details = &common.DetailedKYCResult{
+				Finality: common.Unknown,
+			}
+		}
+	}
+
+	switch useSummaryResult {
+	case true:
+		switch r.SummaryResult.Key {
+		case Success:
+			result = common.Approved
+		case Failure:
+			result = common.Denied
+		case Partial:
+			result = common.Unclear
+		}
+	case false:
+		switch r.Results.Key {
+		case Match:
+			result = common.Approved
+		case NoMatch, MatchRestricted:
+			result = common.Denied
+		}
+	}
+
+	if r.Restriction != nil {
+		detailsCreateIfNil(&details)
+		details.Reasons = []string{
+			r.Restriction.Message,
+			r.Restriction.PatriotAct.List,
+			fmt.Sprintf("Patriot Act score: %d", r.Restriction.PatriotAct.Score),
+		}
+	}
+
+	if r.Qualifiers != nil {
+		detailsCreateIfNil(&details)
+		for _, q := range r.Qualifiers.Qualifiers {
+			details.Reasons = append(details.Reasons, q.Message)
+		}
+	}
+
+	return
 }
