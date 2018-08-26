@@ -2,8 +2,6 @@ package verification
 
 import (
 	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/numbers"
-	"gitlab.com/lambospeed/kyc/strings"
 	"time"
 )
 
@@ -21,15 +19,15 @@ func mapCustomerToPersonalInfo(customer common.UserData) *PersonInfo {
 	dateOfBirth := time.Time(customer.DateOfBirth)
 
 	return &PersonInfo{
-		FirstGivenName: strings.Pointerize(customer.FirstName),
-		MiddleName:     strings.Pointerize(customer.MiddleName),
-		FirstSurName:   strings.Pointerize(customer.PaternalLastName),
-		SecondSurname:  strings.Pointerize(customer.LastName),
-		ISOLatin1Name:  strings.Pointerize(customer.LatinISO1Name),
-		DayOfBirth:     numbers.PointerizeInt(dateOfBirth.Day()),
-		MonthOfBirth:   numbers.PointerizeInt(int(dateOfBirth.Month())),
-		YearOfBirth:    numbers.PointerizeInt(dateOfBirth.Year()),
-		Gender:         strings.Pointerize(mapGender(customer.Gender)),
+		FirstGivenName: customer.FirstName,
+		MiddleName:     customer.MiddleName,
+		FirstSurName:   customer.PaternalLastName,
+		SecondSurname:  customer.LastName,
+		ISOLatin1Name:  customer.LatinISO1Name,
+		DayOfBirth:     dateOfBirth.Day(),
+		MonthOfBirth:   int(dateOfBirth.Month()),
+		YearOfBirth:    dateOfBirth.Year(),
+		Gender:         mapGender(customer.Gender),
 	}
 }
 
@@ -39,18 +37,18 @@ func mapCustomerAddressToLocation(address common.Address) *Location {
 	}
 
 	return &Location{
-		BuildingNumber:    strings.Pointerize(address.BuildingNumber),
-		BuildingName:      strings.Pointerize(address.BuildingName),
-		UnitNumber:        strings.Pointerize(address.FlatNumber),
-		StreetName:        strings.Pointerize(address.Street),
-		StreetType:        strings.Pointerize(address.StreetType),
-		City:              strings.Pointerize(address.Town),
-		Suburb:            strings.Pointerize(address.Suburb),
-		County:            strings.Pointerize(address.County),
-		Country:           strings.Pointerize(address.CountryAlpha2),
-		StateProvinceCode: strings.Pointerize(address.StateProvinceCode),
-		PostalCode:        strings.Pointerize(address.PostCode),
-		POBox:             strings.Pointerize(address.PostOfficeBox),
+		BuildingNumber:    address.BuildingNumber,
+		BuildingName:      address.BuildingName,
+		UnitNumber:        address.FlatNumber,
+		StreetName:        address.Street,
+		StreetType:        address.StreetType,
+		City:              address.Town,
+		Suburb:            address.Suburb,
+		County:            address.County,
+		Country:           address.CountryAlpha2,
+		StateProvinceCode: address.StateProvinceCode,
+		PostalCode:        address.PostCode,
+		POBox:             address.PostOfficeBox,
 	}
 }
 
@@ -59,30 +57,57 @@ func mapCustomerToCommunication(customer common.UserData) *Communication {
 		return nil
 	}
 	return &Communication{
-		MobileNumber: strings.Pointerize(customer.MobilePhone),
-		EmailAddress: strings.Pointerize(customer.Email),
-		Telephone:    strings.Pointerize(customer.Phone),
+		MobileNumber: customer.MobilePhone,
+		EmailAddress: customer.Email,
+		Telephone:    customer.Phone,
 	}
 }
 
 func mapCustomerDocument(customer common.UserData) *Document {
 	if customer.Documents != nil && len(customer.Documents) > 0 {
-		commonDocument := customer.Documents[0]
+		document := Document{}
 
-		document := Document{
-			DocumentType: commonDocument.Metadata.Type,
+		for _, commonDocument := range customer.Documents {
+			if document.DocumentType != "" && document.LivePhoto != nil {
+				break
+			} else if document.LivePhoto == nil && commonDocument.Metadata.Type == common.Selfie {
+				document.LivePhoto = commonDocument.Front.Data
+			} else if document.DocumentType == "" {
+				if mappedType := mapCustomerDocumentType(commonDocument.Metadata.Type); mappedType != "" {
+					document.DocumentType = mappedType
+
+					if commonDocument.Front != nil {
+						document.DocumentFrontImage = commonDocument.Front.Data
+					}
+					if commonDocument.Back != nil {
+						document.DocumentBackImage = commonDocument.Back.Data
+					}
+				}
+			}
 		}
 
-		if commonDocument.Front != nil {
-			document.DocumentFrontImage = commonDocument.Front.Data
-		}
-		if commonDocument.Back != nil {
-			document.DocumentBackImage = commonDocument.Back.Data
+		if document.DocumentType == "" {
+			return nil
 		}
 
 		return &document
 	} else {
 		return nil
+	}
+}
+
+func mapCustomerDocumentType(documentType common.DocumentType) string {
+	switch documentType {
+	case common.Passport:
+		return "Passport"
+	case common.Drivers:
+		return "DrivingLicence"
+	case common.IDCard:
+		return "IdentityCard"
+	case common.ResidencePermit:
+		return "ResidencePermit"
+	default:
+		return ""
 	}
 }
 
@@ -94,12 +119,12 @@ func mapCustomerBusiness(business common.Business) *Business {
 	incorporationDate := time.Time(business.IncorporationDate)
 
 	return &Business{
-		BusinessName:                strings.Pointerize(business.Name),
-		BusinessRegistrationNumber:  strings.Pointerize(business.RegistrationNumber),
-		DayOfIncorporation:          numbers.PointerizeInt(incorporationDate.Day()),
-		MonthOfIncorporation:        numbers.PointerizeInt(int(incorporationDate.Month())),
-		YearOfIncorporation:         numbers.PointerizeInt(incorporationDate.Year()),
-		JurisdictionOfIncorporation: strings.Pointerize(business.IncorporationJurisdiction),
+		BusinessName:                business.Name,
+		BusinessRegistrationNumber:  business.RegistrationNumber,
+		DayOfIncorporation:          incorporationDate.Day(),
+		MonthOfIncorporation:        int(incorporationDate.Month()),
+		YearOfIncorporation:         incorporationDate.Year(),
+		JurisdictionOfIncorporation: business.IncorporationJurisdiction,
 	}
 }
 

@@ -2,12 +2,15 @@ package main
 
 import (
 	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub"
+	"gitlab.com/lambospeed/kyc/integrations/shuftipro"
+	"io/ioutil"
 	"log"
 	"time"
 )
 
 func main() {
+
+	file, _ := ioutil.ReadFile("../../testdata/snils.jpg")
 
 	customer := &common.UserData{
 		FirstName:        "Smith",
@@ -15,7 +18,8 @@ func main() {
 		LastName:         "James",
 		MiddleName:       "M",
 		CountryAlpha2:    "US",
-		Phone:            "221-214-4456",
+		Phone:            "+3221-214-4456",
+		Email:            "jsmith@yahoo.com",
 		DateOfBirth:      common.Time(time.Date(1982, 4, 3, 0, 0, 0, 0, time.UTC)),
 		SupplementalAddresses: []common.Address{
 			{},
@@ -39,47 +43,49 @@ func main() {
 				Front: &common.DocumentFile{
 					Filename:    "passport.png",
 					ContentType: "image/png",
-					Data: []byte{0xff, 0xff, 0xff, 0xff, 0xff,
-						0xff, 0xff, 0xff, 0xff, 0xff,
-						0x92, 0x92, 0x92, 0x92, 0x92,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00},
+					Data:        file,
 				},
 				Back: &common.DocumentFile{
 					Filename:    "passport.png",
 					ContentType: "image/png",
-					Data: []byte{0xff, 0xff, 0xff, 0xff, 0xff,
-						0xff, 0xff, 0xff, 0xff, 0xff,
-						0x92, 0x92, 0x92, 0x92, 0x92,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00,
-						0x00, 0x00, 0x00, 0x00, 0x00},
+					Data:        file,
+				},
+			},
+			{
+				Metadata: common.DocumentMetadata{
+					Type:    "SELFIE",
+					Country: "RUS",
+				},
+				Front: &common.DocumentFile{
+					Filename:    "passport.png",
+					ContentType: "image/png",
+					Data:        file,
+				},
+			},
+			{
+				Metadata: common.DocumentMetadata{
+					Type:    common.UtilityBill,
+					Country: "RUS",
+				},
+				Front: &common.DocumentFile{
+					Filename:    "passport.png",
+					ContentType: "image/png",
+					Data:        file,
 				},
 			},
 		},
 	}
+	/*
+		// Example integration for SumSub
 
-	// Example integration for SumSub
+		sumsubService := sumsub.New(sumsub.Config{
+			Host:             "https://test-api.sumsub.com",
+			APIKey:           "GKTBNXNEPJHCXY",
+			TimeoutThreshold: int64(time.Hour.Seconds()),
+		})
 
-	sumsubService := sumsub.New(sumsub.Config{
-		Host:             "https://test-api.sumsub.com",
-		APIKey:           "GKTBNXNEPJHCXY",
-		TimeoutThreshold: int64(time.Hour.Seconds()),
-	})
-
-	log.Println(sumsubService.CheckCustomer(customer))
-
+		log.Println(sumsubService.CheckCustomer(customer))
+	*/
 	/*
 		// Example Trulioo integration
 		service := trulioo.New(trulioo.Config{
@@ -90,4 +96,14 @@ func main() {
 
 		log.Println(service.CheckCustomer(customer))
 	*/
+
+	//Example Shufti Pro integration
+	service := shuftipro.New(shuftipro.Config{
+		Host:        "https://api.shuftipro.com",
+		ClientID:    "ac93f3a0fee5afa2d9399d5d0f257dc92bbde89b1e48452e1bfac3c5c1dc99db",
+		SecretKey:   "lq34eOTxDe1e6G8a1P7Igqo5YK3ABCDF",
+		RedirectURL: "https://api.shuftipro.com",
+	})
+
+	log.Println(service.CheckCustomer(customer))
 }
