@@ -23,6 +23,7 @@ import (
 // If you run tests on a whitelisted host leave this empty.
 var proxyURL = "socks5://localhost:8000"
 
+// This is "-runlive" command-line flag to activate the sandbox testing (see "ExpectID Sandbox Guide.pdf").
 var runLive bool
 
 var _ = Describe("The IDology KYC service", func() {
@@ -55,16 +56,14 @@ var _ = Describe("The IDology KYC service", func() {
 		var runliveMsg = "use '-runlive' command-line flag to activate this test"
 
 		var customer = &common.UserData{
-			FirstName:     "John",
-			LastName:      "Smith",
-			DateOfBirth:   common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
-			AddressString: "222333 PeachTree Place, Atlanta, GA 30318",
+			FirstName:   "John",
+			LastName:    "Smith",
+			DateOfBirth: common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
 			CurrentAddress: common.Address{
 				CountryAlpha2:     "US",
 				State:             "Georgia",
 				Town:              "Atlanta",
-				Street:            "PeachTree Place",
-				BuildingNumber:    "222333",
+				Street:            "222333 PeachTree Place",
 				PostCode:          "30318",
 				StateProvinceCode: "GA",
 			},
@@ -159,9 +158,7 @@ var _ = Describe("The IDology KYC service", func() {
 
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
-				noteCustomer.AddressString = "2240 Magnolia, Atlanta, GA 30318"
-				noteCustomer.CurrentAddress.Street = "Magnolia"
-				noteCustomer.CurrentAddress.BuildingNumber = "2240"
+				noteCustomer.CurrentAddress.Street = "2240 Magnolia"
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
 
@@ -182,9 +179,7 @@ var _ = Describe("The IDology KYC service", func() {
 
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
-				noteCustomer.AddressString = "222333 Magnolia, Atlanta, GA 30318"
-				noteCustomer.CurrentAddress.Street = "Magnolia"
-				noteCustomer.CurrentAddress.BuildingNumber = "222333"
+				noteCustomer.CurrentAddress.Street = "222333 Magnolia"
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
 
@@ -204,8 +199,7 @@ var _ = Describe("The IDology KYC service", func() {
 
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
-				noteCustomer.AddressString = "2240 PeachTree Place, Atlanta, GA 30318"
-				noteCustomer.CurrentAddress.BuildingNumber = "2240"
+				noteCustomer.CurrentAddress.Street = "2240 PeachTree Place"
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
 
@@ -225,7 +219,7 @@ var _ = Describe("The IDology KYC service", func() {
 
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
-				noteCustomer.AddressString = "PO Box 123, Atlanta, GA 30318"
+				noteCustomer.CurrentAddress.Street = "PO Box 123"
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
 
@@ -244,7 +238,6 @@ var _ = Describe("The IDology KYC service", func() {
 
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
-				noteCustomer.AddressString = "222333 PeachTree Place, Atlanta, GA 30316"
 				noteCustomer.CurrentAddress.PostCode = "30316"
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
@@ -361,7 +354,6 @@ var _ = Describe("The IDology KYC service", func() {
 
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
-				noteCustomer.AddressString = "222333 PeachTree Place, Atlanta, AL 30318"
 				noteCustomer.CurrentAddress.State = "Alabama"
 				noteCustomer.CurrentAddress.StateProvinceCode = "AL"
 				noteCustomer.Documents = nil
@@ -383,11 +375,9 @@ var _ = Describe("The IDology KYC service", func() {
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
 				noteCustomer.FirstName = "Jane"
-				noteCustomer.AddressString = "5432 Any Place, La Crescenta, CA 91214"
 				noteCustomer.CurrentAddress.State = "California"
 				noteCustomer.CurrentAddress.Town = "La Crescenta"
-				noteCustomer.CurrentAddress.Street = "Any Place"
-				noteCustomer.CurrentAddress.BuildingNumber = "5432"
+				noteCustomer.CurrentAddress.Street = "5432 Any Place"
 				noteCustomer.CurrentAddress.PostCode = "91214"
 				noteCustomer.CurrentAddress.StateProvinceCode = "CA"
 				noteCustomer.Documents[0].Metadata.Number = "112221111"
@@ -410,9 +400,7 @@ var _ = Describe("The IDology KYC service", func() {
 				noteCustomer := &common.UserData{}
 				*noteCustomer = *customer
 				noteCustomer.LastName = "Black"
-				noteCustomer.AddressString = "345 Some Avenu, Atlanta, GA 30303"
-				noteCustomer.CurrentAddress.Street = "Some Avenu"
-				noteCustomer.CurrentAddress.BuildingNumber = "345"
+				noteCustomer.CurrentAddress.Street = "345 Some Avenu"
 				noteCustomer.CurrentAddress.PostCode = "30303"
 				noteCustomer.Documents = nil
 
@@ -438,11 +426,9 @@ var _ = Describe("The IDology KYC service", func() {
 				*noteCustomer = *customer
 				noteCustomer.FirstName = "Jane"
 				noteCustomer.LastName = "Brown"
-				noteCustomer.AddressString = "9000 Any Street, La Crescenta, CA 91224"
 				noteCustomer.CurrentAddress.State = "California"
 				noteCustomer.CurrentAddress.Town = "La Crescenta"
-				noteCustomer.CurrentAddress.Street = "Any Street"
-				noteCustomer.CurrentAddress.BuildingNumber = "9000"
+				noteCustomer.CurrentAddress.Street = "9000 Any Street"
 				noteCustomer.CurrentAddress.PostCode = "91224"
 				noteCustomer.CurrentAddress.StateProvinceCode = "CA"
 				noteCustomer.Documents[0].Metadata.Number = "112221010"
@@ -467,9 +453,7 @@ var _ = Describe("The IDology KYC service", func() {
 				*noteCustomer = *customer
 				noteCustomer.FirstName = "Jane"
 				noteCustomer.LastName = "Black"
-				noteCustomer.AddressString = "12345 Magnolia Way, Atlanta, GA 30303"
-				noteCustomer.CurrentAddress.Street = "Magnolia Way"
-				noteCustomer.CurrentAddress.BuildingNumber = "12345"
+				noteCustomer.CurrentAddress.Street = "12345 Magnolia Way"
 				noteCustomer.CurrentAddress.PostCode = "30303"
 
 				result, details, err := service.ExpectID.CheckCustomer(noteCustomer)
@@ -494,16 +478,14 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				noteCustomer := &common.UserData{
-					FirstName:     "Jane",
-					LastName:      "Williams",
-					DateOfBirth:   common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
-					AddressString: "8888 Any Street, Dallas, GA 30132",
+					FirstName:   "Jane",
+					LastName:    "Williams",
+					DateOfBirth: common.Time(time.Date(1975, time.February, 28, 0, 0, 0, 0, time.UTC)),
 					CurrentAddress: common.Address{
 						CountryAlpha2:     "US",
 						State:             "Georgia",
 						Town:              "Dallas",
-						Street:            "Any Street",
-						BuildingNumber:    "8888",
+						Street:            "8888 Any Street",
 						PostCode:          "30132",
 						StateProvinceCode: "GA",
 					},
@@ -527,16 +509,14 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				noteCustomer := &common.UserData{
-					FirstName:     "John",
-					LastName:      "Bredenkamp",
-					DateOfBirth:   common.Time(time.Date(1940, time.August, 1, 0, 0, 0, 0, time.UTC)),
-					AddressString: "147 Brentwood Drive, Nashville, TN 37214",
+					FirstName:   "John",
+					LastName:    "Bredenkamp",
+					DateOfBirth: common.Time(time.Date(1940, time.August, 1, 0, 0, 0, 0, time.UTC)),
 					CurrentAddress: common.Address{
 						CountryAlpha2:     "US",
 						State:             "Tennessee",
 						Town:              "Nashville",
-						Street:            "Brentwood Drive",
-						BuildingNumber:    "147",
+						Street:            "147 Brentwood Drive",
 						PostCode:          "37214",
 						StateProvinceCode: "TN",
 					},
