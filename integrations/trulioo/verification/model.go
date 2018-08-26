@@ -19,36 +19,36 @@ type DataFields struct {
 }
 
 type PersonInfo struct {
-	FirstGivenName *string
-	MiddleName     *string
-	FirstSurName   *string
-	SecondSurname  *string
-	ISOLatin1Name  *string
-	DayOfBirth     *int
-	MonthOfBirth   *int
-	YearOfBirth    *int
-	Gender         *string
+	FirstGivenName string `json:"FirstGivenName,omitempty"`
+	MiddleName     string `json:"MiddleName,omitempty"`
+	FirstSurName   string `json:"FirstSurName,omitempty"`
+	SecondSurname  string `json:"SecondSurname,omitempty"`
+	ISOLatin1Name  string `json:"ISOLatin1Name,omitempty"`
+	DayOfBirth     int    `json:"DayOfBirth,omitempty"`
+	MonthOfBirth   int    `json:"MonthOfBirth,omitempty"`
+	YearOfBirth    int    `json:"YearOfBirth,omitempty"`
+	Gender         string `json:"Gender,omitempty"`
 }
 
 type Location struct {
-	BuildingNumber    *string
-	BuildingName      *string
-	UnitNumber        *string
-	StreetName        *string
-	StreetType        *string
-	City              *string
-	Suburb            *string
-	County            *string
-	StateProvinceCode *string
-	Country           *string
-	PostalCode        *string
-	POBox             *string
+	BuildingNumber    string `json:"BuildingNumber,omitempty"`
+	BuildingName      string `json:"BuildingName,omitempty"`
+	UnitNumber        string `json:"UnitNumber,omitempty"`
+	StreetName        string `json:"StreetName,omitempty"`
+	StreetType        string `json:"StreetType,omitempty"`
+	City              string `json:"City,omitempty"`
+	Suburb            string `json:"Suburb,omitempty"`
+	County            string `json:"County,omitempty"`
+	StateProvinceCode string `json:"StateProvinceCode,omitempty"`
+	Country           string `json:"Country,omitempty"`
+	PostalCode        string `json:"PostalCode,omitempty"`
+	POBox             string `json:"POBox,omitempty"`
 }
 
 type Communication struct {
-	MobileNumber *string
-	Telephone    *string
-	EmailAddress *string
+	MobileNumber string `json:"MobileNumber,omitempty"`
+	Telephone    string `json:"Telephone,omitempty"`
+	EmailAddress string `json:"EmailAddress,omitempty"`
 }
 
 type Document struct {
@@ -59,12 +59,12 @@ type Document struct {
 }
 
 type Business struct {
-	BusinessName                *string
-	BusinessRegistrationNumber  *string
-	DayOfIncorporation          *int
-	MonthOfIncorporation        *int
-	YearOfIncorporation         *int
-	JurisdictionOfIncorporation *string
+	BusinessName                string `json:"BusinessName,omitempty"`
+	BusinessRegistrationNumber  string `json:"BusinessRegistrationNumber,omitempty"`
+	DayOfIncorporation          int    `json:"DayOfIncorporation,omitempty"`
+	MonthOfIncorporation        int    `json:"MonthOfIncorporation,omitempty"`
+	YearOfIncorporation         int    `json:"YearOfIncorporation,omitempty"`
+	JurisdictionOfIncorporation string `json:"JurisdictionOfIncorporation,omitempty"`
 }
 
 type VerificationResponse struct {

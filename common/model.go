@@ -71,11 +71,13 @@ type Document struct {
 }
 
 type DocumentMetadata struct {
-	Type       DocumentType
-	Country    string
-	DateIssued Time
-	ValidUntil Time
-	Number     string
+	Type             DocumentType
+	Country          string
+	DateIssued       Time
+	ValidUntil       Time
+	Number           string
+	CardFirst6Digits string
+	CardLast4Digits  string
 }
 
 type DocumentFile struct {

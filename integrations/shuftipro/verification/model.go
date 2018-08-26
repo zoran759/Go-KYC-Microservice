@@ -17,6 +17,8 @@ type Services struct {
 	MiddleName         string `json:"middle_mame,omitempty"`
 	LastName           string `json:"last_name,omitempty"`
 	DateOfBirth        string `json:"dob,omitempty"`
+	CardFirst6Digits   string `json:"card_first_6_digits,omitempty"`
+	CardLast4Digits    string `json:"card_last_4_digits"`
 }
 
 type Data struct {
