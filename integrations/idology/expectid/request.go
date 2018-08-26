@@ -91,10 +91,7 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	v.Set("ssn", "")
 	for _, d := range customer.Documents {
 		if d.Metadata.Type == common.IDCard {
-			ssnLast4 := d.Metadata.Number[len(d.Metadata.Number)-4:]
-			if len(ssnLast4) == 4 {
-				v.Set("ssnLast4", ssnLast4)
-			}
+			v.Set("ssnLast4", d.Metadata.CardLast4Digits)
 			v.Set("ssn", d.Metadata.Number)
 
 			break

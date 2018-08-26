@@ -63,9 +63,10 @@ var _ = Describe("Client", func() {
 				Documents: []common.Document{
 					common.Document{
 						Metadata: common.DocumentMetadata{
-							Type:    common.IDCard,
-							Country: "USA",
-							Number:  "112223333",
+							Type:            common.IDCard,
+							Country:         "USA",
+							Number:          "112223333",
+							CardLast4Digits: "3333",
 						},
 					},
 				},

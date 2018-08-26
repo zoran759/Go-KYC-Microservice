@@ -71,9 +71,10 @@ var _ = Describe("The IDology KYC service", func() {
 				Documents: []common.Document{
 					common.Document{
 						Metadata: common.DocumentMetadata{
-							Type:    common.IDCard,
-							Country: "USA",
-							Number:  "112223333",
+							Type:            common.IDCard,
+							Country:         "USA",
+							Number:          "112223333",
+							CardLast4Digits: "3333",
 						},
 					},
 				},
@@ -312,7 +313,8 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.Documents[0].Metadata.Number = "112223345"
+				customer.Documents[0].Metadata.Number = ""
+				customer.Documents[0].Metadata.CardLast4Digits = "3345"
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
@@ -329,7 +331,8 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.Documents[0].Metadata.Number = "112223334"
+				customer.Documents[0].Metadata.Number = ""
+				customer.Documents[0].Metadata.CardLast4Digits = "3334"
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
@@ -379,9 +382,9 @@ var _ = Describe("The IDology KYC service", func() {
 					Documents: []common.Document{
 						common.Document{
 							Metadata: common.DocumentMetadata{
-								Type:    common.IDCard,
-								Country: "USA",
-								Number:  "112221111",
+								Type:            common.IDCard,
+								Country:         "USA",
+								CardLast4Digits: "1111",
 							},
 						},
 					},
@@ -440,9 +443,9 @@ var _ = Describe("The IDology KYC service", func() {
 					Documents: []common.Document{
 						common.Document{
 							Metadata: common.DocumentMetadata{
-								Type:    common.IDCard,
-								Country: "USA",
-								Number:  "112221010",
+								Type:            common.IDCard,
+								Country:         "USA",
+								CardLast4Digits: "1010",
 							},
 						},
 					},
@@ -537,9 +540,10 @@ var _ = Describe("The IDology KYC service", func() {
 					Documents: []common.Document{
 						common.Document{
 							Metadata: common.DocumentMetadata{
-								Type:    common.IDCard,
-								Country: "USA",
-								Number:  "555667777",
+								Type:            common.IDCard,
+								Country:         "USA",
+								Number:          "555667777",
+								CardLast4Digits: "7777",
 							},
 						},
 					},

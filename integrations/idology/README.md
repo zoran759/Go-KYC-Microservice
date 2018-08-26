@@ -17,6 +17,8 @@ This manual describes how to use `idology` package.
 
 3) Use service's verifier [ExpectID](service.go#L12) for the customer verification.
 
+4) **`expectid`** subpackage contains [APIendpoint](expectid/contract.go#5) constant which holds IDology ExpectID® API Endpoint for the convenience.
+
 Sample code:
 
 ```go
