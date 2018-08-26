@@ -51,8 +51,7 @@ func Test_service_CreateApplicantSuccess(t *testing.T) {
     "country" : "UA",
     "phone" : "+380-68-0055416"
   },
-  
-
+  "email" : "nikita@gmail.com"
 }`,
 			), nil
 		},
@@ -72,8 +71,8 @@ func Test_service_CreateApplicantSuccess(t *testing.T) {
 		assert.Equal(t, "Sergeevich", info.MiddleName)
 		assert.Equal(t, "2000-03-04", info.DateOfBirth)
 		assert.Equal(t, "Saint-Petersburg", info.PlaceOfBirth)
-		assert.Equal(t, "RUS", info.Country)
-		assert.Equal(t, "+7-911-2081223", info.Phone)
+		assert.Equal(t, "UA", info.Country)
+		assert.Equal(t, "+380-68-0055416", info.Phone)
 	}
 }
 

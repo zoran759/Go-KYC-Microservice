@@ -25,8 +25,6 @@ func TestMapCustomerToVerificationRequest(t *testing.T) {
 		CountryOfBirthAlpha2: "CountryOfBirth",
 		StateOfBirth:         "StateOfBirth",
 		CountryAlpha2:        "CountryAlpha2",
-		CountryAlpha3:        "CountryAlpha3",
-		CountryName:          "CountryName",
 		Nationality:          "Nationality",
 		Phone:                "Phone",
 		MobilePhone:          "MobilePhone",

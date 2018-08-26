@@ -77,11 +77,13 @@ type Document struct {
 
 // DocumentMetadata defines a part of the Document model.
 type DocumentMetadata struct {
-	Type       DocumentType
-	Country    string
-	DateIssued Time
-	ValidUntil Time
-	Number     string
+	Type             DocumentType
+	Country          string
+	DateIssued       Time
+	ValidUntil       Time
+	Number           string
+	CardFirst6Digits string
+	CardLast4Digits  string
 }
 
 // DocumentFile defines document's file containing its original or an image.
