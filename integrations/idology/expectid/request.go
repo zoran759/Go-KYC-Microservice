@@ -10,10 +10,10 @@ import (
 	"gitlab.com/lambospeed/kyc/http"
 )
 
-// verify sends a vefirication request into the API.
+// sendRequest sends a vefirication request into the API.
 // It expects an url-encoded request body as the param.
 // It returns a response from the API or the error if occured.
-func (c *Client) verify(requestBody string) (resp *Response, err error) {
+func (c *Client) sendRequest(requestBody string) (resp *Response, err error) {
 	headers := http.Headers{
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
