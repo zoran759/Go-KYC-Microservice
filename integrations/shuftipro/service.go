@@ -4,6 +4,7 @@ import (
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
 	"github.com/pkg/errors"
+	"log"
 )
 
 type ShuftiPro struct {
@@ -33,6 +34,9 @@ func (service ShuftiPro) CheckCustomer(customer *common.UserData) (common.KYCRes
 		return common.Approved, nil, nil
 	case NotVerified:
 		return common.Denied, nil, nil
+	case Success:
+		log.Println(service.verification.CheckStatus(response.Reference))
+		fallthrough
 	default:
 		return common.Error, nil, errors.New(response.Message)
 	}
