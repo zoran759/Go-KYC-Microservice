@@ -1,0 +1,15 @@
+stages:
+  - test
+
+test-idology:
+  stage: test
+  image: golang:stretch
+  script:
+  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
+  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
+  - go get -d -v ./...
+  - go get github.com/jarcoal/httpmock
+  - go get github.com/onsi/ginkgo/ginkgo
+  - go get github.com/onsi/gomega/...
+  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/idology
+  - ginkgo -r -cover

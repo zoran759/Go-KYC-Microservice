@@ -1,6 +1,6 @@
 package common
 
-// CountryAlpha2ToName maps country Alpha-2 ISO codes to their Alpha-3 ISO codes.
+// CountryAlpha2ToAlpha3 maps country Alpha-2 ISO codes to their Alpha-3 ISO code counterparts.
 var CountryAlpha2ToAlpha3 = map[string]string{
 	"AF": "AFG",
 	"AX": "ALA",
