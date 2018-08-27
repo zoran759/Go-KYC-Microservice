@@ -1,10 +1,9 @@
 package shuftipro
 
 import (
+	"github.com/pkg/errors"
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
-	"github.com/pkg/errors"
-	"log"
 )
 
 type ShuftiPro struct {
@@ -34,9 +33,10 @@ func (service ShuftiPro) CheckCustomer(customer *common.UserData) (common.KYCRes
 		return common.Approved, nil, nil
 	case NotVerified:
 		return common.Denied, nil, nil
+	// This status means that online verification is being performed instead of offline verification(which we need).
+	// It happens when documents are not provided or they are invalid.
 	case Success:
-		log.Println(service.verification.CheckStatus(response.Reference))
-		fallthrough
+		return common.Error, nil, errors.New("There are no documents provided or they are invalid")
 	default:
 		return common.Error, nil, errors.New(response.Message)
 	}

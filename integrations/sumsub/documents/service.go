@@ -1,11 +1,11 @@
 package documents
 
 import (
-	"gitlab.com/lambospeed/kyc/http"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/lambospeed/kyc/http"
 	"mime/multipart"
 )
 

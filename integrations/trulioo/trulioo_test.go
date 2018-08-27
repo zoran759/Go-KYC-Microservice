@@ -3,11 +3,11 @@ package trulioo
 import (
 	"testing"
 
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {

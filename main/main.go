@@ -10,7 +10,15 @@ import (
 
 func main() {
 
-	file, _ := ioutil.ReadFile("../../testdata/snils.jpg")
+	id, err := ioutil.ReadFile("./test_data/realId.jpg")
+	if err != nil {
+		panic(err)
+	}
+
+	face, err := ioutil.ReadFile("./test_data/realFace.jpg")
+	if err != nil {
+		panic(err)
+	}
 
 	customer := &common.UserData{
 		FirstName:        "Smith",
@@ -37,40 +45,29 @@ func main() {
 		Documents: []common.Document{
 			{
 				Metadata: common.DocumentMetadata{
-					Type:    "PASSPORT",
+					Type:    common.IDCard,
 					Country: "RUS",
 				},
 				Front: &common.DocumentFile{
 					Filename:    "passport.png",
 					ContentType: "image/png",
-					Data:        file,
+					Data:        id,
 				},
 				Back: &common.DocumentFile{
 					Filename:    "passport.png",
 					ContentType: "image/png",
-					Data:        file,
+					Data:        id,
 				},
 			},
 			{
 				Metadata: common.DocumentMetadata{
-					Type:    "SELFIE",
+					Type:    common.Selfie,
 					Country: "RUS",
 				},
 				Front: &common.DocumentFile{
 					Filename:    "passport.png",
 					ContentType: "image/png",
-					Data:        file,
-				},
-			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:    common.UtilityBill,
-					Country: "RUS",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        file,
+					Data:        face,
 				},
 			},
 		},

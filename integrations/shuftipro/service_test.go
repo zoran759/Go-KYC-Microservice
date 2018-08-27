@@ -3,10 +3,10 @@ package shuftipro
 import (
 	"testing"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/lambospeed/kyc/common"
+	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
 )
 
 func TestNew(t *testing.T) {
@@ -64,6 +64,21 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 		assert.Equal(t, common.Error, result)
 		assert.Nil(t, detailedResult)
 		assert.Equal(t, "Invalid checksum value.", err.Error())
+	}
+
+	service.verification = verification.Mock{
+		VerifyFn: func(request verification.Request) (*verification.Response, error) {
+			return &verification.Response{
+				StatusCode: "SP2",
+			}, nil
+		},
+	}
+
+	result, detailedResult, err = service.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) {
+		assert.Equal(t, common.Error, result)
+		assert.Nil(t, detailedResult)
+		assert.Equal(t, "There are no documents provided or they are invalid", err.Error())
 	}
 
 	service.verification = verification.Mock{

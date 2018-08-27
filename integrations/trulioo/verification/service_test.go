@@ -3,9 +3,9 @@ package verification
 import (
 	"testing"
 
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 )

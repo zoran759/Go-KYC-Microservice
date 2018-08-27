@@ -1,9 +1,9 @@
 package trulioo
 
 import (
+	"encoding/base64"
 	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
-	"encoding/base64"
 )
 
 type Config struct {

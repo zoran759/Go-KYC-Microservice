@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -34,7 +35,10 @@ func Request(method string, endpoint string, headers Headers, body []byte) (int,
 		request.Header.Set(header, value)
 	}
 
-	response, err := Client.Do(request)
+	ctx, _ := context.WithTimeout(context.Background(), defaultHttpTimeout)
+
+	response, err := http.DefaultClient.Do(request.WithContext(ctx))
+
 	if err != nil {
 		return 0, nil, err
 	}

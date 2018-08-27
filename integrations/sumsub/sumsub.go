@@ -1,11 +1,11 @@
 package sumsub
 
 import (
+	"github.com/pkg/errors"
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
 	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
 	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
-	"github.com/pkg/errors"
 	"log"
 	"math"
 	"time"

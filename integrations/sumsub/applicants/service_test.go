@@ -43,15 +43,15 @@ func Test_service_CreateApplicantSuccess(t *testing.T) {
   "inspectionId" : "596eb3c83a0eb985b8ade349",
   "jobId" : "a8f77946-14ff-4398-aa23-a1027e16f627",
   "info" : {
-    "firstName" : "Nikita",
-    "middleName" : "Nikitaive",
-    "lastName" : "Roman",
+    "firstName" : "Serge",
+    "middleName" : "Sergeevich",
+    "lastName" : "Sergeew",
     "dob" : "2000-03-04",
-    "placeOfBirth" : "Dnipro",
-    "country" : "UA",
-    "phone" : "+380-68-0055416"
+    "placeOfBirth" : "Saint-Petersburg",
+    "country" : "RUS",
+    "phone" : "+7-911-2081223"
   },
-  "email" : "nikita@gmail.com"
+  "email" : "ivanov@gmail.com"
 }`,
 			), nil
 		},
@@ -63,7 +63,7 @@ func Test_service_CreateApplicantSuccess(t *testing.T) {
 		assert.Equal(t, "2017-07-19 03:20:09", response.CreatedAt)
 		assert.Equal(t, "596eb3c83a0eb985b8ade349", response.InspectionID)
 		assert.Equal(t, "a8f77946-14ff-4398-aa23-a1027e16f627", response.JobID)
-		assert.Equal(t, "nikita@gmail.com", response.Email)
+		assert.Equal(t, "ivanov@gmail.com", response.Email)
 
 		info := response.Info
 		assert.Equal(t, "Serge", info.FirstName)
@@ -71,8 +71,8 @@ func Test_service_CreateApplicantSuccess(t *testing.T) {
 		assert.Equal(t, "Sergeevich", info.MiddleName)
 		assert.Equal(t, "2000-03-04", info.DateOfBirth)
 		assert.Equal(t, "Saint-Petersburg", info.PlaceOfBirth)
-		assert.Equal(t, "UA", info.Country)
-		assert.Equal(t, "+380-68-0055416", info.Phone)
+		assert.Equal(t, "RUS", info.Country)
+		assert.Equal(t, "+7-911-2081223", info.Phone)
 	}
 }
 
