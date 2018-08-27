@@ -10,9 +10,6 @@ import (
 
 const defaultHttpTimeout = time.Minute
 
-// Client is the the HTTP client. It uses default timeout for requests.
-var Client = &http.Client{Timeout: defaultHttpTimeout}
-
 type Headers map[string]string
 
 func Post(endpoint string, headers Headers, body []byte) (int, []byte, error) {
