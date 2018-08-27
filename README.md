@@ -15,3 +15,7 @@ func CheckCustomer(customer *common.UserData) bool
 ```
 
 The main package will call this method in a goroutine to perform a check. The method should block until a response is has been received from the KYC provider.
+
+### IDology integration
+
+See [README](integrations/idology/README.md)
