@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/lambospeed/kyc/common"
 )
 
 func TestMapCustomerToDataFields(t *testing.T) {

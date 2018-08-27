@@ -23,8 +23,8 @@ type Services struct {
 
 type Data struct {
 	FaceImage   string `json:"face_image,omitempty"`
-	FrontImage  string `json:"front_image,omitempty"`
-	BackImage   string `json:"back_image,omitempty"`
+	FrontImage  string `json:"document_front_image,omitempty"`
+	BackImage   string `json:"document_back_image,omitempty"`
 	UtilityBill string `json:"document_address_image,omitempty"`
 }
 

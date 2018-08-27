@@ -1,9 +1,9 @@
 package configuration
 
 import (
-	"gitlab.com/lambospeed/kyc/http"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"gitlab.com/lambospeed/kyc/http"
 	stdhttp "net/http"
 )
 

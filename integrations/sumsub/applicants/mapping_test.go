@@ -3,8 +3,8 @@ package applicants
 import (
 	"testing"
 
-	"gitlab.com/lambospeed/kyc/common"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/lambospeed/kyc/common"
 	"time"
 )
 

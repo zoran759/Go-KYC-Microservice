@@ -1,9 +1,8 @@
 package verification
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
 	"encoding/base64"
-	"strings"
+	"gitlab.com/lambospeed/kyc/common"
 )
 
 func MapCustomerToVerificationRequest(customer common.UserData) Request {
@@ -11,7 +10,7 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 	request := Request{
 		Email:       customer.Email,
 		PhoneNumber: customer.Phone,
-		Country:     strings.ToLower(customer.CountryAlpha2),
+		Country:     customer.CountryAlpha2,
 		VerificationServices: Services{
 			FirstName:   customer.FirstName,
 			LastName:    customer.LastName,
@@ -33,7 +32,7 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 				}
 			} else if request.VerificationData.UtilityBill == "" && document.Metadata.Type == common.UtilityBill {
 				if document.Front != nil {
-					request.VerificationData.FaceImage = base64.StdEncoding.EncodeToString(document.Front.Data)
+					request.VerificationData.UtilityBill = base64.StdEncoding.EncodeToString(document.Front.Data)
 				}
 			} else if request.VerificationServices.DocumentType == "" {
 				if mappedType := mapDocumentType(document.Metadata.Type); mappedType != "" {

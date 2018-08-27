@@ -1,9 +1,9 @@
 package verification
 
 import (
+	"encoding/json"
 	"gitlab.com/lambospeed/kyc/http"
 	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
-	"encoding/json"
 )
 
 type service struct {

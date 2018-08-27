@@ -1,10 +1,10 @@
 package verification
 
 import (
-	"gitlab.com/lambospeed/kyc/http"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gitlab.com/lambospeed/kyc/http"
 )
 
 type service struct {

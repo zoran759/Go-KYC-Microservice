@@ -1,11 +1,11 @@
 package verification
 
 import (
-	"gitlab.com/lambospeed/kyc/http"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"github.com/gofrs/uuid"
+	"gitlab.com/lambospeed/kyc/http"
 	"log"
 	"net/url"
 )
@@ -37,8 +37,7 @@ func (service service) Verify(request Request) (*Response, error) {
 	}
 
 	signatureString :=
-		"0" +
-			service.config.ClientID +
+		service.config.ClientID +
 			request.Country +
 			request.Email +
 			request.PhoneNumber +
@@ -53,7 +52,6 @@ func (service service) Verify(request Request) (*Response, error) {
 	hashedSignatureString := hasher.Sum(nil)
 
 	form := url.Values{}
-	form.Add("background_checks", "0")
 	form.Add("client_id", service.config.ClientID)
 	form.Add("country", request.Country)
 	form.Add("email", request.Email)
@@ -77,39 +75,6 @@ func (service service) Verify(request Request) (*Response, error) {
 	log.Println(form.Encode())
 	log.Println(string(responseBytes))
 	log.Println(code)
-	response := new(Response)
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-
-func (service service) CheckStatus(reference string) (*Response, error) {
-	signatureString := service.config.ClientID + reference + service.config.SecretKey
-
-	hasher := sha256.New()
-	hasher.Write([]byte(signatureString))
-	hashedSignatureString := hasher.Sum(nil)
-
-	form := url.Values{}
-
-	form.Add("client_id", service.config.ClientID)
-	form.Add("reference", reference)
-	form.Add("signature", hex.EncodeToString(hashedSignatureString[:]))
-
-	_, responseBytes, err := http.Post(
-		service.config.Host+"/status",
-		http.Headers{
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		[]byte(form.Encode()),
-	)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(string(responseBytes))
-	log.Println(form.Encode())
 	response := new(Response)
 	if err := json.Unmarshal(responseBytes, response); err != nil {
 		return nil, err

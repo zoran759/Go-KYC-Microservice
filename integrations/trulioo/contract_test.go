@@ -3,10 +3,10 @@ package trulioo
 import (
 	"testing"
 
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
 	"encoding/base64"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
+	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
 )
 
 func TestConfig_createToken(t *testing.T) {

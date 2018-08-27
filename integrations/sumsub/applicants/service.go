@@ -1,10 +1,10 @@
 package applicants
 
 import (
-	"gitlab.com/lambospeed/kyc/http"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/lambospeed/kyc/http"
 )
 
 type service struct {
