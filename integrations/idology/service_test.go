@@ -2,7 +2,7 @@ package idology_test
 
 import (
 	"flag"
-	nethttp "net/http"
+	"net/http"
 	"net/url"
 	"reflect"
 	"time"
@@ -12,7 +12,6 @@ import (
 	. "gitlab.com/lambospeed/kyc/integrations/idology"
 
 	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/http"
 	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
 )
 
@@ -25,6 +24,16 @@ var proxyURL = "socks5://localhost:8000"
 
 // This is "-runlive" command-line flag to activate the sandbox testing (see "ExpectID Sandbox Guide.pdf").
 var runLive bool
+
+var _ = BeforeSuite(func() {
+	if runLive && len(proxyURL) > 0 {
+		proxy, _ := url.Parse(proxyURL)
+		t := &http.Transport{
+			Proxy: http.ProxyURL(proxy),
+		}
+		http.DefaultClient.Transport = t
+	}
+})
 
 var _ = Describe("The IDology KYC service", func() {
 	Specify("should be properly created", func() {
@@ -92,16 +101,6 @@ var _ = Describe("The IDology KYC service", func() {
 				Skip(runliveMsg)
 			}
 		}
-
-		BeforeEach(func() {
-			if len(proxyURL) > 0 {
-				proxy, _ := url.Parse(proxyURL)
-				t := &nethttp.Transport{
-					Proxy: nethttp.ProxyURL(proxy),
-				}
-				http.Client.Transport = t
-			}
-		})
 
 		Context("when using wrong credentials in config", func() {
 			It("should error", func() {
