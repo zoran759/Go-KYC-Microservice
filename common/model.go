@@ -1,6 +1,7 @@
 package common
 
 import (
+	"strings"
 	"time"
 )
 
@@ -47,6 +48,18 @@ type Address struct {
 	StateProvinceCode string
 	StartDate         Time
 	EndDate           Time
+}
+
+// StreetAddress is a helper func that returns street part of the address.
+func (a Address) StreetAddress() string {
+	b := strings.Builder{}
+	b.WriteString(a.BuildingNumber)
+	if b.Len() > 0 {
+		b.WriteString(" ")
+	}
+	b.WriteString(a.Street)
+
+	return b.String()
 }
 
 // Time defines the model for time values.
