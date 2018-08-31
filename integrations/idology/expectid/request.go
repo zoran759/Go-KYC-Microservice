@@ -90,7 +90,7 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	// "ssn" - Optional. Full ssn (9).
 	v.Set("ssn", "")
 	for _, d := range customer.Documents {
-		if d.Metadata.Type == common.IDCard {
+		if d.Metadata.Type == common.IDCard || d.Metadata.Type == common.IDCardEng {
 			v.Set("ssnLast4", d.Metadata.CardLast4Digits)
 			v.Set("ssn", d.Metadata.Number)
 
