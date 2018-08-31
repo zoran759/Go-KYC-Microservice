@@ -48,7 +48,7 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	// Required. Last Name.
 	v.Set("lastName", customer.LastName)
 	// Required. Street address.
-	v.Set("address", customer.CurrentAddress.Street)
+	v.Set("address", customer.CurrentAddress.StreetAddress())
 	// Conditional. City. City and State required if enabled.
 	if len(customer.CurrentAddress.Town) > 0 {
 		v.Set("city", customer.CurrentAddress.Town)
