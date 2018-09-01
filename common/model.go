@@ -1,6 +1,7 @@
 package common
 
 import (
+	"strings"
 	"time"
 )
 
@@ -47,6 +48,30 @@ type Address struct {
 	StateProvinceCode string
 	StartDate         Time
 	EndDate           Time
+}
+
+// HouseStreetApartmentAddress returns street address string in the form required for some providers.
+// It includes house number, street name and apartment number.
+func (a Address) HouseStreetApartmentAddress() string {
+	writeSpace := func(b *strings.Builder) {
+		if b.Len() == 0 {
+			return
+		}
+		b.WriteString(" ")
+	}
+
+	b := strings.Builder{}
+	b.WriteString(a.BuildingNumber)
+	if len(a.Street) > 0 {
+		writeSpace(&b)
+		b.WriteString(a.Street)
+	}
+	if len(a.FlatNumber) > 0 {
+		writeSpace(&b)
+		b.WriteString(a.FlatNumber)
+	}
+
+	return b.String()
 }
 
 // Time defines the model for time values.
