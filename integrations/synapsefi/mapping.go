@@ -8,15 +8,15 @@ import (
 )
 
 func mapResponseToResult(response verification.UserResponse) (common.KYCResult, *common.DetailedKYCResult, error) {
-	if response.DocumentStatus.PhysicalDoc == Verified {
-		return common.Approved, &common.DetailedKYCResult{}, nil
-	} else if response.DocumentStatus.PhysicalDoc == Unverified {
+	if response.DocumentStatus.PhysicalDoc == Valid {
+		return common.Approved, nil, nil
+	} else if response.DocumentStatus.PhysicalDoc == Invalid {
 		details := common.DetailedKYCResult{
 			Finality: common.Unknown,
 		}
 
 		for _, document := range response.Documents[0].PhysicalDocs {
-			if document.Status != Verified {
+			if document.Status != Valid {
 				details.Reasons = append(
 					details.Reasons,
 					fmt.Sprintf("%s:%s",

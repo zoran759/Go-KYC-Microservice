@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/integrations/synapsefi/verification"
+	"log"
 	"math"
 	"time"
 )
@@ -36,18 +37,24 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (common.KYCRes
 		startingPower := 3
 		startingDate := time.Now()
 		for {
-			time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
-			startingPower += 1
-
-			if response.DocumentStatus.PhysicalDoc == "SUBMITTED|REVIEWING" || response.DocumentStatus.PhysicalDoc == "SUBMITTED" {
-				continue
-			}
-
-			return mapResponseToResult(*response)
-
 			if time.Now().Unix()-startingDate.Unix() >= service.timeoutThreshold {
 				return common.Error, nil, errors.New("request timed out")
 			}
+
+			time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
+			startingPower += 1
+
+			getUserResponse, err := service.verification.GetUser(response.ID)
+			if err != nil {
+				log.Printf("SynapseFI polling error: %s for user with id: %s", err, response.ID)
+				continue
+			}
+
+			if getUserResponse.DocumentStatus.PhysicalDoc == "SUBMITTED|REVIEWING" || getUserResponse.DocumentStatus.PhysicalDoc == "SUBMITTED" {
+				continue
+			}
+
+			return mapResponseToResult(*getUserResponse)
 		}
 	}
 
