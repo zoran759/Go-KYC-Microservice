@@ -45,7 +45,7 @@ func (service service) CreateUser(request CreateUserRequest) (*UserResponse, err
 
 func (service service) GetUser(userID string) (*UserResponse, error) {
 	_, responseBytes, err := http.Get(
-		service.config.Host+userID,
+		service.config.Host+"/"+userID,
 		http.Headers{
 			"X-SP-GATEWAY": service.config.ClientID + "|" + service.config.ClientSecret,
 			"X-SP-USER":    "|",

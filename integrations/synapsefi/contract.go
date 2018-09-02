@@ -8,5 +8,5 @@ type Config struct {
 }
 
 const MissingOrInvalid = "MISSING|INVALID"
-const Verified = "SUBMITTED|VERIFIED"
-const Unverified = "SUBMITTED|UNVERIFIED"
+const Valid = "SUBMITTED|VALID"
+const Invalid = "SUBMITTED|INVALID"
