@@ -40,11 +40,11 @@ type EDNAPolicyResult string
 
 // Possible values of EDNAPolicyResult.
 const (
-	Trusted       EDNAPolicyResult = "TRUSTED"
-	WeaklyTrusted EDNAPolicyResult = "WEAKLY_TRUSTED"
-	UnknownResult EDNAPolicyResult = "UNKNOWN"
-	Suspicious    EDNAPolicyResult = "SUSPICIOUS"
-	Bad           EDNAPolicyResult = "BAD"
+	EPTrusted       EDNAPolicyResult = "TRUSTED"
+	EPWeaklyTrusted EDNAPolicyResult = "WEAKLY_TRUSTED"
+	EPUnknown       EDNAPolicyResult = "UNKNOWN"
+	EPSuspicious    EDNAPolicyResult = "SUSPICIOUS"
+	EPBad           EDNAPolicyResult = "BAD"
 )
 
 // FraudPolicyResult defines the result of the fraud evaluation.
@@ -62,14 +62,14 @@ type AutomatedReviewPolicyResult string
 
 // Possible values of AutomatedReviewPolicyResult.
 const (
-	Error         AutomatedReviewPolicyResult = "ERROR"
-	NoPolicy      AutomatedReviewPolicyResult = "NO_POLICY"
-	Disabled      AutomatedReviewPolicyResult = "DISABLED"
-	Filtered      AutomatedReviewPolicyResult = "FILTERED"
-	Pending       AutomatedReviewPolicyResult = "PENDING"
-	Fail          AutomatedReviewPolicyResult = "FAIL"
-	Indeterminate AutomatedReviewPolicyResult = "INDETERMINATE"
-	Success       AutomatedReviewPolicyResult = "SUCCESS"
+	ARPError         AutomatedReviewPolicyResult = "ERROR"
+	ARPNoPolicy      AutomatedReviewPolicyResult = "NO_POLICY"
+	ARPDisabled      AutomatedReviewPolicyResult = "DISABLED"
+	ARPFiltered      AutomatedReviewPolicyResult = "FILTERED"
+	ARPPending       AutomatedReviewPolicyResult = "PENDING"
+	ARPFail          AutomatedReviewPolicyResult = "FAIL"
+	ARPIndeterminate AutomatedReviewPolicyResult = "INDETERMINATE"
+	ARPSuccess       AutomatedReviewPolicyResult = "SUCCESS"
 )
 
 // KYCState defines the current state of the KYC.
