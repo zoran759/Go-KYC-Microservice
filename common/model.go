@@ -13,7 +13,9 @@ type UserData struct {
 	MiddleName            string
 	LegalName             string
 	LatinISO1Name         string
+	AccountName           string
 	Email                 string
+	IPaddress             string
 	Gender                Gender
 	DateOfBirth           Time
 	PlaceOfBirth          string
@@ -23,6 +25,7 @@ type UserData struct {
 	Nationality           string
 	Phone                 string
 	MobilePhone           string
+	Location              *Location
 	AddressString         string
 	CurrentAddress        Address
 	SupplementalAddresses []Address
@@ -122,4 +125,10 @@ type DocumentFile struct {
 type DetailedKYCResult struct {
 	Finality KYCFinality
 	Reasons  []string
+}
+
+// Location defines the model for the geopositional data.
+type Location struct {
+	Latitude  string
+	Longitude string
 }

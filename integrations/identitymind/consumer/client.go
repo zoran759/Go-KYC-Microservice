@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	consumerEndpoint = "/account/consumer"
+	consumerEndpoint    = "/account/consumer"
+	filesUploadEndpoint = "/account/consumer/%s/files"
 )
 
 // Client defines the client for IdentityMind API.
