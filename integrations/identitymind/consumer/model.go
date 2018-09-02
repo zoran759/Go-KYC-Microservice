@@ -1,137 +1,204 @@
 package consumer
 
-const maxBillingStreetLength = 100
+import (
+	"strings"
+
+	"gitlab.com/lambospeed/kyc/common"
+)
+
+const (
+	maxBillingStreetLength = 100
+	maxAccountNameLength   = 60
+	maxEmailLength         = 60
+)
 
 // KYCRequestData defines the model for Individual KYC Data.
 type KYCRequestData struct {
 	// Required. Account Name for the user. Maximum length is 60 characters.
 	AccountName string `json:"man"`
 	// Email address for the user. Maximum length is 60 characters.
-	Email string `json:"tea"`
+	Email string `json:"tea,omitempty"`
 	// OAuth service that authenticated user. For example “google” or “facebook”.
-	OAuthService string `json:"soc"`
+	OAuthService string `json:"soc,omitempty"`
 	// Customer’s IP address.
-	IP string `json:"ip"`
+	IP string `json:"ip,omitempty"`
 	// Device fingerprint blob.
-	DeviceFingerprintBlob string `json:"dfp"`
+	DeviceFingerprintBlob string `json:"dfp,omitempty"`
 	// Device fingerprint type.
-	DeviceFingerprintType DeviceFingerprintType `json:"dft"`
+	DeviceFingerprintType DeviceFingerprintType `json:"dft,omitempty"`
 	// Billing First Name.
-	BillingFirstName string `json:"bfn"`
+	BillingFirstName string `json:"bfn,omitempty"`
 	// Billing Middle Name.
-	BillingMiddleName string `json:"bmn"`
+	BillingMiddleName string `json:"bmn,omitempty"`
 	// Billing Last Name.
-	BillingLastName string `json:"bln"`
+	BillingLastName string `json:"bln,omitempty"`
 	// Billing Street. Include house number, street name and apartment number. Maximum length is 100 characters.
-	BillingStreet string `json:"bsn"`
+	BillingStreet string `json:"bsn,omitempty"`
 	// Billing Country. ISO 3166 Country code of the Billing Address of the transaction, encoded as a String. Default is “US”.
-	BillingCountryAlpha2 string `json:"bco"`
+	BillingCountryAlpha2 string `json:"bco,omitempty"`
 	// Billing Zip / Postal Code.
-	BillingPostalCode string `json:"bz"`
+	BillingPostalCode string `json:"bz,omitempty"`
 	// Billing City.
-	BillingCity string `json:"bc"`
+	BillingCity string `json:"bc,omitempty"`
 	// Billing State.
-	BillingState string `json:"bs"`
+	BillingState string `json:"bs,omitempty"`
 	// Billing Gender. M, F or Empty.
 	BillingGender string `json:"bgd"`
 	// Billing Neighborhood.
-	BillingNeighborhood string `json:"bnbh"`
+	BillingNeighborhood string `json:"bnbh,omitempty"`
 	// Shipping First Name.
-	ShippingFirstName string `json:"sfn"`
+	ShippingFirstName string `json:"sfn,omitempty"`
 	// Shipping Last Name.
-	ShippingLastName string `json:"sln"`
+	ShippingLastName string `json:"sln,omitempty"`
 	// Shipping Street. Include house number, street name and apartment number.
-	ShippingStreet string `json:"ssn"`
+	ShippingStreet string `json:"ssn,omitempty"`
 	// Shipping Country. ISO 3166 Country code of the Billing Address of the transaction, encoded as a String. Default is “US”.
-	ShippingCountry string `json:"sco"`
+	ShippingCountry string `json:"sco,omitempty"`
 	// Shipping Zip / Postal Code.
-	ShippingPostalCode string `json:"sz"`
+	ShippingPostalCode string `json:"sz,omitempty"`
 	// Shipping City.
-	ShippingCity string `json:"sc"`
+	ShippingCity string `json:"sc,omitempty"`
 	// Shipping State.
-	ShippingState string `json:"ss"`
+	ShippingState string `json:"ss,omitempty"`
 	// Customer longitude.
-	CustomerLongitude string `json:"clong"`
+	CustomerLongitude string `json:"clong,omitempty"`
 	// Customer latitude.
-	CustomerLatitude string `json:"clat"`
+	CustomerLatitude string `json:"clat,omitempty"`
 	// Customer Browser Language.
-	CustomerBrowserLanguage string `json:"blg"`
+	CustomerBrowserLanguage string `json:"blg,omitempty"`
 	// Affiliate Id. The client specific identifier for the affiliate that generated this transaction.
-	AffiliateID string `json:"aflid"`
+	AffiliateID string `json:"aflid,omitempty"`
 	// The signup/affiliate creation date of the affiliate associated with this transaction. Either a ISO8601 encoded string or a unix timestamp.
-	AffiliateCreationDate string `json:"aflsd"`
+	AffiliateCreationDate string `json:"aflsd,omitempty"`
 	// Customer primary phone number.
-	CustomerPrimaryPhone string `json:"phn"`
+	CustomerPrimaryPhone string `json:"phn,omitempty"`
 	// Customer mobile phone number.
-	CustomerMobilePhone string `json:"pm"`
+	CustomerMobilePhone string `json:"pm,omitempty"`
 	// Customer work phone number.
-	CustomerWorkPhone string `json:"pw"`
+	CustomerWorkPhone string `json:"pw,omitempty"`
 	// Transaction Time in UTC. Encoded either as a Unix timestamp, or ISO8601 string. Do not include milliseconds. I chose the string.
-	TransactionTime string `json:"tti"`
+	// FIXME: I can't imagine how to implement this "Object"...
+	// TransactionTime string `json:"tti,omitempty"`
 	// Transaction Identifier. If not provided, an id will be allocated internally by IDM.
-	TransactionIdentifier string `json:"tid"`
+	TxID string `json:"tid,omitempty"`
 	// Credit Card unique identifier (Hash). IdentityMind will supply procedure to generate hash. NOTE: The hash must be of the full card number, not a masked or tokenized representation.
-	CreditCardUIDHash string `json:"pccn"`
+	CreditCardUIDHash string `json:"pccn,omitempty"`
 	// A masked or tokenized version of the credit card number. IdentityMind will supply procedure to generate token.
-	CreditCardNumberToken string `json:"pcct"`
+	CreditCardNumberToken string `json:"pcct,omitempty"`
 	// The type of the card.
-	CardType CardType `json:"pcty"`
+	CardType CardType `json:"pcty,omitempty"`
 	// Generic payment account unique identifier (Hash). This is used when IdentityMind does not natively support the payment type. NOTE: The hash must be of the full account number, not a masked or tokenized representation.
-	GenericPaymentAccountUIDHash string `json:"phash"`
+	GenericPaymentAccountUIDHash string `json:"phash,omitempty"`
 	// A masked or tokenized version of the account token.
-	AccountToken string `json:"ptoken"`
+	AccountToken string `json:"ptoken,omitempty"`
 	// ACH account unique identifier (Hash). NOTE: The hash must be of the full account number, not a masked or tokenized representation.
-	ACHAccountUIDHash string `json:"pach"`
+	ACHAccountUIDHash string `json:"pach,omitempty"`
 	// A virtual currency address for the funding source. For example the Bitcoin P2PKH address.
-	VirtualCurrencyAddress string `json:"pbc"`
+	VirtualCurrencyAddress string `json:"pbc,omitempty"`
 	// The policy profile to be used to evaluate this transaction. Prior to IDMRisk 1.18 this was encoded in the smna and smid fields.
-	Profile string `json:"profile"`
-	// Deprecated.
-	Smna string `json:"smna"`
+	Profile string `json:"profile,omitempty"`
 	// Free form memo field for client use.
-	Memo string `json:"memo"`
+	Memo string `json:"memo,omitempty"`
 	// Merchant Identifier. Used when a reseller is proxying requests for their merchant’s. Please contact IdentityMind support for further details of the usage of this field.
-	MerchantID string `json:"m"`
+	MerchantID string `json:"m,omitempty"`
 	// List of Source Digital Currency Addresses.
-	SrcDigitalCurrencyAddresses []string `json:"sdcad"`
+	SrcDigitalCurrencyAddresses []string `json:"sdcad,omitempty"`
 	// List of Destination Digital Currency Addresses.
-	DstDigitalCurrencyAddresses []string `json:"ddcad"`
+	DstDigitalCurrencyAddresses []string `json:"ddcad,omitempty"`
 	// Digital Currency Transaction Hash.
-	DigitalCurrencyTransactionHash string `json:"dcth"`
+	DigitalCurrencyTransactionHash string `json:"dcth,omitempty"`
 	// An array of tags to be applied to the transaction.
-	Tags []string `json:"tags"`
+	Tags []string `json:"tags,omitempty"`
 	// Required if using Document Verification, the document front side image data, Base64 encoded. If provided this will override the configured “Jumio client integration”. 5MB maximum size.
-	ScanData string `json:"scanData"`
+	ScanData string `json:"scanData,omitempty"`
 	// If using Document Verification, the document back side image data, Base64 encoded. 5MB maximum size.
-	BacksideImageData string `json:"backsideImageData"`
+	BacksideImageData string `json:"backsideImageData,omitempty"`
 	// If using Document Verification, a serialized JSON array of face image data, Base64 encoded. 5MB maximum size.
-	FaceImages []string `json:"faceImages"`
+	FaceImages []string `json:"faceImages,omitempty"`
 	// Stage of application being processed. An integer between 1 and 5. If not provided, defaults to 1.
-	Stage int `json:"stage"`
+	Stage int `json:"stage,omitempty"`
 	// If this individual is linked to a merchant (business) as one of the owners of the business, this parameter should match the exact application ID of the merchant.
-	MerchantAid string `json:"merchantAid"`
+	MerchantAid string `json:"merchantAid,omitempty"`
 	// If this individual is linked to a merchant (business) as one of the owners of the business, whether the individual provides a personal guarantee of debt.
-	PersonalGuarantee bool `json:"personalguarantee"`
+	PersonalGuarantee bool `json:"personalguarantee,omitempty"`
 	// If this individual is linked to a merchant (business) as one of the owners of the business, the percentage of ownership.
-	Ownership float64 `json:"ownership"`
+	Ownership float64 `json:"ownership,omitempty"`
 	// Title of the applicant.
-	Title string `json:"title"`
+	Title string `json:"title,omitempty"`
 	// Required if using Document Verification, the country in which the document was issued in.
-	DocumentCountry string `json:"docCountry"`
-	// Required if using Document Verification, the Type of the Document - Passport (PP) | Driver’s Licence (DL) | Government issued Identity Card (ID) |Residence Permit (RP) | Utility Bill (UB).
-	DocumentType DocumentType `json:"docType"`
+	DocumentCountry string `json:"docCountry,omitempty"`
+	// Required if using Document Verification, the Type of the Document.
+	DocumentType DocumentType `json:"docType,omitempty"`
 	// Applicant’s date of birth encoded as an ISO8601 string.
-	DateOfBirth string `json:"dob"`
+	DateOfBirth string `json:"dob,omitempty"`
 	// The applicant’s social security number or national identification number. It is a structed string defined as [ISO-3166-1 (alpha-2)]:[national id].For example “US:123456789” represents a United States Social Security Number. For backwards compatibility if no country code is provided then the identifier is assumed to be a US SSN.
-	ApplicantSSN string `json:"assn"`
+	ApplicantSSN string `json:"assn,omitempty"`
 	// Last 4 digits of the applicant’s social security number or national identification number. If you wish to display the assn4l on the UI, both assn4l and assn values must be present in this request.
-	ApplicantSSNLast4 string `json:"assnl4"`
-	// Deprecated.
-	Smid string `json:"smid"`
+	ApplicantSSNLast4 string `json:"assnl4,omitempty"`
 	// AVS (Address Verification System) Result value from the Gateway.
-	AVSResult string `json:"avs_result"`
+	AVSResult string `json:"avs_result,omitempty"`
 }
 
-// TODO plan:
-// - write func for ApplicantSSN preparation.
-// - review model.
+// setApplicantSSN sets ApplicantSSN field in KYCRequestData in the required format.
+func (k *KYCRequestData) setApplicantSSN(doc *common.DocumentMetadata) {
+	if doc.Type != common.IDCard {
+		return
+	}
+	b := strings.Builder{}
+	b.WriteString(doc.Country)
+	b.WriteString(":")
+	b.WriteString(doc.Number)
+
+	k.ApplicantSSN = b.String()
+}
+
+// ApplicationResponseData defines the model for Response Data for a Consumer or Merchant KYC.
+type ApplicationResponseData struct {
+	// The current reputation of the user involved in this transaction.
+	CurrentUserReputation EDNAPolicyResult `json:"user"`
+	// The previous reputation of the User, that is, the reputation of the user the last time that it was evaluated.
+	PreviousUserReputation EDNAPolicyResult `json:"upr"`
+	// FIXME: do we really need this?
+	// ednaScoreCard:	ExternalizedTransactionScorecard{...}
+	// The name of the fraud rule that fired.
+	FraudRuleName string `json:"frn"`
+	// Result of fraud evaluation.
+	FraudPolicyResult FraudPolicyResult `json:"frp"`
+	// The description of the fraud rule that fired.
+	FraudRuleDescription string `json:"frd"`
+	// Result of automated review evaluation.
+	ARPResult AutomatedReviewPolicyResult `json:"arpr"`
+	// The description, if any, of the automated review rule that fired.
+	ARPDescription string `json:"arpd"`
+	// The id, if any, of the automated review rule that fired.
+	ARPID string `json:"arpid"`
+	// FIXME: do we really need this?
+	// graphScore:	GraphRiskScore{...}
+	// The transaction id for this KYC. This id should be provided on subsequent updates to the KYC.
+	KYCTxID string `json:"mtid"`
+	// The current state of the KYC. A - Accepted; R - Under Review; D - Rejected.
+	State KYCState `json:"state"`
+	// FIXME: do we really need this?
+	// oowQuestions:	QuestionsWrapper{...}
+	ACVerification string `json:"acVerification"`
+	// FIXME: do we really need this?
+	DocVerification     *DocumentVerification `json:"docVerification"`
+	SMSVerification     string                `json:"smsVerification"`
+	OwnerApplicationIDs []string              `json:"ownerApplicationIds"`
+	ParentMerchant      string                `json:"parentMerchant"`
+	MerchantAPIName     string                `json:"merchantAPIName"`
+	// A description of the reason for the User’s reputation.
+	ReputationReasonDescription string `json:"erd"`
+	// Result of policy evaluation. Combines the result of fraud and automated review evaluations.
+	Result FraudPolicyResult `json:"res"`
+	// The set of result codes from the evaluation of the current transaction.
+	TxResultCodes string `json:"rcd"`
+	// The transaction id of the current transaction. If no “tid” data was provided in the request data then a unique id will be generated. No assumptions should be made about the format of the generated id and it will be a maximimum length of 64 alphanumeric characters.
+	TxID string `json:"tid"`
+}
+
+// DocumentVerification is the part of ApplicationResponseData.
+type DocumentVerification struct {
+	RedirectURL string `json:"redirectURL"`
+	RequestID   string `json:"requestId"`
+}
