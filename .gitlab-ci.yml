@@ -10,7 +10,7 @@ test-idology:
   - go get -d -v ./...
   - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/...
   - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/idology
-  - ginkgo -r -cover
+  - go test ./... -cover
 
 test-trulioo:
   stage: test
@@ -57,4 +57,4 @@ test-identitymind:
   - go get -d -v ./...
   - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/...
   - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/identitymind
-  - ginkgo -r -cover
+  - go test ./... -cover
