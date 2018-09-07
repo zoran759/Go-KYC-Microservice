@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	stdhttp "net/http"
+	"time"
 
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/http"
@@ -96,12 +98,49 @@ func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, er
 }
 
 // pollApplicationState polls IDM API for the current state of a consumer KYC so long
-// as the returned state is "Under Review".
+// as the returned state is "Under Review" during one hour.
 // If the application is not found then an error message is provided in the response.
 func (c *Client) pollApplicationState(mtid string) (response *ApplicationResponseData, err error) {
-	// TODO: implement this.
+	auth := base64.StdEncoding.EncodeToString([]byte(c.config.Username + ":" + c.config.Password))
 
-	return
+	headers := http.Headers{
+		"Authorization": "Basic " + auth,
+	}
+	deadline := time.Now().Add(time.Hour)
+	endpoint := fmt.Sprintf(c.config.Host+stateRetrievalEndpoint, mtid)
+
+	for {
+		var (
+			status int
+			resp   []byte
+		)
+
+		status, resp, err = http.Get(endpoint, headers)
+		if err != nil {
+			return
+		}
+
+		if status == stdhttp.StatusOK {
+			response = &ApplicationResponseData{}
+			if err = json.Unmarshal(resp, response); err != nil {
+				return
+			}
+			if len(response.ErrorMessage) > 0 {
+				err = errors.New(response.ErrorMessage)
+				return
+			}
+			if response.State != UnderReview {
+				return
+			}
+		}
+
+		if time.Now().After(deadline) {
+			err = errors.New("polling for the KYC status was aborted after an hour")
+			return
+		}
+
+		time.Sleep(5 * time.Minute)
+	}
 }
 
 // Ensure implementation conformance to the interface.

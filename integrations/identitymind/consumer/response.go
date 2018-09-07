@@ -49,6 +49,8 @@ type ApplicationResponseData struct {
 	TxResultCodes string `json:"rcd"`
 	// The transaction id of the current transaction. If no “tid” data was provided in the request data then a unique id will be generated. No assumptions should be made about the format of the generated id and it will be a maximimum length of 64 alphanumeric characters.
 	TxID string `json:"tid"`
+	// In the case of error the error message.
+	ErrorMessage string `json:"error_message"`
 }
 
 // DocumentVerification is the part of ApplicationResponseData.
