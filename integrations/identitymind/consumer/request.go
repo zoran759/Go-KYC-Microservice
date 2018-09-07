@@ -1,8 +1,10 @@
 package consumer
 
 import (
+	"encoding/base64"
 	"encoding/json"
-	"strings"
+	"errors"
+	"fmt"
 
 	"gitlab.com/lambospeed/kyc/common"
 )
@@ -11,6 +13,7 @@ const (
 	maxBillingStreetLength = 100
 	maxAccountNameLength   = 60
 	maxEmailLength         = 60
+	maxImageDataLength     = 5 << 20
 )
 
 // KYCRequestData defines the model for Individual KYC Data.
@@ -145,17 +148,131 @@ func (r *KYCRequestData) setApplicantSSN(doc *common.DocumentMetadata) {
 	if doc.Type != common.IDCard {
 		return
 	}
-	b := strings.Builder{}
-	b.WriteString(doc.Country)
-	b.WriteString(":")
-	b.WriteString(doc.Number)
 
-	r.ApplicantSSN = b.String()
+	r.ApplicantSSN = doc.Country + ":" + doc.Number
 }
 
-// populateFields populate the fields of the object with input data.
+// populateFields populate the fields of the request object with input data.
 func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
-	// TODO: implement this.
+	if len(customer.AccountName) > maxAccountNameLength {
+		err = fmt.Errorf("account length %d exceeded limit of %d symbols", len(customer.AccountName), maxAccountNameLength)
+		return
+	}
+	if len(customer.Email) > maxEmailLength {
+		err = fmt.Errorf("email length %d exceeded limit of %d symbols", len(customer.Email), maxEmailLength)
+		return
+	}
+	billingStreet := customer.CurrentAddress.HouseStreetApartmentAddress()
+	if len(billingStreet) > maxBillingStreetLength {
+		err = fmt.Errorf("email length %d exceeded limit of %d symbols", len(billingStreet), maxBillingStreetLength)
+		return
+	}
+
+	r.AccountName = customer.AccountName
+	r.Email = customer.Email
+	r.IP = customer.IPaddress
+	r.BillingFirstName = customer.FirstName
+	r.BillingMiddleName = customer.MiddleName
+	r.BillingLastName = customer.LastName
+	r.BillingStreet = billingStreet
+	r.BillingCountryAlpha2 = customer.CountryAlpha2
+	r.BillingPostalCode = customer.CurrentAddress.PostCode
+	r.BillingCity = customer.CurrentAddress.Town
+	r.BillingState = customer.CurrentAddress.State
+	r.BillingGender = genderMap[customer.Gender]
+	if customer.Location != nil {
+		r.CustomerLongitude = customer.Location.Longitude
+		r.CustomerLatitude = customer.Location.Latitude
+
+	}
+	r.CustomerPrimaryPhone = customer.Phone
+	r.CustomerMobilePhone = customer.MobilePhone
+	r.DateOfBirth = customer.DateOfBirth.Format("2006-01-02")
+
+	// Documents processing.
+	docs := map[common.DocumentType]int{}
+	for i, doc := range customer.Documents {
+		switch doc.Metadata.Type {
+		case common.IDCard:
+			docs[common.IDCard] = i
+			r.setApplicantSSN(&doc.Metadata)
+			r.ApplicantSSNLast4 = doc.Metadata.CardLast4Digits
+		case common.Passport:
+			docs[common.Passport] = i
+		case common.Drivers:
+			docs[common.Drivers] = i
+		case common.Selfie:
+			if doc.Front != nil {
+				face, e := toBase64(doc.Front.Data)
+				if e != nil {
+					err = fmt.Errorf("during encoding selfi image data: %s", e)
+					return
+				}
+				r.FaceImages = append(r.FaceImages, face)
+			}
+		}
+	}
+	if len(docs) == 0 {
+		return
+	}
+
+	i, ok := docs[common.Passport]
+	if ok && customer.Documents[i].Front != nil {
+		r.ScanData, err = toBase64(customer.Documents[i].Front.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding passport front image: %s", err)
+			return
+		}
+		if customer.Documents[i].Back != nil {
+			r.BacksideImageData, err = toBase64(customer.Documents[i].Back.Data)
+			if err != nil {
+				err = fmt.Errorf("during encoding passport back image: %s", err)
+				return
+			}
+		}
+		r.DocumentCountry = customer.Documents[i].Metadata.Country
+		r.DocumentType = documentTypeMap[common.Passport]
+
+		return
+	}
+
+	i, ok = docs[common.Drivers]
+	if ok && customer.Documents[i].Front != nil {
+		r.ScanData, err = toBase64(customer.Documents[i].Front.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding driving license front image: %s", err)
+			return
+		}
+		if customer.Documents[i].Back != nil {
+			r.BacksideImageData, err = toBase64(customer.Documents[i].Back.Data)
+			if err != nil {
+				err = fmt.Errorf("during encoding driving license back image: %s", err)
+				return
+			}
+		}
+		r.DocumentCountry = customer.Documents[i].Metadata.Country
+		r.DocumentType = documentTypeMap[common.Drivers]
+
+		return
+	}
+
+	i, ok = docs[common.IDCard]
+	if ok && customer.Documents[i].Front != nil {
+		r.ScanData, err = toBase64(customer.Documents[i].Front.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding id card front image: %s", err)
+			return
+		}
+		if customer.Documents[i].Back != nil {
+			r.BacksideImageData, err = toBase64(customer.Documents[i].Back.Data)
+			if err != nil {
+				err = fmt.Errorf("during encoding id card back image: %s", err)
+				return
+			}
+		}
+		r.DocumentCountry = customer.Documents[i].Metadata.Country
+		r.DocumentType = documentTypeMap[common.IDCard]
+	}
 
 	return
 }
@@ -163,6 +280,22 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 // createRequestBody creates request body from the object data.
 func (r *KYCRequestData) createRequestBody() (body []byte, err error) {
 	body, err = json.Marshal(r)
+
+	return
+}
+
+// toBase64 returns base64-encoded representation of the data.
+func toBase64(src []byte) (dst string, err error) {
+	if len(src) == 0 {
+		return
+	}
+
+	if base64.StdEncoding.EncodedLen(len(src)) > maxImageDataLength {
+		err = errors.New("too large image file")
+		return
+	}
+
+	dst = base64.StdEncoding.EncodeToString(src)
 
 	return
 }
