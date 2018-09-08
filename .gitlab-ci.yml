@@ -2,7 +2,7 @@ stages:
   - test
 
 test-integrations:
-stage: test
+  stage: test
   image: golang:stretch
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
