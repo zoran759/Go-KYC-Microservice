@@ -1,51 +1,13 @@
 stages:
   - test
 
-test-idology:
-  stage: test
+test-integrations:
+stage: test
   image: golang:stretch
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
   - go get -d -v ./...
-  - go get github.com/jarcoal/httpmock
-  - go get github.com/onsi/ginkgo/ginkgo
-  - go get github.com/onsi/gomega/...
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/idology
-  - ginkgo -r -cover
-
-test-trulioo:
-  stage: test
-  image: golang:stretch
-  script:
-  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
-  - go get -d -v ./...
-  - go get github.com/stretchr/testify
-  - go get gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/trulioo
-  - go test ./...
-
-test-sumsub:
-  stage: test
-  image: golang:stretch
-  script:
-  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
-  - go get -d -v ./...
-  - go get github.com/stretchr/testify
-  - go get gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/sumsub
-  - go test ./...
-
-test-shufti-pro:
-  stage: test
-  image: golang:stretch
-  script:
-  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
-  - go get -d -v ./...
-  - go get github.com/stretchr/testify
-  - go get gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/shuftipro
-  - go test ./...
+  - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/... github.com/stretchr/testify gopkg.in/jarcoal/httpmock.v1
+  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations
+  - go test -cover ./...
