@@ -161,5 +161,3 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Sum&Substance**](integrations/sumsub/README.md)
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
-
----
