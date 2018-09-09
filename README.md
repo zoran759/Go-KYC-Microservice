@@ -156,6 +156,8 @@ The detailed result is of type [***common.DetailedKYCResult**](common/model.go#L
 | **Finality** | [_**KYCFinality**_](common/enum.go#L17) | finality of the result. Possible values are `Final`, `NonFinal` and `Unknown`. Not all providers support "finality" property hence tristate value |
 | **Reasons** | _**[]string**_ | array of additional service responses describing result-related circumstances |
 
+> The "finality" of the result means whether there is a possibility to retry the verification with an additional or an edited info or it is the final response of the system.
+
 ### **Specific KYC providers**
 
 KYC providers have different configuration options so twas inevitable to implement a specific config for each one of them. But mostly they are identical.
@@ -169,7 +171,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 
 ### **Required fields**
 
-Each KYC provider has its own subset of minimum reqired info of the customer. Use this as a reference when integrating with a specific provider what fields of [**common.UserData**](common/model.go#L8) it requires.
+Each KYC provider has its own subset of minimum required info of the customer. Use this as a reference when integrating with a specific provider what fields of [**common.UserData**](common/model.go#L8) it requires.
 
 > Of course, independently of that the sane minimum of data must always be present.
 > Also, the more data you provide to the service the more accurate will be the result.
