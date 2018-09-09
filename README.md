@@ -171,6 +171,9 @@ For instructions on integration of a specific KYC provider, please, refer this l
 
 Each KYC provider has its own subset of minimum reqired info of the customer. Use this as a reference when integrating with a specific provider what fields of [**common.UserData**](common/model.go#L8) it requires.
 
+> Of course, independently of that the sane minimum of data must always be present.
+> Also, the more data you provide to the service the more accurate will be the result.
+
 ---
 
 #### **IDology**
