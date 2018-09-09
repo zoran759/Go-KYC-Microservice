@@ -95,7 +95,7 @@ var _ = Describe("The IDology KYC service", func() {
 		}
 
 		var service = New(Config{
-			Host:     expectid.APIendpoint,
+			Host:     KYCendpoint,
 			Username: "modulus.dev2",
 			Password: "}$tRPfT1sZQmU@uh8@",
 		})
@@ -111,7 +111,7 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				failedService := New(Config{
-					Host:     expectid.APIendpoint,
+					Host:     KYCendpoint,
 					Username: "modulus.dev2",
 					Password: "wrong_password",
 				})

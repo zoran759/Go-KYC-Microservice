@@ -1,16 +1,18 @@
 package sumsub
 
 import (
+	"log"
+	"math"
+	"time"
+
 	"github.com/pkg/errors"
 	"gitlab.com/lambospeed/kyc/common"
 	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
 	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
 	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
-	"log"
-	"math"
-	"time"
 )
 
+// SumSub defines the verification service.
 type SumSub struct {
 	applicants       applicants.Applicants
 	documents        documents.Documents
@@ -18,6 +20,7 @@ type SumSub struct {
 	timeoutThreshold int64
 }
 
+// New constructs new verification service object.
 func New(config Config) SumSub {
 	return SumSub{
 		applicants: applicants.NewService(applicants.Config{
@@ -36,6 +39,7 @@ func New(config Config) SumSub {
 	}
 }
 
+// CheckCustomer implements CustomerChecker interface for Sum&Substance KYC provider.
 func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult, *common.DetailedKYCResult, error) {
 	if customer == nil {
 		return common.Error, nil, errors.New("No customer supplied")
@@ -71,14 +75,14 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 		return common.Error, nil, err
 	}
 	if !started {
-		return common.Error, nil, errors.New("Verification hasn't started for unknown reason. Please try again.")
+		return common.Error, nil, errors.New("verification hasn't started for unknown reason. Please try again")
 	}
 	// Begin polling sumsub for validation results
 	startingPower := 3
 	startingDate := time.Now()
 	for {
 		time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
-		startingPower += 1
+		startingPower++
 
 		status, result, err := service.verification.CheckApplicantStatus(applicantResponse.ID)
 		if err != nil {
@@ -87,7 +91,7 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 		}
 
 		if status == CompleteStatus {
-			var detailedResult *common.DetailedKYCResult = nil
+			var detailedResult *common.DetailedKYCResult
 
 			if result.ReviewAnswer != GreenScore && result.RejectLabels != nil && len(result.RejectLabels) > 0 {
 				detailedResult = &common.DetailedKYCResult{
@@ -97,7 +101,7 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 				switch result.ReviewRejectType {
 				case FinalRejectType:
 					detailedResult.Finality = common.Final
-				case RetryRejectTYpe:
+				case RetryRejectType:
 					detailedResult.Finality = common.NonFinal
 				default:
 					detailedResult.Finality = common.Unknown
