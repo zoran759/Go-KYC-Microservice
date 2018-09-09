@@ -28,6 +28,11 @@ The main package will call this method in a goroutine to perform a check. The me
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
 * **[Specific KYC providers](#specific-kyc-providers)**
+* **[Required fields](#required-fields)**
+  * **[IDology](#idology)**
+  * **[Sum&Substance](#sum&substance)**
+  * **[Trulioo](#trulioo)**
+  * **[Shufti Pro](#shufti-pro)**
 
 ### **Integration interface**
 
@@ -161,3 +166,65 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Sum&Substance**](integrations/sumsub/README.md)
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
+
+### **Required fields**
+
+Each KYC provider has its own subset of minimum reqired info of the customer. Use this as a reference when integrating with a specific provider what fields of [**common.UserData**](common/model.go#L8) it requires.
+
+> Of course, independently of that the sane minimum of data must always be present.
+> Also, the more data you provide to the service the more accurate will be the result.
+
+---
+
+#### **IDology**
+
+[common.UserData](common/model.go#L8) required fields:
+
+| **Name** | **Type** |
+| -------- | -------- |
+| [FirstName](common/model.go#L10) | _string_ |
+| [LastName](common/model.go#L12) | _string_ |
+| [CurrentAddress](common/model.go#L27) | [_Address_](common/model.go#L33) |
+
+[common.Address](common/model.go#L33) required fields:
+
+| **Name** | **Type** |
+| -------- | -------- |
+| [Town](common/model.go#L38) | _string_ |
+| [StateProvinceCode](common/model.go#L48) | _string_ |
+| [PostCode](common/model.go#L47) | _string_ |
+
+---
+
+#### **Sum&Substance**
+
+According to the [Sum&Substance API Reference](https://developers.sumsub.com/#applicants-api) there are no explicitly required fields from the customer data so providing as much info as possible is the rule.
+
+---
+
+#### **Trulioo**
+
+From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is unclear what fields are mandatory so providing as much info as possible is the rule.
+
+---
+
+#### **Shufti Pro**
+
+[common.UserData](common/model.go#L8) required fields:
+
+| **Name** | **Type** |
+| -------- | -------- |
+| [CountryAlpha2](common/model.go#L22) | _string_ |
+
+[common.Document](common/model.go#L84) required fields if [Documents](common/model.go#L29) are provided:
+
+| **Name** | **Type** |
+| -------- | -------- |
+| [Metadata](common/model.go#L86) | [DocumentMetadata](common/model.go#L91) |
+| [Front](common/model.go#L87) | [*DocumentFile](common/model.go#L102) |
+
+[common.DocumentMetadata](common/model.go#L91) required fields if [Documents](common/model.go#L29) are provided:
+
+| **Name** | **Type** |
+| -------- | -------- |
+| [Type](common/model.go#L93) | [DocumentType](common/enum.go#L36) |
