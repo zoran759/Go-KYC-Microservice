@@ -33,6 +33,11 @@ The main package will call this method in a goroutine to perform a check. The me
   * **[Sum&Substance](#sum&substance)**
   * **[Trulioo](#trulioo)**
   * **[Shufti Pro](#shufti-pro)**
+* **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
+  * **[IDology](#fields-applicable-for-idology)**
+  * **[Sum&Substance](#fields-applicable-for-sum&substance)**
+  * **[Trulioo](#fields-applicable-for-trulioo)**
+  * **[Shufti Pro](#fields-applicable-for-shufti-pro)**
 
 ### **Integration interface**
 
@@ -217,16 +222,99 @@ From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is u
 | **Name** | **Type** |
 | -------- | -------- |
 | [CountryAlpha2](common/model.go#L22) | _string_ |
+| [Documents](common/model.go#L29) | _[][Document](common/model.go#L84)_ |
 
-[common.Document](common/model.go#L84) required fields if [Documents](common/model.go#L29) are provided:
+[common.Document](common/model.go#L84) required fields of [Documents](common/model.go#L29):
 
 | **Name** | **Type** |
 | -------- | -------- |
 | [Metadata](common/model.go#L86) | [DocumentMetadata](common/model.go#L91) |
 | [Front](common/model.go#L87) | [*DocumentFile](common/model.go#L102) |
 
-[common.DocumentMetadata](common/model.go#L91) required fields if [Documents](common/model.go#L29) are provided:
+[common.DocumentMetadata](common/model.go#L91) required fields of [Documents](common/model.go#L29):
 
 | **Name** | **Type** |
 | -------- | -------- |
 | [Type](common/model.go#L93) | [DocumentType](common/enum.go#L36) |
+
+> **Please, consult [Fields applicable for Shufti Pro](#fields-applicable-for-shufti-pro) for the details about required Documents.**
+
+### **Applicable fields grouped per provider**
+
+[**common.UserData**](common/model.go#L8) provides a wide range of possible data that might require the verification. However, not every KYC provider will surely use all available fields of the model. Therefore, to ease the process of integration for administrators, here you'll find the grouping of applicable fields per provider.
+
+#### **Fields applicable for IDology**
+
+[common.UserData](common/model.go#L8) applicable fields:
+
+| **Name** | **Type** | **Comment** |
+| -------- | -------- | ----------- |
+| **FirstName** | _string_ | |
+| **LastName** | _string_ | |
+| **DateOfBirth** | _Time_ | |
+| **Email** | _string_ | |
+| **Phone** | _string_ | it will be used if non-empty and has length of 10 |
+| **MobilePhone** | _string_ | it will be used if has lenght of 10 and the **Phone** field is empty |
+| **CurrentAddress** | _Address_ | |
+| **SupplementalAddresses** | _[]Address_ | for ex. it might be a shipping address |
+| **Documents** | _[]Document_ | `common.IDCard` document type (**SSN**) |
+
+#### **Fields applicable for Sum&Substance**
+
+[common.UserData](common/model.go#L8) applicable fields:
+
+| **Name** | **Type** | **Comment** |
+| -------- | -------- | ----------- |
+| **FirstName** | _string_ | |
+| **LastName** | _string_ | |
+| **MiddleName** | _string_ | |
+| **LegalName** | _string_ | |
+| **Gender** | _Gender_ | |
+| **DateOfBirth** | _Time_ | |
+| **PlaceOfBirth** | _string_ | |
+| **CountryOfBirthAlpha2** | _string_ | |
+| **StateOfBirth** | _string_ | |
+| **CountryAlpha2** | _string_ | |
+| **Nationality** | _string_ | |
+| **Phone** | _string_ | |
+| **MobilePhone** | _string_ | |
+| **CurrentAddress** | _Address_ | |
+| **SupplementalAddresses** | _[]Address_ | |
+| **Documents** | _[]Document_ | |
+
+#### **Fields applicable for Trulioo**
+
+[common.UserData](common/model.go#L8) applicable fields:
+
+| **Name** | **Type** | **Comment** |
+| -------- | -------- | ----------- |
+| **FirstName** | _string_ | |
+| **PaternalLastName** | _string_ | |
+| **LastName** | _string_ | |
+| **MiddleName** | _string_ | |
+| **LatinISO1Name** | _string_ | |
+| **CountryAlpha2** | _string_ | |
+| **DateOfBirth** | _Time_ | |
+| **Gender** | _Gender_ | |
+| **Email** | _string_ | |
+| **Phone** | _string_ | |
+| **MobilePhone** | _string_ | |
+| **CurrentAddress** | _Address_ | |
+| **Documents** | _[]Document_ |  |
+| **Business** | _Business_ | |
+
+#### **Fields applicable for Shufti Pro**
+
+[common.UserData](common/model.go#L8) applicable fields:
+
+| **Name** | **Type** | **Comment** |
+| -------- | -------- | ----------- |
+| **FirstName** | _string_ | |
+| **LastName** | _string_ | |
+| **MiddleName** | _string_ | |
+| **DateOfBirth** | _Time_ | |
+| **Email** | _string_ | |
+| **CountryAlpha2** | _string_ | |
+| **AddressString** | _string_ | |
+| **CurrentAddress** | _Address_ | |
+| **Documents** | _[]Document_ | There are different services which require different documents. For face: **`common.Selfie`**. For documents, anyone of: **`common.Passport`**, **`common.IDCard`**, **`common.Drivers`**, **`common.BankCard`**. For addresses, anyone of: **`common.IDCard`**, **`common.UtilityBill`**. With image data included |
