@@ -2,9 +2,11 @@ package verification
 
 import (
 	"encoding/base64"
+
 	"gitlab.com/lambospeed/kyc/common"
 )
 
+// MapCustomerToVerificationRequest maps the values of common data to the service specific values.
 func MapCustomerToVerificationRequest(customer common.UserData) Request {
 
 	request := Request{
@@ -15,7 +17,7 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 			FirstName:   customer.FirstName,
 			LastName:    customer.LastName,
 			MiddleName:  customer.MiddleName,
-			Address:     customer.AddressString,
+			Address:     customer.CurrentAddress.String(),
 			DateOfBirth: customer.DateOfBirth.Format("2006-01-02"),
 		},
 	}
