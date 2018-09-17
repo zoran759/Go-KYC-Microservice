@@ -77,7 +77,6 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **Nationality** | _**string**_ | citizenship of the customer. Perhaps, it should be country's name, for ex. "Italy" |
 | **Phone** | _**string**_ | primary phone of the customer. It isn't a mobile phone! |
 | **MobilePhone** | _**string**_ | mobile phone of the customer |
-| **AddressString** | _**string**_ | current address of the customer in the string format. It should conform to a standard form of postal address |
 | **CurrentAddress** | [_**Address**_](#address-fields-description) | current address of the customer |
 | **SupplementalAddresses** | _**[][Address](#address-fields-description)**_ | array of supplemental addresses of the customer |
 | **Documents** | _**[][Document](#document-fields-description)**_ | array of documents of the customer |
@@ -315,6 +314,5 @@ From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is u
 | **DateOfBirth** | _Time_ | |
 | **Email** | _string_ | |
 | **CountryAlpha2** | _string_ | |
-| **AddressString** | _string_ | |
 | **CurrentAddress** | _Address_ | |
 | **Documents** | _[]Document_ | There are different services which require different documents. For face: **`common.Selfie`**. For documents, anyone of: **`common.Passport`**, **`common.IDCard`**, **`common.Drivers`**, **`common.BankCard`**. For addresses, anyone of: **`common.IDCard`**, **`common.UtilityBill`**. With image data included |
