@@ -2,6 +2,7 @@ package idology_test
 
 import (
 	"flag"
+	"log"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -15,19 +16,21 @@ import (
 	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
 )
 
+// This is "-proxy" command-line flag to set the proxy for requests to the API.
 // Use this to setup proxy when you run tests which interact with the API
 // and you're not in front of a whitelisted host.
-// Warning! This has sense only when using ssh local “dynamic” application-level port forwarding.
-// So you have to have ssh-access to a whitelisted host as well.
-// If you run tests on a whitelisted host leave this empty.
-var proxyURL = "socks5://localhost:8000"
+// Warning! Anyway, the proxy must be running on a whitelisted host otherwise it'll not help.
+var proxyURL string
 
 // This is "-runlive" command-line flag to activate the sandbox testing (see "ExpectID Sandbox Guide.pdf").
 var runLive bool
 
 var _ = BeforeSuite(func() {
 	if runLive && len(proxyURL) > 0 {
-		proxy, _ := url.Parse(proxyURL)
+		proxy, err := url.Parse(proxyURL)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		t := &http.Transport{
 			Proxy: http.ProxyURL(proxy),
 		}
@@ -73,7 +76,8 @@ var _ = Describe("The IDology KYC service", func() {
 					CountryAlpha2:     "US",
 					State:             "Georgia",
 					Town:              "Atlanta",
-					Street:            "222333 PeachTree Place",
+					Street:            "PeachTree Place",
+					BuildingNumber:    "222333",
 					PostCode:          "30318",
 					StateProvinceCode: "GA",
 				},
@@ -91,7 +95,7 @@ var _ = Describe("The IDology KYC service", func() {
 		}
 
 		var service = New(Config{
-			Host:     expectid.APIendpoint,
+			Host:     KYCendpoint,
 			Username: "modulus.dev2",
 			Password: "}$tRPfT1sZQmU@uh8@",
 		})
@@ -107,7 +111,7 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				failedService := New(Config{
-					Host:     expectid.APIendpoint,
+					Host:     KYCendpoint,
 					Username: "modulus.dev2",
 					Password: "wrong_password",
 				})
@@ -160,7 +164,8 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.CurrentAddress.Street = "2240 Magnolia"
+				customer.CurrentAddress.Street = "Magnolia"
+				customer.CurrentAddress.BuildingNumber = "2240"
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
@@ -180,7 +185,8 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.CurrentAddress.Street = "222333 Magnolia"
+				customer.CurrentAddress.Street = "Magnolia"
+				customer.CurrentAddress.BuildingNumber = "222333"
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
@@ -199,7 +205,8 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.CurrentAddress.Street = "2240 PeachTree Place"
+				customer.CurrentAddress.Street = "PeachTree Place"
+				customer.CurrentAddress.BuildingNumber = "2240"
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
@@ -219,6 +226,7 @@ var _ = Describe("The IDology KYC service", func() {
 
 				customer := newCustomer()
 				customer.CurrentAddress.Street = "PO Box 123"
+				customer.CurrentAddress.BuildingNumber = ""
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
 
@@ -374,7 +382,8 @@ var _ = Describe("The IDology KYC service", func() {
 						CountryAlpha2:     "US",
 						State:             "California",
 						Town:              "La Crescenta",
-						Street:            "5432 Any Place",
+						Street:            "Any Place",
+						BuildingNumber:    "5432",
 						PostCode:          "91214",
 						StateProvinceCode: "CA",
 					},
@@ -406,7 +415,8 @@ var _ = Describe("The IDology KYC service", func() {
 
 				customer := newCustomer()
 				customer.LastName = "Black"
-				customer.CurrentAddress.Street = "345 Some Avenu"
+				customer.CurrentAddress.Street = "Some Avenu"
+				customer.CurrentAddress.BuildingNumber = "345"
 				customer.CurrentAddress.PostCode = "30303"
 				customer.Documents = nil
 
@@ -435,7 +445,8 @@ var _ = Describe("The IDology KYC service", func() {
 						CountryAlpha2:     "US",
 						State:             "California",
 						Town:              "La Crescenta",
-						Street:            "9000 Any Street",
+						Street:            "Any Street",
+						BuildingNumber:    "9000",
 						PostCode:          "91224",
 						StateProvinceCode: "CA",
 					},
@@ -469,7 +480,8 @@ var _ = Describe("The IDology KYC service", func() {
 				customer := newCustomer()
 				customer.FirstName = "Jane"
 				customer.LastName = "Black"
-				customer.CurrentAddress.Street = "12345 Magnolia Way"
+				customer.CurrentAddress.Street = "Magnolia Way"
+				customer.CurrentAddress.BuildingNumber = "12345"
 				customer.CurrentAddress.PostCode = "30303"
 
 				result, details, err := service.ExpectID.CheckCustomer(customer)
@@ -501,7 +513,8 @@ var _ = Describe("The IDology KYC service", func() {
 						CountryAlpha2:     "US",
 						State:             "Georgia",
 						Town:              "Dallas",
-						Street:            "8888 Any Street",
+						Street:            "Any Street",
+						BuildingNumber:    "8888",
 						PostCode:          "30132",
 						StateProvinceCode: "GA",
 					},
@@ -532,7 +545,8 @@ var _ = Describe("The IDology KYC service", func() {
 						CountryAlpha2:     "US",
 						State:             "Tennessee",
 						Town:              "Nashville",
-						Street:            "147 Brentwood Drive",
+						Street:            "Brentwood Drive",
+						BuildingNumber:    "147",
 						PostCode:          "37214",
 						StateProvinceCode: "TN",
 					},
@@ -567,4 +581,5 @@ var _ = Describe("The IDology KYC service", func() {
 
 func init() {
 	flag.BoolVar(&runLive, "runlive", false, "Run live tests against IDology API.")
+	flag.StringVar(&proxyURL, "proxy", "", "Set a proxy when you're not in front of a whitelisted host.")
 }

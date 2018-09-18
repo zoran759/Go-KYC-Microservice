@@ -1,18 +1,26 @@
 package sumsub
 
+// Config defines configuration for the service.
 type Config struct {
 	Host             string
 	APIKey           string
 	TimeoutThreshold int64
 }
 
-const RedScore = "RED"
-const YellowScore = "YELLOW"
-const GreenScore = "GREEN"
-const ErrorScore = "ERROR"
-const IgnoredScore = "IGNORED"
+// Different values of a verification result.
+const (
+	RedScore     = "RED"
+	YellowScore  = "YELLOW"
+	GreenScore   = "GREEN"
+	ErrorScore   = "ERROR"
+	IgnoredScore = "IGNORED"
+)
 
-const FinalRejectType = "FINAL"
-const RetryRejectTYpe = "RETRY"
+// Different types of the rejection response.
+const (
+	FinalRejectType = "FINAL"
+	RetryRejectType = "RETRY"
+)
 
+// CompleteStatus represents value of the completed status in the response.
 const CompleteStatus = "completed"
