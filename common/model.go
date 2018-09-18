@@ -67,9 +67,9 @@ func (a Address) StreetAddress() string {
 	return b.String()
 }
 
-// HouseStreetApartmentAddress returns street address string in the form required for some providers.
+// HouseStreetApartment returns street address string in the form required for some providers.
 // It includes house number, street name and apartment number.
-func (a Address) HouseStreetApartmentAddress() string {
+func (a Address) HouseStreetApartment() string {
 	insertWhitespace := func(b *strings.Builder) {
 		if b.Len() > 0 {
 			b.WriteString(" ")
