@@ -67,6 +67,29 @@ func (a Address) StreetAddress() string {
 	return b.String()
 }
 
+// HouseStreetApartmentAddress returns street address string in the form required for some providers.
+// It includes house number, street name and apartment number.
+func (a Address) HouseStreetApartmentAddress() string {
+	insertWhitespace := func(b *strings.Builder) {
+		if b.Len() > 0 {
+			b.WriteString(" ")
+		}
+	}
+
+	b := &strings.Builder{}
+	b.WriteString(a.BuildingNumber)
+	if len(a.Street) > 0 {
+		insertWhitespace(b)
+		b.WriteString(a.Street)
+	}
+	if len(a.FlatNumber) > 0 {
+		insertWhitespace(b)
+		b.WriteString(a.FlatNumber)
+	}
+
+	return b.String()
+}
+
 // String returns string representation of the address.
 func (a Address) String() string {
 	// ATM, USPS standard is used. Maybe, we need to take into count Country's specifics.
