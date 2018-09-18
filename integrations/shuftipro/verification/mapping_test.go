@@ -28,7 +28,6 @@ func TestMapCustomerToVerificationRequest(t *testing.T) {
 		Nationality:          "Nationality",
 		Phone:                "Phone",
 		MobilePhone:          "MobilePhone",
-		AddressString:        "AddressString",
 		CurrentAddress: common.Address{
 			CountryAlpha2:     "Country1",
 			County:            "County1",
@@ -141,7 +140,6 @@ func TestMapCustomerToVerificationRequest(t *testing.T) {
 	assert.Equal(t, customer.FirstName, verificationRequest.VerificationServices.FirstName)
 	assert.Equal(t, customer.MiddleName, verificationRequest.VerificationServices.MiddleName)
 	assert.Equal(t, customer.LastName, verificationRequest.VerificationServices.LastName)
-	assert.Equal(t, customer.AddressString, verificationRequest.VerificationServices.Address)
 	assert.Equal(t, "2000-01-01", verificationRequest.VerificationServices.DateOfBirth)
 
 }
