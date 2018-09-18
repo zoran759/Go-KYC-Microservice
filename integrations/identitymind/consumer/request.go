@@ -190,8 +190,15 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	r.DateOfBirth = customer.DateOfBirth.Format("2006-01-02")
 
 	// Documents processing.
+	err = r.populateDocumentFields(customer.Documents)
+
+	return
+}
+
+// populateDocumentFields processes customer documents and populate the fields required for Document Verification.
+func (r *KYCRequestData) populateDocumentFields(documents []common.Document) (err error) {
 	docs := map[common.DocumentType]int{}
-	for i, doc := range customer.Documents {
+	for i, doc := range documents {
 		switch doc.Metadata.Type {
 		case common.IDCard:
 			docs[common.IDCard] = i
@@ -201,6 +208,10 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 			docs[common.Passport] = i
 		case common.Drivers:
 			docs[common.Drivers] = i
+		case common.ResidencePermit:
+			docs[common.ResidencePermit] = i
+		case common.UtilityBill:
+			docs[common.UtilityBill] = i
 		case common.Selfie:
 			if doc.Front != nil {
 				face, e := toBase64(doc.Front.Data)
@@ -216,62 +227,48 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 		return
 	}
 
+	tryDocument := func(doc *common.Document) (err error) {
+		r.ScanData, err = toBase64(doc.Front.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding %s front image: %s", docTypeToNameMap[doc.Metadata.Type], err)
+			return
+		}
+		if doc.Back != nil {
+			r.BacksideImageData, err = toBase64(doc.Back.Data)
+			if err != nil {
+				err = fmt.Errorf("during encoding %s back image: %s", docTypeToNameMap[doc.Metadata.Type], err)
+				return
+			}
+		}
+		r.DocumentCountry = doc.Metadata.Country
+		r.DocumentType = documentTypeMap[doc.Metadata.Type]
+
+		return
+	}
+
 	i, ok := docs[common.Passport]
-	if ok && customer.Documents[i].Front != nil {
-		r.ScanData, err = toBase64(customer.Documents[i].Front.Data)
-		if err != nil {
-			err = fmt.Errorf("during encoding passport front image: %s", err)
-			return
-		}
-		if customer.Documents[i].Back != nil {
-			r.BacksideImageData, err = toBase64(customer.Documents[i].Back.Data)
-			if err != nil {
-				err = fmt.Errorf("during encoding passport back image: %s", err)
-				return
-			}
-		}
-		r.DocumentCountry = customer.Documents[i].Metadata.Country
-		r.DocumentType = documentTypeMap[common.Passport]
-
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
 		return
 	}
-
 	i, ok = docs[common.Drivers]
-	if ok && customer.Documents[i].Front != nil {
-		r.ScanData, err = toBase64(customer.Documents[i].Front.Data)
-		if err != nil {
-			err = fmt.Errorf("during encoding driving license front image: %s", err)
-			return
-		}
-		if customer.Documents[i].Back != nil {
-			r.BacksideImageData, err = toBase64(customer.Documents[i].Back.Data)
-			if err != nil {
-				err = fmt.Errorf("during encoding driving license back image: %s", err)
-				return
-			}
-		}
-		r.DocumentCountry = customer.Documents[i].Metadata.Country
-		r.DocumentType = documentTypeMap[common.Drivers]
-
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
 		return
 	}
-
 	i, ok = docs[common.IDCard]
-	if ok && customer.Documents[i].Front != nil {
-		r.ScanData, err = toBase64(customer.Documents[i].Front.Data)
-		if err != nil {
-			err = fmt.Errorf("during encoding id card front image: %s", err)
-			return
-		}
-		if customer.Documents[i].Back != nil {
-			r.BacksideImageData, err = toBase64(customer.Documents[i].Back.Data)
-			if err != nil {
-				err = fmt.Errorf("during encoding id card back image: %s", err)
-				return
-			}
-		}
-		r.DocumentCountry = customer.Documents[i].Metadata.Country
-		r.DocumentType = documentTypeMap[common.IDCard]
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
+		return
+	}
+	i, ok = docs[common.ResidencePermit]
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
+		return
+	}
+	i, ok = docs[common.UtilityBill]
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
 	}
 
 	return

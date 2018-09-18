@@ -16,3 +16,13 @@ var documentTypeMap = map[common.DocumentType]DocumentType{
 	common.ResidencePermit: ResidencePermit,
 	common.UtilityBill:     UtilityBill,
 }
+
+// The mapping from the common document types to the usual names.
+var docTypeToNameMap = map[common.DocumentType]string{
+	common.IDCard:          "id card",
+	common.Passport:        "passport",
+	common.Drivers:         "driving license",
+	common.UtilityBill:     "utility bill",
+	common.SNILS:           "SNILS",
+	common.ResidencePermit: "residence permit",
+}
