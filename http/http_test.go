@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"time"
 )
 
 func TestPost(t *testing.T) {

@@ -32,7 +32,8 @@ func Request(method string, endpoint string, headers Headers, body []byte) (int,
 		request.Header.Set(header, value)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), defaultHttpTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultHttpTimeout)
+	defer cancel()
 
 	response, err := http.DefaultClient.Do(request.WithContext(ctx))
 
