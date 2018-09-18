@@ -1,7 +1,7 @@
 stages:
   - test
 
-test-integrations:
+test-repo:
   stage: test
   image: golang:stretch
   script:
@@ -9,5 +9,5 @@ test-integrations:
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
   - go get -d -v ./...
   - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/... github.com/stretchr/testify gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations
+  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
   - go test -cover ./...
