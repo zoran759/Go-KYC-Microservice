@@ -24,13 +24,15 @@ const (
 // It shouldn't be instantiated directly.
 // Use NewClient() constructor instead.
 type Client struct {
-	config Config
+	host        string
+	credentials string
 }
 
 // NewClient constructs new client object.
 func NewClient(config Config) *Client {
 	return &Client{
-		config: config,
+		host:        config.Host,
+		credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Username+":"+config.Password)),
 	}
 }
 
@@ -79,14 +81,12 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 // sendRequest sends a vefirication request into the API.
 // It returns a response from the API or the error if occured.
 func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, err error) {
-	auth := base64.StdEncoding.EncodeToString([]byte(c.config.Username + ":" + c.config.Password))
-
 	headers := http.Headers{
 		"Content-Type":  contentType,
-		"Authorization": "Basic " + auth,
+		"Authorization": c.credentials,
 	}
 
-	_, resp, err := http.Post(c.config.Host+consumerEndpoint, headers, body)
+	_, resp, err := http.Post(c.host+consumerEndpoint, headers, body)
 	if err != nil {
 		return
 	}
@@ -101,13 +101,11 @@ func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, er
 // as the returned state is "Under Review" during one hour.
 // If the application is not found then an error message is provided in the response.
 func (c *Client) pollApplicationState(mtid string) (response *ApplicationResponseData, err error) {
-	auth := base64.StdEncoding.EncodeToString([]byte(c.config.Username + ":" + c.config.Password))
-
 	headers := http.Headers{
-		"Authorization": "Basic " + auth,
+		"Authorization": c.credentials,
 	}
 	deadline := time.Now().Add(time.Hour)
-	endpoint := fmt.Sprintf(c.config.Host+stateRetrievalEndpoint, mtid)
+	endpoint := fmt.Sprintf(c.host+stateRetrievalEndpoint, mtid)
 
 	for {
 		var (

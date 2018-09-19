@@ -1,6 +1,8 @@
 package consumer
 
 import (
+	"encoding/base64"
+
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,7 +19,8 @@ var _ = Describe("Client", func() {
 			}
 
 			testclient := &Client{
-				config: config,
+				host:        config.Host,
+				credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Username+":"+config.Password)),
 			}
 
 			client := NewClient(config)
