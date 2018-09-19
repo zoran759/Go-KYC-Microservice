@@ -9,109 +9,37 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 )
-
-// Represents response for the CheckCustomer request
-type checkCustomerResponse struct {
-
-	// KYC result
-	KYCResult common.KYCResult
-
-	// KYC detailed result
-	DetailedKYCResult *common.DetailedKYCResult
-}
 
 // Handler for the CustomerHandler function
 func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 
-	// Parse request parameters
-	err := r.ParseForm()
+	// Read request body
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(kycErrors.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	// Read photo of user's ID
-	id, err := ioutil.ReadFile(r.PostFormValue("idPhoto"))
+	// Parse request
+	var req common.CheckCustomerRequest
+	err = json.Unmarshal(body, &req)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(kycErrors.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	// Read photo of user's face
-	face, err := ioutil.ReadFile(r.PostFormValue("facePhoto"))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(kycErrors.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	// Assemble customer data
-	customer := &common.UserData{
-		FirstName:        r.PostFormValue("firstName"),
-		PaternalLastName: r.PostFormValue("paternalLastName"),
-		LastName:         r.PostFormValue("lastName"),
-		MiddleName:       "M",
-		CountryAlpha2:    "US",
-		Phone:            "+3221-214-4456",
-		Email:            "jsmith@yahoo.com",
-		DateOfBirth:      common.Time(time.Date(1982, 4, 3, 0, 0, 0, 0, time.UTC)),
-		SupplementalAddresses: []common.Address{
-			{},
-		},
-		CurrentAddress: common.Address{
-			PostCode:          "90010",
-			Town:              "Chicago",
-			BuildingNumber:    "452",
-			FlatNumber:        "2",
-			State:             "MI",
-			StateProvinceCode: "MI",
-			StreetType:        "Avenue",
-			Street:            "Michigan",
-		},
-		Documents: []common.Document{
-			{
-				Metadata: common.DocumentMetadata{
-					Type:    common.IDCard,
-					Country: "RUS",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        id,
-				},
-				Back: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        id,
-				},
-			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:    common.Selfie,
-					Country: "RUS",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        face,
-				},
-			},
-		},
-	}
-
-	log.Printf("CustomerHandler request received Customer:%#v\nProvider:%v\n", customer, r.PostFormValue("provider"))
+	log.Printf("CustomerHandler request received Customer:%#v\nProvider:%v\n", req.UserData, req.Provider)
 
 	// Prepare result variables
-	var kycRes common.KYCResult
-	var detailedKYCRes *common.DetailedKYCResult
+	res := new(common.CheckCustomerResponse)
 
-	switch r.PostFormValue("provider") {
+	// Handle request depending on given KYC Provider
+	switch req.Provider {
 
-	case "shuftipro":
+	case common.Shuftipro:
 		{
 			//Example Shufti Pro integration
 			service := shuftipro.New(shuftipro.Config{
@@ -122,15 +50,15 @@ func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 			})
 
 			// Make a request to the KYC provider
-			kycRes, detailedKYCRes, err = service.CheckCustomer(customer)
+			res.KYCResult, res.DetailedKYCResult, err = service.CheckCustomer(&req.UserData)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				json.NewEncoder(w).Encode(kycErrors.ErrorResponse{Error: err.Error()})
 				return
 			}
 
-			log.Printf("Res: %#v\n", kycRes)
-			log.Printf("detailedRes: %#v\n", detailedKYCRes)
+			log.Printf("Res: %#v\n", res.KYCResult)
+			log.Printf("detailedRes: %#v\n", res.DetailedKYCResult)
 		}
 
 	default:
@@ -138,12 +66,6 @@ func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(kycErrors.ErrorResponse{Error: kycErrors.InvalidKYCProvider.Error()})
 	}
 
-	// Assemble response
-	response := checkCustomerResponse{
-		KYCResult:         kycRes,
-		DetailedKYCResult: detailedKYCRes,
-	}
-
 	// Send the response over HTTP
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(res)
 }

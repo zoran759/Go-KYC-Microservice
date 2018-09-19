@@ -66,3 +66,10 @@ const (
 	// Should be used only when nothing else applies.
 	Other DocumentType = "OTHER"
 )
+
+// KYC Provider
+type KYCProvider string
+
+const (
+	Shuftipro KYCProvider = "SHUFTIPRO"
+)
