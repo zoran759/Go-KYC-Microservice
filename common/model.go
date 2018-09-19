@@ -111,3 +111,23 @@ type DetailedKYCResult struct {
 	Finality KYCFinality
 	Reasons  []string
 }
+
+// Request for the CheckCustomer handler
+type CheckCustomerRequest struct {
+
+	// KYC provider
+	Provider KYCProvider
+
+	// User Data
+	UserData UserData
+}
+
+// Response for the CheckCustomer handler
+type CheckCustomerResponse struct {
+
+	// KYC result
+	KYCResult KYCResult
+
+	// KYC detailed result
+	DetailedKYCResult *DetailedKYCResult
+}

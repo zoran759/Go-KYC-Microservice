@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/grigored/cex/src/cecommon/configs"
 	"gitlab.com/lambospeed/kyc/main/handlers"
+	"os"
 
 	"fmt"
 	"log"
@@ -19,8 +19,8 @@ func main() {
 	http.Handle("/api/v1/", apiHandler)
 
 	// Start(Blocking) the server
-	log.Printf("KYC http server started on :%v", configs.GetPort(configs.KYCServer))
-	err := http.ListenAndServe(fmt.Sprintf(":%v", configs.GetPort(configs.KYCServer)), apiHandler)
+	log.Printf("KYC http server started on :%v", os.Getenv("KYC_SERVER_PORT"))
+	err := http.ListenAndServe(fmt.Sprintf(":%v", os.Getenv("KYC_SERVER_PORT")), apiHandler)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
