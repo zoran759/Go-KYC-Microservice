@@ -33,11 +33,13 @@ The main package will call this method in a goroutine to perform a check. The me
   * **[Sum&Substance](#sum&substance)**
   * **[Trulioo](#trulioo)**
   * **[Shufti Pro](#shufti-pro)**
+  * **[IdentityMind](#identitymind)**
 * **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
   * **[IDology](#fields-applicable-for-idology)**
   * **[Sum&Substance](#fields-applicable-for-sum&substance)**
   * **[Trulioo](#fields-applicable-for-trulioo)**
   * **[Shufti Pro](#fields-applicable-for-shufti-pro)**
+  * **[IdentityMind](#fields-applicable-for-identitymind)**
 
 ### **Integration interface**
 
@@ -67,9 +69,11 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **MiddleName** | _**string**_ | middle name of the customer, for ex. "Benedikt" |
 | **LegalName** | _**string**_ | legal name of the customer, for ex. "Foobar Co." |
 | **LatinISO1Name** | _**string**_ | latin ISO1 name of the customer |
+| **AccountName** | _**string**_ | account name of the customer, for ex. any of Google account, Facebook account, etc. but consistent |
 | **Email** | _**string**_ | email of the customer |
+| **IPaddress** | _**string**_ | customer’s IP address |
 | **Gender** | [_**Gender**_](common/enum.go#L27) | gender of the customer |
-| **DateOfBirth** | [_**Time**_](common/model.go#L65) | date of birth of the customer |
+| **DateOfBirth** | [_**Time**_](common/model.go#L143) | date of birth of the customer |
 | **PlaceOfBirth** | _**string**_ | place of birth of the customer |
 | **CountryOfBirthAlpha2** | _**string**_ | country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth** | _**string**_ | state of birth of the customer, for ex. "GA" |
@@ -77,12 +81,13 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **Nationality** | _**string**_ | citizenship of the customer. Perhaps, it should be country's name, for ex. "Italy" |
 | **Phone** | _**string**_ | primary phone of the customer. It isn't a mobile phone! |
 | **MobilePhone** | _**string**_ | mobile phone of the customer |
+| **Location** | [_***Location**_](#location-fields-description) | geopositional data of the customer |
 | **CurrentAddress** | [_**Address**_](#address-fields-description) | current address of the customer |
 | **SupplementalAddresses** | _**[][Address](#address-fields-description)**_ | array of supplemental addresses of the customer |
 | **Documents** | _**[][Document](#document-fields-description)**_ | array of documents of the customer |
 | **Business** | [_**Business**_](#business-fields-description) | the business which the customer is linked to or is one of the owners |
 
-#### **[Address](common/model.go#L33) fields description**
+#### **[Address](common/model.go#L35) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -100,10 +105,10 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **PostOfficeBox** | _**string**_ | post office box |
 | **PostCode** | _**string**_ | zip or postal code |
 | **StateProvinceCode** | _**string**_ | abbreviated name of the state, for ex. "CA" |
-| **StartDate** | [_**Time**_](common/model.go#L65) | when the customer settled into this address |
-| **EndDate** | [_**Time**_](common/model.go#L65) | when the customer moved out from this address |
+| **StartDate** | [_**Time**_](common/model.go#L143) | when the customer settled into this address |
+| **EndDate** | [_**Time**_](common/model.go#L143) | when the customer moved out from this address |
 
-#### **[Document](common/model.go#L84) fields description**
+#### **[Document](common/model.go#L162) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -111,19 +116,19 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **Front** | _**[*DocumentFile](#documentfile-fields-description)**_ | front-side document image |
 | **Back** | _**[*DocumentFile](#documentfile-fields-description)**_ | back-side document image |
 
-#### **[DocumentMetadata](common/model.go#L91) fields description**
+#### **[DocumentMetadata](common/model.go#L169) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
 | **Type** | [_**DocumentType**_](common/enum.go#L36) | the document type |
 | **Country** | _**string**_ | country name where the document was issued, for ex. "JAPAN" |
-| **DateIssued** | [_**Time**_](common/model.go#L65) | the date when the document was issued |
-| **ValidUntil** | [_**Time**_](common/model.go#L65) | the date to which the document is valid |
+| **DateIssued** | [_**Time**_](common/model.go#L143) | the date when the document was issued |
+| **ValidUntil** | [_**Time**_](common/model.go#L143) | the date to which the document is valid |
 | **Number** | _**string**_ | the document number |
 | **CardFirst6Digits** | _**string**_ | first six digits of the document number if applicable (SSN, SNILS, banking card, etc.) |
 | **CardLast4Digits** | _**string**_ | last four digits of the document number if applicable (SSN, SNILS, banking card, etc.) |
 
-#### **[DocumentFile](common/model.go#L102) fields description**
+#### **[DocumentFile](common/model.go#L180) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -131,14 +136,21 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **ContentType** | _**string**_ | mime type of the content, for ex. "image/jpeg" |
 | **Data** | _**[]byte**_ | raw content of the document image file |
 
-#### **[Business](common/model.go#L76) fields description**
+#### **[Business](common/model.go#L154) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
 | **Name** | _**string**_ | name of the Enterprise the customer relates to |
 | **RegistrationNumber** | _**string**_ | registration number of the Enterprise |
-| **IncorporationDate** | [_**Time**_](common/model.go#L65) | incorporation date of the Enterprise |
+| **IncorporationDate** | [_**Time**_](common/model.go#L143) | incorporation date of the Enterprise |
 | **IncorporationJurisdiction** | _**string**_ | incorporation jurisdiction of the Enterprise |
+
+#### **[Location](common/model.go#L193) fields description**
+
+| **Name** | **Type** | **Description** |
+| -------- | -------- | --------------- |
+| **Latitude** | _**string**_ | the location latitude, for ex. "55.678849" |
+| **Longitude** | _**string**_ | the location longitude "52.327662" |
 
 ### **KYC response**
 
@@ -153,7 +165,7 @@ The result is of type [**common.KYCResult**](common/enum.go#L3) and may hold fol
 | **Denied** | successful verification with rejected result. The detailed result must be non-nil and contain additional info about the verification |
 | **Unclear** | the verification completed with an indefinite result. That might mean that some additional info is required. The detailed result must be non-nil and contain additional info  |
 
-The detailed result is of type [***common.DetailedKYCResult**](common/model.go#L109) and consist of the following fields:
+The detailed result is of type [***common.DetailedKYCResult**](common/model.go#L187) and consist of the following fields:
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -172,6 +184,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Sum&Substance**](integrations/sumsub/README.md)
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
+* [**IdentityMind**](integrations/identitymind/README.md)
 
 ### **Required fields**
 
@@ -188,17 +201,17 @@ Each KYC provider has its own subset of minimum required info of the customer. U
 
 | **Name** | **Type** |
 | -------- | -------- |
-| [FirstName](common/model.go#L10) | _string_ |
-| [LastName](common/model.go#L12) | _string_ |
-| [CurrentAddress](common/model.go#L27) | [_Address_](common/model.go#L33) |
+| **FirstName** | _string_ |
+| **LastName** | _string_ |
+| **CurrentAddress** | [_Address_](common/model.go#L35) |
 
-[common.Address](common/model.go#L33) required fields:
+[common.Address](common/model.go#L35) required fields:
 
 | **Name** | **Type** |
 | -------- | -------- |
-| [Town](common/model.go#L38) | _string_ |
-| [StateProvinceCode](common/model.go#L48) | _string_ |
-| [PostCode](common/model.go#L47) | _string_ |
+| **Town** | _string_ |
+| **StateProvinceCode** | _string_ |
+| **PostCode** | _string_ |
 
 ---
 
@@ -220,23 +233,35 @@ From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is u
 
 | **Name** | **Type** |
 | -------- | -------- |
-| [CountryAlpha2](common/model.go#L22) | _string_ |
-| [Documents](common/model.go#L29) | _[][Document](common/model.go#L84)_ |
+| **CountryAlpha2** | _string_ |
+| **Documents** | _[][Document](common/model.go#L162)_ |
 
-[common.Document](common/model.go#L84) required fields of [Documents](common/model.go#L29):
-
-| **Name** | **Type** |
-| -------- | -------- |
-| [Metadata](common/model.go#L86) | [DocumentMetadata](common/model.go#L91) |
-| [Front](common/model.go#L87) | [*DocumentFile](common/model.go#L102) |
-
-[common.DocumentMetadata](common/model.go#L91) required fields of [Documents](common/model.go#L29):
+[common.Document](common/model.go#L162) required fields of [Documents](common/model.go#L31):
 
 | **Name** | **Type** |
 | -------- | -------- |
-| [Type](common/model.go#L93) | [DocumentType](common/enum.go#L36) |
+| **Metadata** | [DocumentMetadata](common/model.go#L169) |
+| **Front** | [*DocumentFile](common/model.go#L180) |
+
+[common.DocumentMetadata](common/model.go#L169) required fields of [Documents](common/model.go#L31):
+
+| **Name** | **Type** |
+| -------- | -------- |
+| **Type** | [DocumentType](common/enum.go#L36) |
 
 > **Please, consult [Fields applicable for Shufti Pro](#fields-applicable-for-shufti-pro) for the details about required Documents.**
+
+#### **IdentityMind**
+
+In the [IdentityMind API Reference](https://sandbox.identitymind.com/api/) there is nothing about required fields. But we have another reference [eDNA 1.22 API](https://documentation.identitymindglobal.com/api/) according that there are some required fields. Nevertheless however it points only onto one field in the list that is mandatory anyway.
+
+[common.UserData](common/model.go#L8) required fields:
+
+| **Name** | **Type** |
+| -------- | -------- |
+| **AccountName** | _string_ |
+
+Besides that, there is another list of required fields. Please, see [Third Party Requirements](https://documentation.identitymindglobal.com/api/#third-party-requirements) for details.
 
 ### **Applicable fields grouped per provider**
 
@@ -316,3 +341,25 @@ From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is u
 | **CountryAlpha2** | _string_ | |
 | **CurrentAddress** | _Address_ | |
 | **Documents** | _[]Document_ | There are different services which require different documents. For face: **`common.Selfie`**. For documents, anyone of: **`common.Passport`**, **`common.IDCard`**, **`common.Drivers`**, **`common.BankCard`**. For addresses, anyone of: **`common.IDCard`**, **`common.UtilityBill`**. With image data included |
+
+#### **Fields applicable for IdentityMind**
+
+[common.UserData](common/model.go#L8) applicable fields:
+
+| **Name** | **Type** | **Comment** |
+| -------- | -------- | ----------- |
+| **FirstName** | _string_ | |
+| **LastName** | _string_ | |
+| **MiddleName** | _string_ | |
+| **AccountName** | _string_ | |
+| **Email** | _string_ | |
+| **IPaddress** | _string_ | |
+| **Gender** | _Gender_ | |
+| **DateOfBirth** | _Time_ | |
+| **CountryAlpha2** | _string_ | |
+| **Phone** | _string_ | |
+| **MobilePhone** | _string_ | |
+| **Location** | _*Location_ | |
+| **CurrentAddress** | _Address_ | |
+| **SupplementalAddresses** | _[]Address_ | The shipping address may be provided |
+| **Documents** | _[]Document_ | |
