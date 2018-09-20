@@ -259,7 +259,6 @@ var _ = Describe("Client", func() {
 
 			Expect(resp).ToNot(BeNil())
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("json: cannot unmarshal number into Go struct field ApplicationResponseData.mtid of type string"))
 		})
 
 		It("should success", func() {
@@ -321,7 +320,6 @@ var _ = Describe("Client", func() {
 
 			Expect(resp).ToNot(BeNil())
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("json: cannot unmarshal number into Go struct field ApplicationResponseData.mtid of type string"))
 		})
 
 		It("should success", func() {
