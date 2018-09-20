@@ -361,5 +361,4 @@ Besides that, there is another list of required fields. Please, see [Third Party
 | **MobilePhone** | _string_ | |
 | **Location** | _*Location_ | |
 | **CurrentAddress** | _Address_ | |
-| **SupplementalAddresses** | _[]Address_ | The shipping address may be provided |
 | **Documents** | _[]Document_ | |

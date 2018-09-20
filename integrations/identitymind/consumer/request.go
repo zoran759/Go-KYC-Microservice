@@ -164,7 +164,7 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	}
 	billingStreet := customer.CurrentAddress.HouseStreetApartment()
 	if len(billingStreet) > maxBillingStreetLength {
-		err = fmt.Errorf("email length %d exceeded limit of %d symbols", len(billingStreet), maxBillingStreetLength)
+		err = fmt.Errorf("street address length %d exceeded limit of %d symbols", len(billingStreet), maxBillingStreetLength)
 		return
 	}
 
