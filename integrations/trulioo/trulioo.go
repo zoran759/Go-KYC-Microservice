@@ -3,9 +3,9 @@ package trulioo
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/trulioo/configuration"
+	"modulus/kyc/integrations/trulioo/verification"
 )
 
 type Trulioo struct {

@@ -1,8 +1,8 @@
 package idology
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/idology/expectid"
 )
 
 // Service defines the verification services of IDology API.

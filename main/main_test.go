@@ -1,10 +1,10 @@
 package main
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/shuftipro"
 	"io/ioutil"
 	"log"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/shuftipro"
 	"testing"
 	"time"
 )

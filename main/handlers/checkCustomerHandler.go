@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/common/kycErrors"
-	"gitlab.com/lambospeed/kyc/integrations/shuftipro"
+	"modulus/kyc/common"
+	"modulus/kyc/common/kycErrors"
+	"modulus/kyc/integrations/shuftipro"
 
 	"encoding/json"
 	"io/ioutil"

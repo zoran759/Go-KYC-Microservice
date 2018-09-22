@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gitlab.com/lambospeed/kyc/main/handlers"
+	"modulus/kyc/main/handlers"
 	"os"
 
 	"fmt"

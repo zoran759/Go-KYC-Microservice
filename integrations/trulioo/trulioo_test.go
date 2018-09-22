@@ -5,9 +5,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/trulioo/configuration"
+	"modulus/kyc/integrations/trulioo/verification"
 )
 
 func TestNew(t *testing.T) {
