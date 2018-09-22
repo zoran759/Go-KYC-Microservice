@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 // Client defines the client for IDology ExpectID® API.
