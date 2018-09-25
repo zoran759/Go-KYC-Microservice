@@ -121,7 +121,8 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
 | **Type** | [_**DocumentType**_](common/enum.go#L36) | the document type |
-| **Country** | _**string**_ | country name where the document was issued, for ex. "JAPAN" |
+| **Country** | _**string**_ | ISO 3166-1 country name where the document was issued, for ex. "JAPAN" |
+| **StateCode** | _**string**_ | ISO 3166-2:US state code if applicable |
 | **DateIssued** | [_**Time**_](common/model.go#L143) | the date when the document was issued |
 | **ValidUntil** | [_**Time**_](common/model.go#L143) | the date to which the document is valid |
 | **Number** | _**string**_ | the document number |

@@ -1,19 +1,24 @@
 package jumio
 
 import (
+	"encoding/base64"
+	"errors"
+	"fmt"
+	"strings"
+
 	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/http"
 )
 
-const maxImageDataLength = 5 << 20
+const (
+	maxImageDataLength = 5 << 20
+	dateFormat         = "2006-01-02"
 
-var headers = http.Headers{
-	"Accept":       "application/json",
-	"Content-Type": "application/json",
-	"User-Agent":   "Modulus Exchange/v1.0",
-}
+	accept      = "application/json"
+	contentType = "application/json"
+	userAgent   = "Modulus Exchange/v1.0"
+)
 
-var acceptableImageMimeTypes = map[string]bool{
+var acceptableImageMimeType = map[string]bool{
 	"image/jpeg": true,
 	"image/png":  true,
 }
@@ -38,6 +43,7 @@ type Request struct {
 	BacksideImage string `json:"backsideImage,omitempty"`
 	// Mime type of back side image.
 	BacksideImageMimeType string `json:"backsideImageMimeType,omitempty"`
+	// FIXME: I didn't figure out how to use it?
 	// Defines fields which will be extracted during the ID verification. If a field is not listed in this parameter, it will not be processed for this transaction, regardless of customer portal settings. Max. length 100.
 	EnabledFields string `json:"enabledFields,omitempty"`
 	// Your reporting criteria for each scan. Max. length 100.
@@ -70,7 +76,123 @@ type Request struct {
 
 // populateFields populate the fields of the request object with input data.
 func (r *Request) populateFields(customer *common.UserData) (err error) {
-	// TODO: implement this.
+	if err = r.populateDocumentFields(customer.Documents); err != nil {
+		return
+	}
+
+	r.MerchantIDScanReference = "Modulus"
+	r.FirstName = customer.FirstName
+	r.LastName = customer.LastName
+	r.DOB = customer.DateOfBirth.Format(dateFormat)
+
+	return
+}
+
+// populateDocumentFields processes customer documents and populate the fields relate to a document with input data.
+func (r *Request) populateDocumentFields(documents []common.Document) (err error) {
+	docs := map[common.DocumentType]int{}
+	for i, doc := range documents {
+		switch doc.Metadata.Type {
+		case common.IDCard:
+			docs[common.IDCard] = i
+		case common.Passport:
+			docs[common.Passport] = i
+		case common.Drivers:
+			docs[common.Drivers] = i
+		case common.Selfie:
+			if doc.Front != nil {
+				if !acceptableImageMimeType[doc.Front.ContentType] {
+					err = fmt.Errorf("unacceptable selfie image format: %s", doc.Front.ContentType)
+					return
+				}
+				r.FaceImage, err = toBase64(doc.Front.Data)
+				if err != nil {
+					err = fmt.Errorf("during encoding selfi image data: %s", err)
+					return
+				}
+				r.FaceImageMimeType = doc.Front.ContentType
+			}
+		}
+	}
+
+	if len(docs) == 0 {
+		err = errors.New("missing acceptable document for the verification (anyone of passport, driving license or id card)")
+		return
+	}
+
+	tryDocument := func(doc *common.Document) (err error) {
+		if !acceptableImageMimeType[doc.Front.ContentType] {
+			err = fmt.Errorf("unacceptable %s front image format: %s", docTypeToName[doc.Metadata.Type], doc.Front.ContentType)
+			return
+		}
+		r.FrontsideImage, err = toBase64(doc.Front.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding %s front image: %s", docTypeToName[doc.Metadata.Type], err)
+			return
+		}
+		r.FrontsideImageMimeType = doc.Front.ContentType
+		if doc.Back != nil {
+			if !acceptableImageMimeType[doc.Back.ContentType] {
+				err = fmt.Errorf("unacceptable %s back image format: %s", docTypeToName[doc.Metadata.Type], doc.Back.ContentType)
+				return
+			}
+			r.BacksideImage, err = toBase64(doc.Back.Data)
+			if err != nil {
+				err = fmt.Errorf("during encoding %s back image: %s", docTypeToName[doc.Metadata.Type], err)
+				return
+			}
+			r.BacksideImageMimeType = doc.Back.ContentType
+		}
+		r.Country = common.CountryName2ToAlpha3[strings.ToUpper(doc.Metadata.Country)]
+		r.IDType = documentTypeMap[doc.Metadata.Type]
+		r.Expiry = doc.Metadata.ValidUntil.Format(dateFormat)
+		r.Number = doc.Metadata.Number
+
+		return
+	}
+
+	i, ok := docs[common.Passport]
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
+		if err == nil {
+			r.USState = documents[i].Metadata.Country
+		}
+		return
+	}
+	i, ok = docs[common.Drivers]
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
+		if err == nil {
+			c := strings.ToUpper(documents[i].Metadata.Country)
+			if c == "USA" || c == "UNITED STATES OF AMERICA" {
+				r.USState = documents[i].Metadata.StateCode
+			}
+		}
+		return
+	}
+	i, ok = docs[common.IDCard]
+	if ok && documents[i].Front != nil {
+		err = tryDocument(&documents[i])
+		if err == nil {
+			r.USState = documents[i].Metadata.Country
+		}
+	}
+
+	return
+}
+
+// toBase64 returns base64-encoded representation of the data.
+func toBase64(src []byte) (dst string, err error) {
+	if len(src) == 0 {
+		return
+	}
+
+	if base64.StdEncoding.EncodedLen(len(src)) > maxImageDataLength {
+		err = errors.New("too large image file")
+		return
+	}
+
+	dst = base64.StdEncoding.EncodeToString(src)
 
 	return
 }
