@@ -13,21 +13,20 @@ import (
 
 // service defines the model for the Jumio performNetverify API.
 type service struct {
-	host        string
+	baseURL     string
 	credentials string
 }
 
 // New constructs new service object to use with the Jumio performNetverify API.
 func New(config Config) common.CustomerChecker {
 	return &service{
-		host:        config.Host,
+		baseURL:     config.BaseURL,
 		credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Token+":"+config.Secret)),
 	}
 }
 
 // CheckCustomer implements customer verification using the Jumio performNetverify API.
 func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	// TODO: implement this.
 	result = common.Error
 
 	if customer == nil {
@@ -47,11 +46,13 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 		return
 	}
 
-	err = s.retrieveResult(response.JumioIDScanReference)
+	scanDetails, err := s.retrieveDetails(response.JumioIDScanReference)
 	if err != nil {
 		err = fmt.Errorf("during retrieving result: %s", err)
 		return
 	}
+
+	result, details, err = scanDetails.toResult()
 
 	return
 }
@@ -72,7 +73,7 @@ func (s *service) sendRequest(request *Request) (response *Response, err error) 
 		"Authorization":  s.credentials,
 	}
 
-	_, resp, err := http.Post(s.host, headers, body)
+	_, resp, err := http.Post(s.baseURL+performNetverifyEndpoint, headers, body)
 	if err != nil {
 		return
 	}
@@ -83,35 +84,30 @@ func (s *service) sendRequest(request *Request) (response *Response, err error) 
 	return
 }
 
-func (s *service) retrieveResult(scanref string) (err error) {
-	// TODO: implement this.
+func (s *service) retrieveDetails(scanref string) (response *DetailsResponse, err error) {
 	if len(scanref) == 0 {
 		err = errors.New("empty Jumio’s reference number of an existing scan")
 		return
 	}
 
-	status, err := s.retrieveScanStatus(scanref)
+	_, err = s.retrieveScanStatus(scanref)
 	if err != nil {
 		return
 	}
-	_ = status
+
+	response, err = s.retrieveScanDetails(scanref)
 
 	return
 }
 
 // retrieveScanStatus retrieves the status of an Jumio scan.
-func (s *service) retrieveScanStatus(scanref string) (status Status, err error) {
-	endpoint := usScanStatusEndpoint
-	if s.host == EUendpoint {
-		endpoint = euScanStatusEndpoint
-	}
-	endpoint += scanref
-
+func (s *service) retrieveScanStatus(scanref string) (status ScanStatus, err error) {
 	headers := http.Headers{
 		"Accept":        accept,
 		"User-Agent":    userAgent,
 		"Authorization": s.credentials,
 	}
+	endpoint := s.baseURL + scanStatusEndpoint + scanref
 
 	for _, d := range timings {
 		time.Sleep(d)
@@ -141,9 +137,20 @@ func (s *service) retrieveScanStatus(scanref string) (status Status, err error) 
 }
 
 // retrieveScanDetails retrieves details of an Jumio scan.
-// TODO: define the response model. Include it into the function's return.
-func (s *service) retrieveScanDetails(scanref string) (err error) {
-	// TODO: implement this.
+func (s *service) retrieveScanDetails(scanref string) (response *DetailsResponse, err error) {
+	headers := http.Headers{
+		"Accept":        accept,
+		"User-Agent":    userAgent,
+		"Authorization": s.credentials,
+	}
+
+	_, resp, err := http.Get(fmt.Sprintf(s.baseURL+scanDetailsEndpoint, scanref), headers)
+	if err != nil {
+		return
+	}
+
+	response = &DetailsResponse{}
+	err = json.Unmarshal(resp, response)
 
 	return
 }
