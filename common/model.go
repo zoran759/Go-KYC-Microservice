@@ -170,6 +170,7 @@ type Document struct {
 type DocumentMetadata struct {
 	Type             DocumentType
 	Country          string
+	StateCode        string
 	DateIssued       Time
 	ValidUntil       Time
 	Number           string
