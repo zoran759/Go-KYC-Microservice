@@ -5,11 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gitlab.com/lambospeed/kyc/common"
 )
 
 const (
+	performNetverifyEndpoint = "/performNetverify"
+	scanStatusEndpoint       = "/scans/"
+	scanDetailsEndpoint      = "/scans/%s/data"
+
 	maxImageDataLength = 5 << 20
 	dateFormat         = "2006-01-02"
 
@@ -21,6 +26,20 @@ const (
 var acceptableImageMimeType = map[string]bool{
 	"image/jpeg": true,
 	"image/png":  true,
+}
+
+// Request timings recommendation according to https://github.com/Jumio/implementation-guides/blob/master/netverify/netverify-retrieval-api.md#usage.
+var timings = [10]time.Duration{
+	40 * time.Second,
+	60 * time.Second,
+	100 * time.Second,
+	160 * time.Second,
+	240 * time.Second,
+	340 * time.Second,
+	460 * time.Second,
+	600 * time.Second,
+	760 * time.Second,
+	940 * time.Second,
 }
 
 // Request defines the model for a request body for the performNetverify API request.
@@ -144,7 +163,7 @@ func (r *Request) populateDocumentFields(documents []common.Document) (err error
 			r.BacksideImageMimeType = doc.Back.ContentType
 		}
 		r.Country = common.CountryName2ToAlpha3[strings.ToUpper(doc.Metadata.Country)]
-		r.IDType = documentTypeMap[doc.Metadata.Type]
+		r.IDType = documentTypeToIDType[doc.Metadata.Type]
 		r.Expiry = doc.Metadata.ValidUntil.Format(dateFormat)
 		r.Number = doc.Metadata.Number
 

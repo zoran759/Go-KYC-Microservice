@@ -11,13 +11,13 @@ var _ = Describe("Service", func() {
 	Describe("New", func() {
 		Specify("should properly create service object", func() {
 			config := Config{
-				Host:   "fake_host",
-				Token:  "fake_token",
-				Secret: "fake_secret",
+				BaseURL: "fake_baseURL",
+				Token:   "fake_token",
+				Secret:  "fake_secret",
 			}
 
 			s := &service{
-				host:        config.Host,
+				baseURL:     config.BaseURL,
 				credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Token+":"+config.Secret)),
 			}
 
