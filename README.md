@@ -69,7 +69,7 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **LatinISO1Name** | _**string**_ | latin ISO1 name of the customer |
 | **Email** | _**string**_ | email of the customer |
 | **Gender** | [_**Gender**_](common/enum.go#L27) | gender of the customer |
-| **DateOfBirth** | [_**Time**_](common/model.go#L65) | date of birth of the customer |
+| **DateOfBirth** | [_**Time**_](common/model.go#L117) | date of birth of the customer |
 | **PlaceOfBirth** | _**string**_ | place of birth of the customer |
 | **CountryOfBirthAlpha2** | _**string**_ | country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth** | _**string**_ | state of birth of the customer, for ex. "GA" |
@@ -82,7 +82,7 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **Documents** | _**[][Document](#document-fields-description)**_ | array of documents of the customer |
 | **Business** | [_**Business**_](#business-fields-description) | the business which the customer is linked to or is one of the owners |
 
-#### **[Address](common/model.go#L33) fields description**
+#### **[Address](common/model.go#L32) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -100,10 +100,10 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **PostOfficeBox** | _**string**_ | post office box |
 | **PostCode** | _**string**_ | zip or postal code |
 | **StateProvinceCode** | _**string**_ | abbreviated name of the state, for ex. "CA" |
-| **StartDate** | [_**Time**_](common/model.go#L65) | when the customer settled into this address |
-| **EndDate** | [_**Time**_](common/model.go#L65) | when the customer moved out from this address |
+| **StartDate** | [_**Time**_](common/model.go#L117) | when the customer settled into this address |
+| **EndDate** | [_**Time**_](common/model.go#L117) | when the customer moved out from this address |
 
-#### **[Document](common/model.go#L84) fields description**
+#### **[Document](common/model.go#L136) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -111,19 +111,19 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **Front** | _**[*DocumentFile](#documentfile-fields-description)**_ | front-side document image |
 | **Back** | _**[*DocumentFile](#documentfile-fields-description)**_ | back-side document image |
 
-#### **[DocumentMetadata](common/model.go#L91) fields description**
+#### **[DocumentMetadata](common/model.go#L143) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
 | **Type** | [_**DocumentType**_](common/enum.go#L36) | the document type |
 | **Country** | _**string**_ | country name where the document was issued, for ex. "JAPAN" |
-| **DateIssued** | [_**Time**_](common/model.go#L65) | the date when the document was issued |
-| **ValidUntil** | [_**Time**_](common/model.go#L65) | the date to which the document is valid |
+| **DateIssued** | [_**Time**_](common/model.go#L117) | the date when the document was issued |
+| **ValidUntil** | [_**Time**_](common/model.go#L117) | the date to which the document is valid |
 | **Number** | _**string**_ | the document number |
 | **CardFirst6Digits** | _**string**_ | first six digits of the document number if applicable (SSN, SNILS, banking card, etc.) |
 | **CardLast4Digits** | _**string**_ | last four digits of the document number if applicable (SSN, SNILS, banking card, etc.) |
 
-#### **[DocumentFile](common/model.go#L102) fields description**
+#### **[DocumentFile](common/model.go#L154) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -131,13 +131,13 @@ For the verification request use [**common.UserData**](common/model.go#L8) struc
 | **ContentType** | _**string**_ | mime type of the content, for ex. "image/jpeg" |
 | **Data** | _**[]byte**_ | raw content of the document image file |
 
-#### **[Business](common/model.go#L76) fields description**
+#### **[Business](common/model.go#L128) fields description**
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
 | **Name** | _**string**_ | name of the Enterprise the customer relates to |
 | **RegistrationNumber** | _**string**_ | registration number of the Enterprise |
-| **IncorporationDate** | [_**Time**_](common/model.go#L65) | incorporation date of the Enterprise |
+| **IncorporationDate** | [_**Time**_](common/model.go#L117) | incorporation date of the Enterprise |
 | **IncorporationJurisdiction** | _**string**_ | incorporation jurisdiction of the Enterprise |
 
 ### **KYC response**
@@ -153,7 +153,7 @@ The result is of type [**common.KYCResult**](common/enum.go#L3) and may hold fol
 | **Denied** | successful verification with rejected result. The detailed result must be non-nil and contain additional info about the verification |
 | **Unclear** | the verification completed with an indefinite result. That might mean that some additional info is required. The detailed result must be non-nil and contain additional info  |
 
-The detailed result is of type [***common.DetailedKYCResult**](common/model.go#L109) and consist of the following fields:
+The detailed result is of type [***common.DetailedKYCResult**](common/model.go#L161) and consist of the following fields:
 
 | **Name** | **Type** | **Description** |
 | -------- | -------- | --------------- |
@@ -190,15 +190,15 @@ Each KYC provider has its own subset of minimum required info of the customer. U
 | -------- | -------- |
 | [FirstName](common/model.go#L10) | _string_ |
 | [LastName](common/model.go#L12) | _string_ |
-| [CurrentAddress](common/model.go#L27) | [_Address_](common/model.go#L33) |
+| [CurrentAddress](common/model.go#L26) | [_Address_](common/model.go#L32) |
 
-[common.Address](common/model.go#L33) required fields:
+[common.Address](common/model.go#L32) required fields:
 
 | **Name** | **Type** |
 | -------- | -------- |
-| [Town](common/model.go#L38) | _string_ |
-| [StateProvinceCode](common/model.go#L48) | _string_ |
-| [PostCode](common/model.go#L47) | _string_ |
+| [Town](common/model.go#L37) | _string_ |
+| [StateProvinceCode](common/model.go#L47) | _string_ |
+| [PostCode](common/model.go#L46) | _string_ |
 
 ---
 
@@ -221,20 +221,20 @@ From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is u
 | **Name** | **Type** |
 | -------- | -------- |
 | [CountryAlpha2](common/model.go#L22) | _string_ |
-| [Documents](common/model.go#L29) | _[][Document](common/model.go#L84)_ |
+| [Documents](common/model.go#L28) | _[][Document](common/model.go#L136)_ |
 
-[common.Document](common/model.go#L84) required fields of [Documents](common/model.go#L29):
-
-| **Name** | **Type** |
-| -------- | -------- |
-| [Metadata](common/model.go#L86) | [DocumentMetadata](common/model.go#L91) |
-| [Front](common/model.go#L87) | [*DocumentFile](common/model.go#L102) |
-
-[common.DocumentMetadata](common/model.go#L91) required fields of [Documents](common/model.go#L29):
+[common.Document](common/model.go#L136) required fields of [Documents](common/model.go#L28):
 
 | **Name** | **Type** |
 | -------- | -------- |
-| [Type](common/model.go#L93) | [DocumentType](common/enum.go#L36) |
+| [Metadata](common/model.go#L138) | [DocumentMetadata](common/model.go#L143) |
+| [Front](common/model.go#L139) | [*DocumentFile](common/model.go#L154) |
+
+[common.DocumentMetadata](common/model.go#L143) required fields of [Documents](common/model.go#L28):
+
+| **Name** | **Type** |
+| -------- | -------- |
+| [Type](common/model.go#L145) | [DocumentType](common/enum.go#L36) |
 
 > **Please, consult [Fields applicable for Shufti Pro](#fields-applicable-for-shufti-pro) for the details about required Documents.**
 
