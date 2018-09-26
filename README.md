@@ -38,6 +38,7 @@ The main package will call this method in a goroutine to perform a check. The me
   * **[Sum&Substance](#fields-applicable-for-sum&substance)**
   * **[Trulioo](#fields-applicable-for-trulioo)**
   * **[Shufti Pro](#fields-applicable-for-shufti-pro)**
+* **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
 ### **Integration interface**
 
@@ -316,3 +317,33 @@ From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is u
 | **CountryAlpha2** | _string_ | |
 | **CurrentAddress** | _Address_ | |
 | **Documents** | _[]Document_ | There are different services which require different documents. For face: **`common.Selfie`**. For documents, anyone of: **`common.Passport`**, **`common.IDCard`**, **`common.Drivers`**, **`common.BankCard`**. For addresses, anyone of: **`common.IDCard`**, **`common.UtilityBill`**. With image data included |
+
+### **The countries supported by KYC providers and the fields variability**
+
+KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries.
+
+#### **The countries supported by IDology**
+
+* USA and Canada
+* No fields variations found in the docs
+
+#### **The countries supported by Sum&Substance**
+
+* International
+* No fields variations found in the docs
+
+#### **The countries supported by Trulioo**
+
+* International
+* API provides the group of methods for retrieving the lists of:
+  * Consents
+  * Supported countries
+  * Available fields dynamically based on a country
+  * Document Types available for a country
+  * Test Entities configured for a country
+  * Datasource groups configured for a country
+
+#### **The countries supported by Shufti Pro**
+
+* International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
+* No fields variations found in the docs
