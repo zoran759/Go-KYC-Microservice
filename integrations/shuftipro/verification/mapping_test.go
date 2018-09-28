@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"modulus/kyc/common"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMapCustomerToVerificationRequest(t *testing.T) {
@@ -46,88 +47,52 @@ func TestMapCustomerToVerificationRequest(t *testing.T) {
 			StartDate:         testTime,
 			EndDate:           testTime,
 		},
-		Business: common.Business{
+		Business: &common.Business{
 			Name:                      "BusinessName",
 			RegistrationNumber:        "RegNumber",
 			IncorporationDate:         testTime,
 			IncorporationJurisdiction: "IncorporationJurisdiction",
 		},
-		Documents: []common.Document{
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.IDCard,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
-				Back: &common.DocumentFile{
-					Filename:    "Filename2",
-					ContentType: "ContentType2",
-					Data:        []byte{7, 6, 5, 4, 3, 2, 1},
-				},
+		IDCard: &common.IDCard{
+			CountryAlpha2: "Country",
+			IssuedDate:    testTime,
+			Number:        "Number",
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.Selfie,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
+		},
+		Selfie: &common.Selfie{
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.UtilityBill,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
+		},
+		UtilityBill: &common.UtilityBill{
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.Passport,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
-				Back: &common.DocumentFile{
-					Filename:    "Filename2",
-					ContentType: "ContentType2",
-					Data:        []byte{7, 6, 5, 4, 3, 2, 1},
-				},
+		},
+		Passport: &common.Passport{
+			CountryAlpha2: "Country",
+			IssuedDate:    testTime,
+			ValidUntil:    testTime,
+			Number:        "Number",
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.Other,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-			},
+		},
+		Other: &common.Other{
+			CountryAlpha2: "Country",
+			IssuedDate:    testTime,
+			ValidUntil:    testTime,
+			Number:        "Number",
 		},
 	}
 
@@ -142,12 +107,4 @@ func TestMapCustomerToVerificationRequest(t *testing.T) {
 	assert.Equal(t, customer.LastName, verificationRequest.VerificationServices.LastName)
 	assert.Equal(t, "2000-01-01", verificationRequest.VerificationServices.DateOfBirth)
 
-}
-
-func Test_mapDocumentType(t *testing.T) {
-	assert.Equal(t, "passport", mapDocumentType(common.Passport))
-	assert.Equal(t, "driving_license", mapDocumentType(common.Drivers))
-	assert.Equal(t, "id_card", mapDocumentType(common.IDCard))
-	assert.Equal(t, "credit_card", mapDocumentType(common.BankCard))
-	assert.Equal(t, "", mapDocumentType(common.SNILS))
 }
