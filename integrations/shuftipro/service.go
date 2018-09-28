@@ -2,8 +2,8 @@ package shuftipro
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/shuftipro/verification"
 )
 
 type ShuftiPro struct {

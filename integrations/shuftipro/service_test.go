@@ -5,8 +5,8 @@ import (
 
 	"errors"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/shuftipro/verification"
 )
 
 func TestNew(t *testing.T) {

@@ -3,7 +3,7 @@ package configuration
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/http"
+	"modulus/kyc/http"
 	stdhttp "net/http"
 )
 

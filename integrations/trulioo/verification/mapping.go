@@ -1,7 +1,7 @@
 package verification
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 	"time"
 )
 

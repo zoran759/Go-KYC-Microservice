@@ -5,7 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 var _ = Describe("Request", func() {
