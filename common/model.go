@@ -7,26 +7,33 @@ import (
 
 // UserData defines the model for user data provided to KYC provider in order to check an individual.
 type UserData struct {
-	FirstName             string
-	PaternalLastName      string
-	LastName              string
-	MiddleName            string
-	LegalName             string
-	LatinISO1Name         string
-	Email                 string
-	Gender                Gender
-	DateOfBirth           Time
-	PlaceOfBirth          string
-	CountryOfBirthAlpha2  string
-	StateOfBirth          string
-	CountryAlpha2         string
-	Nationality           string
-	Phone                 string
-	MobilePhone           string
-	CurrentAddress        Address
-	SupplementalAddresses []Address
-	Documents             []Document
-	Business              Business
+	FirstName                string
+	PaternalLastName         string
+	LastName                 string
+	MiddleName               string
+	LegalName                string
+	LatinISO1Name            string
+	Email                    string
+	Gender                   Gender
+	DateOfBirth              Time
+	PlaceOfBirth             string
+	CountryOfBirthAlpha2     string
+	StateOfBirth             string
+	CountryAlpha2            string
+	Nationality              string
+	Phone                    string
+	MobilePhone              string
+	CurrentAddress           Address
+	SupplementalAddresses    []Address
+	Business                 *Business
+	Passport                 *Passport
+	IDCard                   *IDCard
+	SNILS                    *SNILS
+	DriverLicense            *DriverLicense
+	DriverLicenseTranslation *DriverLicenseTranslation
+	BankCard                 *BankCard
+	Selfie                   *Selfie
+	Avatar                   *Avatar
 }
 
 // Address defines user's address.
@@ -133,24 +140,6 @@ type Business struct {
 	IncorporationJurisdiction string
 }
 
-// Document defines user's document.
-type Document struct {
-	Metadata DocumentMetadata
-	Front    *DocumentFile
-	Back     *DocumentFile
-}
-
-// DocumentMetadata defines a part of the Document model.
-type DocumentMetadata struct {
-	Type             DocumentType
-	Country          string
-	DateIssued       Time
-	ValidUntil       Time
-	Number           string
-	CardFirst6Digits string
-	CardLast4Digits  string
-}
-
 // DocumentFile defines document's file containing its original or an image.
 type DocumentFile struct {
 	Filename    string
@@ -158,8 +147,97 @@ type DocumentFile struct {
 	Data        []byte
 }
 
-// DetailedKYCResult defines additional details about the verification process result.
-type DetailedKYCResult struct {
+// KYCDetails defines additional details about the verification result.
+type KYCDetails struct {
 	Finality KYCFinality
 	Reasons  []string
 }
+
+// KYCResult represents the verification result.
+type KYCResult struct {
+	Status  KYCStatus
+	Details *KYCDetails
+}
+
+/*******************************************************************/
+/* Below are the models representing different types of documents. */
+/* Please, add new models for documents after this note.           */
+/*******************************************************************/
+
+// Passport represents the passport.
+type Passport struct {
+	Number     string
+	Mrz1       string
+	Mrz2       string
+	Country    string
+	State      string
+	IssuedDate Time
+	ValidUntil Time
+	Image      *DocumentFile
+}
+
+// IDCard represents the id card.
+type IDCard struct {
+	Number     string
+	Country    string
+	DateIssued Time
+	Image      *DocumentFile
+}
+
+// SNILS represents the Russian individual insurance account number.
+type SNILS struct {
+	Number     string
+	Country    string
+	IssuedDate Time
+	Image      *DocumentFile
+}
+
+// DriverLicense represents the driver/driving license.
+type DriverLicense struct {
+	Number     string
+	Country    string
+	State      string
+	IssuedDate Time
+	ValidUntil Time
+	FrontImage *DocumentFile
+	BackImage  *DocumentFile
+}
+
+// DriverLicenseTranslation represents the translated driver/driving license.
+type DriverLicenseTranslation struct {
+	Number     string
+	Country    string
+	State      string
+	IssuedDate Time
+	ValidUntil Time
+	FrontImage *DocumentFile
+	BackImage  *DocumentFile
+}
+
+// BankCard represents the banking credit/debet card.
+type BankCard struct {
+	Type       CardType
+	Number     string
+	ValidUntil Time
+	Image      *DocumentFile
+}
+
+// Selfie represents the selfie.
+type Selfie struct {
+	Image *DocumentFile
+}
+
+// Avatar represents the profile image aka avatar.
+type Avatar struct {
+	Image *DocumentFile
+}
+
+// FIXME: other types of the documents to implement:
+// * Utility Bill
+// * IDDoc Photo
+// * Agreement
+// * Contract
+// * Residence Permit
+// * Employment Certificate
+// * Drivers Translation
+// * Other
