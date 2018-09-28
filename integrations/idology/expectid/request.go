@@ -78,10 +78,13 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	// Optional. Total amount(sum of the above).
 	v.Set("total", "")
 	// Optional. Type of ID provided.
+	// FIXME: I didn't figured out how to use this.
 	v.Set("idType", "")
 	// Optional. Issuing agency of ID.
+	// FIXME: I didn't figured out how to use this.
 	v.Set("idIssuer", "")
 	// Optional. Number on ID.
+	// FIXME: I didn't figured out how to use this.
 	v.Set("idNumber", "")
 	// Optional. Payment method.
 	v.Set("paymentMethod", "")
@@ -89,13 +92,9 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	v.Set("ssnLast4", "")
 	// "ssn" - Optional. Full ssn (9).
 	v.Set("ssn", "")
-	for _, d := range customer.Documents {
-		if d.Metadata.Type == common.IDCard {
-			v.Set("ssnLast4", d.Metadata.CardLast4Digits)
-			v.Set("ssn", d.Metadata.Number)
-
-			break
-		}
+	if customer.IDCard != nil && (customer.IDCard.CountryAlpha2 == "US" || customer.IDCard.CountryAlpha2 == "CA") {
+		v.Set("ssnLast4", customer.IDCard.Number[len(customer.IDCard.Number)-4:])
+		v.Set("ssn", customer.IDCard.Number)
 	}
 	// Optional. Month of Birth (2). Results improve with the addition of this field.
 	// Optional. Year of Birth (4). Results improve with the addition of this field. YOB is the minimum DOB information accepted by IDology.
