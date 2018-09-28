@@ -31,7 +31,8 @@ type UserData struct {
 	SNILS                    *SNILS
 	DriverLicense            *DriverLicense
 	DriverLicenseTranslation *DriverLicenseTranslation
-	BankCard                 *BankCard
+	CreditCard               *CreditCard
+	DebitCard                *DebitCard
 	Selfie                   *Selfie
 	Avatar                   *Avatar
 }
@@ -234,9 +235,15 @@ type DriverLicenseTranslation struct {
 	BackImage     *DocumentFile
 }
 
-// BankCard represents the banking credit/debet card.
-type BankCard struct {
-	Type       CardType
+// CreditCard represents the banking credit card.
+type CreditCard struct {
+	Number     string
+	ValidUntil Time
+	Image      *DocumentFile
+}
+
+// DebitCard represents the banking debit card.
+type DebitCard struct {
 	Number     string
 	ValidUntil Time
 	Image      *DocumentFile
@@ -259,5 +266,4 @@ type Avatar struct {
 // * Contract
 // * Residence Permit
 // * Employment Certificate
-// * Drivers Translation
 // * Other
