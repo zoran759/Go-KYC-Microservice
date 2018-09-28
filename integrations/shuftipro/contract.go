@@ -1,6 +1,6 @@
 package shuftipro
 
-import "gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
+import "modulus/kyc/integrations/shuftipro/verification"
 
 type Config verification.Config
 

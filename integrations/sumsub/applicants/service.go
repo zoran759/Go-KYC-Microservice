@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/http"
+	"modulus/kyc/http"
 )
 
 type service struct {

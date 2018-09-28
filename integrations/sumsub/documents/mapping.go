@@ -1,7 +1,7 @@
 package documents
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 func MapCommonCustomerDocuments(customer common.UserData) []Document {

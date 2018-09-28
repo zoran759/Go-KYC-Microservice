@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 func TestMapCommonDocumentToDocument(t *testing.T) {

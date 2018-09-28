@@ -3,7 +3,7 @@ package verification
 import (
 	"encoding/base64"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 // MapCustomerToVerificationRequest maps the values of common data to the service specific values.
