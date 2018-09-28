@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/sumsub/applicants"
+	"modulus/kyc/integrations/sumsub/documents"
+	"modulus/kyc/integrations/sumsub/verification"
 )
 
 // SumSub defines the verification service.

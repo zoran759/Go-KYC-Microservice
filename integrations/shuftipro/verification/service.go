@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/gofrs/uuid"
-	"gitlab.com/lambospeed/kyc/http"
 	"log"
+	"modulus/kyc/http"
 	"net/url"
 )
 

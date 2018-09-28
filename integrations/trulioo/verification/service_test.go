@@ -5,8 +5,8 @@ import (
 
 	"errors"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
 	"gopkg.in/jarcoal/httpmock.v1"
+	"modulus/kyc/integrations/trulioo/configuration"
 	"net/http"
 )
 
