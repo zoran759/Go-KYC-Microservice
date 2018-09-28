@@ -159,6 +159,26 @@ type KYCResult struct {
 	Details *KYCDetails
 }
 
+// CheckCustomerRequest represents the request for the CheckCustomer handler
+type CheckCustomerRequest struct {
+
+	// KYC provider
+	Provider KYCProvider
+
+	// User Data
+	UserData UserData
+}
+
+// CheckCustomerResponse represents the response for the CheckCustomer handler
+type CheckCustomerResponse struct {
+
+	// KYC result
+	KYCResult KYCResult
+
+	// KYC detailed result
+	DetailedKYCResult *KYCDetails
+}
+
 /*******************************************************************/
 /* Below are the models representing different types of documents. */
 /* Please, add new models for documents after this note.           */

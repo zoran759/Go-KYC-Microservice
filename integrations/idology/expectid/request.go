@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/http"
+	"modulus/kyc/common"
+	"modulus/kyc/http"
 )
 
 // sendRequest sends a vefirication request into the API.

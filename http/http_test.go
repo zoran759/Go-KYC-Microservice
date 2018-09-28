@@ -3,13 +3,15 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"time"
 )
 
 func TestPost(t *testing.T) {
@@ -96,21 +98,13 @@ func TestGet(t *testing.T) {
 }
 
 func TestTimeout(t *testing.T) {
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(time.Second * 70)
+		fmt.Fprintln(w, "Hello, client")
+	}))
+	defer ts.Close()
 
-	httpmock.RegisterResponder(
-		http.MethodGet,
-		"http://testpost.io/ping",
-		func(request *http.Request) (*http.Response, error) {
-			time.Sleep(time.Second * 125)
-			resp := httpmock.NewStringResponse(200, "GetRequest")
-
-			return resp, nil
-		},
-	)
-
-	_, _, err := Get("http://testpost.io/ping", Headers{})
+	_, _, err := Get(ts.URL, Headers{})
 
 	assert.Error(t, err)
 }

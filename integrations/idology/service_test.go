@@ -10,10 +10,10 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "gitlab.com/lambospeed/kyc/integrations/idology"
+	. "modulus/kyc/integrations/idology"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/idology/expectid"
 )
 
 // This is "-proxy" command-line flag to set the proxy for requests to the API.

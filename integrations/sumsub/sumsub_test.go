@@ -5,10 +5,10 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/sumsub/applicants"
+	"modulus/kyc/integrations/sumsub/documents"
+	"modulus/kyc/integrations/sumsub/verification"
 )
 
 func TestNew(t *testing.T) {
