@@ -33,8 +33,10 @@ type UserData struct {
 	DriverLicenseTranslation *DriverLicenseTranslation
 	CreditCard               *CreditCard
 	DebitCard                *DebitCard
+	UtilityBill              *UtilityBill
 	Selfie                   *Selfie
 	Avatar                   *Avatar
+	Other                    *Other
 }
 
 // Address defines user's address.
@@ -201,7 +203,7 @@ type Passport struct {
 type IDCard struct {
 	Number        string
 	CountryAlpha2 string
-	DateIssued    Time
+	IssuedDate    Time
 	Image         *DocumentFile
 }
 
@@ -249,6 +251,11 @@ type DebitCard struct {
 	Image      *DocumentFile
 }
 
+// UtilityBill represents the utility bill.
+type UtilityBill struct {
+	Image *DocumentFile
+}
+
 // Selfie represents the selfie.
 type Selfie struct {
 	Image *DocumentFile
@@ -257,6 +264,16 @@ type Selfie struct {
 // Avatar represents the profile image aka avatar.
 type Avatar struct {
 	Image *DocumentFile
+}
+
+// Other represents the model for other documents.
+type Other struct {
+	Number        string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	Image         *DocumentFile
 }
 
 // FIXME: other types of the documents to implement:

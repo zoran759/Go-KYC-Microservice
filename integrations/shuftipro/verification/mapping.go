@@ -22,55 +22,71 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 		},
 	}
 
-	if customer.Documents != nil && len(customer.Documents) > 0 {
-		for _, document := range customer.Documents {
-			if request.VerificationServices.DocumentType != "" &&
-				request.VerificationData.FaceImage != "" &&
-				request.VerificationData.UtilityBill != "" {
-				break
-			} else if request.VerificationData.FaceImage == "" && document.Metadata.Type == common.Selfie {
-				if document.Front != nil {
-					request.VerificationData.FaceImage = base64.StdEncoding.EncodeToString(document.Front.Data)
-				}
-			} else if request.VerificationData.UtilityBill == "" && document.Metadata.Type == common.UtilityBill {
-				if document.Front != nil {
-					request.VerificationData.UtilityBill = base64.StdEncoding.EncodeToString(document.Front.Data)
-				}
-			} else if request.VerificationServices.DocumentType == "" {
-				if mappedType := mapDocumentType(document.Metadata.Type); mappedType != "" {
-					request.VerificationServices.DocumentType = mappedType
-					request.VerificationServices.DocumentExpiryDate = document.Metadata.ValidUntil.Format("2006-01-02")
-					request.VerificationServices.DocumentIDNumber = document.Metadata.Number
-					request.VerificationServices.CardFirst6Digits = document.Metadata.CardFirst6Digits
-					request.VerificationServices.CardLast4Digits = document.Metadata.CardLast4Digits
-
-					if document.Front != nil && document.Front.Data != nil {
-						request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(document.Front.Data)
-					}
-
-					if document.Back != nil && document.Back.Data != nil {
-						request.VerificationData.BackImage = base64.StdEncoding.EncodeToString(document.Back.Data)
-					}
-				}
-			}
+	if customer.Selfie != nil {
+		request.VerificationData.FaceImage = base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data)
+	}
+	if customer.UtilityBill != nil {
+		request.VerificationData.UtilityBill = base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data)
+	}
+	if customer.Passport != nil {
+		request.VerificationServices.DocumentType = "passport"
+		request.VerificationServices.DocumentExpiryDate = customer.Passport.ValidUntil.Format("2006-01-02")
+		request.VerificationServices.DocumentIDNumber = customer.Passport.Number
+		request.VerificationServices.CardFirst6Digits = customer.Passport.Number[:6]
+		request.VerificationServices.CardLast4Digits = customer.Passport.Number[len(customer.Passport.Number)-4:]
+		if customer.Passport.Image != nil {
+			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.Passport.Image.Data)
 		}
 
+		return request
+	}
+	if customer.DriverLicense != nil {
+		request.VerificationServices.DocumentType = "driving_license"
+		request.VerificationServices.DocumentExpiryDate = customer.DriverLicense.ValidUntil.Format("2006-01-02")
+		request.VerificationServices.DocumentIDNumber = customer.DriverLicense.Number
+		request.VerificationServices.CardFirst6Digits = customer.DriverLicense.Number[:6]
+		request.VerificationServices.CardLast4Digits = customer.DriverLicense.Number[len(customer.DriverLicense.Number)-4:]
+		if customer.DriverLicense.FrontImage != nil {
+			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data)
+		}
+		if customer.DriverLicense.BackImage != nil {
+			request.VerificationData.BackImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.BackImage.Data)
+		}
+
+		return request
+	}
+	if customer.IDCard != nil {
+		request.VerificationServices.DocumentType = "id_card"
+		request.VerificationServices.DocumentIDNumber = customer.IDCard.Number
+		request.VerificationServices.CardFirst6Digits = customer.IDCard.Number[:6]
+		request.VerificationServices.CardLast4Digits = customer.IDCard.Number[len(customer.IDCard.Number)-4:]
+		if customer.IDCard.Image != nil {
+			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data)
+		}
+
+		return request
+	}
+	if customer.SNILS != nil {
+		request.VerificationServices.DocumentType = "id_card"
+		request.VerificationServices.DocumentIDNumber = customer.SNILS.Number
+		request.VerificationServices.CardFirst6Digits = customer.SNILS.Number[:6]
+		request.VerificationServices.CardLast4Digits = customer.SNILS.Number[len(customer.SNILS.Number)-4:]
+		if customer.SNILS.Image != nil {
+			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data)
+		}
+
+		return request
+	}
+	if customer.CreditCard != nil {
+		request.VerificationServices.DocumentType = "credit_card"
+		request.VerificationServices.DocumentExpiryDate = customer.CreditCard.ValidUntil.Format("2006-01-02")
+		request.VerificationServices.DocumentIDNumber = customer.CreditCard.Number
+		request.VerificationServices.CardFirst6Digits = customer.CreditCard.Number[:6]
+		request.VerificationServices.CardLast4Digits = customer.CreditCard.Number[len(customer.CreditCard.Number)-4:]
+		if customer.CreditCard.Image != nil {
+			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.CreditCard.Image.Data)
+		}
 	}
 
 	return request
-}
-
-func mapDocumentType(documentType common.DocumentType) string {
-	switch documentType {
-	case common.Passport:
-		return "passport"
-	case common.Drivers:
-		return "driving_license"
-	case common.IDCard:
-		return "id_card"
-	case common.BankCard:
-		return "credit_card"
-	default:
-		return ""
-	}
 }
