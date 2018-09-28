@@ -30,15 +30,6 @@ const (
 	Female Gender = 2
 )
 
-// CardType defines the banking card type.
-type CardType int
-
-// Possible values of CardType.
-const (
-	Debet CardType = iota
-	Credit
-)
-
 // KYCProvider represents a KYC Provider.
 type KYCProvider string
 
