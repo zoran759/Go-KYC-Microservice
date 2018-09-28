@@ -166,52 +166,52 @@ type KYCResult struct {
 
 // Passport represents the passport.
 type Passport struct {
-	Number     string
-	Mrz1       string
-	Mrz2       string
-	Country    string
-	State      string
-	IssuedDate Time
-	ValidUntil Time
-	Image      *DocumentFile
+	Number        string
+	Mrz1          string
+	Mrz2          string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	Image         *DocumentFile
 }
 
 // IDCard represents the id card.
 type IDCard struct {
-	Number     string
-	Country    string
-	DateIssued Time
-	Image      *DocumentFile
+	Number        string
+	CountryAlpha2 string
+	DateIssued    Time
+	Image         *DocumentFile
 }
 
 // SNILS represents the Russian individual insurance account number.
 type SNILS struct {
-	Number     string
-	Country    string
-	IssuedDate Time
-	Image      *DocumentFile
+	Number        string
+	CountryAlpha2 string
+	IssuedDate    Time
+	Image         *DocumentFile
 }
 
 // DriverLicense represents the driver/driving license.
 type DriverLicense struct {
-	Number     string
-	Country    string
-	State      string
-	IssuedDate Time
-	ValidUntil Time
-	FrontImage *DocumentFile
-	BackImage  *DocumentFile
+	Number        string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	FrontImage    *DocumentFile
+	BackImage     *DocumentFile
 }
 
 // DriverLicenseTranslation represents the translated driver/driving license.
 type DriverLicenseTranslation struct {
-	Number     string
-	Country    string
-	State      string
-	IssuedDate Time
-	ValidUntil Time
-	FrontImage *DocumentFile
-	BackImage  *DocumentFile
+	Number        string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	FrontImage    *DocumentFile
+	BackImage     *DocumentFile
 }
 
 // BankCard represents the banking credit/debet card.

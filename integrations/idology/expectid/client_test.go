@@ -61,15 +61,9 @@ var _ = Describe("Client", func() {
 					PostCode:          "30318",
 					StateProvinceCode: "GA",
 				},
-				Documents: []common.Document{
-					common.Document{
-						Metadata: common.DocumentMetadata{
-							Type:            common.IDCard,
-							Country:         "USA",
-							Number:          "112223333",
-							CardLast4Digits: "3333",
-						},
-					},
+				IDCard: &common.IDCard{
+					CountryAlpha2: "US",
+					Number:        "112223333",
 				},
 			}
 		}
@@ -90,11 +84,11 @@ var _ = Describe("Client", func() {
 			)
 
 			customer := newCustomer()
-			result, details, err := client.CheckCustomer(customer)
+			result, err := client.CheckCustomer(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(details).To(BeNil())
-			Expect(result).To(Equal(common.Approved))
+			Expect(result.Details).To(BeNil())
+			Expect(result.Status).To(Equal(common.Approved))
 
 		})
 
@@ -107,11 +101,11 @@ var _ = Describe("Client", func() {
 
 			customer := newCustomer()
 			customer.LastName = "Doe"
-			result, details, err := client.CheckCustomer(customer)
+			result, err := client.CheckCustomer(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(details).To(BeNil())
-			Expect(result).To(Equal(common.Denied))
+			Expect(result.Details).To(BeNil())
+			Expect(result.Status).To(Equal(common.Denied))
 		})
 
 		It("should return rejected result with ID Notes", func() {
@@ -123,14 +117,14 @@ var _ = Describe("Client", func() {
 
 			customer := newCustomer()
 			customer.DateOfBirth = common.Time(time.Date(2009, time.February, 28, 0, 0, 0, 0, time.UTC))
-			result, details, err := client.CheckCustomer(customer)
+			result, err := client.CheckCustomer(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(details).NotTo(BeNil())
-			Expect(details.Finality).To(Equal(common.Unknown))
-			Expect(details.Reasons).To(HaveLen(1))
-			Expect(details.Reasons[0]).To(Equal("COPPA Alert"))
-			Expect(result).To(Equal(common.Denied))
+			Expect(result.Details).NotTo(BeNil())
+			Expect(result.Details.Finality).To(Equal(common.Unknown))
+			Expect(result.Details.Reasons).To(HaveLen(1))
+			Expect(result.Details.Reasons[0]).To(Equal("COPPA Alert"))
+			Expect(result.Status).To(Equal(common.Denied))
 		})
 
 		It("should return error", func() {
@@ -141,10 +135,10 @@ var _ = Describe("Client", func() {
 			)
 
 			customer := newCustomer()
-			result, details, err := client.CheckCustomer(customer)
+			result, err := client.CheckCustomer(customer)
 
-			Expect(result).To(Equal(common.Error))
-			Expect(details).To(BeNil())
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).To(BeNil())
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("during verification: Invalid username and password"))
 		})
