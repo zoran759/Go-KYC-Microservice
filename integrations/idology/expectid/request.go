@@ -93,7 +93,9 @@ func (c *Client) makeRequestBody(customer *common.UserData) string {
 	// "ssn" - Optional. Full ssn (9).
 	v.Set("ssn", "")
 	if customer.IDCard != nil && (customer.IDCard.CountryAlpha2 == "US" || customer.IDCard.CountryAlpha2 == "CA") {
-		v.Set("ssnLast4", customer.IDCard.Number[len(customer.IDCard.Number)-4:])
+		if len(customer.IDCard.Number) > 3 {
+			v.Set("ssnLast4", customer.IDCard.Number[len(customer.IDCard.Number)-4:])
+		}
 		v.Set("ssn", customer.IDCard.Number)
 	}
 	// Optional. Month of Birth (2). Results improve with the addition of this field.
