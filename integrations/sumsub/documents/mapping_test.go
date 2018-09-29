@@ -22,13 +22,13 @@ func TestMapCommonDocumentToDocument(t *testing.T) {
 		PlaceOfBirth:         "PlaceOfBirth",
 		CountryOfBirthAlpha2: "CountryOfBirth",
 		StateOfBirth:         "StateOfBirth",
-		CountryAlpha2:        "CountryAlpha2",
+		CountryAlpha2:        "AU",
 		Nationality:          "Nationality",
 		Phone:                "Phone",
 		MobilePhone:          "MobilePhone",
 		Passport: &common.Passport{
 			Number:        "Number",
-			CountryAlpha2: "CountryAlpha2",
+			CountryAlpha2: "AU",
 			IssuedDate:    testTime,
 			ValidUntil:    testTime,
 			Image: &common.DocumentFile{
@@ -53,7 +53,7 @@ func TestMapCommonDocumentToDocument(t *testing.T) {
 		assert.Equal(t, commonDocument.Number, metadata.Number)
 		assert.Equal(t, commonDocument.ValidUntil.Format("2006-01-02"), metadata.ValidUntil)
 		assert.Equal(t, commonDocument.IssuedDate.Format("2006-01-02"), metadata.DateIssued)
-		assert.Equal(t, commonDocument.CountryAlpha2, metadata.Country)
+		assert.Equal(t, common.CountryAlpha2ToAlpha3[commonDocument.CountryAlpha2], metadata.Country)
 		assert.Empty(t, metadata.DocumentSubType)
 		assert.Equal(t, "PASSPORT", metadata.DocumentType)
 
@@ -115,7 +115,7 @@ func TestMapCommonDoubleSideDocument(t *testing.T) {
 		assert.Equal(t, commonDocument.Number, frontMetadata.Number)
 		assert.Equal(t, commonDocument.ValidUntil.Format("2006-01-02"), frontMetadata.ValidUntil)
 		assert.Equal(t, commonDocument.IssuedDate.Format("2006-01-02"), frontMetadata.DateIssued)
-		assert.Equal(t, commonDocument.CountryAlpha2, frontMetadata.Country)
+		assert.Equal(t, common.CountryAlpha2ToAlpha3[commonDocument.CountryAlpha2], frontMetadata.Country)
 		assert.Equal(t, FrontSide, frontMetadata.DocumentSubType)
 		assert.Equal(t, "DRIVERS", frontMetadata.DocumentType)
 
@@ -135,7 +135,7 @@ func TestMapCommonDoubleSideDocument(t *testing.T) {
 		assert.Equal(t, commonDocument.Number, backMetadata.Number)
 		assert.Equal(t, commonDocument.ValidUntil.Format("2006-01-02"), backMetadata.ValidUntil)
 		assert.Equal(t, commonDocument.IssuedDate.Format("2006-01-02"), backMetadata.DateIssued)
-		assert.Equal(t, commonDocument.CountryAlpha2, backMetadata.Country)
+		assert.Equal(t, common.CountryAlpha2ToAlpha3[commonDocument.CountryAlpha2], backMetadata.Country)
 		assert.Equal(t, BackSide, backMetadata.DocumentSubType)
 		assert.Equal(t, "DRIVERS", backMetadata.DocumentType)
 
