@@ -52,9 +52,9 @@ type Communication struct {
 }
 
 type Document struct {
-	DocumentFrontImage []byte
-	DocumentBackImage  []byte
-	LivePhoto          []byte
+	DocumentFrontImage string
+	DocumentBackImage  string
+	LivePhoto          string
 	DocumentType       string
 }
 
@@ -100,11 +100,13 @@ type RecordRule struct {
 	Note     string
 }
 
+// Error represents a verification error.
 type Error struct {
 	Code    string
 	Message string
 }
 
+// Errors represents errors returned by the API.
 type Errors []Error
 
 func (errors Errors) Error() string {
