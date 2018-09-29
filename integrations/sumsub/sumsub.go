@@ -5,11 +5,12 @@ import (
 	"math"
 	"time"
 
-	"github.com/pkg/errors"
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/sumsub/applicants"
 	"modulus/kyc/integrations/sumsub/documents"
 	"modulus/kyc/integrations/sumsub/verification"
+
+	"github.com/pkg/errors"
 )
 
 // SumSub defines the verification service.
@@ -40,9 +41,10 @@ func New(config Config) SumSub {
 }
 
 // CheckCustomer implements CustomerChecker interface for Sum&Substance KYC provider.
-func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult, *common.DetailedKYCResult, error) {
+func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
-		return common.Error, nil, errors.New("No customer supplied")
+		err = errors.New("No customer supplied")
+		return
 	}
 
 	applicantResponse, err := service.applicants.CreateApplicant(
@@ -50,32 +52,34 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 		applicants.MapCommonCustomerToApplicant(*customer),
 	)
 	if err != nil {
-		return common.Error, nil, err
+		return
 	}
 
 	mappedDocuments := documents.MapCommonCustomerDocuments(*customer)
 	if mappedDocuments != nil {
 		for _, document := range mappedDocuments {
-			_, err := service.documents.UploadDocument(applicantResponse.ID, document)
+			_, err1 := service.documents.UploadDocument(applicantResponse.ID, document)
 
-			if err != nil {
-				return common.Error, nil, errors.Wrapf(
-					err,
+			if err1 != nil {
+				err = errors.Wrapf(
+					err1,
 					"Unable to upload document with filename: %s, type: %s, side: %s",
 					document.File.Filename,
 					document.Metadata.DocumentType,
 					document.Metadata.DocumentSubType,
 				)
+				return
 			}
 		}
 	}
 
 	started, err := service.verification.StartVerification(applicantResponse.ID)
 	if err != nil {
-		return common.Error, nil, err
+		return
 	}
 	if !started {
-		return common.Error, nil, errors.New("verification hasn't started for unknown reason. Please try again")
+		err = errors.New("verification hasn't started for unknown reason. Please try again")
+		return
 	}
 	// Begin polling sumsub for validation results
 	startingPower := 3
@@ -84,17 +88,17 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 		time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
 		startingPower++
 
-		status, result, err := service.verification.CheckApplicantStatus(applicantResponse.ID)
-		if err != nil {
+		status, result, err1 := service.verification.CheckApplicantStatus(applicantResponse.ID)
+		if err1 != nil {
 			log.Printf("Sumsub polling error: %s for applicant with id: %s", err, applicantResponse.ID)
 			continue
 		}
 
 		if status == CompleteStatus {
-			var detailedResult *common.DetailedKYCResult
+			var detailedResult *common.KYCDetails
 
 			if result.ReviewAnswer != GreenScore && result.RejectLabels != nil && len(result.RejectLabels) > 0 {
-				detailedResult = &common.DetailedKYCResult{
+				detailedResult = &common.KYCDetails{
 					Reasons: result.RejectLabels,
 				}
 
@@ -110,20 +114,28 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 
 			switch result.ReviewAnswer {
 			case RedScore:
-				return common.Denied, detailedResult, nil
+				res.Status = common.Denied
+				res.Details = detailedResult
+				return
 			case YellowScore:
-				return common.Unclear, detailedResult, nil
+				res.Status = common.Unclear
+				res.Details = detailedResult
+				return
 			case GreenScore:
-				return common.Approved, nil, nil
+				res.Status = common.Approved
+				return
 			case ErrorScore:
-				return common.Error, detailedResult, nil
+				res.Details = detailedResult
+				return
 			case IgnoredScore:
-				return common.Error, detailedResult, nil
+				res.Details = detailedResult
+				return
 			}
 		}
 
 		if time.Now().Unix()-startingDate.Unix() >= service.timeoutThreshold {
-			return common.Error, nil, errors.New("request timed out")
+			err = errors.New("request timed out")
+			return
 		}
 	}
 }

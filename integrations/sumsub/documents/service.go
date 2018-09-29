@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"mime/multipart"
 	"modulus/kyc/http"
+
+	"github.com/pkg/errors"
 )
 
 type service struct {
@@ -14,6 +15,7 @@ type service struct {
 	apiKey string
 }
 
+// NewService constructs a new documents verification service object.
 func NewService(config Config) Documents {
 	return service{
 		host:   config.Host,
