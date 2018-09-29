@@ -71,5 +71,8 @@ const (
 type KYCProvider string
 
 const (
-	Shuftipro KYCProvider = "SHUFTIPRO"
+	Shuftipro    KYCProvider = "SHUFTIPRO"
+	SumSubstance KYCProvider = "SUMSUBSTANCE"
+	Trulioo      KYCProvider = "TRULIOO"
+	IDology      KYCProvider = "IDOLOGY"
 )
