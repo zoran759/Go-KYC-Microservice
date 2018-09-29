@@ -3,11 +3,12 @@ package trulioo
 import (
 	"testing"
 
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/trulioo/configuration"
 	"modulus/kyc/integrations/trulioo/verification"
+
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {
@@ -75,16 +76,16 @@ func TestTrulioo_CheckCustomerNoMatch(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err := service.CheckCustomer(&common.UserData{})
+	result, err := service.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) {
-		assert.Equal(t, common.Denied, result)
-		assert.Len(t, detailedKYCResult.Reasons, 2)
-		assert.Equal(t, common.Unknown, detailedKYCResult.Finality)
+		assert.Equal(t, common.Denied, result.Status)
+		assert.Len(t, result.Details.Reasons, 2)
+		assert.Equal(t, common.Unknown, result.Details.Finality)
 
 		assert.Equal(t, []string{
 			"Datasource Name has status: status; field statuses: Field name : status; Field name2 : status2; error: test error;",
 			"Datasource Name1 has status: status1; field statuses: Field name3 : status3; Field name4 : status; error: test error2;",
-		}, detailedKYCResult.Reasons)
+		}, result.Details.Reasons)
 	}
 }
 
@@ -149,16 +150,16 @@ func TestTrulioo_CheckCustomerUnclear(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err := service.CheckCustomer(&common.UserData{})
+	result, err := service.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) {
-		assert.Equal(t, common.Unclear, result)
-		assert.Len(t, detailedKYCResult.Reasons, 2)
-		assert.Equal(t, common.Unknown, detailedKYCResult.Finality)
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.Len(t, result.Details.Reasons, 2)
+		assert.Equal(t, common.Unknown, result.Details.Finality)
 
 		assert.Equal(t, []string{
 			"Datasource Name has status: status; field statuses: Field name : status; Field name2 : status2; error: test error;",
 			"Datasource Name1 has status: status1; field statuses: Field name3 : status3; Field name4 : status; error: test error2;",
-		}, detailedKYCResult.Reasons)
+		}, result.Details.Reasons)
 	}
 }
 
@@ -180,9 +181,9 @@ func TestTrulioo_CheckCustomerApproved(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.Nil(t, detailedKYCResult) {
-		assert.Equal(t, common.Approved, result)
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Approved, result.Status)
 	}
 }
 
@@ -214,8 +215,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err := service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, detailedKYCResult) && assert.Equal(t, common.Error, result) {
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, "Test error;Another test error;", err.Error())
 	}
 
@@ -236,8 +237,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, detailedKYCResult) && assert.Equal(t, common.Error, result) {
+	result, err = service.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, "Test error1;Another test error2;", err.Error())
 	}
 
@@ -247,8 +248,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, detailedKYCResult) && assert.Equal(t, common.Error, result) {
+	result, err = service.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, "test error", err.Error())
 	}
 
@@ -258,13 +259,13 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	result, detailedKYCResult, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, detailedKYCResult) && assert.Equal(t, common.Error, result) {
+	result, err = service.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, "test error2", err.Error())
 	}
 
-	result, detailedKYCResult, err = service.CheckCustomer(nil)
-	if assert.Error(t, err) && assert.Nil(t, detailedKYCResult) && assert.Equal(t, common.Error, result) {
+	result, err = service.CheckCustomer(nil)
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, "No customer supplied", err.Error())
 	}
 }

@@ -10,6 +10,7 @@ type service struct {
 	config Config
 }
 
+// NewService constructs a new verification service object.
 func NewService(config Config) Verification {
 	return service{
 		config: config,

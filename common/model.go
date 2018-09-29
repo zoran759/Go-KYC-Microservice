@@ -34,6 +34,7 @@ type UserData struct {
 	CreditCard               *CreditCard
 	DebitCard                *DebitCard
 	UtilityBill              *UtilityBill
+	ResidencePermit          *ResidencePermit
 	Selfie                   *Selfie
 	Avatar                   *Avatar
 	Other                    *Other
@@ -257,6 +258,11 @@ type UtilityBill struct {
 	Image         *DocumentFile
 }
 
+// ResidencePermit represents the residence permit.
+type ResidencePermit struct {
+	Image *DocumentFile
+}
+
 // Selfie represents the selfie.
 type Selfie struct {
 	Image *DocumentFile
@@ -278,10 +284,8 @@ type Other struct {
 }
 
 // FIXME: other types of the documents to implement:
-// * Utility Bill
 // * IDDoc Photo
 // * Agreement
 // * Contract
 // * Residence Permit
 // * Employment Certificate
-// * Other
