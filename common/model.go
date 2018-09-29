@@ -253,7 +253,8 @@ type DebitCard struct {
 
 // UtilityBill represents the utility bill.
 type UtilityBill struct {
-	Image *DocumentFile
+	CountryAlpha2 string
+	Image         *DocumentFile
 }
 
 // Selfie represents the selfie.
