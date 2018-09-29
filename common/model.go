@@ -178,9 +178,6 @@ type CheckCustomerResponse struct {
 
 	// KYC result
 	KYCResult KYCResult
-
-	// KYC detailed result
-	DetailedKYCResult *KYCDetails
 }
 
 /*******************************************************************/
