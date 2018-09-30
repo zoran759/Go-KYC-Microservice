@@ -35,6 +35,6 @@ config := trulioo.Config{
 
 service := trulioo.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+result, err := service.CheckCustomer(customer)
 ...
 ```

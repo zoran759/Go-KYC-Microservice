@@ -38,6 +38,6 @@ config := idology.Config{
 
 service := idology.New(config)
 
-result, details, err := service.ExpectID.CheckCustomer(customer)
+result, err := service.ExpectID.CheckCustomer(customer)
 ...
 ```
