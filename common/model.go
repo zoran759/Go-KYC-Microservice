@@ -35,6 +35,10 @@ type UserData struct {
 	DebitCard                *DebitCard
 	UtilityBill              *UtilityBill
 	ResidencePermit          *ResidencePermit
+	Agreement                *Agreement
+	EmploymentCertificate    *EmploymentCertificate
+	Contract                 *Contract
+	DocumentPhoto            *DocumentPhoto
 	Selfie                   *Selfie
 	Avatar                   *Avatar
 	Other                    *Other
@@ -207,10 +211,9 @@ type IDCard struct {
 
 // SNILS represents the Russian individual insurance account number.
 type SNILS struct {
-	Number        string
-	CountryAlpha2 string
-	IssuedDate    Time
-	Image         *DocumentFile
+	Number     string
+	IssuedDate Time
+	Image      *DocumentFile
 }
 
 // DriverLicense represents the driver/driving license.
@@ -257,7 +260,26 @@ type UtilityBill struct {
 
 // ResidencePermit represents the residence permit.
 type ResidencePermit struct {
+	CountryAlpha2 string
+	IssuedDate    Time
+	ValidUntil    Time
+	Image         *DocumentFile
+}
+
+// Agreement represents an agreement of some sort, e.g. for processing personal info.
+type Agreement struct {
 	Image *DocumentFile
+}
+
+// Contract represents a contract of some sort.
+type Contract struct {
+	Image *DocumentFile
+}
+
+// EmploymentCertificate represents a document from an employer, e.g. proof that a user works there.
+type EmploymentCertificate struct {
+	IssuedDate Time
+	Image      *DocumentFile
 }
 
 // Selfie represents the selfie.
@@ -270,6 +292,11 @@ type Avatar struct {
 	Image *DocumentFile
 }
 
+// DocumentPhoto represents a photo from some document (like a photo from a passport).
+type DocumentPhoto struct {
+	Image *DocumentFile
+}
+
 // Other represents the model for other documents.
 type Other struct {
 	Number        string
@@ -279,10 +306,3 @@ type Other struct {
 	ValidUntil    Time
 	Image         *DocumentFile
 }
-
-// FIXME: other types of the documents to implement:
-// * IDDoc Photo
-// * Agreement
-// * Contract
-// * Residence Permit
-// * Employment Certificate

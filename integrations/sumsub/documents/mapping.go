@@ -53,7 +53,7 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 		documents = append(documents, Document{
 			Metadata: Metadata{
 				DocumentType: "SNILS",
-				Country:      common.CountryAlpha2ToAlpha3[customer.SNILS.CountryAlpha2],
+				Country:      "RUS",
 				FirstName:    customer.FirstName,
 				MiddleName:   customer.MiddleName,
 				LastName:     customer.LastName,

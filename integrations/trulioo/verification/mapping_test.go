@@ -201,9 +201,8 @@ func TestMapCustomerToDataFieldsNoSupportedDocuments(t *testing.T) {
 			IncorporationJurisdiction: "IncorporationJurisdiction",
 		},
 		SNILS: &common.SNILS{
-			CountryAlpha2: "Country",
-			IssuedDate:    testTime,
-			Number:        "Number",
+			IssuedDate: testTime,
+			Number:     "Number",
 			Image: &common.DocumentFile{
 				Filename:    "Filename",
 				ContentType: "ContentType",
