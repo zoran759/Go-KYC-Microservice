@@ -34,6 +34,6 @@ config := sumsub.Config{
 
 service := sumsub.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+result, err := service.CheckCustomer(customer)
 ...
 ```

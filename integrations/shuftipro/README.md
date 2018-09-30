@@ -37,6 +37,6 @@ config := shuftipro.Config{
 
 service := shuftipro.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+result, err := service.CheckCustomer(customer)
 ...
 ```
