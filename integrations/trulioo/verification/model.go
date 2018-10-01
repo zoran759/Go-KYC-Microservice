@@ -73,6 +73,7 @@ type VerificationResponse struct {
 	CountryCode   string
 	Record        Record
 	Errors        Errors
+	ErrorCode     *int `json:"-"`
 }
 
 type Record struct {

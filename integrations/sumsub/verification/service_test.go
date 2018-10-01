@@ -2,10 +2,11 @@ package verification
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNewService(t *testing.T) {
@@ -42,8 +43,9 @@ func Test_service_StartVerification(t *testing.T) {
 		},
 	)
 
-	response, err := service.StartVerification("test_applicant_id")
+	response, errorCode, err := service.StartVerification("test_applicant_id")
 	if assert.NoError(t, err) {
+		assert.Nil(t, errorCode)
 		assert.True(t, response)
 	}
 }
@@ -68,8 +70,9 @@ func Test_service_StartVerificationError(t *testing.T) {
 		},
 	)
 
-	response, err := service.StartVerification("test_applicant_id")
+	response, errorCode, err := service.StartVerification("test_applicant_id")
 	if assert.Error(t, err) {
+		assert.Equal(t, 400, *errorCode)
 		assert.False(t, response)
 	}
 
@@ -85,8 +88,9 @@ func Test_service_StartVerificationError(t *testing.T) {
 		},
 	)
 
-	response, err = service.StartVerification("test_applicant_id")
+	response, errorCode, err = service.StartVerification("test_applicant_id")
 	if assert.Error(t, err) {
+		assert.Nil(t, errorCode)
 		assert.False(t, response)
 	}
 
@@ -99,8 +103,9 @@ func Test_service_StartVerificationError(t *testing.T) {
 		},
 	)
 
-	response, err = service.StartVerification("test_applicant_id")
+	response, errorCode, err = service.StartVerification("test_applicant_id")
 	if assert.Error(t, err) {
+		assert.Nil(t, errorCode)
 		assert.False(t, response)
 	}
 }
@@ -173,7 +178,7 @@ func Test_service_CheckApplicantStatusError(t *testing.T) {
 
 	_, response, err := service.CheckApplicantStatus("test_applicant_id")
 	if assert.Error(t, err) {
-		assert.Nil(t, response)
+		assert.Equal(t, 400, response.ErrorCode)
 	}
 
 	httpmock.Reset()

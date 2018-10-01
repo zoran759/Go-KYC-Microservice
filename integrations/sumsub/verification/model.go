@@ -6,6 +6,7 @@ type StartVerificationResponse struct {
 }
 
 type Error struct {
+	Code        *int    `json:"code"`
 	Description *string `json:"description"`
 }
 
@@ -26,4 +27,5 @@ type ReviewResult struct {
 	Label            string   `json:"label"`
 	RejectLabels     []string `json:"rejectLabels"`
 	ReviewRejectType string   `json:"reviewRejectType"`
+	ErrorCode        int      `json:"-"`
 }

@@ -30,13 +30,13 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return CompleteStatus, &verification.ReviewResult{
@@ -76,13 +76,13 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return CompleteStatus, &verification.ReviewResult{
@@ -117,13 +117,13 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return CompleteStatus, &verification.ReviewResult{
@@ -160,13 +160,13 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return CompleteStatus, &verification.ReviewResult{
@@ -201,13 +201,13 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return CompleteStatus, &verification.ReviewResult{
@@ -242,13 +242,13 @@ func TestSumSub_CheckCustomerTimeout(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return "pending", nil, nil
@@ -272,13 +272,13 @@ func TestSumSub_CheckCustomerErrorTimeout(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				if !checkApplicantInvoked {
@@ -305,13 +305,13 @@ func TestSumSub_CheckCustomerNotStartedUnknownReasons(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return false, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return false, nil, nil
 			},
 		},
 	}
@@ -330,13 +330,13 @@ func TestSumSub_CheckCustomerNotStartedError(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return false, errors.New("Unable to start a check")
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return false, nil, errors.New("Unable to start a check")
 			},
 		},
 	}
@@ -355,8 +355,8 @@ func TestSumSub_CheckCustomerDocumentUploadError(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, errors.New("Bad document")
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, errors.New("Bad document")
 			},
 		},
 	}

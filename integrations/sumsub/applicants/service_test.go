@@ -2,10 +2,11 @@ package applicants
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNewService(t *testing.T) {
@@ -98,7 +99,8 @@ func Test_service_CreateApplicantError(t *testing.T) {
 	)
 
 	response, err := applicantsService.CreateApplicant("", ApplicantInfo{})
-	if assert.Error(t, err) && assert.Nil(t, response) {
+	if assert.Error(t, err) && assert.NotNil(t, response) {
+		assert.Equal(t, 400, *response.Code)
 		assert.Equal(t, "Null applicant was provided", err.Error())
 	}
 
