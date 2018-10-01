@@ -17,7 +17,7 @@ type Documents interface {
 	UploadDocument(
 		applicantID string,
 		document Document,
-	) (*Metadata, error)
+	) (*Metadata, *int, error)
 }
 
 // Mock represents the mock of the service for the testing.
@@ -25,13 +25,13 @@ type Mock struct {
 	UploadDocumentFn func(
 		applicantID string,
 		document Document,
-	) (*Metadata, error)
+	) (*Metadata, *int, error)
 }
 
 // UploadDocument implements the Documents interface for Mock.
 func (mock Mock) UploadDocument(
 	applicantID string,
 	document Document,
-) (*Metadata, error) {
+) (*Metadata, *int, error) {
 	return mock.UploadDocumentFn(applicantID, document)
 }

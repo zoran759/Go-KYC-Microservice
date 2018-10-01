@@ -46,6 +46,7 @@ func (service ShuftiPro) CheckCustomer(customer *common.UserData) (result common
 		err = errors.New("There are no documents provided or they are invalid")
 		return
 	default:
+		result.ErrorCode = response.StatusCode
 		err = errors.New(response.Message)
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"modulus/kyc/http"
 	"modulus/kyc/integrations/trulioo/configuration"
+	stdhttp "net/http"
 )
 
 type service struct {
@@ -31,7 +32,7 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 		return nil, err
 	}
 
-	_, responseBytes, err := http.Post(
+	code, responseBytes, err := http.Post(
 		service.config.Host+"/verify",
 		http.Headers{
 			"Authorization": "Basic " + service.config.Token,
@@ -44,8 +45,11 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 	}
 
 	response := new(VerificationResponse)
+	if code != stdhttp.StatusOK && code != 0 {
+		response.ErrorCode = &code
+	}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return nil, err
+		return response, err
 	}
 	return response, err
 }

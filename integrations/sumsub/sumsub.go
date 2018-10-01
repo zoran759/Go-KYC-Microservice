@@ -1,6 +1,7 @@
 package sumsub
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"time"
@@ -52,15 +53,21 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 		applicants.MapCommonCustomerToApplicant(*customer),
 	)
 	if err != nil {
+		if applicantResponse != nil && applicantResponse.Code != nil {
+			res.ErrorCode = fmt.Sprintf("%d", *applicantResponse.Code)
+		}
 		return
 	}
 
 	mappedDocuments := documents.MapCommonCustomerDocuments(*customer)
 	if mappedDocuments != nil {
 		for _, document := range mappedDocuments {
-			_, err1 := service.documents.UploadDocument(applicantResponse.ID, document)
+			_, errorCode, err1 := service.documents.UploadDocument(applicantResponse.ID, document)
 
 			if err1 != nil {
+				if errorCode != nil {
+					res.ErrorCode = fmt.Sprintf("%d", *errorCode)
+				}
 				err = errors.Wrapf(
 					err1,
 					"Unable to upload document with filename: %s, type: %s, side: %s",
@@ -73,8 +80,11 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 		}
 	}
 
-	started, err := service.verification.StartVerification(applicantResponse.ID)
+	started, errorCode, err := service.verification.StartVerification(applicantResponse.ID)
 	if err != nil {
+		if errorCode != nil {
+			res.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
 		return
 	}
 	if !started {

@@ -30,6 +30,7 @@ type File struct {
 
 // Error represents the error from the API.
 type Error struct {
+	Code        *int    `json:"code"`
 	Description *string `json:"description"`
 }
 

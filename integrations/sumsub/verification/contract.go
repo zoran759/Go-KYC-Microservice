@@ -6,16 +6,16 @@ type Config struct {
 }
 
 type Verification interface {
-	StartVerification(applicantID string) (bool, error)
+	StartVerification(applicantID string) (bool, *int, error)
 	CheckApplicantStatus(applicantID string) (string, *ReviewResult, error)
 }
 
 type Mock struct {
-	StartVerificationFn    func(applicantID string) (bool, error)
+	StartVerificationFn    func(applicantID string) (bool, *int, error)
 	CheckApplicantStatusFn func(applicantID string) (string, *ReviewResult, error)
 }
 
-func (mock Mock) StartVerification(applicantID string) (bool, error) {
+func (mock Mock) StartVerification(applicantID string) (bool, *int, error) {
 	return mock.StartVerificationFn(applicantID)
 }
 

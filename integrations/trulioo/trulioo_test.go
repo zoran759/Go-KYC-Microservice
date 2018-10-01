@@ -18,8 +18,8 @@ func TestNew(t *testing.T) {
 func TestTrulioo_CheckCustomerNoMatch(t *testing.T) {
 	service := Trulioo{
 		configuration: configuration.Mock{
-			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, error) {
-				return configuration.Consents{}, nil
+			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, *int, error) {
+				return configuration.Consents{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
@@ -92,8 +92,8 @@ func TestTrulioo_CheckCustomerNoMatch(t *testing.T) {
 func TestTrulioo_CheckCustomerUnclear(t *testing.T) {
 	service := Trulioo{
 		configuration: configuration.Mock{
-			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, error) {
-				return configuration.Consents{}, nil
+			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, *int, error) {
+				return configuration.Consents{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
@@ -166,8 +166,8 @@ func TestTrulioo_CheckCustomerUnclear(t *testing.T) {
 func TestTrulioo_CheckCustomerApproved(t *testing.T) {
 	service := Trulioo{
 		configuration: configuration.Mock{
-			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, error) {
-				return configuration.Consents{}, nil
+			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, *int, error) {
+				return configuration.Consents{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
@@ -190,8 +190,8 @@ func TestTrulioo_CheckCustomerApproved(t *testing.T) {
 func TestTrulioo_CheckCustomerError(t *testing.T) {
 	service := Trulioo{
 		configuration: configuration.Mock{
-			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, error) {
-				return configuration.Consents{}, nil
+			ConsentsFn: func(countryAlpha2 string) (configuration.Consents, *int, error) {
+				return configuration.Consents{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
@@ -254,8 +254,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	service.configuration = configuration.Mock{
-		ConsentsFn: func(countryAlpha2 string) (configuration.Consents, error) {
-			return nil, errors.New("test error2")
+		ConsentsFn: func(countryAlpha2 string) (configuration.Consents, *int, error) {
+			return nil, nil, errors.New("test error2")
 		},
 	}
 

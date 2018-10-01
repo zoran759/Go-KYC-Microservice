@@ -31,14 +31,20 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		return
 	}
 
-	consents, err := service.configuration.Consents(customer.CountryAlpha2)
+	consents, errorCode, err := service.configuration.Consents(customer.CountryAlpha2)
 	if err != nil {
+		if errorCode != nil {
+			res.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
 		return
 	}
 
 	dataFields := verification.MapCustomerToDataFields(customer)
 
 	response, err := service.verification.Verify(customer.CountryAlpha2, consents, dataFields)
+	if response != nil && response.ErrorCode != nil {
+		res.ErrorCode = fmt.Sprintf("%d", *response.ErrorCode)
+	}
 	if err != nil {
 		return
 	}
@@ -57,7 +63,7 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		return
 	}
 
-	res.Details = &common.KYCDetails{}
+	details := &common.KYCDetails{}
 
 	for _, result := range response.Record.DatasourceResults {
 		status := ""
@@ -85,8 +91,8 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		}
 
 		if status != "" {
-			res.Details.Reasons = append(
-				res.Details.Reasons,
+			details.Reasons = append(
+				details.Reasons,
 				fmt.Sprintf(
 					"Datasource %s has %s",
 					result.DatasourceName,
@@ -95,6 +101,10 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 			)
 		}
 
+	}
+
+	if len(details.Reasons) > 0 {
+		res.Details = details
 	}
 
 	if response.Record.RecordStatus == NoMatch {
