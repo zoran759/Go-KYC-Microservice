@@ -14,9 +14,9 @@ This instruction describes how to use **`trulioo`** package.
 
 1) Create new [**config**](contract.go#L9) for Trulioo API usage.
 
-2) Obtain a new service object by calling the [**New()**](trulioo.go#L16) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](trulioo.go#L18) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**CheckCustomer**](trulioo.go#L24) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](trulioo.go#L27) for the customer verification.
 
 ### Sample code
 
