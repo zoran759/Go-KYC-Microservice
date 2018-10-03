@@ -1,11 +1,10 @@
 package main
 
 import (
-	"modulus/kyc/main/handlers"
-	"os"
-
 	"fmt"
 	"log"
+	"modulus/common/configs"
+	"modulus/kyc/main/handlers"
 	"net/http"
 )
 
@@ -19,8 +18,8 @@ func main() {
 	http.Handle("/api/v1/", apiHandler)
 
 	// Start(Blocking) the server
-	log.Printf("KYC http server started on :%v", os.Getenv("KYC_SERVER_PORT"))
-	err := http.ListenAndServe(fmt.Sprintf(":%v", os.Getenv("KYC_SERVER_PORT")), apiHandler)
+	log.Printf("KYC http server started on :%v", configs.KycServerPort)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", configs.KycServerPort), apiHandler)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
