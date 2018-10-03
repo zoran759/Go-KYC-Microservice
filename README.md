@@ -28,16 +28,11 @@ The main package will call this method in a goroutine to perform a check. The me
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
 * **[Specific KYC providers](#specific-kyc-providers)**
-* **[Required fields](#required-fields)**
+* **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
   * **[IDology](#idology)**
   * **[Sum&Substance](#sum&substance)**
   * **[Trulioo](#trulioo)**
   * **[Shufti Pro](#shufti-pro)**
-* **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
-  * **[IDology](#fields-applicable-for-idology)**
-  * **[Sum&Substance](#fields-applicable-for-sum&substance)**
-  * **[Trulioo](#fields-applicable-for-trulioo)**
-  * **[Shufti Pro](#fields-applicable-for-shufti-pro)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
 ### **Integration interface**
@@ -56,7 +51,7 @@ The rest required for interaction with KYC providers is in the **`common`** pack
 
 ### **KYC request**
 
-For the verification request use a request of the [**common.UserData**](common/model.go#L8) type.
+For the verification request use a request of the [**common.UserData**](#userdata-fields-description) type.
 
 #### **[UserData](common/model.go#L8) fields description**
 
@@ -272,7 +267,7 @@ For the verification request use a request of the [**common.UserData**](common/m
 
 ### **KYC response**
 
-The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](common/model.go#L164).
+The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](#commonkycresult-fields-description).
 
 #### **[common.KYCResult](common/model.go#L164) fields description**
 
@@ -308,7 +303,7 @@ The verification response consist of two elements: a result and an error if occu
 
 ### **Specific KYC providers**
 
-KYC providers have different configuration options so twas inevitable to implement a specific config for each one of them. But mostly they are identical.
+KYC providers have different configuration options and that was implemented as a specific config for each one of them. But mostly they are identical.
 
 For instructions on integration of a specific KYC provider, please, refer this list:
 
@@ -317,165 +312,110 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
 
-### **Required fields**
+### **Applicable fields grouped per provider**
 
-Each KYC provider has its own subset of minimum required info of the customer. Use this as a reference when integrating with a specific provider what fields of [**common.UserData**](common/model.go#L8) it requires.
-
-> Of course, independently of that the sane minimum of data must always be present.
-> Also, the more data you provide to the service the more accurate will be the result.
-
----
+[**common.UserData**](#userdata-fields-description) provides a wide range of possible data that might require the verification. However, not every KYC provider will surely use all available fields of the model. Therefore, to ease the process of integration for administrators, here you'll find the grouping of applicable fields per provider.
 
 #### **IDology**
 
-[common.UserData](common/model.go#L8) required fields:
+[**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name** | **Type** |
-| -------- | -------- |
-| [FirstName](common/model.go#L10) | _string_ |
-| [LastName](common/model.go#L12) | _string_ |
-| [CurrentAddress](common/model.go#L26) | [_Address_](common/model.go#L32) |
+| **Name**                  | **Type**    | **Required** | **Comment**                                                          |
+| ------------------------- | ----------- | :----------: | -------------------------------------------------------------------- |
+| **FirstName**             | _string_    | **Yes**      |                                                                      |
+| **LastName**              | _string_    | **Yes**      |                                                                      |
+| DateOfBirth               | _Time_      |              |                                                                      |
+| Email                     | _string_    |              |                                                                      |
+| Phone                     | _string_    |              | It will be used if non-empty and has length of 10                    |
+| MobilePhone               | _string_    |              | It will be used if has lenght of 10 and the **Phone** field is empty |
+| **CurrentAddress**        | _Address_   | **Yes**      |                                                                      |
+| SupplementalAddresses     | _[]Address_ |              | For ex. it might be a shipping address                               |
+| **IDCard**                | _*IDCard_   | **Yes**      |                                                                      |
 
-[common.Address](common/model.go#L32) required fields:
+[**Address**](#address-fields-description) mandatory fields:
 
-| **Name** | **Type** |
-| -------- | -------- |
-| [Town](common/model.go#L37) | _string_ |
-| [StateProvinceCode](common/model.go#L47) | _string_ |
-| [PostCode](common/model.go#L46) | _string_ |
-
----
+| **Name**              | **Type** |
+| --------------------- | -------- |
+| **Town**              | _string_ |
+| **StateProvinceCode** | _string_ |
+| **PostCode**          | _string_ |
 
 #### **Sum&Substance**
 
-According to the [Sum&Substance API Reference](https://developers.sumsub.com/#applicants-api) there are no explicitly required fields from the customer data so providing as much info as possible is the rule.
+According to the [API Reference](https://developers.sumsub.com) all fields of [**UserData**](#userdata-fields-description) are applicable except the following:
 
----
+* PaternalLastName
+* LatinISO1Name
+* Business
+
+All fields in the Reference are marked as optional so, it's better to provide as much info as possible.
 
 #### **Trulioo**
 
-From the [Trulioo API Reference](https://api.globaldatacompany.com/docs) it is unclear what fields are mandatory so providing as much info as possible is the rule.
+[**UserData**](#userdata-fields-description) applicable fields:
 
----
+| **Name**          | **Type**           | **Required** | **Comment** |
+| ----------------- | ------------------ | :----------: | ----------- |
+| FirstName         | _string_           |              |             |
+| PaternalLastName  | _string_           |              |             |
+| LastName          | _string_           |              |             |
+| MiddleName        | _string_           |              |             |
+| LatinISO1Name     | _string_           |              |             |
+| Email             | _string_           |              |             |
+| Gender            | _Gender_           |              |             |
+| DateOfBirth       | _Time_             |              |             |
+| **CountryAlpha2** | _string_           | **Yes**      |             |
+| Phone             | _string_           |              |             |
+| MobilePhone       | _string_           |              |             |
+| CurrentAddress    | _Address_          |              |             |
+| Business          | _*Business_        |              |             |
+| Passport          | _*Passport_        |              |             |
+| IDCard            | _*IDCard_          |              |             |
+| DriverLicense     | _*DriverLicense_   |              |             |
+| ResidencePermit   | _*ResidencePermit_ |              |             |
+| Selfie            | _*Selfie_          |              |             |
+
+It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/reference) what fields are mandatory so, it's better to provide as much info as possible.
 
 #### **Shufti Pro**
 
-[common.UserData](common/model.go#L8) required fields:
+[**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name** | **Type** |
-| -------- | -------- |
-| [CountryAlpha2](common/model.go#L22) | _string_ |
-| [Documents](common/model.go#L28) | _[][Document](common/model.go#L136)_ |
+| **Name**             | **Type**         | **Required**       | **Comment**                                                       |
+| -------------------- | ---------------- | :----------------: | ----------------------------------------------------------------- |
+| **FirstName**        | _string_         | **Yes**            |                                                                   |
+| **LastName**         | _string_         | **Yes**            |                                                                   |
+| MiddleName           | _string_         |                    |                                                                   |
+| Email                | _string_         |                    |                                                                   |
+| DateOfBirth          | _Time_           |                    |                                                                   |
+| **CountryAlpha2**    | _string_         | **Yes**            |                                                                   |
+| **Phone**            | _string_         | **Yes**            | Customer’s phone number with country code. Example: +440000000000 |
+| CurrentAddress       | _Address_        |                    |                                                                   |
+| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk                       |
+| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                                                   |
+| SNILS                | _*SNILS_         |                    |                                                                   |
+| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                                                   |
+| **CreditCard**(*)    | _*CreditCard_    | **(*)**            |                                                                   |
+| UtilityBill          | _*UtilityBill_   |                    |                                                                   |
+| **Selfie**           | _*Selfie_        | **Yes**            |                                                                   |
 
-[common.Document](common/model.go#L136) required fields of [Documents](common/model.go#L28):
-
-| **Name** | **Type** |
-| -------- | -------- |
-| [Metadata](common/model.go#L138) | [DocumentMetadata](common/model.go#L143) |
-| [Front](common/model.go#L139) | [*DocumentFile](common/model.go#L154) |
-
-[common.DocumentMetadata](common/model.go#L143) required fields of [Documents](common/model.go#L28):
-
-| **Name** | **Type** |
-| -------- | -------- |
-| [Type](common/model.go#L145) | [DocumentType](common/enum.go#L36) |
-
-> **Please, consult [Fields applicable for Shufti Pro](#fields-applicable-for-shufti-pro) for the details about required Documents.**
-
-### **Applicable fields grouped per provider**
-
-[**common.UserData**](common/model.go#L8) provides a wide range of possible data that might require the verification. However, not every KYC provider will surely use all available fields of the model. Therefore, to ease the process of integration for administrators, here you'll find the grouping of applicable fields per provider.
-
-#### **Fields applicable for IDology**
-
-[common.UserData](common/model.go#L8) applicable fields:
-
-| **Name** | **Type** | **Comment** |
-| -------- | -------- | ----------- |
-| **FirstName** | _string_ | |
-| **LastName** | _string_ | |
-| **DateOfBirth** | _Time_ | |
-| **Email** | _string_ | |
-| **Phone** | _string_ | it will be used if non-empty and has length of 10 |
-| **MobilePhone** | _string_ | it will be used if has lenght of 10 and the **Phone** field is empty |
-| **CurrentAddress** | _Address_ | |
-| **SupplementalAddresses** | _[]Address_ | for ex. it might be a shipping address |
-| **Documents** | _[]Document_ | `common.IDCard` document type (**SSN**) |
-
-#### **Fields applicable for Sum&Substance**
-
-[common.UserData](common/model.go#L8) applicable fields:
-
-| **Name** | **Type** | **Comment** |
-| -------- | -------- | ----------- |
-| **FirstName** | _string_ | |
-| **LastName** | _string_ | |
-| **MiddleName** | _string_ | |
-| **LegalName** | _string_ | |
-| **Gender** | _Gender_ | |
-| **DateOfBirth** | _Time_ | |
-| **PlaceOfBirth** | _string_ | |
-| **CountryOfBirthAlpha2** | _string_ | |
-| **StateOfBirth** | _string_ | |
-| **CountryAlpha2** | _string_ | |
-| **Nationality** | _string_ | |
-| **Phone** | _string_ | |
-| **MobilePhone** | _string_ | |
-| **CurrentAddress** | _Address_ | |
-| **SupplementalAddresses** | _[]Address_ | |
-| **Documents** | _[]Document_ | |
-
-#### **Fields applicable for Trulioo**
-
-[common.UserData](common/model.go#L8) applicable fields:
-
-| **Name** | **Type** | **Comment** |
-| -------- | -------- | ----------- |
-| **FirstName** | _string_ | |
-| **PaternalLastName** | _string_ | |
-| **LastName** | _string_ | |
-| **MiddleName** | _string_ | |
-| **LatinISO1Name** | _string_ | |
-| **CountryAlpha2** | _string_ | |
-| **DateOfBirth** | _Time_ | |
-| **Gender** | _Gender_ | |
-| **Email** | _string_ | |
-| **Phone** | _string_ | |
-| **MobilePhone** | _string_ | |
-| **CurrentAddress** | _Address_ | |
-| **Documents** | _[]Document_ |  |
-| **Business** | _Business_ | |
-
-#### **Fields applicable for Shufti Pro**
-
-[common.UserData](common/model.go#L8) applicable fields:
-
-| **Name** | **Type** | **Comment** |
-| -------- | -------- | ----------- |
-| **FirstName** | _string_ | |
-| **LastName** | _string_ | |
-| **MiddleName** | _string_ | |
-| **DateOfBirth** | _Time_ | |
-| **Email** | _string_ | |
-| **CountryAlpha2** | _string_ | |
-| **CurrentAddress** | _Address_ | |
-| **Documents** | _[]Document_ | There are different services which require different documents. For face: **`common.Selfie`**. For documents, anyone of: **`common.Passport`**, **`common.IDCard`**, **`common.Drivers`**, **`common.BankCard`**. For addresses, anyone of: **`common.IDCard`**, **`common.UtilityBill`**. With image data included |
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
 ### **The countries supported by KYC providers and the fields variability**
 
-KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries.
+KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
 
-#### **The countries supported by IDology**
+#### **IDology covered countries**
 
 * USA and Canada
 * No fields variations found in the docs
 
-#### **The countries supported by Sum&Substance**
+#### **Sum&Substance covered countries**
 
 * International
 * No fields variations found in the docs
 
-#### **The countries supported by Trulioo**
+#### **Trulioo covered countries**
 
 * International
 * API provides the group of methods for retrieving the lists of:
@@ -486,7 +426,7 @@ KYC providers may require various set of `common.UserData` fields depending on t
   * Test Entities configured for a country
   * Datasource groups configured for a country
 
-#### **The countries supported by Shufti Pro**
+#### **Shufti Pro covered countries**
 
 * International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
 * No fields variations found in the docs
