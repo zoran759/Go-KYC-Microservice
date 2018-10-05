@@ -18,8 +18,8 @@ func main() {
 	http.Handle("/api/v1/", apiHandler)
 
 	// Start(Blocking) the server
-	log.Printf("KYC http server started on :%v", configs.KycServerPort)
-	err := http.ListenAndServe(fmt.Sprintf(":%v", configs.KycServerPort), apiHandler)
+	log.Printf("KYC http server started on :%v", configs.GetPort(configs.KycServer))
+	err := http.ListenAndServe(fmt.Sprintf(":%v", configs.GetPort(configs.KycServer)), apiHandler)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
