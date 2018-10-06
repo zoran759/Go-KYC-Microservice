@@ -2,8 +2,6 @@ package sumsub
 
 import (
 	"fmt"
-	"log"
-	"math"
 	"time"
 
 	"modulus/kyc/common"
@@ -18,7 +16,7 @@ import (
 type SumSub struct {
 	applicants       applicants.Applicants
 	documents        documents.Documents
-	verification     verification.Verification
+	verification     verification.Verificator
 	timeoutThreshold int64
 }
 
@@ -59,6 +57,11 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 		return
 	}
 
+	if len(applicantResponse.ID) == 0 {
+		err = errors.New("missing applicant id in the API response")
+		return
+	}
+
 	mappedDocuments := documents.MapCommonCustomerDocuments(*customer)
 	if mappedDocuments != nil {
 		for _, document := range mappedDocuments {
@@ -80,72 +83,76 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 		}
 	}
 
-	started, errorCode, err := service.verification.StartVerification(applicantResponse.ID)
+	res.StatusPolling = &common.StatusPolling{
+		Provider:   common.SumSub,
+		CustomerID: applicantResponse.ID,
+	}
+
+	return
+}
+
+// CheckStatus implements StatusChecker interface for Sum&Substance KYC provider.
+func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error) {
+	status, result, err := service.verification.CheckApplicantStatus(refID)
 	if err != nil {
-		if errorCode != nil {
-			res.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
 		}
 		return
 	}
-	if !started {
-		err = errors.New("verification hasn't started for unknown reason. Please try again")
-		return
-	}
-	// Begin polling sumsub for validation results
-	startingPower := 3
-	startingDate := time.Now()
-	for {
-		time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
-		startingPower++
 
-		status, result, err1 := service.verification.CheckApplicantStatus(applicantResponse.ID)
-		if err1 != nil {
-			log.Printf("Sumsub polling error: %s for applicant with id: %s", err, applicantResponse.ID)
-			continue
-		}
+	switch status {
+	case "completed", "completedSent", "completedSentFailure":
+		var detailedResult *common.KYCDetails
 
-		if status == CompleteStatus {
-			var detailedResult *common.KYCDetails
-
-			if result.ReviewAnswer != GreenScore && result.RejectLabels != nil && len(result.RejectLabels) > 0 {
-				detailedResult = &common.KYCDetails{
-					Reasons: result.RejectLabels,
-				}
-
-				switch result.ReviewRejectType {
-				case FinalRejectType:
-					detailedResult.Finality = common.Final
-				case RetryRejectType:
-					detailedResult.Finality = common.NonFinal
-				default:
-					detailedResult.Finality = common.Unknown
-				}
+		if result.ReviewAnswer != GreenScore && result.RejectLabels != nil && len(result.RejectLabels) > 0 {
+			detailedResult = &common.KYCDetails{
+				Reasons: result.RejectLabels,
 			}
 
-			switch result.ReviewAnswer {
-			case RedScore:
-				res.Status = common.Denied
-				res.Details = detailedResult
-				return
-			case YellowScore:
-				res.Status = common.Unclear
-				res.Details = detailedResult
-				return
-			case GreenScore:
-				res.Status = common.Approved
-				return
-			case ErrorScore:
-				res.Details = detailedResult
-				return
-			case IgnoredScore:
-				res.Details = detailedResult
-				return
+			switch result.ReviewRejectType {
+			case FinalRejectType:
+				detailedResult.Finality = common.Final
+			case RetryRejectType:
+				detailedResult.Finality = common.NonFinal
+			default:
+				detailedResult.Finality = common.Unknown
 			}
 		}
 
-		if time.Now().Unix()-startingDate.Unix() >= service.timeoutThreshold {
-			err = errors.New("request timed out")
-			return
+		switch result.ReviewAnswer {
+		case RedScore:
+			res.Status = common.Denied
+			res.Details = detailedResult
+		case YellowScore:
+			res.Status = common.Unclear
+			res.Details = detailedResult
+		case GreenScore:
+			res.Status = common.Approved
+		case ErrorScore:
+			res.Details = detailedResult
+		case IgnoredScore:
+			res.Details = detailedResult
+		}
+	case "init":
+		err = errors.New("documents upload failed. Please, try to upload a document for this applicant")
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
+		}
+	case "pending", "queued":
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
+		}
+	case "awaitingUser":
+		err = errors.New("waiting some additional documents from the applicant (e.g. a selfie or a better passport image)")
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
 		}
 	}
+
+	return
 }
