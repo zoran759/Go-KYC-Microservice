@@ -2,10 +2,11 @@ package verification
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNewService(t *testing.T) {
@@ -20,89 +21,6 @@ func TestNewService(t *testing.T) {
 	})
 
 	assert.Equal(t, testService, service)
-}
-
-func Test_service_StartVerification(t *testing.T) {
-	service := NewService(Config{
-		Host:   "https://test-api.sumsub.com",
-		APIKey: "api_key",
-	})
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	httpmock.RegisterResponder(
-		http.MethodPost,
-		"https://test-api.sumsub.com/resources/applicants/test_applicant_id/status/pending?key=api_key",
-		func(request *http.Request) (*http.Response, error) {
-			return httpmock.NewStringResponse(
-				http.StatusOK,
-				`{"ok": 1}`,
-			), nil
-		},
-	)
-
-	response, err := service.StartVerification("test_applicant_id")
-	if assert.NoError(t, err) {
-		assert.True(t, response)
-	}
-}
-
-func Test_service_StartVerificationError(t *testing.T) {
-	service := NewService(Config{
-		Host:   "https://test-api.sumsub.com",
-		APIKey: "api_key",
-	})
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	httpmock.RegisterResponder(
-		http.MethodPost,
-		"https://test-api.sumsub.com/resources/applicants/test_applicant_id/status/pending?key=api_key",
-		func(request *http.Request) (*http.Response, error) {
-			return httpmock.NewStringResponse(
-				http.StatusOK,
-				`{"description": "Invalid id '5b7298530975a1df03bdd13'", "code": 400}`,
-			), nil
-		},
-	)
-
-	response, err := service.StartVerification("test_applicant_id")
-	if assert.Error(t, err) {
-		assert.False(t, response)
-	}
-
-	httpmock.Reset()
-	httpmock.RegisterResponder(
-		http.MethodPost,
-		"https://test-api.sumsub.com/resources/applicants/test_applicant_id/status/pending?key=api_key",
-		func(request *http.Request) (*http.Response, error) {
-			return httpmock.NewStringResponse(
-				http.StatusOK,
-				`{"`,
-			), nil
-		},
-	)
-
-	response, err = service.StartVerification("test_applicant_id")
-	if assert.Error(t, err) {
-		assert.False(t, response)
-	}
-
-	httpmock.Reset()
-	httpmock.RegisterResponder(
-		http.MethodPost,
-		"https://test-api.sumsub.com/resources/applicants/test_applicant_id/status/pending?key=api_key",
-		func(request *http.Request) (*http.Response, error) {
-			return nil, errors.New("test_error")
-		},
-	)
-
-	response, err = service.StartVerification("test_applicant_id")
-	if assert.Error(t, err) {
-		assert.False(t, response)
-	}
 }
 
 func Test_service_CheckApplicantStatus(t *testing.T) {
@@ -173,7 +91,7 @@ func Test_service_CheckApplicantStatusError(t *testing.T) {
 
 	_, response, err := service.CheckApplicantStatus("test_applicant_id")
 	if assert.Error(t, err) {
-		assert.Nil(t, response)
+		assert.Equal(t, 400, response.ErrorCode)
 	}
 
 	httpmock.Reset()

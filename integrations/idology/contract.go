@@ -1,7 +1,7 @@
 package idology
 
 import (
-	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
+	"modulus/kyc/integrations/idology/expectid"
 )
 
 const (

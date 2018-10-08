@@ -10,10 +10,10 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "gitlab.com/lambospeed/kyc/integrations/idology"
+	. "modulus/kyc/integrations/idology"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/idology/expectid"
 )
 
 // This is "-proxy" command-line flag to set the proxy for requests to the API.
@@ -81,15 +81,9 @@ var _ = Describe("The IDology KYC service", func() {
 					PostCode:          "30318",
 					StateProvinceCode: "GA",
 				},
-				Documents: []common.Document{
-					common.Document{
-						Metadata: common.DocumentMetadata{
-							Type:            common.IDCard,
-							Country:         "USA",
-							Number:          "112223333",
-							CardLast4Digits: "3333",
-						},
-					},
+				IDCard: &common.IDCard{
+					CountryAlpha2: "US",
+					Number:        "112223333",
 				},
 			}
 		}
@@ -117,10 +111,10 @@ var _ = Describe("The IDology KYC service", func() {
 				})
 
 				customer := newCustomer()
-				result, details, err := failedService.ExpectID.CheckCustomer(customer)
+				result, err := failedService.ExpectID.CheckCustomer(customer)
 
-				Expect(result).To(Equal(common.Error))
-				Expect(details).To(BeNil())
+				Expect(result.Status).To(Equal(common.Error))
+				Expect(result.Details).To(BeNil())
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during verification: Invalid username and password"))
 			})
@@ -131,11 +125,11 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(details).To(BeNil())
-				Expect(result).To(Equal(common.Approved))
+				Expect(result.Details).To(BeNil())
+				Expect(result.Status).To(Equal(common.Approved))
 			})
 		})
 
@@ -148,15 +142,15 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(2009, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Denied))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("COPPA Alert"))
+				Expect(result.Status).To(Equal(common.Denied))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("COPPA Alert"))
 			})
 
 			// "Address Does Not Match" test actually returns more qualifiers.
@@ -167,17 +161,17 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "Magnolia"
 				customer.CurrentAddress.BuildingNumber = "2240"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(3))
-				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
-				Expect(details.Reasons[1]).To(Equal("Street Number Does Not Match"))
-				Expect(details.Reasons[2]).To(Equal("Street Name Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(3))
+				Expect(result.Details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(result.Details.Reasons[1]).To(Equal("Street Number Does Not Match"))
+				Expect(result.Details.Reasons[2]).To(Equal("Street Name Does Not Match"))
 			})
 
 			// "Street Name Does Not Match" test actually returns more qualifiers.
@@ -188,16 +182,16 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "Magnolia"
 				customer.CurrentAddress.BuildingNumber = "222333"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(2))
-				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
-				Expect(details.Reasons[1]).To(Equal("Street Name Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(2))
+				Expect(result.Details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(result.Details.Reasons[1]).To(Equal("Street Name Does Not Match"))
 			})
 
 			// "Street Number Does Not Match" test actually returns more qualifiers.
@@ -208,16 +202,16 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "PeachTree Place"
 				customer.CurrentAddress.BuildingNumber = "2240"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(2))
-				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
-				Expect(details.Reasons[1]).To(Equal("Street Number Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(2))
+				Expect(result.Details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(result.Details.Reasons[1]).To(Equal("Street Number Does Not Match"))
 			})
 
 			// "Input Address is a PO Box" test actually returns more qualifiers.
@@ -228,16 +222,16 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "PO Box 123"
 				customer.CurrentAddress.BuildingNumber = ""
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(2))
-				Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
-				Expect(details.Reasons[1]).To(Equal("Input Address is a PO Box"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(2))
+				Expect(result.Details.Reasons[0]).To(Equal("Address Does Not Match"))
+				Expect(result.Details.Reasons[1]).To(Equal("Input Address is a PO Box"))
 			})
 
 			It("should approve and return ZIP Code Does Not Match", func() {
@@ -246,15 +240,15 @@ var _ = Describe("The IDology KYC service", func() {
 				customer := newCustomer()
 				customer.CurrentAddress.PostCode = "30316"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("ZIP Code Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("ZIP Code Does Not Match"))
 			})
 
 			It("should approve and return YOB Does Not Match", func() {
@@ -265,15 +259,15 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(1970, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("YOB Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("YOB Does Not Match"))
 			})
 
 			It("should approve and return YOB Does Not Match, Within 1 Year Tolerance", func() {
@@ -284,15 +278,15 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(1976, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("YOB Does Not Match, Within 1 Year Tolerance"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("YOB Does Not Match, Within 1 Year Tolerance"))
 			})
 
 			It("should approve and return MOB Does Not Match", func() {
@@ -303,15 +297,15 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(1975, time.May, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("MOB Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("MOB Does Not Match"))
 			})
 
 			// "Newer Record Found" test doesn't return what is expected. Skipped.
@@ -320,36 +314,34 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.Documents[0].Metadata.Number = ""
-				customer.Documents[0].Metadata.CardLast4Digits = "3345"
+				customer.IDCard.Number = "112223345"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("SSN Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("SSN Does Not Match"))
 			})
 
 			It("should approve and return SSN Does Not Match, Within Tolerance", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				customer.Documents[0].Metadata.Number = ""
-				customer.Documents[0].Metadata.CardLast4Digits = "3334"
+				customer.IDCard.Number = "112223334"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("SSN Does Not Match, Within Tolerance"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("SSN Does Not Match, Within Tolerance"))
 			})
 
 			It("should approve and return State Does Not Match", func() {
@@ -358,17 +350,17 @@ var _ = Describe("The IDology KYC service", func() {
 				customer := newCustomer()
 				customer.CurrentAddress.State = "Alabama"
 				customer.CurrentAddress.StateProvinceCode = "AL"
-				customer.Documents = nil
+				customer.IDCard = nil
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("State Does Not Match"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("State Does Not Match"))
 			})
 
 			It("should approve and return Single Address in File", func() {
@@ -387,26 +379,21 @@ var _ = Describe("The IDology KYC service", func() {
 						PostCode:          "91214",
 						StateProvinceCode: "CA",
 					},
-					Documents: []common.Document{
-						common.Document{
-							Metadata: common.DocumentMetadata{
-								Type:            common.IDCard,
-								Country:         "USA",
-								CardLast4Digits: "1111",
-							},
-						},
+					IDCard: &common.IDCard{
+						CountryAlpha2: "US",
+						Number:        "112221111",
 					},
 				}
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("Single Address in File"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("Single Address in File"))
 			})
 
 			// "Thin File" test actually returns more qualifiers.
@@ -418,20 +405,20 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "Some Avenu"
 				customer.CurrentAddress.BuildingNumber = "345"
 				customer.CurrentAddress.PostCode = "30303"
-				customer.Documents = nil
+				customer.IDCard = nil
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(4))
-				Expect(details.Reasons[0]).To(Equal("No DOB Available"))
-				Expect(details.Reasons[1]).To(Equal("SSN Not Found"))
-				Expect(details.Reasons[2]).To(Equal("Thin File"))
-				Expect(details.Reasons[3]).To(Equal("Data Strength Alert"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(4))
+				Expect(result.Details.Reasons[0]).To(Equal("No DOB Available"))
+				Expect(result.Details.Reasons[1]).To(Equal("SSN Not Found"))
+				Expect(result.Details.Reasons[2]).To(Equal("Thin File"))
+				Expect(result.Details.Reasons[3]).To(Equal("Data Strength Alert"))
 			})
 
 			// "DOB Not Available" test actually returns slightly different result.
@@ -450,27 +437,22 @@ var _ = Describe("The IDology KYC service", func() {
 						PostCode:          "91224",
 						StateProvinceCode: "CA",
 					},
-					Documents: []common.Document{
-						common.Document{
-							Metadata: common.DocumentMetadata{
-								Type:            common.IDCard,
-								Country:         "USA",
-								CardLast4Digits: "1010",
-							},
-						},
+					IDCard: &common.IDCard{
+						CountryAlpha2: "USA",
+						Number:        "112221010",
 					},
 				}
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(2))
-				Expect(details.Reasons[0]).To(Equal("No DOB Available"))
-				Expect(details.Reasons[1]).To(Equal("Data Strength Alert"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(2))
+				Expect(result.Details.Reasons[0]).To(Equal("No DOB Available"))
+				Expect(result.Details.Reasons[1]).To(Equal("Data Strength Alert"))
 			})
 
 			// "SSN Not Available" test actually returns slightly different result.
@@ -484,15 +466,15 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.BuildingNumber = "12345"
 				customer.CurrentAddress.PostCode = "30303"
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("SSN Not Found"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("SSN Not Found"))
 			})
 
 			// "Subject Deceased" test doesn't return what is expected.
@@ -520,16 +502,16 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Approved))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(2))
-				Expect(details.Reasons[0]).To(Equal("Warm Address Alert (hotel)"))
-				Expect(details.Reasons[1]).To(Equal("Data Strength Alert"))
+				Expect(result.Status).To(Equal(common.Approved))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(2))
+				Expect(result.Details.Reasons[0]).To(Equal("Warm Address Alert (hotel)"))
+				Expect(result.Details.Reasons[1]).To(Equal("Data Strength Alert"))
 			})
 		})
 
@@ -550,30 +532,24 @@ var _ = Describe("The IDology KYC service", func() {
 						PostCode:          "37214",
 						StateProvinceCode: "TN",
 					},
-					Documents: []common.Document{
-						common.Document{
-							Metadata: common.DocumentMetadata{
-								Type:            common.IDCard,
-								Country:         "USA",
-								Number:          "555667777",
-								CardLast4Digits: "7777",
-							},
-						},
+					IDCard: &common.IDCard{
+						CountryAlpha2: "US",
+						Number:        "555667777",
 					},
 				}
 
-				result, details, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.ExpectID.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(result).To(Equal(common.Denied))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).NotTo(BeNil())
-				Expect(details.Reasons).To(HaveLen(4))
-				Expect(details.Reasons[0]).To(Equal("Patriot Act Alert"))
-				Expect(details.Reasons[1]).To(Equal("Office of Foreign Asset Control"))
-				Expect(details.Reasons[2]).To(Equal("Patriot Act score: 100"))
-				Expect(details.Reasons[3]).To(Equal("PA DOB Match"))
+				Expect(result.Status).To(Equal(common.Denied))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).NotTo(BeNil())
+				Expect(result.Details.Reasons).To(HaveLen(4))
+				Expect(result.Details.Reasons[0]).To(Equal("Patriot Act Alert"))
+				Expect(result.Details.Reasons[1]).To(Equal("Office of Foreign Asset Control"))
+				Expect(result.Details.Reasons[2]).To(Equal("Patriot Act score: 100"))
+				Expect(result.Details.Reasons[3]).To(Equal("PA DOB Match"))
 			})
 		})
 	})

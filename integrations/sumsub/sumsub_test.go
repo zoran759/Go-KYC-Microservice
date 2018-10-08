@@ -3,12 +3,13 @@ package sumsub
 import (
 	"testing"
 
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/sumsub/applicants"
+	"modulus/kyc/integrations/sumsub/documents"
+	"modulus/kyc/integrations/sumsub/verification"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
 )
 
 func TestNew(t *testing.T) {
@@ -25,27 +26,27 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: GreenScore,
 				}, nil
 			},
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{
+	result, err := sumsubService.CheckCustomer(&common.UserData{
 		SupplementalAddresses: []common.Address{
 			{
 				CountryAlpha2: "CountryAlpha2",
@@ -53,22 +54,25 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 				Town:          "Possum Springs",
 			},
 		},
-		Documents: []common.Document{
-			{
-				Metadata: common.DocumentMetadata{
-					Type:    "PASSPORT",
-					Country: "RUSSIA",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport.jpeg",
-					ContentType: "image/jpeg",
-					Data:        []byte{123, 23, 21, 2, 233},
-				},
+		Passport: &common.Passport{
+			CountryAlpha2: "RU",
+			Image: &common.DocumentFile{
+				Filename:    "passport.jpeg",
+				ContentType: "image/jpeg",
+				Data:        []byte{123, 23, 21, 2, 233},
 			},
 		},
 	})
-	if assert.NoError(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Approved, status)
+
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Nil(t, result.StatusPolling)
+		assert.Equal(t, common.Approved, result.Status)
 	}
 }
 
@@ -76,20 +80,20 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: YellowScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -101,15 +105,21 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result) {
-		assert.Equal(t, common.Unclear, status)
-		assert.Equal(t, common.DetailedKYCResult{
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.Equal(t, common.KYCDetails{
 			Finality: common.Final,
 			Reasons: []string{
 				"ID_INVALID",
 			},
-		}, *result)
+		}, *result.Details)
 	}
 }
 
@@ -117,20 +127,20 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: RedScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -143,16 +153,22 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result) {
-		assert.Equal(t, common.Denied, status)
-		assert.Equal(t, common.DetailedKYCResult{
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
+		assert.Equal(t, common.Denied, result.Status)
+		assert.Equal(t, common.KYCDetails{
 			Finality: common.NonFinal,
 			Reasons: []string{
 				"INCOMPLETE_DOCUMENT",
 				"WRONG_USER_REGION",
 			},
-		}, *result)
+		}, *result.Details)
 	}
 }
 
@@ -160,20 +176,20 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: ErrorScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -185,15 +201,21 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result) {
-		assert.Equal(t, common.Error, status)
-		assert.Equal(t, common.DetailedKYCResult{
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
+		assert.Equal(t, common.KYCDetails{
 			Finality: common.Unknown,
 			Reasons: []string{
 				"ID_INVALID",
 			},
-		}, *result)
+		}, *result.Details)
 	}
 }
 
@@ -201,20 +223,20 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: IgnoredScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -226,15 +248,21 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result) {
-		assert.Equal(t, common.Error, status)
-		assert.Equal(t, common.DetailedKYCResult{
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
+		assert.Equal(t, common.KYCDetails{
 			Finality: common.Final,
 			Reasons: []string{
 				"ID_INVALID",
 			},
-		}, *result)
+		}, *result.Details)
 	}
 }
 
@@ -246,13 +274,13 @@ func TestSumSub_CheckCustomerTimeout(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				return "pending", nil, nil
@@ -260,9 +288,9 @@ func TestSumSub_CheckCustomerTimeout(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }
 
@@ -276,13 +304,13 @@ func TestSumSub_CheckCustomerErrorTimeout(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return true, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
 				if !checkApplicantInvoked {
@@ -295,9 +323,9 @@ func TestSumSub_CheckCustomerErrorTimeout(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }
 
@@ -309,20 +337,20 @@ func TestSumSub_CheckCustomerNotStartedUnknownReasons(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return false, nil
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return false, nil, nil
 			},
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }
 
@@ -334,20 +362,20 @@ func TestSumSub_CheckCustomerNotStartedError(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, nil
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, nil
 			},
 		},
 		verification: verification.Mock{
-			StartVerificationFn: func(applicantID string) (bool, error) {
-				return false, errors.New("Unable to start a check")
+			StartVerificationFn: func(applicantID string) (bool, *int, error) {
+				return false, nil, errors.New("Unable to start a check")
 			},
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }
 
@@ -359,21 +387,19 @@ func TestSumSub_CheckCustomerDocumentUploadError(t *testing.T) {
 			},
 		},
 		documents: documents.Mock{
-			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, error) {
-				return &documents.Metadata{}, errors.New("Bad document")
+			UploadDocumentFn: func(applicantID string, document documents.Document) (*documents.Metadata, *int, error) {
+				return &documents.Metadata{}, nil, errors.New("Bad document")
 			},
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{
-		Documents: []common.Document{
-			{
-				Front: &common.DocumentFile{},
-			},
+	result, err := sumsubService.CheckCustomer(&common.UserData{
+		Other: &common.Other{
+			Image: &common.DocumentFile{},
 		},
 	})
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }
 
@@ -386,9 +412,9 @@ func TestSumSub_CheckCustomerCreateApplicantError(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }
 
@@ -401,8 +427,8 @@ func TestSumSub_CheckCustomerNoApplicantError(t *testing.T) {
 		},
 	}
 
-	status, result, err := sumsubService.CheckCustomer(nil)
-	if assert.Error(t, err) && assert.Nil(t, result) {
-		assert.Equal(t, common.Error, status)
+	result, err := sumsubService.CheckCustomer(nil)
+	if assert.Error(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Error, result.Status)
 	}
 }

@@ -1,22 +1,22 @@
 package sumsub
 
 import (
-	"log"
-	"math"
+	"fmt"
 	"time"
 
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/sumsub/applicants"
+	"modulus/kyc/integrations/sumsub/documents"
+	"modulus/kyc/integrations/sumsub/verification"
+
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/applicants"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/documents"
-	"gitlab.com/lambospeed/kyc/integrations/sumsub/verification"
 )
 
 // SumSub defines the verification service.
 type SumSub struct {
 	applicants       applicants.Applicants
 	documents        documents.Documents
-	verification     verification.Verification
+	verification     verification.Verificator
 	timeoutThreshold int64
 }
 
@@ -40,9 +40,10 @@ func New(config Config) SumSub {
 }
 
 // CheckCustomer implements CustomerChecker interface for Sum&Substance KYC provider.
-func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult, *common.DetailedKYCResult, error) {
+func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
-		return common.Error, nil, errors.New("No customer supplied")
+		err = errors.New("No customer supplied")
+		return
 	}
 
 	applicantResponse, err := service.applicants.CreateApplicant(
@@ -50,80 +51,108 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (common.KYCResult
 		applicants.MapCommonCustomerToApplicant(*customer),
 	)
 	if err != nil {
-		return common.Error, nil, err
+		if applicantResponse != nil && applicantResponse.Code != nil {
+			res.ErrorCode = fmt.Sprintf("%d", *applicantResponse.Code)
+		}
+		return
+	}
+
+	if len(applicantResponse.ID) == 0 {
+		err = errors.New("missing applicant id in the API response")
+		return
 	}
 
 	mappedDocuments := documents.MapCommonCustomerDocuments(*customer)
 	if mappedDocuments != nil {
 		for _, document := range mappedDocuments {
-			_, err := service.documents.UploadDocument(applicantResponse.ID, document)
+			_, errorCode, err1 := service.documents.UploadDocument(applicantResponse.ID, document)
 
-			if err != nil {
-				return common.Error, nil, errors.Wrapf(
-					err,
+			if err1 != nil {
+				if errorCode != nil {
+					res.ErrorCode = fmt.Sprintf("%d", *errorCode)
+				}
+				err = errors.Wrapf(
+					err1,
 					"Unable to upload document with filename: %s, type: %s, side: %s",
 					document.File.Filename,
 					document.Metadata.DocumentType,
 					document.Metadata.DocumentSubType,
 				)
+				return
 			}
 		}
 	}
 
-	started, err := service.verification.StartVerification(applicantResponse.ID)
+	res.StatusPolling = &common.StatusPolling{
+		Provider:   common.SumSub,
+		CustomerID: applicantResponse.ID,
+	}
+
+	return
+}
+
+// CheckStatus implements StatusChecker interface for Sum&Substance KYC provider.
+func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error) {
+	status, result, err := service.verification.CheckApplicantStatus(refID)
 	if err != nil {
-		return common.Error, nil, err
-	}
-	if !started {
-		return common.Error, nil, errors.New("verification hasn't started for unknown reason. Please try again")
-	}
-	// Begin polling sumsub for validation results
-	startingPower := 3
-	startingDate := time.Now()
-	for {
-		time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
-		startingPower++
-
-		status, result, err := service.verification.CheckApplicantStatus(applicantResponse.ID)
-		if err != nil {
-			log.Printf("Sumsub polling error: %s for applicant with id: %s", err, applicantResponse.ID)
-			continue
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
 		}
+		return
+	}
 
-		if status == CompleteStatus {
-			var detailedResult *common.DetailedKYCResult
+	switch status {
+	case "completed", "completedSent", "completedSentFailure":
+		var detailedResult *common.KYCDetails
 
-			if result.ReviewAnswer != GreenScore && result.RejectLabels != nil && len(result.RejectLabels) > 0 {
-				detailedResult = &common.DetailedKYCResult{
-					Reasons: result.RejectLabels,
-				}
-
-				switch result.ReviewRejectType {
-				case FinalRejectType:
-					detailedResult.Finality = common.Final
-				case RetryRejectType:
-					detailedResult.Finality = common.NonFinal
-				default:
-					detailedResult.Finality = common.Unknown
-				}
+		if result.ReviewAnswer != GreenScore && result.RejectLabels != nil && len(result.RejectLabels) > 0 {
+			detailedResult = &common.KYCDetails{
+				Reasons: result.RejectLabels,
 			}
 
-			switch result.ReviewAnswer {
-			case RedScore:
-				return common.Denied, detailedResult, nil
-			case YellowScore:
-				return common.Unclear, detailedResult, nil
-			case GreenScore:
-				return common.Approved, nil, nil
-			case ErrorScore:
-				return common.Error, detailedResult, nil
-			case IgnoredScore:
-				return common.Error, detailedResult, nil
+			switch result.ReviewRejectType {
+			case FinalRejectType:
+				detailedResult.Finality = common.Final
+			case RetryRejectType:
+				detailedResult.Finality = common.NonFinal
+			default:
+				detailedResult.Finality = common.Unknown
 			}
 		}
 
-		if time.Now().Unix()-startingDate.Unix() >= service.timeoutThreshold {
-			return common.Error, nil, errors.New("request timed out")
+		switch result.ReviewAnswer {
+		case RedScore:
+			res.Status = common.Denied
+			res.Details = detailedResult
+		case YellowScore:
+			res.Status = common.Unclear
+			res.Details = detailedResult
+		case GreenScore:
+			res.Status = common.Approved
+		case ErrorScore:
+			res.Details = detailedResult
+		case IgnoredScore:
+			res.Details = detailedResult
+		}
+	case "init":
+		err = errors.New("documents upload failed. Please, try to upload a document for this applicant")
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
+		}
+	case "pending", "queued":
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
+		}
+	case "awaitingUser":
+		err = errors.New("waiting some additional documents from the applicant (e.g. a selfie or a better passport image)")
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
 		}
 	}
+
+	return
 }
