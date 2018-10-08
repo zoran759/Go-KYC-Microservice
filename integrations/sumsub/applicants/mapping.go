@@ -1,7 +1,7 @@
 package applicants
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 func MapCommonCustomerToApplicant(customer common.UserData) ApplicantInfo {

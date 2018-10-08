@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 // Client defines the client for IDology ExpectID® API.
@@ -22,9 +22,8 @@ func NewClient(config Config) *Client {
 }
 
 // CheckCustomer implements customer verification using IDology API.
-func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
+func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
-		result = common.Error
 		err = errors.New("no customer supplied")
 		return
 	}
@@ -33,17 +32,15 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 	response, err := c.sendRequest(requestBody)
 	if err != nil {
-		result = common.Error
 		return
 	}
 
 	if response.Error != nil {
-		result = common.Error
 		err = fmt.Errorf("during verification: %s", *response.Error)
 		return
 	}
 
-	result, details, err = response.toResult(c.config.UseSummaryResult)
+	result, err = response.toResult(c.config.UseSummaryResult)
 
 	return
 }
