@@ -348,7 +348,28 @@ According to the [API Reference](https://developers.sumsub.com) all fields of [*
 * LatinISO1Name
 * Business
 
-All fields in the Reference are marked as optional so, it's better to provide as much info as possible.
+Sum&Substance requires at least one document to be present to start the verification process, so anyone of the following fields should present:
+
+| **Name**                     | **Type**                    |
+| ---------------------------- | --------------------------- |
+| **Passport**                 | _*Passport_                 |
+| **IDCard**                   | _*IDCard_                   |
+| **SNILS**                    | _*SNILS_                    |
+| **DriverLicense**            | _*DriverLicense_            |
+| **DriverLicenseTranslation** | _*DriverLicenseTranslation_ |
+| **CreditCard**               | _*CreditCard_               |
+| **DebitCard**                | _*DebitCard_                |
+| **UtilityBill**              | _*UtilityBill_              |
+| **ResidencePermit**          | _*ResidencePermit_          |
+| **Agreement**                | _*Agreement_                |
+| **EmploymentCertificate**    | _*EmploymentCertificate_    |
+| **Contract**                 | _*Contract_                 |
+| **DocumentPhoto**            | _*DocumentPhoto_            |
+| **Selfie**                   | _*Selfie_                   |
+| **Avatar**                   | _*Avatar_                   |
+| **Other**                    | _*Other_                    |
+
+All fields in the Reference are marked as optional but at least first name and last name should be provided in addition to a doc.
 
 #### **Trulioo**
 

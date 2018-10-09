@@ -1,15 +1,12 @@
 package verification
 
-type StartVerificationResponse struct {
-	OK int `json:"ok"`
-	Error
-}
-
+// Error represents an error in the response if occured.
 type Error struct {
 	Code        *int    `json:"code"`
 	Description *string `json:"description"`
 }
 
+// ApplicantStatusResponse represents status check response.
 type ApplicantStatusResponse struct {
 	ID           string       `json:"id"`
 	InspectionID string       `json:"inspectionId"`
@@ -22,6 +19,7 @@ type ApplicantStatusResponse struct {
 	Error
 }
 
+// ReviewResult represents a review result in the response.
 type ReviewResult struct {
 	ReviewAnswer     string   `json:"reviewAnswer"`
 	Label            string   `json:"label"`

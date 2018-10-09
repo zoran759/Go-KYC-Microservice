@@ -163,9 +163,16 @@ type KYCDetails struct {
 
 // KYCResult represents the verification result.
 type KYCResult struct {
-	Status    KYCStatus
-	Details   *KYCDetails
-	ErrorCode string
+	Status        KYCStatus
+	Details       *KYCDetails
+	ErrorCode     string
+	StatusPolling *StatusPolling
+}
+
+// StatusPolling contains data required to make status check requests if needed.
+type StatusPolling struct {
+	Provider   KYCProvider
+	CustomerID string
 }
 
 // CheckCustomerRequest represents the request for the CheckCustomer handler
