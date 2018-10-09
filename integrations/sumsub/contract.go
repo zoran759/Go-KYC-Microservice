@@ -21,6 +21,3 @@ const (
 	FinalRejectType = "FINAL"
 	RetryRejectType = "RETRY"
 )
-
-// CompleteStatus represents value of the completed status in the response.
-const CompleteStatus = "completed"

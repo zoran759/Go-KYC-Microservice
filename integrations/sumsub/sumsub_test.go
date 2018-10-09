@@ -26,7 +26,7 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
@@ -39,7 +39,7 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: GreenScore,
 				}, nil
 			},
@@ -63,7 +63,15 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 			},
 		},
 	})
+
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Nil(t, result.StatusPolling)
 		assert.Equal(t, common.Approved, result.Status)
 	}
 }
@@ -72,7 +80,7 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
@@ -85,7 +93,7 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: YellowScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -98,6 +106,12 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 	}
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -113,7 +127,7 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
@@ -126,7 +140,7 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: RedScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -140,6 +154,12 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 	}
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Denied, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -156,7 +176,7 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
@@ -169,7 +189,7 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: ErrorScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -182,6 +202,12 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -197,7 +223,7 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 	sumsubService := SumSub{
 		applicants: applicants.Mock{
 			CreateApplicantFn: func(email string, applicant applicants.ApplicantInfo) (*applicants.CreateApplicantResponse, error) {
-				return &applicants.CreateApplicantResponse{}, nil
+				return &applicants.CreateApplicantResponse{ID: "test id"}, nil
 			},
 		},
 		documents: documents.Mock{
@@ -210,7 +236,7 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 				return true, nil, nil
 			},
 			CheckApplicantStatusFn: func(applicantID string) (string, *verification.ReviewResult, error) {
-				return CompleteStatus, &verification.ReviewResult{
+				return "completed", &verification.ReviewResult{
 					ReviewAnswer: IgnoredScore,
 					Label:        "TEST_LABEL",
 					RejectLabels: []string{
@@ -223,6 +249,12 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 	}
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.NotNil(t, result.StatusPolling)
+		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+	}
+
+	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 		assert.Equal(t, common.KYCDetails{

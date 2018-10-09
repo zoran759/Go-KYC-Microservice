@@ -1,24 +1,23 @@
 package verification
 
+// Config represents service configuration.
 type Config struct {
 	Host   string
 	APIKey string
 }
 
-type Verification interface {
-	StartVerification(applicantID string) (bool, *int, error)
+// Verificator represents KYC verification checker.
+type Verificator interface {
 	CheckApplicantStatus(applicantID string) (string, *ReviewResult, error)
 }
 
+// Mock represents the service mock.
 type Mock struct {
 	StartVerificationFn    func(applicantID string) (bool, *int, error)
 	CheckApplicantStatusFn func(applicantID string) (string, *ReviewResult, error)
 }
 
-func (mock Mock) StartVerification(applicantID string) (bool, *int, error) {
-	return mock.StartVerificationFn(applicantID)
-}
-
+// CheckApplicantStatus implememnts Verificator interface for the Mock.
 func (mock Mock) CheckApplicantStatus(applicantID string) (string, *ReviewResult, error) {
 	return mock.CheckApplicantStatusFn(applicantID)
 }

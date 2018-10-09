@@ -12,35 +12,12 @@ type service struct {
 	apiKey string
 }
 
-func NewService(config Config) Verification {
+// NewService constructs a new verification service object.
+func NewService(config Config) Verificator {
 	return service{
 		host:   config.Host,
 		apiKey: config.APIKey,
 	}
-}
-
-func (service service) StartVerification(applicantID string) (bool, *int, error) {
-	_, responseBytes, err := http.Post(fmt.Sprintf("%s/resources/applicants/%s/status/pending?key=%s",
-		service.host,
-		applicantID,
-		service.apiKey,
-	),
-		http.Headers{},
-		make([]byte, 0),
-	)
-	if err != nil {
-		return false, nil, err
-	}
-
-	response := new(StartVerificationResponse)
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return false, nil, err
-	}
-	if response.Error.Description != nil {
-		return false, response.Error.Code, errors.New(*response.Error.Description)
-	}
-
-	return response.OK == 1, nil, nil
 }
 
 func (service service) CheckApplicantStatus(applicantID string) (string, *ReviewResult, error) {
