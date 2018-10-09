@@ -2,7 +2,7 @@ package configuration
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
+	"errors"
 	"modulus/kyc/http"
 	stdhttp "net/http"
 )
@@ -11,15 +11,16 @@ type service struct {
 	config Config
 }
 
+// NewService constructs new configuration service object.
 func NewService(config Config) Configuration {
 	return service{
 		config: config,
 	}
 }
 
-func (service service) Consents(countryAlpha2 string) (Consents, error) {
+func (service service) Consents(countryAlpha2 string) (Consents, *int, error) {
 	if countryAlpha2 == "" {
-		return nil, errors.New("No country code provided")
+		return nil, nil, errors.New("No country code provided")
 	}
 	code, responseBytes, err := http.Get(
 		service.config.Host+"/consents/Identity Verification/"+countryAlpha2,
@@ -28,23 +29,27 @@ func (service service) Consents(countryAlpha2 string) (Consents, error) {
 		})
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	var errorCode *int
 	if code != stdhttp.StatusOK {
+		if code != 0 {
+			errorCode = &code
+		}
 		errResp := new(Error)
 		if err := json.Unmarshal(responseBytes, errResp); err != nil {
-			return nil, err
+			return nil, errorCode, err
 		}
 
 		if errResp.Message != "" {
-			return nil, errResp
+			return nil, errorCode, errResp
 		}
 
-		return nil, errors.New("Unknown error")
+		return nil, errorCode, errors.New("Unknown error")
 	}
 
 	consents := make(Consents, 0)
 
-	return consents, json.Unmarshal(responseBytes, &consents)
+	return consents, nil, json.Unmarshal(responseBytes, &consents)
 }

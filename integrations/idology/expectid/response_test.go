@@ -24,22 +24,22 @@ var _ = Describe("Response", func() {
 
 			Context("when summary result is enabled", func() {
 				It("should approve", func() {
-					result, details, err := response.toResult(true)
+					result, err := response.toResult(true)
 
 					Expect(err).NotTo(HaveOccurred())
-					Expect(details).To(BeNil())
-					Expect(result).To(Equal(common.Approved))
+					Expect(result.Details).To(BeNil())
+					Expect(result.Status).To(Equal(common.Approved))
 				})
 
 			})
 
 			Context("when summary result is disabled", func() {
 				It("should approve", func() {
-					result, details, err := response.toResult(false)
+					result, err := response.toResult(false)
 
 					Expect(err).NotTo(HaveOccurred())
-					Expect(details).To(BeNil())
-					Expect(result).To(Equal(common.Approved))
+					Expect(result.Details).To(BeNil())
+					Expect(result.Status).To(Equal(common.Approved))
 				})
 			})
 
@@ -73,15 +73,15 @@ var _ = Describe("Response", func() {
 						},
 					}
 
-					result, details, err := response.toResult(false)
+					result, err := response.toResult(false)
 
-					Expect(result).To(Equal(common.Approved))
-					Expect(details).NotTo(BeNil())
-					Expect(details.Finality).To(Equal(common.Unknown))
-					Expect(details.Reasons).To(HaveLen(3))
-					Expect(details.Reasons[0]).To(Equal("Address Does Not Match"))
-					Expect(details.Reasons[1]).To(Equal("Street Number Does Not Match"))
-					Expect(details.Reasons[2]).To(Equal("Street Name Does Not Match"))
+					Expect(result.Status).To(Equal(common.Approved))
+					Expect(result.Details).NotTo(BeNil())
+					Expect(result.Details.Finality).To(Equal(common.Unknown))
+					Expect(result.Details.Reasons).To(HaveLen(3))
+					Expect(result.Details.Reasons[0]).To(Equal("Address Does Not Match"))
+					Expect(result.Details.Reasons[1]).To(Equal("Street Number Does Not Match"))
+					Expect(result.Details.Reasons[2]).To(Equal("Street Name Does Not Match"))
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
@@ -109,13 +109,13 @@ var _ = Describe("Response", func() {
 					},
 				}
 
-				result, details, err := response.toResult(false)
+				result, err := response.toResult(false)
 
-				Expect(result).To(Equal(common.Denied))
-				Expect(details).NotTo(BeNil())
-				Expect(details.Finality).To(Equal(common.Unknown))
-				Expect(details.Reasons).To(HaveLen(1))
-				Expect(details.Reasons[0]).To(Equal("COPPA Alert"))
+				Expect(result.Status).To(Equal(common.Denied))
+				Expect(result.Details).NotTo(BeNil())
+				Expect(result.Details.Finality).To(Equal(common.Unknown))
+				Expect(result.Details.Reasons).To(HaveLen(1))
+				Expect(result.Details.Reasons[0]).To(Equal("COPPA Alert"))
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -132,10 +132,10 @@ var _ = Describe("Response", func() {
 					},
 				}
 
-				result, details, err := response.toResult(false)
+				result, err := response.toResult(false)
 
-				Expect(result).To(Equal(common.Denied))
-				Expect(details).To(BeNil())
+				Expect(result.Status).To(Equal(common.Denied))
+				Expect(result.Details).To(BeNil())
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

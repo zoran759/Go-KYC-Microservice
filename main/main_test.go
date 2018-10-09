@@ -43,33 +43,19 @@ func Test_Shufti(*testing.T) {
 			StreetType:        "Avenue",
 			Street:            "Michigan",
 		},
-		Documents: []common.Document{
-			{
-				Metadata: common.DocumentMetadata{
-					Type:    common.IDCard,
-					Country: "RUS",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        id,
-				},
-				Back: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        id,
-				},
+		IDCard: &common.IDCard{
+			CountryAlpha2: "RU",
+			Image: &common.DocumentFile{
+				Filename:    "passport.png",
+				ContentType: "image/png",
+				Data:        id,
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:    common.Selfie,
-					Country: "RUS",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport.png",
-					ContentType: "image/png",
-					Data:        face,
-				},
+		},
+		Selfie: &common.Selfie{
+			Image: &common.DocumentFile{
+				Filename:    "passport.png",
+				ContentType: "image/png",
+				Data:        face,
 			},
 		},
 	}

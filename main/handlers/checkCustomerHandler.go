@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-// Handler for the CustomerHandler function
+// CheckCustomerHandler represents the handler for the CustomerHandler function.
 func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Read request body
@@ -50,7 +50,7 @@ func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 			})
 
 			// Make a request to the KYC provider
-			res.KYCResult, res.DetailedKYCResult, err = service.CheckCustomer(&req.UserData)
+			res.KYCResult, err = service.CheckCustomer(&req.UserData)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				json.NewEncoder(w).Encode(kycErrors.ErrorResponse{Error: err.Error()})
@@ -58,7 +58,7 @@ func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			log.Printf("Res: %#v\n", res.KYCResult)
-			log.Printf("detailedRes: %#v\n", res.DetailedKYCResult)
+			log.Printf("detailedRes: %#v\n", res.KYCResult.Details)
 		}
 
 	default:

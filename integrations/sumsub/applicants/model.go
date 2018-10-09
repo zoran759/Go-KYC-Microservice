@@ -16,6 +16,7 @@ type CreateApplicantResponse struct {
 }
 
 type Error struct {
+	Code        *int    `json:"code"`
 	Description *string `json:"description"`
 }
 
