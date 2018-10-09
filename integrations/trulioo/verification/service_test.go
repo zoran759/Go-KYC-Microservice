@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"modulus/kyc/integrations/trulioo/configuration"
 	"net/http"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNewService(t *testing.T) {
@@ -129,7 +130,8 @@ func Test_service_Verify_Error(t *testing.T) {
 
 	response, err := service.Verify("", configuration.Consents{}, DataFields{})
 	assert.Error(t, err)
-	assert.Nil(t, response)
+	assert.NotNil(t, response)
+	assert.Nil(t, response.ErrorCode)
 
 	httpmock.Reset()
 	httpmock.RegisterResponder(

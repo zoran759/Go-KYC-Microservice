@@ -6,6 +6,7 @@ import (
 	"modulus/kyc/integrations/trulioo/verification"
 )
 
+// Config represents the service config.
 type Config struct {
 	Host         string
 	NAPILogin    string
@@ -18,6 +19,7 @@ func (config Config) createToken() string {
 	)
 }
 
+// ToConfigurationConfig converts the service config to the specific config required to use for certain requests.
 func (config Config) ToConfigurationConfig() configuration.Config {
 	return configuration.Config{
 		Host:  config.Host + "/configuration/v1",
@@ -25,6 +27,7 @@ func (config Config) ToConfigurationConfig() configuration.Config {
 	}
 }
 
+// ToVerificationConfig converts the service config to the specific config required to use for certain requests.
 func (config Config) ToVerificationConfig() verification.Config {
 	return verification.Config{
 		Host:  config.Host + "/verifications/v1",
@@ -32,5 +35,8 @@ func (config Config) ToVerificationConfig() verification.Config {
 	}
 }
 
-const Match = "match"
-const NoMatch = "nomatch"
+// Result constants.
+const (
+	Match   = "match"
+	NoMatch = "nomatch"
+)

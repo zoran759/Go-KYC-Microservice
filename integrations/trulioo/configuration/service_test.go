@@ -1,11 +1,12 @@
 package configuration
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"net/http"
-	"testing"
 )
 
 func TestNewService(t *testing.T) {
@@ -57,7 +58,7 @@ func Test_service_Consents(t *testing.T) {
 		},
 	)
 
-	consents, err := service.Consents("AU")
+	consents, errorCode, err := service.Consents("AU")
 	if assert.NoError(t, err) {
 		assert.Equal(t, Consents{
 			"Australia Driver Licence",
@@ -73,6 +74,7 @@ func Test_service_Consents(t *testing.T) {
 			"DVS Certificate of Registration by Descent Search",
 			"Credit Agency",
 		}, consents)
+		assert.Nil(t, errorCode)
 	}
 }
 
@@ -98,8 +100,10 @@ func Test_service_Consents_Error(t *testing.T) {
 		},
 	)
 
-	consents, err := service.Consents("AU")
+	consents, errorCode, err := service.Consents("AU")
 	assert.Nil(t, consents)
+	assert.NotNil(t, errorCode)
+	assert.Equal(t, 400, *errorCode)
 	assert.Error(t, err)
 
 	httpmock.Reset()
@@ -114,8 +118,10 @@ func Test_service_Consents_Error(t *testing.T) {
 		},
 	)
 
-	consents, err = service.Consents("AU")
+	consents, errorCode, err = service.Consents("AU")
 	assert.Nil(t, consents)
+	assert.NotNil(t, errorCode)
+	assert.Equal(t, 400, *errorCode)
 	assert.Error(t, err)
 	assert.Equal(t, "Unknown error", err.Error())
 
@@ -131,8 +137,10 @@ func Test_service_Consents_Error(t *testing.T) {
 		},
 	)
 
-	consents, err = service.Consents("AU")
+	consents, errorCode, err = service.Consents("AU")
 	assert.Nil(t, consents)
+	assert.NotNil(t, errorCode)
+	assert.Equal(t, 400, *errorCode)
 	assert.Error(t, err)
 
 	httpmock.Reset()
@@ -144,11 +152,12 @@ func Test_service_Consents_Error(t *testing.T) {
 		},
 	)
 
-	consents, err = service.Consents("AU")
+	consents, errorCode, err = service.Consents("AU")
 	assert.Nil(t, consents)
 	assert.Error(t, err)
 
-	consents, err = service.Consents("")
+	consents, errorCode, err = service.Consents("")
 	assert.Nil(t, consents)
+	assert.Nil(t, errorCode)
 	assert.Error(t, err)
 }

@@ -1,11 +1,13 @@
 package verification
 
 import (
+	"encoding/base64"
 	"modulus/kyc/common"
 	"time"
 )
 
-func MapCustomerToDataFields(customer common.UserData) DataFields {
+// MapCustomerToDataFields converts input customer data to the format acceptable by the API.
+func MapCustomerToDataFields(customer *common.UserData) DataFields {
 	return DataFields{
 		PersonInfo:    mapCustomerToPersonalInfo(customer),
 		Location:      mapCustomerAddressToLocation(customer.CurrentAddress),
@@ -15,7 +17,7 @@ func MapCustomerToDataFields(customer common.UserData) DataFields {
 	}
 }
 
-func mapCustomerToPersonalInfo(customer common.UserData) *PersonInfo {
+func mapCustomerToPersonalInfo(customer *common.UserData) *PersonInfo {
 	dateOfBirth := time.Time(customer.DateOfBirth)
 
 	return &PersonInfo{
@@ -52,7 +54,7 @@ func mapCustomerAddressToLocation(address common.Address) *Location {
 	}
 }
 
-func mapCustomerToCommunication(customer common.UserData) *Communication {
+func mapCustomerToCommunication(customer *common.UserData) *Communication {
 	if customer.MobilePhone == "" && customer.Email == "" && customer.Phone == "" {
 		return nil
 	}
@@ -63,56 +65,45 @@ func mapCustomerToCommunication(customer common.UserData) *Communication {
 	}
 }
 
-func mapCustomerDocument(customer common.UserData) *Document {
-	if customer.Documents != nil && len(customer.Documents) > 0 {
-		document := Document{}
+func mapCustomerDocument(customer *common.UserData) (document *Document) {
+	document = &Document{}
 
-		for _, commonDocument := range customer.Documents {
-			if document.DocumentType != "" && document.LivePhoto != nil {
-				break
-			} else if document.LivePhoto == nil && commonDocument.Metadata.Type == common.Selfie {
-				document.LivePhoto = commonDocument.Front.Data
-			} else if document.DocumentType == "" {
-				if mappedType := mapCustomerDocumentType(commonDocument.Metadata.Type); mappedType != "" {
-					document.DocumentType = mappedType
-
-					if commonDocument.Front != nil {
-						document.DocumentFrontImage = commonDocument.Front.Data
-					}
-					if commonDocument.Back != nil {
-						document.DocumentBackImage = commonDocument.Back.Data
-					}
-				}
-			}
-		}
-
-		if document.DocumentType == "" {
-			return nil
-		}
-
-		return &document
-	} else {
-		return nil
+	if customer.Selfie != nil && customer.Selfie.Image != nil {
+		document.LivePhoto = base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data)
 	}
+
+	if customer.Passport != nil && customer.Passport.Image != nil {
+		document.DocumentType = "Passport"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.Passport.Image.Data)
+		return
+	}
+
+	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
+		document.DocumentType = "DrivingLicence"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data)
+		if customer.DriverLicense.BackImage != nil {
+			document.DocumentBackImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.BackImage.Data)
+		}
+		return
+	}
+
+	if customer.IDCard != nil && customer.IDCard.Image != nil {
+		document.DocumentType = "IdentityCard"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data)
+		return
+	}
+
+	if customer.ResidencePermit != nil && customer.ResidencePermit.Image != nil {
+		document.DocumentType = "ResidencePermit"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.ResidencePermit.Image.Data)
+		return
+	}
+
+	return nil
 }
 
-func mapCustomerDocumentType(documentType common.DocumentType) string {
-	switch documentType {
-	case common.Passport:
-		return "Passport"
-	case common.Drivers:
-		return "DrivingLicence"
-	case common.IDCard:
-		return "IdentityCard"
-	case common.ResidencePermit:
-		return "ResidencePermit"
-	default:
-		return ""
-	}
-}
-
-func mapCustomerBusiness(business common.Business) *Business {
-	if business == (common.Business{}) {
+func mapCustomerBusiness(business *common.Business) *Business {
+	if business == nil {
 		return nil
 	}
 

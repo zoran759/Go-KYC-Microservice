@@ -14,9 +14,9 @@ This instruction describes how to use **`sumsub`** package.
 
 1) Create new [**config**](contract.go#L3) for Sumsub API usage.
 
-2) Obtain a new service object by calling the [**New()**](sumsub.go#L23) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](sumsub.go#L25) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**CheckCustomer**](sumsub.go#L42) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](sumsub.go#L44) for the customer verification.
 
 ### Sample code
 
@@ -34,6 +34,6 @@ config := sumsub.Config{
 
 service := sumsub.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+result, err := service.CheckCustomer(customer)
 ...
 ```

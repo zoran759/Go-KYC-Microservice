@@ -6,13 +6,13 @@ type Config struct {
 }
 
 type Configuration interface {
-	Consents(countryAlpha2 string) (Consents, error)
+	Consents(countryAlpha2 string) (Consents, *int, error)
 }
 
 type Mock struct {
-	ConsentsFn func(countryAlpha2 string) (Consents, error)
+	ConsentsFn func(countryAlpha2 string) (Consents, *int, error)
 }
 
-func (mock Mock) Consents(countryAlpha2 string) (Consents, error) {
+func (mock Mock) Consents(countryAlpha2 string) (Consents, *int, error) {
 	return mock.ConsentsFn(countryAlpha2)
 }

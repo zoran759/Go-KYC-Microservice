@@ -19,7 +19,7 @@ func NewService(config Config) Verification {
 	}
 }
 
-func (service service) StartVerification(applicantID string) (bool, error) {
+func (service service) StartVerification(applicantID string) (bool, *int, error) {
 	_, responseBytes, err := http.Post(fmt.Sprintf("%s/resources/applicants/%s/status/pending?key=%s",
 		service.host,
 		applicantID,
@@ -29,18 +29,18 @@ func (service service) StartVerification(applicantID string) (bool, error) {
 		make([]byte, 0),
 	)
 	if err != nil {
-		return false, err
+		return false, nil, err
 	}
 
 	response := new(StartVerificationResponse)
 	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return false, err
+		return false, nil, err
 	}
 	if response.Error.Description != nil {
-		return false, errors.New(*response.Error.Description)
+		return false, response.Error.Code, errors.New(*response.Error.Description)
 	}
 
-	return response.OK == 1, nil
+	return response.OK == 1, nil, nil
 }
 
 func (service service) CheckApplicantStatus(applicantID string) (string, *ReviewResult, error) {
@@ -60,7 +60,7 @@ func (service service) CheckApplicantStatus(applicantID string) (string, *Review
 		return "", nil, err
 	}
 	if response.Error.Description != nil {
-		return "", nil, errors.New(*response.Error.Description)
+		return "", &ReviewResult{ErrorCode: *response.Error.Code}, errors.New(*response.Error.Description)
 	}
 
 	return response.ReviewStatus, &response.ReviewResult, nil

@@ -1,5 +1,6 @@
 package verification
 
+// Request represents the verification request.
 type Request struct {
 	Email                string
 	PhoneNumber          string
@@ -8,6 +9,7 @@ type Request struct {
 	VerificationData     Data
 }
 
+// Services represents the verification services of the Shufti Pro API.
 type Services struct {
 	DocumentType       string `json:"document_type,omitempty"`
 	DocumentIDNumber   string `json:"document_id_no,omitempty"`
@@ -21,6 +23,7 @@ type Services struct {
 	CardLast4Digits    string `json:"card_last_4_digits"`
 }
 
+// Data represents the verification data.
 type Data struct {
 	FaceImage   string `json:"face_image,omitempty"`
 	FrontImage  string `json:"document_front_image,omitempty"`
@@ -28,6 +31,7 @@ type Data struct {
 	UtilityBill string `json:"document_address_image,omitempty"`
 }
 
+// Response represents the response of the verification API.
 type Response struct {
 	StatusCode string `json:"status_code"`
 	Message    string `json:"message"`

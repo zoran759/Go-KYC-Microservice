@@ -2,17 +2,20 @@ package trulioo
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/trulioo/configuration"
 	"modulus/kyc/integrations/trulioo/verification"
+
+	"github.com/pkg/errors"
 )
 
+// Trulioo defines the verification service.
 type Trulioo struct {
 	configuration configuration.Configuration
 	verification  verification.Verification
 }
 
+// New constructs a new service object.
 func New(config Config) Trulioo {
 
 	return Trulioo{
@@ -21,80 +24,94 @@ func New(config Config) Trulioo {
 	}
 }
 
-func (service Trulioo) CheckCustomer(customer *common.UserData) (common.KYCResult, *common.DetailedKYCResult, error) {
+// CheckCustomer implements CustomerChecker interface for Trulioo.
+func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
-		return common.Error, nil, errors.New("No customer supplied")
+		err = errors.New("No customer supplied")
+		return
 	}
 
-	consents, err := service.configuration.Consents(customer.CountryAlpha2)
+	consents, errorCode, err := service.configuration.Consents(customer.CountryAlpha2)
 	if err != nil {
-		return common.Error, nil, err
+		if errorCode != nil {
+			res.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
+		return
 	}
 
-	dataFields := verification.MapCustomerToDataFields(*customer)
+	dataFields := verification.MapCustomerToDataFields(customer)
 
 	response, err := service.verification.Verify(customer.CountryAlpha2, consents, dataFields)
+	if response != nil && response.ErrorCode != nil {
+		res.ErrorCode = fmt.Sprintf("%d", *response.ErrorCode)
+	}
 	if err != nil {
-		return common.Error, nil, err
+		return
 	}
 
-	if response.Errors != nil && len(response.Errors) > 0 {
-		return common.Error, nil, response.Errors
+	if len(response.Errors) > 0 {
+		err = response.Errors
+		return
 	}
 
 	if response.Record.RecordStatus == Match {
-		return common.Approved, nil, nil
-	} else {
-		if response.Record.Errors != nil && len(response.Record.Errors) > 0 {
-			return common.Error, nil, response.Record.Errors
-		}
-
-		detailedResult := common.DetailedKYCResult{
-			Finality: common.Unknown,
-		}
-
-		for _, result := range response.Record.DatasourceResults {
-			status := ""
-
-			if result.DatasourceStatus != "" {
-				status += fmt.Sprintf("status: %s; ", result.DatasourceStatus)
-			}
-
-			fieldsStatuses := ""
-			for _, field := range result.DatasourceFields {
-				if field.Status != "" {
-					fieldsStatuses += fmt.Sprintf("%s : %s; ", field.FieldName, field.Status)
-				}
-			}
-
-			if fieldsStatuses != "" {
-				status += fmt.Sprintf("field statuses: %s", fieldsStatuses)
-			}
-
-			if result.Errors != nil && len(result.Errors) != 0 {
-				status += fmt.Sprintf(
-					"error: %s",
-					result.Errors.Error(),
-				)
-			}
-
-			if status != "" {
-				detailedResult.Reasons = append(
-					detailedResult.Reasons,
-					fmt.Sprintf(
-						"Datasource %s has %s",
-						result.DatasourceName,
-						status,
-					),
-				)
-			}
-
-		}
-
-		if response.Record.RecordStatus == NoMatch {
-			return common.Denied, &detailedResult, nil
-		}
-
-		return common.Unclear, &detailedResult, nil
+		res.Status = common.Approved
+		return
 	}
+	if len(response.Record.Errors) > 0 {
+		err = response.Record.Errors
+		return
+	}
+
+	details := &common.KYCDetails{}
+
+	for _, result := range response.Record.DatasourceResults {
+		status := ""
+
+		if result.DatasourceStatus != "" {
+			status += fmt.Sprintf("status: %s; ", result.DatasourceStatus)
+		}
+
+		fieldsStatuses := ""
+		for _, field := range result.DatasourceFields {
+			if field.Status != "" {
+				fieldsStatuses += fmt.Sprintf("%s : %s; ", field.FieldName, field.Status)
+			}
+		}
+
+		if fieldsStatuses != "" {
+			status += fmt.Sprintf("field statuses: %s", fieldsStatuses)
+		}
+
+		if result.Errors != nil && len(result.Errors) != 0 {
+			status += fmt.Sprintf(
+				"error: %s",
+				result.Errors.Error(),
+			)
+		}
+
+		if status != "" {
+			details.Reasons = append(
+				details.Reasons,
+				fmt.Sprintf(
+					"Datasource %s has %s",
+					result.DatasourceName,
+					status,
+				),
+			)
+		}
+
+	}
+
+	if len(details.Reasons) > 0 {
+		res.Details = details
+	}
+
+	if response.Record.RecordStatus == NoMatch {
+		res.Status = common.Denied
+	} else {
+		res.Status = common.Unclear
+	}
+
+	return
 }
