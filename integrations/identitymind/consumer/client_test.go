@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"modulus/kyc/common"
+
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.com/lambospeed/kyc/common"
 )
 
 var underReviewResponse = `
@@ -147,55 +148,59 @@ var _ = Describe("Client", func() {
 			httpmock.DeactivateAndReset()
 		})
 
-		It("should fail with error message", func() {
+		It("should fail with nil customer", func() {
 			Expect(client).ToNot(BeNil())
 
-			result, details, err := client.CheckCustomer(nil)
+			result, err := client.CheckCustomer(nil)
 
-			Expect(result).To(Equal(common.Error))
-			Expect(details).To(BeNil())
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).To(BeNil())
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("no customer supplied"))
 		})
 
-		It("should fail with error message", func() {
+		It("should fail with malformed customer", func() {
 			Expect(client).ToNot(BeNil())
 
 			malformedCustomer := &common.UserData{
 				AccountName: "very long account name that is exceeding the limit of 60 symbols",
 			}
 
-			result, details, err := client.CheckCustomer(malformedCustomer)
+			result, err := client.CheckCustomer(malformedCustomer)
 
-			Expect(result).To(Equal(common.Error))
-			Expect(details).To(BeNil())
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).To(BeNil())
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("invalid customer data: account length 64 exceeded limit of 60 symbols"))
 		})
 
-		It("should fail with error message", func() {
+		It("should fail with missing httpmock responder", func() {
 			Expect(client).ToNot(BeNil())
 
-			result, details, err := client.CheckCustomer(&common.UserData{})
+			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
 
-			Expect(result).To(Equal(common.Error))
-			Expect(details).To(BeNil())
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).To(BeNil())
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("during sending request: Post host/account/consumer: no responder found"))
 		})
 
-		It("should fail with error message", func() {
+		It("should fail with fake error response", func() {
+			// FIXME: change this to work with the external polling.
 			Expect(client).ToNot(BeNil())
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, underReviewResponse))
 			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
 
-			result, details, err := client.CheckCustomer(&common.UserData{})
+			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
 
-			Expect(result).To(Equal(common.Error))
-			Expect(details).To(BeNil())
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("during retrieving current KYC state: failed"))
+			Expect(result.StatusPolling).NotTo(BeNil())
+
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).To(BeNil())
+			Expect(err).NotTo(HaveOccurred())
+			// Expect(err).To(HaveOccurred())
+			// Expect(err.Error()).To(Equal("during retrieving current KYC state: failed"))
 		})
 
 		It("should success with approved status", func() {
@@ -203,16 +208,16 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, acceptedResponse))
 
-			result, details, err := client.CheckCustomer(&common.UserData{})
+			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
 
-			Expect(result).To(Equal(common.Approved))
-			Expect(details).NotTo(BeNil())
-			Expect(details.Finality).To(Equal(common.Unknown))
-			Expect(details.Reasons).To(HaveLen(4))
-			Expect(details.Reasons[0]).To(Equal("Customer reputation: UNKNOWN"))
-			Expect(details.Reasons[1]).To(Equal("Fraud policy evaluation result: ACCEPT"))
-			Expect(details.Reasons[2]).To(Equal("Customer reputation reason: Unknown User"))
-			Expect(details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
+			Expect(result.Status).To(Equal(common.Approved))
+			Expect(result.Details).NotTo(BeNil())
+			Expect(result.Details.Finality).To(Equal(common.Unknown))
+			Expect(result.Details.Reasons).To(HaveLen(4))
+			Expect(result.Details.Reasons[0]).To(Equal("Customer reputation: UNKNOWN"))
+			Expect(result.Details.Reasons[1]).To(Equal("Fraud policy evaluation result: ACCEPT"))
+			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Unknown User"))
+			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -221,16 +226,16 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, rejectedResponse))
 
-			result, details, err := client.CheckCustomer(&common.UserData{})
+			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
 
-			Expect(result).To(Equal(common.Denied))
-			Expect(details).NotTo(BeNil())
-			Expect(details.Finality).To(Equal(common.Unknown))
-			Expect(details.Reasons).To(HaveLen(4))
-			Expect(details.Reasons[0]).To(Equal("Customer reputation: BAD"))
-			Expect(details.Reasons[1]).To(Equal("Fraud policy evaluation result: DENY"))
-			Expect(details.Reasons[2]).To(Equal("Customer reputation reason: Fraudster"))
-			Expect(details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: DENY"))
+			Expect(result.Status).To(Equal(common.Denied))
+			Expect(result.Details).NotTo(BeNil())
+			Expect(result.Details.Finality).To(Equal(common.Unknown))
+			Expect(result.Details.Reasons).To(HaveLen(4))
+			Expect(result.Details.Reasons[0]).To(Equal("Customer reputation: BAD"))
+			Expect(result.Details.Reasons[1]).To(Equal("Fraud policy evaluation result: DENY"))
+			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Fraudster"))
+			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: DENY"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})

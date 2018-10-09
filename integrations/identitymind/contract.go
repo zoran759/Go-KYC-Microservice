@@ -1,6 +1,6 @@
 package identitymind
 
-import "gitlab.com/lambospeed/kyc/integrations/identitymind/consumer"
+import "modulus/kyc/integrations/identitymind/consumer"
 
 // IdentityMind API urls for the convenience.
 const (

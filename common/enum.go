@@ -35,6 +35,7 @@ type KYCProvider string
 
 // Possible values of KYCProvider.
 const (
-	Shuftipro KYCProvider = "SHUFTIPRO"
-	SumSub    KYCProvider = "SUM&SUBSTANCE"
+	IdentityMind KYCProvider = "IDENTITYMIND"
+	Shuftipro    KYCProvider = "SHUFTIPRO"
+	SumSub       KYCProvider = "SUM&SUBSTANCE"
 )
