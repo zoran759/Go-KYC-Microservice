@@ -8,8 +8,8 @@ import (
 	stdhttp "net/http"
 	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/http"
+	"modulus/kyc/common"
+	"modulus/kyc/http"
 )
 
 const (
@@ -37,9 +37,7 @@ func NewClient(config Config) *Client {
 }
 
 // CheckCustomer implements customer verification using IdentityMind API.
-func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	result = common.Error
-
+func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
 		return
@@ -66,14 +64,14 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 	// FIXME: I can't understand from the available docs how documents verification is doing and how to implement it.
 
 	if response.State == UnderReview {
-		response, err = c.pollApplicationState(response.KYCTxID)
-		if err != nil {
-			err = fmt.Errorf("during retrieving current KYC state: %s", err)
-			return
+		result.StatusPolling = &common.StatusPolling{
+			Provider:   common.IdentityMind,
+			CustomerID: response.KYCTxID,
 		}
+		return
 	}
 
-	result, details, err = response.toResult()
+	result, err = response.toResult()
 
 	return
 }
@@ -140,6 +138,3 @@ func (c *Client) pollApplicationState(mtid string) (response *ApplicationRespons
 		time.Sleep(5 * time.Minute)
 	}
 }
-
-// Ensure implementation conformance to the interface.
-var _ common.CustomerChecker = (*Client)(nil)

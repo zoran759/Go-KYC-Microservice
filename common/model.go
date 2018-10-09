@@ -13,7 +13,9 @@ type UserData struct {
 	MiddleName               string
 	LegalName                string
 	LatinISO1Name            string
+	AccountName              string
 	Email                    string
+	IPaddress                string
 	Gender                   Gender
 	DateOfBirth              Time
 	PlaceOfBirth             string
@@ -25,6 +27,7 @@ type UserData struct {
 	MobilePhone              string
 	CurrentAddress           Address
 	SupplementalAddresses    []Address
+	Location                 *Location
 	Business                 *Business
 	Passport                 *Passport
 	IDCard                   *IDCard
@@ -161,6 +164,12 @@ func (t Time) Format(layout string) string {
 		return time.Time(t).Format(layout)
 	}
 	return ""
+}
+
+// Location defines the model for the geopositional data.
+type Location struct {
+	Latitude  string
+	Longitude string
 }
 
 // Business defines the model for a business.
