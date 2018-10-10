@@ -396,6 +396,8 @@ All fields in the Reference are marked as optional but at least first name and l
 | ResidencePermit   | _*ResidencePermit_ |              |             |
 | Selfie            | _*Selfie_          |              |             |
 
+> **DOCUMENTS NOTE:** Include image file(s) for a document used in the verification.
+
 It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/reference) what fields are mandatory so, it's better to provide as much info as possible.
 
 #### **Shufti Pro**
