@@ -169,7 +169,7 @@ type KYCResult struct {
 	StatusPolling *StatusPolling
 }
 
-// StatusPolling contains data required to make status check requests if needed.
+// StatusPolling contains data required to do status check requests if needed.
 type StatusPolling struct {
 	Provider   KYCProvider
 	CustomerID string
