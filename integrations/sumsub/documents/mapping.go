@@ -6,8 +6,8 @@ import (
 
 // MapCommonCustomerDocuments converts input documents into the format acceptable by the API.
 func MapCommonCustomerDocuments(customer common.UserData) (documents []Document) {
-	if customer.Passport != nil && customer.Passport.Image != nil {
-		documents = append(documents, Document{
+	if customer.Passport != nil {
+		doc := Document{
 			Metadata: Metadata{
 				DocumentType: "PASSPORT",
 				Country:      common.CountryAlpha2ToAlpha3[customer.Passport.CountryAlpha2],
@@ -20,16 +20,19 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
 				PlaceOfBirth: customer.PlaceOfBirth,
 			},
-			File: File{
+		}
+		if customer.Passport.Image != nil {
+			doc.File = File{
 				Data:        customer.Passport.Image.Data,
 				Filename:    customer.Passport.Image.Filename,
 				ContentType: customer.Passport.Image.ContentType,
-			},
-		})
+			}
+		}
+		documents = append(documents, doc)
 	}
 
-	if customer.IDCard != nil && customer.IDCard.Image != nil {
-		documents = append(documents, Document{
+	if customer.IDCard != nil {
+		doc := Document{
 			Metadata: Metadata{
 				DocumentType: "ID_CARD",
 				Country:      common.CountryAlpha2ToAlpha3[customer.IDCard.CountryAlpha2],
@@ -41,16 +44,19 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
 				PlaceOfBirth: customer.PlaceOfBirth,
 			},
-			File: File{
+		}
+		if customer.IDCard.Image != nil {
+			doc.File = File{
 				Data:        customer.IDCard.Image.Data,
 				Filename:    customer.IDCard.Image.Filename,
 				ContentType: customer.IDCard.Image.ContentType,
-			},
-		})
+			}
+		}
+		documents = append(documents, doc)
 	}
 
-	if customer.SNILS != nil && customer.SNILS.Image != nil {
-		documents = append(documents, Document{
+	if customer.SNILS != nil {
+		doc := Document{
 			Metadata: Metadata{
 				DocumentType: "SNILS",
 				Country:      "RUS",
@@ -62,90 +68,95 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
 				PlaceOfBirth: customer.PlaceOfBirth,
 			},
-			File: File{
+		}
+		if customer.SNILS.Image != nil {
+			doc.File = File{
 				Data:        customer.SNILS.Image.Data,
 				Filename:    customer.SNILS.Image.Filename,
 				ContentType: customer.SNILS.Image.ContentType,
-			},
-		})
+			}
+		}
+		documents = append(documents, doc)
 	}
 
-	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
-		metadata := Metadata{
-			DocumentType: "DRIVERS",
-			Country:      common.CountryAlpha2ToAlpha3[customer.DriverLicense.CountryAlpha2],
-			FirstName:    customer.FirstName,
-			MiddleName:   customer.MiddleName,
-			LastName:     customer.LastName,
-			DateIssued:   customer.DriverLicense.IssuedDate.Format("2006-01-02"),
-			ValidUntil:   customer.DriverLicense.ValidUntil.Format("2006-01-02"),
-			Number:       customer.DriverLicense.Number,
-			DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
-			PlaceOfBirth: customer.PlaceOfBirth,
+	if customer.DriverLicense != nil {
+		doc := Document{
+			Metadata: Metadata{
+				DocumentType: "DRIVERS",
+				Country:      common.CountryAlpha2ToAlpha3[customer.DriverLicense.CountryAlpha2],
+				FirstName:    customer.FirstName,
+				MiddleName:   customer.MiddleName,
+				LastName:     customer.LastName,
+				DateIssued:   customer.DriverLicense.IssuedDate.Format("2006-01-02"),
+				ValidUntil:   customer.DriverLicense.ValidUntil.Format("2006-01-02"),
+				Number:       customer.DriverLicense.Number,
+				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
+				PlaceOfBirth: customer.PlaceOfBirth,
+			},
+		}
+		if customer.DriverLicense.FrontImage != nil {
+			doc.File = File{
+				Data:        customer.DriverLicense.FrontImage.Data,
+				Filename:    customer.DriverLicense.FrontImage.Filename,
+				ContentType: customer.DriverLicense.FrontImage.ContentType,
+			}
 		}
 		if customer.DriverLicense.BackImage != nil {
-			backMetadata := metadata
-			backMetadata.DocumentSubType = BackSide
-			metadata.DocumentSubType = FrontSide
-
-			documents = append(documents, Document{
-				Metadata: backMetadata,
+			doc.Metadata.DocumentSubType = FrontSide
+			backdoc := Document{
+				Metadata: doc.Metadata,
 				File: File{
 					Data:        customer.DriverLicense.BackImage.Data,
 					Filename:    customer.DriverLicense.BackImage.Filename,
 					ContentType: customer.DriverLicense.BackImage.ContentType,
 				},
-			})
+			}
+			backdoc.Metadata.DocumentSubType = BackSide
+			documents = append(documents, backdoc)
 		}
-		documents = append(documents, Document{
-			Metadata: metadata,
-			File: File{
-				Data:        customer.DriverLicense.FrontImage.Data,
-				Filename:    customer.DriverLicense.FrontImage.Filename,
-				ContentType: customer.DriverLicense.FrontImage.ContentType,
-			},
-		})
+		documents = append(documents, doc)
 	}
 
-	if customer.DriverLicenseTranslation != nil && customer.DriverLicenseTranslation.FrontImage != nil {
-		metadata := Metadata{
-			DocumentType: "DRIVERS_TRANSLATION",
-			Country:      common.CountryAlpha2ToAlpha3[customer.DriverLicenseTranslation.CountryAlpha2],
-			FirstName:    customer.FirstName,
-			MiddleName:   customer.MiddleName,
-			LastName:     customer.LastName,
-			DateIssued:   customer.DriverLicenseTranslation.IssuedDate.Format("2006-01-02"),
-			ValidUntil:   customer.DriverLicenseTranslation.ValidUntil.Format("2006-01-02"),
-			Number:       customer.DriverLicenseTranslation.Number,
-			DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
-			PlaceOfBirth: customer.PlaceOfBirth,
+	if customer.DriverLicenseTranslation != nil {
+		doc := Document{
+			Metadata: Metadata{
+				DocumentType: "DRIVERS_TRANSLATION",
+				Country:      common.CountryAlpha2ToAlpha3[customer.DriverLicenseTranslation.CountryAlpha2],
+				FirstName:    customer.FirstName,
+				MiddleName:   customer.MiddleName,
+				LastName:     customer.LastName,
+				DateIssued:   customer.DriverLicenseTranslation.IssuedDate.Format("2006-01-02"),
+				ValidUntil:   customer.DriverLicenseTranslation.ValidUntil.Format("2006-01-02"),
+				Number:       customer.DriverLicenseTranslation.Number,
+				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
+				PlaceOfBirth: customer.PlaceOfBirth,
+			},
+		}
+		if customer.DriverLicenseTranslation.FrontImage != nil {
+			doc.File = File{
+				Data:        customer.DriverLicenseTranslation.FrontImage.Data,
+				Filename:    customer.DriverLicenseTranslation.FrontImage.Filename,
+				ContentType: customer.DriverLicenseTranslation.FrontImage.ContentType,
+			}
 		}
 		if customer.DriverLicenseTranslation.BackImage != nil {
-			backMetadata := metadata
-			backMetadata.DocumentSubType = BackSide
-			metadata.DocumentSubType = FrontSide
-
-			documents = append(documents, Document{
-				Metadata: backMetadata,
+			doc.Metadata.DocumentSubType = FrontSide
+			backdoc := Document{
+				Metadata: doc.Metadata,
 				File: File{
 					Data:        customer.DriverLicenseTranslation.BackImage.Data,
 					Filename:    customer.DriverLicenseTranslation.BackImage.Filename,
 					ContentType: customer.DriverLicenseTranslation.BackImage.ContentType,
 				},
-			})
+			}
+			backdoc.Metadata.DocumentSubType = BackSide
+			documents = append(documents, backdoc)
 		}
-		documents = append(documents, Document{
-			Metadata: metadata,
-			File: File{
-				Data:        customer.DriverLicenseTranslation.FrontImage.Data,
-				Filename:    customer.DriverLicenseTranslation.FrontImage.Filename,
-				ContentType: customer.DriverLicenseTranslation.FrontImage.ContentType,
-			},
-		})
+		documents = append(documents, doc)
 	}
 
-	if customer.CreditCard != nil && customer.CreditCard.Image != nil {
-		documents = append(documents, Document{
+	if customer.CreditCard != nil {
+		doc := Document{
 			Metadata: Metadata{
 				DocumentType: "BANK_CARD",
 				Country:      common.CountryAlpha2ToAlpha3[customer.CountryAlpha2],
@@ -157,14 +168,17 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
 				PlaceOfBirth: customer.PlaceOfBirth,
 			},
-			File: File{
+		}
+		if customer.CreditCard.Image != nil {
+			doc.File = File{
 				Data:        customer.CreditCard.Image.Data,
 				Filename:    customer.CreditCard.Image.Filename,
 				ContentType: customer.CreditCard.Image.ContentType,
-			},
-		})
-	} else if customer.DebitCard != nil && customer.DebitCard.Image != nil {
-		documents = append(documents, Document{
+			}
+		}
+		documents = append(documents, doc)
+	} else if customer.DebitCard != nil {
+		doc := Document{
 			Metadata: Metadata{
 				DocumentType: "BANK_CARD",
 				Country:      common.CountryAlpha2ToAlpha3[customer.CountryAlpha2],
@@ -176,12 +190,15 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
 				PlaceOfBirth: customer.PlaceOfBirth,
 			},
-			File: File{
+		}
+		if customer.DebitCard.Image != nil {
+			doc.File = File{
 				Data:        customer.DebitCard.Image.Data,
 				Filename:    customer.DebitCard.Image.Filename,
 				ContentType: customer.DebitCard.Image.ContentType,
-			},
-		})
+			}
+		}
+		documents = append(documents, doc)
 	}
 
 	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
@@ -241,8 +258,8 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 		})
 	}
 
-	if customer.Other != nil && customer.Other.Image != nil {
-		documents = append(documents, Document{
+	if customer.Other != nil {
+		doc := Document{
 			Metadata: Metadata{
 				DocumentType: "OTHER",
 				Country:      common.CountryAlpha2ToAlpha3[customer.Other.CountryAlpha2],
@@ -255,12 +272,15 @@ func MapCommonCustomerDocuments(customer common.UserData) (documents []Document)
 				DateOfBirth:  customer.DateOfBirth.Format("2006-01-02"),
 				PlaceOfBirth: customer.PlaceOfBirth,
 			},
-			File: File{
+		}
+		if customer.Other.Image != nil {
+			doc.File = File{
 				Data:        customer.Other.Image.Data,
 				Filename:    customer.Other.Image.Filename,
 				ContentType: customer.Other.Image.ContentType,
-			},
-		})
+			}
+		}
+		documents = append(documents, doc)
 	}
 
 	if len(documents) == 0 {
