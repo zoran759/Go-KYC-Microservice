@@ -269,18 +269,21 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](#commonkycresult-fields-description).
 
+> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*StatusPolling__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
+
 #### **[common.KYCResult](common/model.go#L164) fields description**
 
-| **Name**      | **Type**                                                  | **Description**                                                           |
-| ------------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **Status**    | [_**KYCStatus**_](#kycstatus-possible-values-description) | Status of the verification                                                |
-| **Details**   | _***[KYCDetails](#kycdetails-fields-description)**_       | Details of the verification if provided                                   |
-| **ErrorCode** | _**string**_                                              | Error code returned by a KYC provider if the provider support error codes |
+| **Name**          | **Type**                                                  | **Description**                                                               |
+| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Status**        | _**[KYCStatus](#kycstatus-possible-values-description)**_ | Status of the verification                                                    |
+| **Details**       | _***[KYCDetails](#kycdetails-fields-description)**_       | Details of the verification if provided                                       |
+| **ErrorCode**     | _**string**_                                              | Error code returned by a KYC provider if the provider support error codes     |
+| **StatusPolling** | _***[StatusPolling](#statuspolling-fields-description)**_ | Data required to do the customer verification status check requests if needed |
 
 #### **[KYCStatus](common/enum.go#L6) possible values description**
 
-| **Value**    | **Description** |
-| ------------ | --------------- |
+| **Value**    | **Description**                                                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | **Error**    | Verification has failed. Probably, some error has occurred. Returned error value must be non-nil and **`common.KYCResult.ErrorCode`** may contain error code value |
 | **Approved** | Successful verification with approved result. The details maybe non-nil and contain additional info about the verification     |
 | **Denied**   | Successful verification with rejected result. The details should be non-nil and contain additional info about the verification |
@@ -288,18 +291,25 @@ The verification response consist of two elements: a result and an error if occu
 
 #### **[KYCDetails](common/model.go#L158) fields description**
 
-| **Name**     | **Type** | **Description** |
-| ------------ | -------- | --------------- |
+| **Name**     | **Type**                                                      | **Description**                                                          |
+| ------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | **Finality** | [_**KYCFinality**_](#kycfinality-possible-values-description) | Rejection type of the result (if the negative answer is given)           |
 | **Reasons**  | _**[]string**_                                                | List of additional response info describing result-related circumstances |
 
 #### **[KYCFinality](common/enum.go#L17) possible values description**
 
-| **Value**    | **Description** |
-| ------------ | --------------- |
+| **Value**    | **Description**                                                                                                             |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | **Final**    | Final reject, e.g. when a person is a fraudster, or a client does not want to accept such kind of clients in his/her system |
-| **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality |
-| **Unknown**  | The provider doesn't support **`Finality`** feature |
+| **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality                                                    |
+| **Unknown**  | The provider doesn't support **`Finality`** feature                                                                         |
+
+#### **[StatusPolling](common/model.go#L172) fields description**
+
+| **Name**       | **Type**                                | **Description**                                                                        |
+| -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Provider**   | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
+| **CustomerID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
 
 ### **Specific KYC providers**
 
