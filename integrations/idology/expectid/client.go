@@ -44,6 +44,3 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 	return
 }
-
-// Ensure implementation conformance to the interface.
-var _ common.CustomerChecker = (*Client)(nil)

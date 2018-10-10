@@ -1,4 +1,4 @@
-package idology_test
+package idology
 
 import (
 	"flag"
@@ -10,7 +10,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "modulus/kyc/integrations/idology"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/idology/expectid"
@@ -48,7 +47,7 @@ var _ = Describe("The IDology KYC service", func() {
 		}
 
 		service := &Service{
-			ExpectID: expectid.NewClient(expectid.Config(config)),
+			expectID: expectid.NewClient(expectid.Config(config)),
 		}
 
 		testservice := New(config)
@@ -56,8 +55,7 @@ var _ = Describe("The IDology KYC service", func() {
 		Expect(testservice).NotTo(BeNil())
 		Expect(reflect.TypeOf(testservice)).To(Equal(reflect.TypeOf((*Service)(nil))))
 
-		expectID := testservice.ExpectID
-		Expect(expectID).ToNot(BeNil())
+		Expect(testservice.expectID).ToNot(BeNil())
 
 		Expect(testservice).To(Equal(service))
 	})
@@ -111,7 +109,7 @@ var _ = Describe("The IDology KYC service", func() {
 				})
 
 				customer := newCustomer()
-				result, err := failedService.ExpectID.CheckCustomer(customer)
+				result, err := failedService.CheckCustomer(customer)
 
 				Expect(result.Status).To(Equal(common.Error))
 				Expect(result.Details).To(BeNil())
@@ -125,7 +123,7 @@ var _ = Describe("The IDology KYC service", func() {
 				skipFunc()
 
 				customer := newCustomer()
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Details).To(BeNil())
@@ -142,7 +140,7 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(2009, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Denied))
@@ -161,7 +159,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "Magnolia"
 				customer.CurrentAddress.BuildingNumber = "2240"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -182,7 +180,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "Magnolia"
 				customer.CurrentAddress.BuildingNumber = "222333"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -202,7 +200,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "PeachTree Place"
 				customer.CurrentAddress.BuildingNumber = "2240"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -222,7 +220,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.Street = "PO Box 123"
 				customer.CurrentAddress.BuildingNumber = ""
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -240,7 +238,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer := newCustomer()
 				customer.CurrentAddress.PostCode = "30316"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -259,7 +257,7 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(1970, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -278,7 +276,7 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(1976, time.February, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -297,7 +295,7 @@ var _ = Describe("The IDology KYC service", func() {
 					time.Date(1975, time.May, 28, 0, 0, 0, 0, time.UTC),
 				)
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -316,7 +314,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer := newCustomer()
 				customer.IDCard.Number = "112223345"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -333,7 +331,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer := newCustomer()
 				customer.IDCard.Number = "112223334"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -352,7 +350,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.StateProvinceCode = "AL"
 				customer.IDCard = nil
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -385,7 +383,7 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -407,7 +405,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.PostCode = "30303"
 				customer.IDCard = nil
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -443,7 +441,7 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -466,7 +464,7 @@ var _ = Describe("The IDology KYC service", func() {
 				customer.CurrentAddress.BuildingNumber = "12345"
 				customer.CurrentAddress.PostCode = "30303"
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -502,7 +500,7 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Approved))
@@ -538,7 +536,7 @@ var _ = Describe("The IDology KYC service", func() {
 					},
 				}
 
-				result, err := service.ExpectID.CheckCustomer(customer)
+				result, err := service.CheckCustomer(customer)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Status).To(Equal(common.Denied))
