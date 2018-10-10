@@ -45,6 +45,16 @@ type CustomerChecker interface {
 }
 ```
 
+Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the [**common.StatusChecker**](common/contract.go#L8) interface is provided:
+
+```go
+type StatusChecker interface {
+    CheckStatus(string) (KYCResult, error)
+}
+```
+
+Those KYC providers that are using some kind of polling mechanism implement this interface.
+
 Providers are configurable by their configs. Configuration options for each provider are described in the respective integration instructions in [Specific KYC providers](#specific-kyc-providers).
 
 The rest required for interaction with KYC providers is in the **`common`** package including request and response structures.
