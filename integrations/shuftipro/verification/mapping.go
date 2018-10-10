@@ -22,54 +22,46 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 		},
 	}
 
-	if customer.Selfie != nil {
+	if customer.Selfie != nil && customer.Selfie.Image != nil {
 		request.VerificationData.FaceImage = base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data)
 	}
-	if customer.UtilityBill != nil {
+	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
 		request.VerificationData.UtilityBill = base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data)
 	}
-	if customer.Passport != nil {
+	if customer.Passport != nil && customer.Passport.Image != nil {
 		request.VerificationServices.DocumentType = "passport"
 		request.VerificationServices.DocumentExpiryDate = customer.Passport.ValidUntil.Format("2006-01-02")
 		request.VerificationServices.DocumentIDNumber = customer.Passport.Number
-		if customer.Passport.Image != nil {
-			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.Passport.Image.Data)
-		}
+		request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.Passport.Image.Data)
 
 		return request
 	}
-	if customer.DriverLicense != nil {
+	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
 		request.VerificationServices.DocumentType = "driving_license"
 		request.VerificationServices.DocumentExpiryDate = customer.DriverLicense.ValidUntil.Format("2006-01-02")
 		request.VerificationServices.DocumentIDNumber = customer.DriverLicense.Number
-		if customer.DriverLicense.FrontImage != nil {
-			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data)
-		}
+		request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data)
 		if customer.DriverLicense.BackImage != nil {
 			request.VerificationData.BackImage = base64.StdEncoding.EncodeToString(customer.DriverLicense.BackImage.Data)
 		}
 
 		return request
 	}
-	if customer.IDCard != nil {
+	if customer.IDCard != nil && customer.IDCard.Image != nil {
 		request.VerificationServices.DocumentType = "id_card"
 		request.VerificationServices.DocumentIDNumber = customer.IDCard.Number
-		if customer.IDCard.Image != nil {
-			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data)
-		}
+		request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data)
 
 		return request
 	}
-	if customer.SNILS != nil {
+	if customer.SNILS != nil && customer.SNILS.Image != nil {
 		request.VerificationServices.DocumentType = "id_card"
 		request.VerificationServices.DocumentIDNumber = customer.SNILS.Number
-		if customer.SNILS.Image != nil {
-			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data)
-		}
+		request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data)
 
 		return request
 	}
-	if customer.CreditCard != nil {
+	if customer.CreditCard != nil && customer.CreditCard.Image != nil {
 		request.VerificationServices.DocumentType = "credit_card"
 		request.VerificationServices.DocumentExpiryDate = customer.CreditCard.ValidUntil.Format("2006-01-02")
 		request.VerificationServices.DocumentIDNumber = customer.CreditCard.Number
@@ -77,9 +69,7 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 			request.VerificationServices.CardFirst6Digits = customer.CreditCard.Number[:6]
 			request.VerificationServices.CardLast4Digits = customer.CreditCard.Number[len(customer.CreditCard.Number)-4:]
 		}
-		if customer.CreditCard.Image != nil {
-			request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.CreditCard.Image.Data)
-		}
+		request.VerificationData.FrontImage = base64.StdEncoding.EncodeToString(customer.CreditCard.Image.Data)
 	}
 
 	return request
