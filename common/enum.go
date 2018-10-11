@@ -8,6 +8,8 @@ const (
 	Error KYCStatus = iota
 	Approved
 	Denied
+	Pending
+	Queued
 	Unclear
 )
 
@@ -35,6 +37,8 @@ type KYCProvider string
 
 // Possible values of KYCProvider.
 const (
-	Shuftipro KYCProvider = "SHUFTIPRO"
+	IDology   KYCProvider = "IDOLOGY"
+	ShuftiPro KYCProvider = "SHUFTIPRO"
 	SumSub    KYCProvider = "SUM&SUBSTANCE"
+	Trulioo   KYCProvider = "TRULIOO"
 )
