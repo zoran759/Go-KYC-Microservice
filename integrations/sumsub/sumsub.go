@@ -2,7 +2,6 @@ package sumsub
 
 import (
 	"fmt"
-	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/sumsub/applicants"
@@ -14,10 +13,9 @@ import (
 
 // SumSub defines the verification service.
 type SumSub struct {
-	applicants       applicants.Applicants
-	documents        documents.Documents
-	verification     verification.Verificator
-	timeoutThreshold int64
+	applicants   applicants.Applicants
+	documents    documents.Documents
+	verification verification.Verificator
 }
 
 // New constructs new verification service object.
@@ -35,7 +33,6 @@ func New(config Config) SumSub {
 			Host:   config.Host,
 			APIKey: config.APIKey,
 		}),
-		timeoutThreshold: int64(time.Second.Seconds()) * config.TimeoutThreshold,
 	}
 }
 
@@ -95,9 +92,8 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error) {
 	status, result, err := service.verification.CheckApplicantStatus(refID)
 	if err != nil {
-		res.StatusPolling = &common.StatusPolling{
-			Provider:   common.SumSub,
-			CustomerID: refID,
+		if result != nil && result.ErrorCode != 0 {
+			res.ErrorCode = fmt.Sprintf("%d", result.ErrorCode)
 		}
 		return
 	}
@@ -137,21 +133,12 @@ func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error
 		}
 	case "init":
 		err = errors.New("documents upload failed. Please, try to upload a document for this applicant")
-		res.StatusPolling = &common.StatusPolling{
-			Provider:   common.SumSub,
-			CustomerID: refID,
-		}
-	case "pending", "queued":
-		res.StatusPolling = &common.StatusPolling{
-			Provider:   common.SumSub,
-			CustomerID: refID,
-		}
+	case "pending":
+		res.Status = common.Pending
+	case "queued":
+		res.Status = common.Queued
 	case "awaitingUser":
 		err = errors.New("waiting some additional documents from the applicant (e.g. a selfie or a better passport image)")
-		res.StatusPolling = &common.StatusPolling{
-			Provider:   common.SumSub,
-			CustomerID: refID,
-		}
 	}
 
 	return

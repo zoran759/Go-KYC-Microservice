@@ -8,7 +8,6 @@ This instruction describes how to use **`sumsub`** package.
 | -------- | -------- | --------------- |
 | **Host** | _**string**_ | Sum&Substance base API host. It looks like `https://test-api.sumsub.com` |
 | **APIKey** | _**string**_ | API key provided by Sum&Substance to you |
-| **TimeoutTreshold** | _**int64**_ | A threshold, in seconds, after which polling stops and returns timeout error |
 
 ## How to use the package
 

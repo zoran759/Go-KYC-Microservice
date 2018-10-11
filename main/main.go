@@ -10,18 +10,21 @@ import (
 )
 
 func main() {
+	// Set up the CheckCustomer API handler.
+	http.HandleFunc("/CheckCustomer", handlers.CheckCustomerHandler)
 
-	// Set up the CheckCustomer API handler. Strip prefix of the API version.
-	apiHandler := http.StripPrefix(
-		"/api/v1",
-		http.HandlerFunc(handlers.CheckCustomerHandler),
-	)
-	http.Handle("/api/v1/", apiHandler)
+	// Set up the CheckStatus API handler.
+	http.HandleFunc("/CheckStatus", handlers.CheckStatusHandler)
+
+	// If the service port isn't set in the envvar use the default value instead.
+	var port string
+	if port = os.Getenv("KYC_SERVER_PORT"); len(port) == 0 {
+		port = "80"
+	}
 
 	// Start(Blocking) the server
-	log.Printf("KYC http server started on :%v", os.Getenv("KYC_SERVER_PORT"))
-	err := http.ListenAndServe(fmt.Sprintf(":%v", os.Getenv("KYC_SERVER_PORT")), apiHandler)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	log.Printf("Listen on :%v", port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
+		log.Fatalln("ListenAndServe:", err)
 	}
 }

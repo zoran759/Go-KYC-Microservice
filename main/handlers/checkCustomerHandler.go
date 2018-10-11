@@ -39,7 +39,7 @@ func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	// Handle request depending on given KYC Provider
 	switch req.Provider {
 
-	case common.Shuftipro:
+	case common.ShuftiPro:
 		{
 			//Example Shufti Pro integration
 			service := shuftipro.New(shuftipro.Config{
