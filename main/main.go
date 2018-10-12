@@ -1,30 +1,47 @@
 package main
 
 import (
-	"modulus/kyc/main/handlers"
-	"os"
-
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
+	"modulus/kyc/main/config"
+	"modulus/kyc/main/handlers"
 )
 
+var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
+
 func main() {
-	// Set up the CheckCustomer API handler.
-	http.HandleFunc("/CheckCustomer", handlers.CheckCustomerHandler)
+	flag.Parse()
 
-	// Set up the CheckStatus API handler.
-	http.HandleFunc("/CheckStatus", handlers.CheckStatusHandler)
-
-	// If the service port isn't set in the envvar use the default value instead.
-	var port string
-	if port = os.Getenv("KYC_SERVER_PORT"); len(port) == 0 {
-		port = "80"
+	if err := config.FromFile(*configFile); err != nil {
+		log.Fatalln("Loading configuration:", err)
 	}
 
-	// Start(Blocking) the server
+	createHandlers()
+
+	var port string
+
+	if port = os.Getenv("KYC_PORT"); len(port) == 0 {
+		port = "8080"
+	}
+
 	log.Printf("Listen on :%v", port)
+
 	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
 		log.Fatalln("ListenAndServe:", err)
 	}
+}
+
+func createHandlers() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Welcome to the KYC service. Have a nice day!\n"))
+	})
+	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("pong!\n"))
+	})
+	http.HandleFunc("/CheckCustomer", handlers.CheckCustomerHandler)
+	http.HandleFunc("/CheckStatus", handlers.CheckStatusHandler)
 }
