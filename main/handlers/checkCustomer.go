@@ -11,10 +11,10 @@ import (
 	"net/http"
 )
 
-// CheckCustomerHandler represents the handler for the CustomerHandler function.
+// CheckCustomerHandler handles requests for KYC verifications.
 func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	// Read request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
