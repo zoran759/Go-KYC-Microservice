@@ -20,6 +20,10 @@ func CheckStatusHandler(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
+	if len(body) == 0 {
+		writeErrorResponse(w, http.StatusBadRequest, errors.New("empty request"))
+		return
+	}
 
 	req := common.CheckStatusRequest{}
 
@@ -38,32 +42,13 @@ func CheckStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var service common.StatusChecker
-
-	switch req.Provider {
-	case common.IDology:
-		fallthrough
-	case common.ShuftiPro:
-		fallthrough
-	case common.Trulioo:
-		writeErrorResponse(w, http.StatusUnprocessableEntity, fmt.Errorf("%s doesn't support status polling", req.Provider))
-		return
-	case common.SumSub:
-		cfg, ok := config.KYC[common.SumSub]
-		if !ok {
-			writeErrorResponse(w, http.StatusInternalServerError, fmt.Errorf("missing config for %s", req.Provider))
-			return
-		}
-		service = sumsub.New(sumsub.Config{
-			Host:   cfg["Host"],
-			APIKey: cfg["APIKey"],
-		})
-	default:
-		writeErrorResponse(w, http.StatusNotFound, fmt.Errorf("unknown KYC provider id in the request: %s", req.Provider))
+	service, err1 := createStatusChecker(req.Provider)
+	if err1 != nil {
+		writeErrorResponse(w, err1.status, err1)
 		return
 	}
 
-	response := common.CheckStatusResponse{}
+	response := common.KYCResponse{}
 
 	result, err := service.CheckStatus(req.CustomerID)
 	if err != nil {
@@ -78,4 +63,43 @@ func CheckStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(resp)
+}
+
+func createStatusChecker(provider common.KYCProvider) (service common.StatusChecker, err *serviceError) {
+	if !common.KYCProviders[provider] {
+		err = &serviceError{
+			status:  http.StatusNotFound,
+			message: fmt.Sprintf("unknown KYC provider in the request: %s", provider),
+		}
+		return
+	}
+
+	cfg, ok := config.KYC[provider]
+	if !ok {
+		err = &serviceError{
+			status:  http.StatusInternalServerError,
+			message: fmt.Sprintf("missing config for %s", provider),
+		}
+		return
+	}
+
+	switch provider {
+	case common.IDology, common.ShuftiPro, common.Trulioo:
+		err = &serviceError{
+			status:  http.StatusUnprocessableEntity,
+			message: fmt.Sprintf("%s doesn't support status polling", provider),
+		}
+	case common.SumSub:
+		service = sumsub.New(sumsub.Config{
+			Host:   cfg["Host"],
+			APIKey: cfg["APIKey"],
+		})
+	default:
+		err = &serviceError{
+			status:  http.StatusInternalServerError,
+			message: fmt.Sprintf("KYC provider not implemented yet: %s", provider),
+		}
+	}
+
+	return
 }
