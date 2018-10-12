@@ -46,7 +46,6 @@ func FromFile(filename string) (err error) {
 		return
 	}
 
-	KYC := Config{}
 	dec := json.NewDecoder(file)
 	if err = dec.Decode(&KYC); err != nil {
 		return

@@ -6,20 +6,14 @@ type CheckCustomerRequest struct {
 	UserData UserData
 }
 
-// CheckCustomerResponse represents the response for the CheckCustomer handler.
-type CheckCustomerResponse struct {
-	// KYC result
-	KYCResult KYCResult
-}
-
 // CheckStatusRequest represents the status check request payload of the CheckStatus handler.
 type CheckStatusRequest struct {
 	Provider   KYCProvider
 	CustomerID string
 }
 
-// CheckStatusResponse represents the response payload for the CheckStatus handler.
-type CheckStatusResponse struct {
+// KYCResponse represents the response for the CheckCustomer and the CheckStatus handlers.
+type KYCResponse struct {
 	Result *KYCResult
 	Error  string
 }
