@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/sumsub"
+	"modulus/kyc/main/config"
 	"net/http"
 )
 
@@ -48,9 +49,14 @@ func CheckStatusHandler(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusUnprocessableEntity, fmt.Errorf("%s doesn't support status polling", req.Provider))
 		return
 	case common.SumSub:
+		cfg, ok := config.KYC[common.SumSub]
+		if !ok {
+			writeErrorResponse(w, http.StatusInternalServerError, fmt.Errorf("missing config for %s", req.Provider))
+			return
+		}
 		service = sumsub.New(sumsub.Config{
-			Host:   "https://test-api.sumsub.com",
-			APIKey: "GKTBNXNEPJHCXY",
+			Host:   cfg["Host"],
+			APIKey: cfg["APIKey"],
 		})
 	default:
 		writeErrorResponse(w, http.StatusNotFound, fmt.Errorf("unknown KYC provider id in the request: %s", req.Provider))
