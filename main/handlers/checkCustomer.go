@@ -18,8 +18,6 @@ import (
 
 // CheckCustomerHandler handles requests for KYC verifications.
 func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, err)
@@ -58,6 +56,7 @@ func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(resp)
 }
 
@@ -115,7 +114,7 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 		})
 	default:
 		err = &serviceError{
-			status:  http.StatusInternalServerError,
+			status:  http.StatusUnprocessableEntity,
 			message: fmt.Sprintf("KYC provider not implemented yet: %s", provider),
 		}
 	}
