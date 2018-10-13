@@ -3,7 +3,7 @@ stages:
   - build
   - docker
 
-test-integrations:
+test:
   stage: test
   image: golang:stretch
   script:
@@ -17,6 +17,8 @@ test-integrations:
 build:
   stage: build
   image: golang:alpine
+  before_script:
+  - apk add --no-cache git
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
@@ -29,6 +31,8 @@ build:
     expire_in: 1 day
 
 docker:
+  # only:
+  # - master
   stage: docker
   image: docker
   services:
