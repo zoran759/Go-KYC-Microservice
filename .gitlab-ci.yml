@@ -31,8 +31,8 @@ build:
     expire_in: 1 day
 
 docker:
-  # only:
-  # - master
+  only:
+  - master
   stage: docker
   image: docker
   services:
