@@ -11,8 +11,8 @@ import (
 	"net/http"
 )
 
-// CheckStatusHandler handles requests for a status check.
-func CheckStatusHandler(w http.ResponseWriter, r *http.Request) {
+// CheckStatus handles requests for a status check.
+func CheckStatus(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, err)

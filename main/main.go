@@ -42,6 +42,6 @@ func createHandlers() {
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong!"))
 	})
-	http.HandleFunc("/CheckCustomer", handlers.CheckCustomerHandler)
-	http.HandleFunc("/CheckStatus", handlers.CheckStatusHandler)
+	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
+	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
 }
