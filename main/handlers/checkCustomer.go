@@ -16,8 +16,8 @@ import (
 	"modulus/kyc/main/config"
 )
 
-// CheckCustomerHandler handles requests for KYC verifications.
-func CheckCustomerHandler(w http.ResponseWriter, r *http.Request) {
+// CheckCustomer handles requests for KYC verifications.
+func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, err)
