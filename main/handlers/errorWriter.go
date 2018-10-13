@@ -25,12 +25,12 @@ func writeErrorResponse(w http.ResponseWriter, status int, err error) {
 
 	resp, err := json.Marshal(errorResponse)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, err)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(resp)
 }

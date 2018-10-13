@@ -2,6 +2,7 @@
 
 ## **Table of contents**
 
+* **[REST API](#rest-api)**
 * **[Integration interface](#integration-interface)**
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
@@ -12,6 +13,58 @@
   * **[Trulioo](#trulioo)**
   * **[Shufti Pro](#shufti-pro)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
+
+## **REST API**
+
+The KYC service provides REST API to interact with other components of the application. The data payload of requests should be JSON encoded. The API responds with JSON payload as well.
+
+| **Route**          |  **Description**                                                    |
+| ------------------ | ------------------------------------------------------------------- |
+| **/**              | Answers with the welcome message in plain text format               |
+| **/ping**          | Answers with the "pong!" response in plain text format              |
+| **/CheckCustomer** | The endpoint to send KYC verification requests                      |
+| **/CheckStatus**   | The endpoint to send KYC verification current status check requests |
+
+The models for requests and responses are provided.
+
+### **[CheckCustomer request](common/rest.go#L3) fields description**
+
+| **Name**     | **Type**                                       | **Description**                             |
+| ------------ | ---------------------------------------------- | ------------------------------------------- |
+| **Provider** | _**[KYCProvider](common/enum.go#L36)**_        | The identificator for the KYC provider name |
+| **UserData** | _**[UserData](#userdata-fields-description)**_ | A verification data of the customer         |
+
+### **[CheckStatus request](common/rest.go#L9) fields description**
+
+| **Name**       | **Type**                                | **Description**                                                                        |
+| -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Provider**   | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
+| **CustomerID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
+
+### **[API response](common/rest.go#L15) fields description**
+
+| **Name**   | **Type**     | **Description**                                                             |
+| ---------- | ------------ | --------------------------------------------------------------------------- |
+| **Result** | _***[KYCResult](#commonkycresult-fields-description)**_ | A result of the KYC verification |
+| **Error**  | _**string**_ | A text of an error message if the error has occured during the verification |
+
+If a **KYC provider** doesn't support the instant result response then check and use the [**KYCResult.StatusPolling**](#statuspolling-fields-description) field for the info required for the KYC verification status check requests.
+
+### **[API Error response](common/rest.go#L21) fields description**
+
+| **Name**  | **Type**     | **Description**    |
+| --------- | ------------ | ------------------ |
+| **Error** | _**string**_ | A text of an error |
+
+### **HTTP response codes**
+
+| **Code** | **Description**                                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------------------------------- |
+| **200**  | A request has been successfully processed. The response should be inspected for possible KYC verification errors |
+| **400**  | It happens when something wrong with the request. If the request is somehow malformed or missed a required param |
+| **404**  | It happens when a KYC provider in the request is unknown for the API                                             |
+| **422**  | It happens when a KYC provider doesn't support requested method or it isn't implemented yet                      |
+| **500**  | It happens when something goes wrong in the server (serialization errors, KYC config's errors, etc...)           |
 
 ## **Integration interface**
 
