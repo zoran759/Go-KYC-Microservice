@@ -13,6 +13,8 @@ import (
 
 // CheckStatus handles requests for a status check.
 func CheckStatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, err)
@@ -60,7 +62,6 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(resp)
 }
 
