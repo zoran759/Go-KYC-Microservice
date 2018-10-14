@@ -16,6 +16,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var cfg = config.Config{
+	common.IDology: {
+		"Host":             "https://web.idologylive.com/api/idiq.svc",
+		"Username":         "fakeuser",
+		"Password":         "fakepassword",
+		"UseSummaryResult": "false",
+	},
+	common.ShuftiPro: {
+		"Host":        "https://api.shuftipro.com",
+		"ClientID":    "fakeID",
+		"SecretKey":   "fakeKey",
+		"RedirectURL": "https://api.shuftipro.com",
+	},
+	common.SumSub: {
+		"Host":   "https://test-api.sumsub.com",
+		"APIKey": "fakeKey",
+	},
+	common.Trulioo: {
+		"Host":         "https://api.globaldatacompany.com",
+		"NAPILogin":    "fakelogin",
+		"NAPIPassword": "fakepassword",
+	},
+}
+
 var response = []byte(`
 {
     "id": "5b7298530a975a1df03bdd17",
@@ -44,7 +68,7 @@ var errorResponse = []byte(`
 
 func init() {
 	if config.KYC == nil {
-		config.FromFile("../kyc.cfg")
+		config.KYC = cfg
 	}
 }
 
@@ -209,7 +233,7 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing nonexistent KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   "Fake Provider",
+		Provider:   "Nonexistent Provider",
 		CustomerID: customerID,
 	})
 
@@ -231,7 +255,7 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, resp.Result)
 	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "unknown KYC provider in the request: Fake Provider", resp.Error)
+	assert.Equal(t, "unknown KYC provider in the request: Nonexistent Provider", resp.Error)
 
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -245,7 +269,9 @@ func TestCheckStatus(t *testing.T) {
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
-	common.KYCProviders["Fake Provider"] = true
+	if !common.KYCProviders["Fake Provider"] {
+		common.KYCProviders["Fake Provider"] = true
+	}
 
 	handlers.CheckStatus(w, req)
 
@@ -340,7 +366,7 @@ func TestCheckStatus(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, resp.Result)
+	assert.NotNil(t, resp.Result)
 	assert.Equal(t, common.Error, resp.Result.Status)
 	assert.Nil(t, resp.Result.Details)
 	assert.NotEmpty(t, resp.Result.ErrorCode)

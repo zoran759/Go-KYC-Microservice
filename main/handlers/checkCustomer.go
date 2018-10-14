@@ -38,6 +38,11 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(req.Provider) == 0 {
+		writeErrorResponse(w, http.StatusBadRequest, errors.New("missing KYC provider id in the request"))
+		return
+	}
+
 	service, err1 := createCustomerChecker(req.Provider)
 	if err1 != nil {
 		writeErrorResponse(w, err1.status, err1)
