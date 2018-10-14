@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"modulus/kyc/common"
 	"net/http"
 )
@@ -23,14 +22,8 @@ func writeErrorResponse(w http.ResponseWriter, status int, err error) {
 		Error: err.Error(),
 	}
 
-	resp, err := json.Marshal(errorResponse)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, err)
-		return
-	}
+	resp, _ := json.Marshal(errorResponse)
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(resp)
 }
