@@ -1,27 +1,47 @@
 package main
 
 import (
-	"modulus/kyc/main/handlers"
-	"os"
-
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
+	"modulus/kyc/main/config"
+	"modulus/kyc/main/handlers"
 )
 
+var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
+
 func main() {
+	flag.Parse()
 
-	// Set up the CheckCustomer API handler. Strip prefix of the API version.
-	apiHandler := http.StripPrefix(
-		"/api/v1",
-		http.HandlerFunc(handlers.CheckCustomerHandler),
-	)
-	http.Handle("/api/v1/", apiHandler)
-
-	// Start(Blocking) the server
-	log.Printf("KYC http server started on :%v", os.Getenv("KYC_SERVER_PORT"))
-	err := http.ListenAndServe(fmt.Sprintf(":%v", os.Getenv("KYC_SERVER_PORT")), apiHandler)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	if err := config.FromFile(*configFile); err != nil {
+		log.Fatalln("Loading configuration:", err)
 	}
+
+	createHandlers()
+
+	var port string
+
+	if port = os.Getenv("KYC_PORT"); len(port) == 0 {
+		port = "8080"
+	}
+
+	log.Printf("Listen on :%v", port)
+
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
+		log.Fatalln("ListenAndServe:", err)
+	}
+}
+
+func createHandlers() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Welcome to the KYC service. Have a nice day!\n"))
+	})
+	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("pong!"))
+	})
+	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
+	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
 }

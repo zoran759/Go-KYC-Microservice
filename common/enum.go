@@ -8,6 +8,8 @@ const (
 	Error KYCStatus = iota
 	Approved
 	Denied
+	Pending
+	Queued
 	Unclear
 )
 
@@ -36,6 +38,16 @@ type KYCProvider string
 // Possible values of KYCProvider.
 const (
 	IdentityMind KYCProvider = "IDENTITYMIND"
-	Shuftipro    KYCProvider = "SHUFTIPRO"
-	SumSub       KYCProvider = "SUM&SUBSTANCE"
+	IDology      KYCProvider = "IDology"
+	ShuftiPro    KYCProvider = "ShuftiPro"
+	SumSub       KYCProvider = "Sum&Substance"
+	Trulioo      KYCProvider = "Trulioo"
 )
+
+// KYCProviders enumerates the implemented KYC providers.
+var KYCProviders = map[KYCProvider]bool{
+	IDology:   true,
+	ShuftiPro: true,
+	SumSub:    true,
+	Trulioo:   true,
+}
