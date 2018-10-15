@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/shuftipro"
 	"testing"
@@ -89,5 +89,5 @@ func Test_Shufti(*testing.T) {
 		RedirectURL: "https://api.shuftipro.com",
 	})
 
-	log.Println(service.CheckCustomer(customer))
+	fmt.Println(service.CheckCustomer(customer))
 }
