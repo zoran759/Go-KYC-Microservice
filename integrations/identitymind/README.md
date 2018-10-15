@@ -14,9 +14,9 @@ This instruction describes how to use **`identitymind`** package.
 
 1) Create new [**config**](contract.go#L12) for IdentityMind API usage.
 
-2) Obtain a new service object by calling the [**New()**](service.go#L14) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](service.go#L18) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**CheckCustomer**](service.go#L21) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](service.go#L25) for the customer verification.
 
 4) For the convenience, the package contains [**ProductionBaseURL**](contract.go#L9) constant for IdentityMind API Endpoint URL.
 

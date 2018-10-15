@@ -31,14 +31,14 @@ The models for requests and responses are provided.
 
 | **Name**     | **Type**                                       | **Description**                             |
 | ------------ | ---------------------------------------------- | ------------------------------------------- |
-| **Provider** | _**[KYCProvider](common/enum.go#L36)**_        | The identificator for the KYC provider name |
+| **Provider** | _**[KYCProvider](common/enum.go#L38)**_        | The identificator for the KYC provider name |
 | **UserData** | _**[UserData](#userdata-fields-description)**_ | A verification data of the customer         |
 
 ### **[CheckStatus request](common/rest.go#L9) fields description**
 
 | **Name**       | **Type**                                | **Description**                                                                        |
 | -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Provider**   | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
+| **Provider**   | _**[KYCProvider](common/enum.go#L38)**_ | The identificator for the KYC provider name                                            |
 | **CustomerID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
 
 ### **[API response](common/rest.go#L15) fields description**
@@ -105,8 +105,8 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **LegalName**                | _**string**_                       | Legal name of the customer, for ex. "Foobar Co."                      |
 | **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer                                       |
 | **Email**                    | _**string**_                       | Email of the customer                                                 |
-| **Gender**                   | [_**Gender**_](common/enum.go#L27) | Gender of the customer                                                |
-| **DateOfBirth**              | [_**Time**_](common/model.go#L132) | Date of birth of the customer                                         |
+| **Gender**                   | [_**Gender**_](common/enum.go#L29) | Gender of the customer                                                |
+| **DateOfBirth**              | [_**Time**_](common/model.go#L158) | Date of birth of the customer                                         |
 | **PlaceOfBirth**             | _**string**_                       | Place of birth of the customer                                        |
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
@@ -135,7 +135,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Avatar**                   | _***[Avatar](#avatar-fields-description)**_                   | A profile image aka avatar of the customer |
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
 
-### **[Address](common/model.go#L47) fields description**
+### **[Address](common/model.go#L50) fields description**
 
 | **Name**              | **Type**     | **Description**                                         |
 | --------------------- | ------------ | ------------------------------------------------------- |
@@ -156,7 +156,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **StartDate**         | _**Time**_   | When the customer settled at this address               |
 | **EndDate**           | _**Time**_   | When the customer moved out from this address           |
 
-### **[Business](common/model.go#L143) fields description**
+### **[Business](common/model.go#L175) fields description**
 
 | **Name**                      | **Type**     | **Description**                                |
 | ----------------------------- | ------------ | ---------------------------------------------- |
@@ -165,7 +165,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IncorporationDate**         | _**Time**_   | Incorporation date of the Enterprise           |
 | **IncorporationJurisdiction** | _**string**_ | Incorporation jurisdiction of the Enterprise   |
 
-### **[Passport](common/model.go#L193) fields description**
+### **[Passport](common/model.go#L215) fields description**
 
 | **Name**          | **Type**                                                | **Description**                                         |
 | ----------------- | ------------------------------------------------------- | ------------------------------------------------------- |
@@ -357,7 +357,7 @@ The verification response consist of two elements: a result and an error if occu
 
 | **Name**       | **Type**                                | **Description**                                                                        |
 | -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Provider**   | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
+| **Provider**   | _**[KYCProvider](common/enum.go#L38)**_ | The identificator for the KYC provider name                                            |
 | **CustomerID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
 
 ## **Specific KYC providers**
