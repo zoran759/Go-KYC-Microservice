@@ -55,13 +55,14 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	response, err := c.sendRequest(body)
+	response, errorCode, err := c.sendRequest(body)
 	if err != nil {
+		if errorCode != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
 		err = fmt.Errorf("during sending request: %s", err)
 		return
 	}
-
-	// FIXME: I can't understand from the available docs how documents verification is doing and how to implement it.
 
 	if response.State == UnderReview {
 		result.StatusPolling = &common.StatusPolling{
@@ -78,14 +79,19 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 // sendRequest sends a vefirication request into the API.
 // It returns a response from the API or the error if occured.
-func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, err error) {
+func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, errorCode *int, err error) {
 	headers := http.Headers{
 		"Content-Type":  contentType,
 		"Authorization": c.credentials,
 	}
 
-	_, resp, err := http.Post(c.host+consumerEndpoint, headers, body)
+	code, resp, err := http.Post(c.host+consumerEndpoint, headers, body)
 	if err != nil {
+		return
+	}
+	if code != stdhttp.StatusOK {
+		errorCode = &code
+		err = errors.New("http error")
 		return
 	}
 

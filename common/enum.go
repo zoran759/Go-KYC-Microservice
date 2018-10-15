@@ -37,7 +37,7 @@ type KYCProvider string
 
 // Possible values of KYCProvider.
 const (
-	IdentityMind KYCProvider = "IDENTITYMIND"
+	IdentityMind KYCProvider = "IdentityMind"
 	IDology      KYCProvider = "IDology"
 	ShuftiPro    KYCProvider = "ShuftiPro"
 	SumSub       KYCProvider = "Sum&Substance"
@@ -46,8 +46,9 @@ const (
 
 // KYCProviders enumerates the implemented KYC providers.
 var KYCProviders = map[KYCProvider]bool{
-	IDology:   true,
-	ShuftiPro: true,
-	SumSub:    true,
-	Trulioo:   true,
+	IdentityMind: true,
+	IDology:      true,
+	ShuftiPro:    true,
+	SumSub:       true,
+	Trulioo:      true,
 }

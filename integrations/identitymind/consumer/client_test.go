@@ -260,9 +260,10 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, malformedResponse))
 
-			resp, err := client.sendRequest([]byte{})
+			resp, errorCode, err := client.sendRequest([]byte{})
 
 			Expect(resp).ToNot(BeNil())
+			Expect(errorCode).To(BeNil())
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -271,9 +272,10 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, acceptedResponse))
 
-			resp, err := client.sendRequest([]byte{})
+			resp, errorCode, err := client.sendRequest([]byte{})
 
 			Expect(resp).ToNot(BeNil())
+			Expect(errorCode).To(BeNil())
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
