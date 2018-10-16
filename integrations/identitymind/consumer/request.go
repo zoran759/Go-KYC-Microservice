@@ -99,7 +99,8 @@ type KYCRequestData struct {
 	ACHAccountUIDHash string `json:"pach,omitempty"`
 	// A virtual currency address for the funding source. For example the Bitcoin P2PKH address.
 	VirtualCurrencyAddress string `json:"pbc,omitempty"`
-	// The policy profile to be used to evaluate this transaction. Prior to IDMRisk 1.18 this was encoded in the smna and smid fields.
+	// The policy profile to be used to evaluate this transaction.
+	// If no profile is specified, the DEFAULT profile is used. Prior to IDMRisk 1.19, this was encoded in the smid field.
 	Profile string `json:"profile,omitempty"`
 	// Free form memo field for client use.
 	Memo string `json:"memo,omitempty"`

@@ -8,6 +8,9 @@ import (
 // Assert that Service implements the CustomerChecker interface.
 var _ common.CustomerChecker = (*Service)(nil)
 
+// Assert that Service implements the StatusChecker interface.
+var _ common.StatusChecker = (*Service)(nil)
+
 // Service defines the model for the IdentityMind services.
 // It shouldn't be instantiated directly.
 // Use New() constructor instead.
@@ -25,6 +28,13 @@ func New(config Config) *Service {
 // CheckCustomer implements CustomerChecker interface for the service.
 func (s Service) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	res, err = s.consumer.CheckCustomer(customer)
+
+	return
+}
+
+// CheckStatus implements StatusChecker interface for the service.
+func (s Service) CheckStatus(customerID string) (res common.KYCResult, err error) {
+	res, err = s.consumer.CheckStatus(customerID)
 
 	return
 }

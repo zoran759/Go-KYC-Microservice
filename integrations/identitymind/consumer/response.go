@@ -62,10 +62,18 @@ type DocumentVerification struct {
 // toResult processes the response and generates the verification result.
 func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
+	case UnderReview:
+		result.StatusPolling = &common.StatusPolling{
+			Provider:   common.IdentityMind,
+			CustomerID: r.KYCTxID,
+		}
+		return
 	case Accepted:
 		result.Status = common.Approved
 	case Rejected:
 		result.Status = common.Denied
+	default:
+		err = fmt.Errorf("unknown state of the verification from the API: %s", r.State)
 	}
 
 	details := &common.KYCDetails{}
