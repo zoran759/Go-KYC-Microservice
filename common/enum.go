@@ -8,8 +8,6 @@ const (
 	Error KYCStatus = iota
 	Approved
 	Denied
-	Pending
-	Queued
 	Unclear
 )
 
