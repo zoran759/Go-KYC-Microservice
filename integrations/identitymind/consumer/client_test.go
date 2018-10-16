@@ -280,7 +280,8 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Describe("pollApplicationState", func() {
+	// FIXME: change to CheckStatus.
+	Describe("CheckStatus", func() {
 		var client = NewClient(Config{
 			Host:     "host",
 			Username: "test",
@@ -298,11 +299,13 @@ var _ = Describe("Client", func() {
 		It("should fail with error message", func() {
 			Expect(client).ToNot(BeNil())
 
-			resp, err := client.pollApplicationState("26860023")
+			resp, err := client.CheckStatus("26860023")
 
-			Expect(resp).To(BeNil())
+			Expect(resp.Details).To(BeNil())
+			Expect(resp.ErrorCode).To(BeEmpty())
+			Expect(resp.StatusPolling).To(BeNil())
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("Get host/account/consumer/v2/26860023: no responder found"))
+			Expect(err.Error()).To(Equal("during sending request: Get host/account/consumer/v2/26860023: no responder found"))
 		})
 
 		It("should fail with error message", func() {
@@ -310,10 +313,9 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
 
-			resp, err := client.pollApplicationState("26860023")
+			resp, err := client.CheckStatus("26860023")
 
 			Expect(resp).ToNot(BeNil())
-			Expect(resp.ErrorMessage).To(Equal("failed"))
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("failed"))
 		})
@@ -323,7 +325,7 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, malformedResponse))
 
-			resp, err := client.pollApplicationState("26860023")
+			resp, err := client.CheckStatus("26860023")
 
 			Expect(resp).ToNot(BeNil())
 			Expect(err).To(HaveOccurred())
@@ -334,11 +336,11 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, acceptedResponse))
 
-			resp, err := client.pollApplicationState("26860023")
+			resp, err := client.CheckStatus("26860023")
 
 			Expect(resp).ToNot(BeNil())
-			Expect(resp.State).To(Equal(Accepted))
-			Expect(resp.ErrorMessage).To(BeEmpty())
+			Expect(resp.Status).To(Equal(common.Approved))
+			Expect(resp.ErrorCode).To(BeEmpty())
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
