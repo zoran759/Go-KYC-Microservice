@@ -39,6 +39,7 @@ config := identitymind.Config{
 
 service := identitymind.New(config)
 
+// Send the verification data to the service.
 result, err := service.CheckCustomer(customer)
 ...
 
