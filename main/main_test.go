@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
-	"modulus/kyc/common"
-	"modulus/kyc/integrations/shuftipro"
+	"log"
 	"testing"
 	"time"
+
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/shuftipro"
 )
 
 func Test_Shufti(*testing.T) {
@@ -89,5 +90,5 @@ func Test_Shufti(*testing.T) {
 		RedirectURL: "https://api.shuftipro.com",
 	})
 
-	fmt.Println(service.CheckCustomer(customer))
+	log.Println(service.CheckCustomer(customer))
 }
