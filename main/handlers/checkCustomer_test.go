@@ -16,6 +16,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var identitymindResponse = []byte(`
+{
+    "ednaScoreCard": {
+        "er": {
+            "reportedRule": {
+                "description": "Fallthrough for transaction with an unknown entity. No other rules triggered.",
+                "details": "Fallthrough for transaction with an unknown entity. No other rules triggered.",
+                "name": "Unknown Fallthrough",
+                "resultCode": "ACCEPT",
+                "ruleId": 1002,
+                "testResults": []
+            }
+        },
+        "sc": []
+    },
+    "erd": "Unknown User",
+    "frd": "Fallthrough for transaction with an unknown entity. No other rules triggered.",
+    "frn": "Unknown Fallthrough",
+    "frp": "ACCEPT",
+    "mtid": "26860023",
+    "rcd": "1002,101,202,111,131,50005,150",
+    "res": "ACCEPT",
+    "state": "A",
+    "tid": "26860023",
+    "upr": "UNKNOWN",
+    "user": "UNKNOWN"
+}`)
+
 var idologyResponse = []byte(`
 <?xml version="1.0"?>
 <response>
@@ -353,6 +381,45 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(t, resp.Result.StatusPolling)
 	assert.NotEmpty(t, resp.Error)
 	assert.Equal(t, "during verification: Invalid username and password", resp.Error)
+
+	// Testing IdentityMind.
+	request, err = json.Marshal(&common.CheckCustomerRequest{
+		Provider: common.IdentityMind,
+		UserData: common.UserData{
+			AccountName: "tester",
+		},
+	})
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, request)
+
+	httpmock.RegisterResponder(
+		http.MethodPost,
+		"https://sandbox.identitymind.com/im/account/consumer",
+		httpmock.NewBytesResponder(http.StatusOK, identitymindResponse),
+	)
+
+	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
+	w = httptest.NewRecorder()
+
+	handlers.CheckCustomer(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+
+	resp = common.KYCResponse{}
+
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, resp.Result)
+	assert.Equal(t, common.Approved, resp.Result.Status)
+	assert.NotNil(t, resp.Result.Details)
+	assert.Equal(t, common.Unknown, resp.Result.Details.Finality)
+	assert.NotEmpty(t, resp.Result.Details.Reasons)
+	assert.Empty(t, resp.Result.ErrorCode)
+	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Empty(t, resp.Error)
 
 	// Testing ShuftiPro.
 	request, err = json.Marshal(&common.CheckCustomerRequest{

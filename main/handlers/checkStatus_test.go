@@ -5,18 +5,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"modulus/kyc/common"
-	"modulus/kyc/main/config"
-	"modulus/kyc/main/handlers"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"modulus/kyc/common"
+	"modulus/kyc/main/config"
+	"modulus/kyc/main/handlers"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
 
 var cfg = config.Config{
+	common.IdentityMind: {
+		"Host":     "https://sandbox.identitymind.com/im",
+		"Username": "fakeuser",
+		"Password": "fakepassword",
+	},
 	common.IDology: {
 		"Host":             "https://web.idologylive.com/api/idiq.svc",
 		"Username":         "fakeuser",
@@ -374,4 +380,49 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(t, resp.Result.StatusPolling)
 	assert.NotEmpty(t, resp.Error)
 	assert.Equal(t, "Access denied", resp.Error)
+
+	// Testing IdentityMind.
+	cfg = config.KYC[common.IdentityMind]
+
+	assert.NotNil(t, cfg)
+
+	request, err = json.Marshal(&common.CheckStatusRequest{
+		Provider:   common.IdentityMind,
+		CustomerID: customerID,
+	})
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, request)
+	assert.NotEmpty(t, response)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(
+		http.MethodGet,
+		fmt.Sprintf("%s/account/consumer/v2/%s", cfg["Host"], customerID),
+		httpmock.NewBytesResponder(http.StatusOK, identitymindResponse),
+	)
+
+	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
+	w = httptest.NewRecorder()
+
+	handlers.CheckStatus(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+
+	resp = common.KYCResponse{}
+
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, resp.Result)
+	assert.Empty(t, resp.Error)
+	assert.Equal(t, common.Approved, resp.Result.Status)
+	assert.NotEmpty(t, resp.Result.Details)
+	assert.Equal(t, common.Unknown, resp.Result.Details.Finality)
+	assert.NotEmpty(t, resp.Result.Details.Reasons)
+	assert.Empty(t, resp.Result.ErrorCode)
+	assert.Nil(t, resp.Result.StatusPolling)
 }
