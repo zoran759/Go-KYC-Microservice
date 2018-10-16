@@ -186,7 +186,6 @@ var _ = Describe("Client", func() {
 		})
 
 		It("should fail with fake error response", func() {
-			// FIXME: change this to work with the external polling.
 			Expect(client).ToNot(BeNil())
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, underReviewResponse))
@@ -195,12 +194,19 @@ var _ = Describe("Client", func() {
 			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
 
 			Expect(result.StatusPolling).NotTo(BeNil())
+			Expect(result.StatusPolling.Provider).To(Equal(common.IdentityMind))
+			Expect(result.StatusPolling.CustomerID).To(Equal("26860023"))
 
 			Expect(result.Status).To(Equal(common.Error))
 			Expect(result.Details).To(BeNil())
 			Expect(err).NotTo(HaveOccurred())
-			// Expect(err).To(HaveOccurred())
-			// Expect(err.Error()).To(Equal("during retrieving current KYC state: failed"))
+
+			result, err = client.CheckStatus("26860023")
+
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).To(BeNil())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("failed"))
 		})
 
 		It("should success with approved status", func() {
@@ -280,7 +286,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	// FIXME: change to CheckStatus.
 	Describe("CheckStatus", func() {
 		var client = NewClient(Config{
 			Host:     "host",
