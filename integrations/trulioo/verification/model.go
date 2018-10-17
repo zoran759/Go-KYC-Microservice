@@ -1,6 +1,6 @@
 package verification
 
-import "gitlab.com/lambospeed/kyc/integrations/trulioo/configuration"
+import "modulus/kyc/integrations/trulioo/configuration"
 
 type StartVerificationRequest struct {
 	AcceptTruliooTermsAndConditions bool
@@ -52,9 +52,9 @@ type Communication struct {
 }
 
 type Document struct {
-	DocumentFrontImage []byte
-	DocumentBackImage  []byte
-	LivePhoto          []byte
+	DocumentFrontImage string
+	DocumentBackImage  string
+	LivePhoto          string
 	DocumentType       string
 }
 
@@ -73,6 +73,7 @@ type VerificationResponse struct {
 	CountryCode   string
 	Record        Record
 	Errors        Errors
+	ErrorCode     *int `json:"-"`
 }
 
 type Record struct {
@@ -100,11 +101,13 @@ type RecordRule struct {
 	Note     string
 }
 
+// Error represents a verification error.
 type Error struct {
 	Code    string
 	Message string
 }
 
+// Errors represents errors returned by the API.
 type Errors []Error
 
 func (errors Errors) Error() string {

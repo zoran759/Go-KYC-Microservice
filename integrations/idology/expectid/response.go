@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 // SummaryResult defines "summary-result" part in the response.
@@ -62,12 +62,10 @@ type Response struct {
 }
 
 // toResult processes the response and generates the verification result.
-func (r *Response) toResult(useSummaryResult bool) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	detailsCreateIfNil := func(details **common.DetailedKYCResult) {
+func (r *Response) toResult(useSummaryResult bool) (result common.KYCResult, err error) {
+	detailsCreateIfNil := func(details **common.KYCDetails) {
 		if *details == nil {
-			*details = &common.DetailedKYCResult{
-				Finality: common.Unknown,
-			}
+			*details = &common.KYCDetails{}
 		}
 	}
 
@@ -75,24 +73,24 @@ func (r *Response) toResult(useSummaryResult bool) (result common.KYCResult, det
 	case true:
 		switch r.SummaryResult.Key {
 		case Success:
-			result = common.Approved
+			result.Status = common.Approved
 		case Failure:
-			result = common.Denied
+			result.Status = common.Denied
 		case Partial:
-			result = common.Unclear
+			result.Status = common.Unclear
 		}
 	case false:
 		switch r.Results.Key {
 		case Match:
-			result = common.Approved
+			result.Status = common.Approved
 		case NoMatch, MatchRestricted:
-			result = common.Denied
+			result.Status = common.Denied
 		}
 	}
 
 	if r.Restriction != nil {
-		detailsCreateIfNil(&details)
-		details.Reasons = []string{
+		detailsCreateIfNil(&result.Details)
+		result.Details.Reasons = []string{
 			r.Restriction.Message,
 			r.Restriction.PatriotAct.List,
 			fmt.Sprintf("Patriot Act score: %d", r.Restriction.PatriotAct.Score),
@@ -100,9 +98,9 @@ func (r *Response) toResult(useSummaryResult bool) (result common.KYCResult, det
 	}
 
 	if r.Qualifiers != nil {
-		detailsCreateIfNil(&details)
+		detailsCreateIfNil(&result.Details)
 		for _, q := range r.Qualifiers.Qualifiers {
-			details.Reasons = append(details.Reasons, q.Message)
+			result.Details.Reasons = append(result.Details.Reasons, q.Message)
 		}
 	}
 

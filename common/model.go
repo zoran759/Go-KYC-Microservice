@@ -7,29 +7,44 @@ import (
 
 // UserData defines the model for user data provided to KYC provider in order to check an individual.
 type UserData struct {
-	FirstName             string
-	PaternalLastName      string
-	LastName              string
-	MiddleName            string
-	LegalName             string
-	LatinISO1Name         string
-	AccountName           string
-	Email                 string
-	IPaddress             string
-	Gender                Gender
-	DateOfBirth           Time
-	PlaceOfBirth          string
-	CountryOfBirthAlpha2  string
-	StateOfBirth          string
-	CountryAlpha2         string
-	Nationality           string
-	Phone                 string
-	MobilePhone           string
-	Location              *Location
-	CurrentAddress        Address
-	SupplementalAddresses []Address
-	Documents             []Document
-	Business              Business
+	FirstName                string
+	PaternalLastName         string
+	LastName                 string
+	MiddleName               string
+	LegalName                string
+	LatinISO1Name            string
+	AccountName              string
+	Email                    string
+	IPaddress                string
+	Gender                   Gender
+	DateOfBirth              Time
+	PlaceOfBirth             string
+	CountryOfBirthAlpha2     string
+	StateOfBirth             string
+	CountryAlpha2            string
+	Nationality              string
+	Phone                    string
+	MobilePhone              string
+	CurrentAddress           Address
+	SupplementalAddresses    []Address
+	Location                 *Location
+	Business                 *Business
+	Passport                 *Passport
+	IDCard                   *IDCard
+	SNILS                    *SNILS
+	DriverLicense            *DriverLicense
+	DriverLicenseTranslation *DriverLicenseTranslation
+	CreditCard               *CreditCard
+	DebitCard                *DebitCard
+	UtilityBill              *UtilityBill
+	ResidencePermit          *ResidencePermit
+	Agreement                *Agreement
+	EmploymentCertificate    *EmploymentCertificate
+	Contract                 *Contract
+	DocumentPhoto            *DocumentPhoto
+	Selfie                   *Selfie
+	Avatar                   *Avatar
+	Other                    *Other
 }
 
 // Address defines user's address.
@@ -151,31 +166,18 @@ func (t Time) Format(layout string) string {
 	return ""
 }
 
+// Location defines the model for the geopositional data.
+type Location struct {
+	Latitude  string
+	Longitude string
+}
+
 // Business defines the model for a business.
 type Business struct {
 	Name                      string
 	RegistrationNumber        string
 	IncorporationDate         Time
 	IncorporationJurisdiction string
-}
-
-// Document defines user's document.
-type Document struct {
-	Metadata DocumentMetadata
-	Front    *DocumentFile
-	Back     *DocumentFile
-}
-
-// DocumentMetadata defines a part of the Document model.
-type DocumentMetadata struct {
-	Type             DocumentType
-	Country          string
-	StateCode        string
-	DateIssued       Time
-	ValidUntil       Time
-	Number           string
-	CardFirst6Digits string
-	CardLast4Digits  string
 }
 
 // DocumentFile defines document's file containing its original or an image.
@@ -185,14 +187,145 @@ type DocumentFile struct {
 	Data        []byte
 }
 
-// DetailedKYCResult defines additional details about the verification process result.
-type DetailedKYCResult struct {
+// KYCDetails defines additional details about the verification result.
+type KYCDetails struct {
 	Finality KYCFinality
 	Reasons  []string
 }
 
-// Location defines the model for the geopositional data.
-type Location struct {
-	Latitude  string
-	Longitude string
+// KYCResult represents the verification result.
+type KYCResult struct {
+	Status        KYCStatus
+	Details       *KYCDetails
+	ErrorCode     string
+	StatusPolling *StatusPolling
+}
+
+// StatusPolling contains data required to do status check requests if needed.
+type StatusPolling struct {
+	Provider   KYCProvider
+	CustomerID string
+}
+
+/*******************************************************************/
+/* Below are the models representing different types of documents. */
+/* Please, add new models for documents after this note.           */
+/*******************************************************************/
+
+// Passport represents the passport.
+type Passport struct {
+	Number        string
+	Mrz1          string
+	Mrz2          string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	Image         *DocumentFile
+}
+
+// IDCard represents the id card.
+type IDCard struct {
+	Number        string
+	CountryAlpha2 string
+	IssuedDate    Time
+	Image         *DocumentFile
+}
+
+// SNILS represents the Russian individual insurance account number.
+type SNILS struct {
+	Number     string
+	IssuedDate Time
+	Image      *DocumentFile
+}
+
+// DriverLicense represents the driver/driving license.
+type DriverLicense struct {
+	Number        string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	FrontImage    *DocumentFile
+	BackImage     *DocumentFile
+}
+
+// DriverLicenseTranslation represents the translated driver/driving license.
+type DriverLicenseTranslation struct {
+	Number        string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	FrontImage    *DocumentFile
+	BackImage     *DocumentFile
+}
+
+// CreditCard represents the banking credit card.
+type CreditCard struct {
+	Number     string
+	ValidUntil Time
+	Image      *DocumentFile
+}
+
+// DebitCard represents the banking debit card.
+type DebitCard struct {
+	Number     string
+	ValidUntil Time
+	Image      *DocumentFile
+}
+
+// UtilityBill represents the utility bill.
+type UtilityBill struct {
+	CountryAlpha2 string
+	Image         *DocumentFile
+}
+
+// ResidencePermit represents the residence permit.
+type ResidencePermit struct {
+	CountryAlpha2 string
+	IssuedDate    Time
+	ValidUntil    Time
+	Image         *DocumentFile
+}
+
+// Agreement represents an agreement of some sort, e.g. for processing personal info.
+type Agreement struct {
+	Image *DocumentFile
+}
+
+// Contract represents a contract of some sort.
+type Contract struct {
+	Image *DocumentFile
+}
+
+// EmploymentCertificate represents a document from an employer, e.g. proof that a user works there.
+type EmploymentCertificate struct {
+	IssuedDate Time
+	Image      *DocumentFile
+}
+
+// Selfie represents the selfie.
+type Selfie struct {
+	Image *DocumentFile
+}
+
+// Avatar represents the profile image aka avatar.
+type Avatar struct {
+	Image *DocumentFile
+}
+
+// DocumentPhoto represents a photo from some document (like a photo from a passport).
+type DocumentPhoto struct {
+	Image *DocumentFile
+}
+
+// Other represents the model for other documents.
+type Other struct {
+	Number        string
+	CountryAlpha2 string
+	State         string
+	IssuedDate    Time
+	ValidUntil    Time
+	Image         *DocumentFile
 }

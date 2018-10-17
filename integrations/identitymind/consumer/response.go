@@ -3,7 +3,7 @@ package consumer
 import (
 	"fmt"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 // ApplicationResponseData defines the model for Response Data for a Consumer or Merchant KYC.
@@ -60,17 +60,24 @@ type DocumentVerification struct {
 }
 
 // toResult processes the response and generates the verification result.
-func (r *ApplicationResponseData) toResult() (result common.KYCResult, details *common.DetailedKYCResult, err error) {
+func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
+	case UnderReview:
+		result.StatusPolling = &common.StatusPolling{
+			Provider:   common.IdentityMind,
+			CustomerID: r.KYCTxID,
+		}
+		return
 	case Accepted:
-		result = common.Approved
+		result.Status = common.Approved
 	case Rejected:
-		result = common.Denied
+		result.Status = common.Denied
+	default:
+		err = fmt.Errorf("unknown state of the verification from the API: %s", r.State)
 	}
 
-	details = &common.DetailedKYCResult{
-		Finality: common.Unknown,
-	}
+	details := &common.KYCDetails{}
+
 	if len(r.CurrentUserReputation) > 0 {
 		details.Reasons = append(details.Reasons, fmt.Sprintf("Customer reputation: %s", r.CurrentUserReputation))
 	}
@@ -82,6 +89,10 @@ func (r *ApplicationResponseData) toResult() (result common.KYCResult, details *
 	}
 	if len(r.Result) > 0 {
 		details.Reasons = append(details.Reasons, fmt.Sprintf("Combined fraud and automated review evaluations result: %s", r.Result))
+	}
+
+	if len(details.Reasons) > 0 {
+		result.Details = details
 	}
 
 	return

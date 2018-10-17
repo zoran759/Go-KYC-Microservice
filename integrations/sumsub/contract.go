@@ -2,9 +2,8 @@ package sumsub
 
 // Config defines configuration for the service.
 type Config struct {
-	Host             string
-	APIKey           string
-	TimeoutThreshold int64
+	Host   string
+	APIKey string
 }
 
 // Different values of a verification result.
@@ -21,6 +20,3 @@ const (
 	FinalRejectType = "FINAL"
 	RetryRejectType = "RETRY"
 )
-
-// CompleteStatus represents value of the completed status in the response.
-const CompleteStatus = "completed"

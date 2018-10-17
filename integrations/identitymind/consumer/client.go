@@ -6,17 +6,15 @@ import (
 	"errors"
 	"fmt"
 	stdhttp "net/http"
-	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/http"
+	"modulus/kyc/common"
+	"modulus/kyc/http"
 )
 
 const (
 	contentType = "application/json"
 
 	consumerEndpoint       = "/account/consumer"
-	filesUploadEndpoint    = "/account/consumer/%s/files"
 	stateRetrievalEndpoint = "/account/consumer/v2/%s"
 )
 
@@ -37,9 +35,7 @@ func NewClient(config Config) *Client {
 }
 
 // CheckCustomer implements customer verification using IdentityMind API.
-func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	result = common.Error
-
+func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
 		return
@@ -57,37 +53,35 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	response, err := c.sendRequest(body)
+	response, errorCode, err := c.sendRequest(body)
 	if err != nil {
+		if errorCode != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
 		err = fmt.Errorf("during sending request: %s", err)
 		return
 	}
 
-	// FIXME: I can't understand from the available docs how documents verification is doing and how to implement it.
-
-	if response.State == UnderReview {
-		response, err = c.pollApplicationState(response.KYCTxID)
-		if err != nil {
-			err = fmt.Errorf("during retrieving current KYC state: %s", err)
-			return
-		}
-	}
-
-	result, details, err = response.toResult()
+	result, err = response.toResult()
 
 	return
 }
 
 // sendRequest sends a vefirication request into the API.
 // It returns a response from the API or the error if occured.
-func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, err error) {
+func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, errorCode *int, err error) {
 	headers := http.Headers{
 		"Content-Type":  contentType,
 		"Authorization": c.credentials,
 	}
 
-	_, resp, err := http.Post(c.host+consumerEndpoint, headers, body)
+	status, resp, err := http.Post(c.host+consumerEndpoint, headers, body)
 	if err != nil {
+		return
+	}
+	if status != stdhttp.StatusOK {
+		errorCode = &status
+		err = errors.New("http error")
 		return
 	}
 
@@ -97,49 +91,35 @@ func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, er
 	return
 }
 
-// pollApplicationState polls IDM API for the current state of a consumer KYC so long
-// as the returned state is "Under Review" during one hour.
+// CheckStatus queries IDM API for the current state of a consumer KYC.
 // If the application is not found then an error message is provided in the response.
-func (c *Client) pollApplicationState(mtid string) (response *ApplicationResponseData, err error) {
+func (c *Client) CheckStatus(mtid string) (result common.KYCResult, err error) {
 	headers := http.Headers{
 		"Authorization": c.credentials,
 	}
-	deadline := time.Now().Add(time.Hour)
 	endpoint := fmt.Sprintf(c.host+stateRetrievalEndpoint, mtid)
 
-	for {
-		var (
-			status int
-			resp   []byte
-		)
-
-		status, resp, err = http.Get(endpoint, headers)
-		if err != nil {
-			return
-		}
-
-		if status == stdhttp.StatusOK {
-			response = &ApplicationResponseData{}
-			if err = json.Unmarshal(resp, response); err != nil {
-				return
-			}
-			if len(response.ErrorMessage) > 0 {
-				err = errors.New(response.ErrorMessage)
-				return
-			}
-			if response.State != UnderReview {
-				return
-			}
-		}
-
-		if time.Now().After(deadline) {
-			err = errors.New("polling for the KYC status was aborted after an hour")
-			return
-		}
-
-		time.Sleep(5 * time.Minute)
+	status, resp, err := http.Get(endpoint, headers)
+	if err != nil {
+		err = fmt.Errorf("during sending request: %s", err)
+		return
 	}
-}
+	if status != stdhttp.StatusOK {
+		result.ErrorCode = fmt.Sprintf("%d", status)
+		err = errors.New("http error")
+		return
+	}
 
-// Ensure implementation conformance to the interface.
-var _ common.CustomerChecker = (*Client)(nil)
+	response := &ApplicationResponseData{}
+	if err = json.Unmarshal(resp, response); err != nil {
+		return
+	}
+	if len(response.ErrorMessage) > 0 {
+		err = errors.New(response.ErrorMessage)
+		return
+	}
+
+	result, err = response.toResult()
+
+	return
+}

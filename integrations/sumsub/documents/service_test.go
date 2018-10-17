@@ -2,10 +2,11 @@ package documents
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNewService(t *testing.T) {
@@ -47,7 +48,7 @@ func Test_service_UploadDocument(t *testing.T) {
 		Country:      "ALB",
 	}
 
-	response, err := documentsService.UploadDocument(
+	response, errorCode, err := documentsService.UploadDocument(
 		"test_applicant_id",
 		Document{
 			Metadata: testMetadata,
@@ -57,7 +58,7 @@ func Test_service_UploadDocument(t *testing.T) {
 		},
 	)
 
-	if assert.NoError(t, err) && assert.NotNil(t, response) {
+	if assert.NoError(t, err) && assert.Nil(t, errorCode) && assert.NotNil(t, response) {
 		assert.Equal(t, testMetadata, *response)
 	}
 
@@ -74,7 +75,7 @@ func Test_service_UploadDocument(t *testing.T) {
 		},
 	)
 
-	response, err = documentsService.UploadDocument(
+	response, errorCode, err = documentsService.UploadDocument(
 		"test_applicant_id",
 		Document{
 			Metadata: testMetadata,
@@ -84,7 +85,7 @@ func Test_service_UploadDocument(t *testing.T) {
 		},
 	)
 
-	if assert.NoError(t, err) && assert.NotNil(t, response) {
+	if assert.NoError(t, err) && assert.Nil(t, errorCode) && assert.NotNil(t, response) {
 		assert.Equal(t, Metadata{
 			DocumentType: "PASPORT",
 			Country:      "RUS",
@@ -112,8 +113,9 @@ func Test_service_UploadDocumentError(t *testing.T) {
 		},
 	)
 
-	response, err := documentsService.UploadDocument("test_applicant_id", Document{})
+	response, errorCode, err := documentsService.UploadDocument("test_applicant_id", Document{})
 	if assert.Error(t, err) && assert.Nil(t, response) {
+		assert.Equal(t, 400, *errorCode)
 		assert.Equal(t, "Cannot read a metadata object from the body", err.Error())
 	}
 
@@ -129,8 +131,9 @@ func Test_service_UploadDocumentError(t *testing.T) {
 		},
 	)
 
-	response, err = documentsService.UploadDocument("test_applicant_id", Document{})
+	response, errorCode, err = documentsService.UploadDocument("test_applicant_id", Document{})
 	assert.Error(t, err)
+	assert.Nil(t, errorCode)
 	assert.Nil(t, response)
 
 	httpmock.Reset()
@@ -142,7 +145,8 @@ func Test_service_UploadDocumentError(t *testing.T) {
 		},
 	)
 
-	response, err = documentsService.UploadDocument("test_applicant_id", Document{})
+	response, errorCode, err = documentsService.UploadDocument("test_applicant_id", Document{})
 	assert.Error(t, err)
+	assert.Nil(t, errorCode)
 	assert.Nil(t, response)
 }

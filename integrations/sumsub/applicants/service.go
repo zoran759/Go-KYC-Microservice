@@ -3,8 +3,9 @@ package applicants
 import (
 	"encoding/json"
 	"fmt"
+	"modulus/kyc/http"
+
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/http"
 )
 
 type service struct {
@@ -48,7 +49,7 @@ func (service service) CreateApplicant(email string, applicant ApplicantInfo) (*
 	}
 
 	if response.Error.Description != nil {
-		return nil, errors.New(*response.Error.Description)
+		return response, errors.New(*response.Error.Description)
 	}
 
 	return response, nil
