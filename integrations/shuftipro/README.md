@@ -15,9 +15,9 @@ This instruction describes how to use **`shuftipro`** package.
 
 1) Create new [**config**](verification/contract.go#L3) for Shufti Pro API usage.
 
-2) Obtain a new service object by calling the [**New()**](service.go#L13) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](service.go#L15) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**CheckCustomer**](service.go#L19) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](service.go#L22) for the customer verification.
 
 ### Sample code
 
@@ -37,6 +37,6 @@ config := shuftipro.Config{
 
 service := shuftipro.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+result, err := service.CheckCustomer(customer)
 ...
 ```

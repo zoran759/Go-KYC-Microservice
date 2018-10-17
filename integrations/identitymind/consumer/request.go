@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 const (
@@ -99,7 +99,8 @@ type KYCRequestData struct {
 	ACHAccountUIDHash string `json:"pach,omitempty"`
 	// A virtual currency address for the funding source. For example the Bitcoin P2PKH address.
 	VirtualCurrencyAddress string `json:"pbc,omitempty"`
-	// The policy profile to be used to evaluate this transaction. Prior to IDMRisk 1.18 this was encoded in the smna and smid fields.
+	// The policy profile to be used to evaluate this transaction.
+	// If no profile is specified, the DEFAULT profile is used. Prior to IDMRisk 1.19, this was encoded in the smid field.
 	Profile string `json:"profile,omitempty"`
 	// Free form memo field for client use.
 	Memo string `json:"memo,omitempty"`
@@ -144,16 +145,20 @@ type KYCRequestData struct {
 }
 
 // setApplicantSSN sets ApplicantSSN field in KYCRequestData in the required format.
-func (r *KYCRequestData) setApplicantSSN(doc *common.DocumentMetadata) {
-	if doc.Type != common.IDCard {
+func (r *KYCRequestData) setApplicantSSN(ssn *common.IDCard) {
+	if len(ssn.CountryAlpha2) == 0 || len(ssn.Number) == 0 {
 		return
 	}
 
-	r.ApplicantSSN = doc.Country + ":" + doc.Number
+	r.ApplicantSSN = ssn.CountryAlpha2 + ":" + ssn.Number
 }
 
 // populateFields populate the fields of the request object with input data.
 func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
+	if len(customer.AccountName) == 0 {
+		err = errors.New("missing required account name of the customer")
+		return
+	}
 	if len(customer.AccountName) > maxAccountNameLength {
 		err = fmt.Errorf("account length %d exceeded limit of %d symbols", len(customer.AccountName), maxAccountNameLength)
 		return
@@ -179,7 +184,7 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	r.BillingPostalCode = customer.CurrentAddress.PostCode
 	r.BillingCity = customer.CurrentAddress.Town
 	r.BillingState = customer.CurrentAddress.State
-	r.BillingGender = genderMap[customer.Gender]
+	r.BillingGender = gender2API[customer.Gender]
 	if customer.Location != nil {
 		r.CustomerLongitude = customer.Location.Longitude
 		r.CustomerLatitude = customer.Location.Latitude
@@ -190,85 +195,104 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	r.DateOfBirth = customer.DateOfBirth.Format("2006-01-02")
 
 	// Documents processing.
-	err = r.populateDocumentFields(customer.Documents)
+	err = r.populateDocumentFields(customer)
 
 	return
 }
 
 // populateDocumentFields processes customer documents and populate the fields required for Document Verification.
-func (r *KYCRequestData) populateDocumentFields(documents []common.Document) (err error) {
-	docs := map[common.DocumentType]int{}
-	for i, doc := range documents {
-		switch doc.Metadata.Type {
-		case common.IDCard:
-			docs[common.IDCard] = i
-			r.setApplicantSSN(&doc.Metadata)
-			r.ApplicantSSNLast4 = doc.Metadata.CardLast4Digits
-		case common.Passport:
-			docs[common.Passport] = i
-		case common.Drivers:
-			docs[common.Drivers] = i
-		case common.ResidencePermit:
-			docs[common.ResidencePermit] = i
-		case common.UtilityBill:
-			docs[common.UtilityBill] = i
-		case common.Selfie:
-			if doc.Front != nil {
-				face, e := toBase64(doc.Front.Data)
-				if e != nil {
-					err = fmt.Errorf("during encoding selfi image data: %s", e)
-					return
-				}
-				r.FaceImages = append(r.FaceImages, face)
-			}
+func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err error) {
+	if customer.IDCard != nil {
+		r.setApplicantSSN(customer.IDCard)
+		if len(customer.IDCard.Number) > 4 {
+			r.ApplicantSSNLast4 = customer.IDCard.Number[len(customer.IDCard.Number)-4:]
 		}
 	}
-	if len(docs) == 0 {
+
+	if customer.Selfie != nil && customer.Selfie.Image != nil {
+		face, e := toBase64(customer.Selfie.Image.Data)
+		if e != nil {
+			err = fmt.Errorf("during encoding selfi image data: %s", e)
+			return
+		}
+		r.FaceImages = append(r.FaceImages, face)
+	}
+
+	if customer.Passport != nil && customer.Passport.Image != nil {
+		r.ScanData, err = toBase64(customer.Passport.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding passport image: %s", err)
+			return
+		}
+		r.DocumentCountry = customer.Passport.CountryAlpha2
+		r.DocumentType = Passport
+
 		return
 	}
 
-	tryDocument := func(doc *common.Document) (err error) {
-		r.ScanData, err = toBase64(doc.Front.Data)
+	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
+		r.ScanData, err = toBase64(customer.DriverLicense.FrontImage.Data)
 		if err != nil {
-			err = fmt.Errorf("during encoding %s front image: %s", docTypeToNameMap[doc.Metadata.Type], err)
+			err = fmt.Errorf("during encoding driver licence front image: %s", err)
 			return
 		}
-		if doc.Back != nil {
-			r.BacksideImageData, err = toBase64(doc.Back.Data)
+		if customer.DriverLicense.BackImage != nil {
+			r.BacksideImageData, err = toBase64(customer.DriverLicense.BackImage.Data)
 			if err != nil {
-				err = fmt.Errorf("during encoding %s back image: %s", docTypeToNameMap[doc.Metadata.Type], err)
+				err = fmt.Errorf("during encoding driver licence back image: %s", err)
 				return
 			}
 		}
-		r.DocumentCountry = doc.Metadata.Country
-		r.DocumentType = documentTypeMap[doc.Metadata.Type]
+		r.DocumentCountry = customer.DriverLicense.CountryAlpha2
+		r.DocumentType = DriverLicence
 
 		return
 	}
 
-	i, ok := docs[common.Passport]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
+	if customer.IDCard != nil && customer.IDCard.Image != nil {
+		r.ScanData, err = toBase64(customer.IDCard.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding id card image: %s", err)
+			return
+		}
+		r.DocumentCountry = customer.IDCard.CountryAlpha2
+		r.DocumentType = GovernmentIssuedIDCard
+
 		return
 	}
-	i, ok = docs[common.Drivers]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
+
+	if customer.SNILS != nil && customer.SNILS.Image != nil {
+		r.ScanData, err = toBase64(customer.SNILS.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding SNILS image: %s", err)
+			return
+		}
+		r.DocumentCountry = "RU"
+		r.DocumentType = GovernmentIssuedIDCard
+
 		return
 	}
-	i, ok = docs[common.IDCard]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
+
+	if customer.ResidencePermit != nil && customer.ResidencePermit.Image != nil {
+		r.ScanData, err = toBase64(customer.ResidencePermit.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding residence permit image: %s", err)
+			return
+		}
+		r.DocumentCountry = customer.ResidencePermit.CountryAlpha2
+		r.DocumentType = ResidencePermit
+
 		return
 	}
-	i, ok = docs[common.ResidencePermit]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
-		return
-	}
-	i, ok = docs[common.UtilityBill]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
+
+	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
+		r.ScanData, err = toBase64(customer.UtilityBill.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding utility bill image: %s", err)
+			return
+		}
+		r.DocumentCountry = customer.UtilityBill.CountryAlpha2
+		r.DocumentType = UtilityBill
 	}
 
 	return

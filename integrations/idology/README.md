@@ -15,9 +15,9 @@ This instruction describes how to use **`idology`** package.
 
 1) Create new [**config**](contract.go#L12) for Idology API usage.
 
-2) Obtain a new service object by calling the [**New()**](service.go#L16) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](service.go#L18) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**ExpectID**](service.go#L12) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](service.go#L25) for the customer verification.
 
 4) The package contains [**KYCendpoint**](contract.go#L8) constant which holds IDology ExpectID® API Endpoint for the convenience.
 
@@ -38,6 +38,6 @@ config := idology.Config{
 
 service := idology.New(config)
 
-result, details, err := service.ExpectID.CheckCustomer(customer)
+result, err := service.CheckCustomer(customer)
 ...
 ```

@@ -14,11 +14,13 @@ This instruction describes how to use **`identitymind`** package.
 
 1) Create new [**config**](contract.go#L12) for IdentityMind API usage.
 
-2) Obtain a new service object by calling the [**New()**](service.go#L15) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](service.go#L21) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**ConsumerKYC**](service.go#L12) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](service.go#L28) for the customer verification.
 
 4) For the convenience, the package contains [**ProductionBaseURL**](contract.go#L9) constant for IdentityMind API Endpoint URL.
+
+5) If the service returned the data for KYC status checking use service's status checker [**CheckStatus**](service.go#L35) for checking the current state of the customer verification process.
 
 ## Sample code
 
@@ -37,6 +39,16 @@ config := identitymind.Config{
 
 service := identitymind.New(config)
 
-result, details, err := service.ConsumerKYC.CheckCustomer(customer)
+// Check the customer.
+result, err := service.CheckCustomer(customer)
 ...
+
+customerID := result.StatusPolling.CustomerID
+
+...
+
+// Check the current state of the customer verification.
+result, err := service.CheckStatus(customerID)
+...
+
 ```

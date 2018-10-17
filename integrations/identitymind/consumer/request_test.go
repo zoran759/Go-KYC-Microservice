@@ -6,37 +6,29 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 var _ = Describe("Request", func() {
 	Describe("setApplicantSSN", func() {
 		It("should return empty result", func() {
-			doc := &common.DocumentMetadata{
-				Type:       common.Passport,
-				Country:    "RU",
-				DateIssued: common.Time(time.Date(2012, 12, 11, 0, 0, 0, 0, time.UTC)),
-				Number:     "9214123456",
-			}
+			ssn := &common.IDCard{}
 
 			r := &KYCRequestData{}
-			r.setApplicantSSN(doc)
+			r.setApplicantSSN(ssn)
 
 			Expect(r.ApplicantSSN).To(BeEmpty())
 		})
 
 		It("should return proper result", func() {
-			doc := &common.DocumentMetadata{
-				Type:             common.IDCard,
-				Country:          "US",
-				DateIssued:       common.Time(time.Date(2012, 12, 11, 0, 0, 0, 0, time.UTC)),
-				Number:           "123456789",
-				CardFirst6Digits: "123456",
-				CardLast4Digits:  "6789",
+			ssn := &common.IDCard{
+				Number:        "123456789",
+				CountryAlpha2: "US",
+				IssuedDate:    common.Time(time.Date(2012, 12, 11, 0, 0, 0, 0, time.UTC)),
 			}
 
 			r := &KYCRequestData{}
-			r.setApplicantSSN(doc)
+			r.setApplicantSSN(ssn)
 
 			Expect(r.ApplicantSSN).To(Equal("US:123456789"))
 		})
@@ -57,7 +49,8 @@ var _ = Describe("Request", func() {
 
 		It("should fail with error message", func() {
 			customer := &common.UserData{
-				Email: "theoretically_this_should_never_happen@superduperpostaldomain.net",
+				AccountName: "john_doe",
+				Email:       "theoretically_this_should_never_happen@superduperpostaldomain.net",
 			}
 
 			r := &KYCRequestData{}
@@ -69,6 +62,7 @@ var _ = Describe("Request", func() {
 
 		It("should fail with error message", func() {
 			customer := &common.UserData{
+				AccountName: "john_doe",
 				CurrentAddress: common.Address{
 					BuildingNumber: "0123456789",
 					Street:         "Very Loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Street Name",
@@ -85,16 +79,12 @@ var _ = Describe("Request", func() {
 
 		It("should fail with error message", func() {
 			customer := &common.UserData{
-				Documents: []common.Document{
-					common.Document{
-						Front: &common.DocumentFile{
-							Filename:    "big_selfie",
-							ContentType: "application/octet-stream",
-							Data:        make([]byte, maxImageDataLength+1),
-						},
-						Metadata: common.DocumentMetadata{
-							Type: common.Selfie,
-						},
+				AccountName: "john_doe",
+				Selfie: &common.Selfie{
+					Image: &common.DocumentFile{
+						Filename:    "big_selfie",
+						ContentType: "application/octet-stream",
+						Data:        make([]byte, maxImageDataLength+1),
 					},
 				},
 			}
@@ -108,16 +98,12 @@ var _ = Describe("Request", func() {
 
 		It("should fail with error message", func() {
 			customer := &common.UserData{
-				Documents: []common.Document{
-					common.Document{
-						Front: &common.DocumentFile{
-							Filename:    "big_front_passport",
-							ContentType: "application/octet-stream",
-							Data:        make([]byte, maxImageDataLength+1),
-						},
-						Metadata: common.DocumentMetadata{
-							Type: common.Passport,
-						},
+				AccountName: "john_doe",
+				Passport: &common.Passport{
+					Image: &common.DocumentFile{
+						Filename:    "big_front_passport",
+						ContentType: "application/octet-stream",
+						Data:        make([]byte, maxImageDataLength+1),
 					},
 				},
 			}
@@ -126,120 +112,62 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("during encoding passport front image: too large image file"))
-		})
-
-		It("should fail with error message", func() {
-			customer := &common.UserData{
-				Documents: []common.Document{
-					common.Document{
-						Front: &common.DocumentFile{},
-						Back: &common.DocumentFile{
-							Filename:    "big_back_passport",
-							ContentType: "application/octet-stream",
-							Data:        make([]byte, maxImageDataLength+1),
-						},
-						Metadata: common.DocumentMetadata{
-							Type: common.Passport,
-						},
-					},
-				},
-			}
-
-			r := &KYCRequestData{}
-			err := r.populateFields(customer)
-
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("during encoding passport back image: too large image file"))
+			Expect(err.Error()).To(Equal("during encoding passport image: too large image file"))
 		})
 
 		It("should properly populate request fields", func() {
-			selfie := common.Document{
-				Metadata: common.DocumentMetadata{
-					Type: common.Selfie,
-				},
-				Front: &common.DocumentFile{
+			selfie := &common.Selfie{
+				Image: &common.DocumentFile{
 					Filename:    "selfie.jpg",
 					ContentType: "image/jpeg",
 					Data:        []byte(`Smile, - it's your selfie :)`),
 				},
 			}
-			idcard := common.Document{
-				Metadata: common.DocumentMetadata{
-					Type:             common.IDCard,
-					Country:          "US",
-					DateIssued:       common.Time(time.Date(1960, 06, 23, 0, 0, 0, 0, time.UTC)),
-					Number:           "159133253",
-					CardFirst6Digits: "159133",
-					CardLast4Digits:  "3253",
-				},
-				Front: &common.DocumentFile{
+			idcard := &common.IDCard{
+				Number:        "159133253",
+				CountryAlpha2: "US",
+				IssuedDate:    common.Time(time.Date(1960, 06, 23, 0, 0, 0, 0, time.UTC)),
+				Image: &common.DocumentFile{
 					Filename:    "ssn.jpg",
 					ContentType: "image/jpeg",
 					Data:        []byte(`Fake SSN image data`),
 				},
 			}
-			passport := common.Document{
-				Metadata: common.DocumentMetadata{
-					Type:             common.Passport,
-					Country:          "US",
-					DateIssued:       common.Time(time.Date(2015, 06, 15, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:       common.Time(time.Date(2025, 06, 14, 0, 0, 0, 0, time.UTC)),
-					Number:           "987654321",
-					CardFirst6Digits: "987654",
-					CardLast4Digits:  "4321",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "passport_front.jpg",
+			passport := &common.Passport{
+				Number:        "987654321",
+				CountryAlpha2: "US",
+				IssuedDate:    common.Time(time.Date(2015, 06, 15, 0, 0, 0, 0, time.UTC)),
+				ValidUntil:    common.Time(time.Date(2025, 06, 14, 0, 0, 0, 0, time.UTC)),
+				Image: &common.DocumentFile{
+					Filename:    "passport.jpg",
 					ContentType: "image/jpeg",
-					Data:        []byte(`Fake passport front image data`),
-				},
-				Back: &common.DocumentFile{
-					Filename:    "passport_back.jpg",
-					ContentType: "image/jpeg",
-					Data:        []byte(`Fake passport back image data`),
+					Data:        []byte(`Fake passport image data`),
 				},
 			}
-			drivers := common.Document{
-				Metadata: common.DocumentMetadata{
-					Type:             common.Drivers,
-					Country:          "RU",
-					DateIssued:       common.Time(time.Date(2010, 10, 7, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:       common.Time(time.Date(2020, 10, 6, 0, 0, 0, 0, time.UTC)),
-					Number:           "210901975",
-					CardFirst6Digits: "210901",
-					CardLast4Digits:  "1975",
-				},
-				Front: &common.DocumentFile{
+			drivers := &common.DriverLicense{
+				Number:        "210901975",
+				CountryAlpha2: "RU",
+				IssuedDate:    common.Time(time.Date(2010, 10, 7, 0, 0, 0, 0, time.UTC)),
+				ValidUntil:    common.Time(time.Date(2020, 10, 6, 0, 0, 0, 0, time.UTC)),
+				FrontImage: &common.DocumentFile{
 					Filename:    "drivers_front.jpg",
 					ContentType: "image/jpeg",
 					Data:        []byte(`Smile, - it is a fake drivers front image data`),
 				},
-				Back: &common.DocumentFile{
+				BackImage: &common.DocumentFile{
 					Filename:    "drivers_back.jpg",
 					ContentType: "image/jpeg",
 					Data:        []byte(`Smile, - it is a fake drivers back image data`),
 				},
 			}
-			residencePermit := common.Document{
-				Metadata: common.DocumentMetadata{
-					Type:             common.ResidencePermit,
-					Country:          "US",
-					DateIssued:       common.Time(time.Date(2017, 3, 27, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:       common.Time(time.Date(2020, 3, 26, 0, 0, 0, 0, time.UTC)),
-					Number:           "197509210",
-					CardFirst6Digits: "197509",
-					CardLast4Digits:  "9210",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "permit_front.jpg",
+			residencePermit := &common.ResidencePermit{
+				CountryAlpha2: "US",
+				IssuedDate:    common.Time(time.Date(2017, 3, 27, 0, 0, 0, 0, time.UTC)),
+				ValidUntil:    common.Time(time.Date(2020, 3, 26, 0, 0, 0, 0, time.UTC)),
+				Image: &common.DocumentFile{
+					Filename:    "permit.jpg",
 					ContentType: "image/jpeg",
-					Data:        []byte(`Fake residence permit front image data`),
-				},
-				Back: &common.DocumentFile{
-					Filename:    "permit_back.jpg",
-					ContentType: "image/jpeg",
-					Data:        []byte(`Fake residence permit back image data`),
+					Data:        []byte(`Fake residence permit image data`),
 				},
 			}
 
@@ -302,35 +230,16 @@ var _ = Describe("Request", func() {
 						StartDate:         common.Time(time.Date(2000, 04, 22, 0, 0, 0, 0, time.UTC)),
 					},
 				},
-				Documents: []common.Document{
-					selfie,
-					common.Document{
-						Metadata: common.DocumentMetadata{
-							Type: common.Selfie,
-						},
-						Front: &common.DocumentFile{
-							Filename:    "selfie.jpg",
-							ContentType: "image/jpeg",
-							Data:        []byte{},
-						},
-					},
-					common.Document{
-						Metadata: common.DocumentMetadata{
-							Type:             common.UtilityBill,
-							Country:          "US",
-							DateIssued:       common.Time(time.Date(2018, 9, 3, 0, 0, 0, 0, time.UTC)),
-							Number:           "0123456001",
-							CardFirst6Digits: "012345",
-							CardLast4Digits:  "6001",
-						},
-						Front: &common.DocumentFile{
-							Filename:    "ub_front.jpg",
-							ContentType: "image/jpeg",
-							Data:        []byte(`Fake utility bill permit front image data`),
-						},
+				Selfie: selfie,
+				UtilityBill: &common.UtilityBill{
+					CountryAlpha2: "US",
+					Image: &common.DocumentFile{
+						Filename:    "ub.jpg",
+						ContentType: "image/jpeg",
+						Data:        []byte(`Fake utility bill permit image data`),
 					},
 				},
-				Business: common.Business{
+				Business: &common.Business{
 					Name:                      "Foobar",
 					RegistrationNumber:        "0123456789",
 					IncorporationDate:         common.Time(time.Date(2000, 03, 10, 0, 0, 0, 0, time.UTC)),
@@ -343,19 +252,21 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 			Expect(err).ToNot(HaveOccurred())
 
-			customer.Documents = append(customer.Documents, residencePermit)
+			customer.ResidencePermit = residencePermit
 			err = r.populateFields(customer)
 			Expect(err).ToNot(HaveOccurred())
 
-			customer.Documents = append(customer.Documents, idcard)
+			customer.IDCard = idcard
 			err = r.populateFields(customer)
 			Expect(err).ToNot(HaveOccurred())
 
-			customer.Documents = append(customer.Documents, drivers)
+			customer.DriverLicense = drivers
 			err = r.populateFields(customer)
 			Expect(err).ToNot(HaveOccurred())
 
-			customer.Documents = append(customer.Documents, passport)
+			r = &KYCRequestData{}
+
+			customer.Passport = passport
 			err = r.populateFields(customer)
 
 			Expect(err).ToNot(HaveOccurred())
@@ -365,28 +276,27 @@ var _ = Describe("Request", func() {
 			Expect(r.BillingFirstName).To(Equal(customer.FirstName))
 			Expect(r.BillingMiddleName).To(Equal(customer.MiddleName))
 			Expect(r.BillingLastName).To(Equal(customer.LastName))
-			Expect(r.BillingStreet).To(Equal(customer.CurrentAddress.BuildingNumber + " " + customer.CurrentAddress.Street + " " + customer.CurrentAddress.FlatNumber))
+			Expect(r.BillingStreet).To(Equal(customer.CurrentAddress.HouseStreetApartment()))
 			Expect(r.BillingCountryAlpha2).To(Equal(customer.CountryAlpha2))
 			Expect(r.BillingPostalCode).To(Equal(customer.CurrentAddress.PostCode))
 			Expect(r.BillingCity).To(Equal(customer.CurrentAddress.Town))
 			Expect(r.BillingState).To(Equal(customer.CurrentAddress.State))
-			Expect(r.BillingGender).To(Equal(genderMap[customer.Gender]))
+			Expect(r.BillingGender).To(Equal(gender2API[customer.Gender]))
 			Expect(r.CustomerLongitude).To(Equal(customer.Location.Longitude))
 			Expect(r.CustomerLatitude).To(Equal(customer.Location.Latitude))
 			Expect(r.CustomerPrimaryPhone).To(Equal(customer.Phone))
 			Expect(r.CustomerMobilePhone).To(Equal(customer.MobilePhone))
-			scanData, _ := toBase64(passport.Front.Data)
+			scanData, _ := toBase64(passport.Image.Data)
 			Expect(r.ScanData).To(Equal(scanData))
-			backside, _ := toBase64(passport.Back.Data)
-			Expect(r.BacksideImageData).To(Equal(backside))
-			face, _ := toBase64(selfie.Front.Data)
-			Expect(r.FaceImages).To(HaveLen(10))
+			Expect(r.BacksideImageData).To(BeEmpty())
+			face, _ := toBase64(selfie.Image.Data)
+			Expect(r.FaceImages).To(HaveLen(1))
 			Expect(r.FaceImages[0]).To(Equal(face))
-			Expect(r.DocumentCountry).To(Equal(passport.Metadata.Country))
+			Expect(r.DocumentCountry).To(Equal(passport.CountryAlpha2))
 			Expect(r.DocumentType).To(Equal(Passport))
 			Expect(r.DateOfBirth).To(Equal(customer.DateOfBirth.Format("2006-01-02")))
-			Expect(r.ApplicantSSN).To(Equal(idcard.Metadata.Country + ":" + idcard.Metadata.Number))
-			Expect(r.ApplicantSSNLast4).To(Equal(idcard.Metadata.CardLast4Digits))
+			Expect(r.ApplicantSSN).To(Equal(idcard.CountryAlpha2 + ":" + idcard.Number))
+			Expect(r.ApplicantSSNLast4).To(Equal(idcard.Number[len(idcard.Number)-4:]))
 		})
 	})
 })

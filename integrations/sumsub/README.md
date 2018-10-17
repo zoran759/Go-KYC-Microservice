@@ -8,15 +8,16 @@ This instruction describes how to use **`sumsub`** package.
 | -------- | -------- | --------------- |
 | **Host** | _**string**_ | Sum&Substance base API host. It looks like `https://test-api.sumsub.com` |
 | **APIKey** | _**string**_ | API key provided by Sum&Substance to you |
-| **TimeoutTreshold** | _**int64**_ | A threshold, in seconds, after which polling stops and returns timeout error |
 
 ## How to use the package
 
 1) Create new [**config**](contract.go#L3) for Sumsub API usage.
 
-2) Obtain a new service object by calling the [**New()**](sumsub.go#L23) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain a new service object by calling the [**New()**](sumsub.go#L25) constructor. As the parameter, pass it the configuration you created in step 1.
 
-3) Use service's verifier [**CheckCustomer**](sumsub.go#L42) for the customer verification.
+3) Use service's verifier [**CheckCustomer**](sumsub.go#L44) to submit the customer data for the verification.
+
+4) Use service's status checker [**CheckStatus**](sumsub.go#L94) for checking of the current state of the customer verification process.
 
 ### Sample code
 
@@ -27,13 +28,25 @@ customer := &common.UserData{
 
 ...
 
+// Create the config for the service.
 config := sumsub.Config{
     Host: "host",
     APIKey: "APIKey",
 }
 
+// Obtain new service object for the verification.
 service := sumsub.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+// Submit the customer data to the service.
+result, err := service.CheckCustomer(customer)
+
+...
+
+customerID := result.StatusPolling.CustomerID
+
+...
+
+// Check the current state of the customer verification.
+result, err := service.CheckStatus(customerID)
 ...
 ```
