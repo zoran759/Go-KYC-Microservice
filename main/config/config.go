@@ -18,7 +18,7 @@ type Options map[string]string
 // Config represents the configuration for KYC providers.
 type Config map[common.KYCProvider]Options
 
-// ErrMissingOption defines the missing option error.
+// ErrMissingOption defines an error of the missing config option.
 type ErrMissingOption struct {
 	provider common.KYCProvider
 	option   string
@@ -29,7 +29,7 @@ func (e ErrMissingOption) Error() string {
 	return fmt.Sprintf("%s configuration error: missing or empty option %q", e.provider, e.option)
 }
 
-// FromFile loads the configuration from the file.
+// FromFile loads the configuration from the specified file.
 func FromFile(filename string) (err error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -56,6 +56,7 @@ func FromFile(filename string) (err error) {
 	return
 }
 
+// validate ensures the config correctness for all KYC providers containing in the given config.
 func validate(config Config) (err error) {
 	for provider, options := range config {
 		switch provider {
