@@ -1,6 +1,11 @@
 package jumio
 
-import "gitlab.com/lambospeed/kyc/common"
+import (
+	"errors"
+	"strings"
+
+	"modulus/kyc/common"
+)
 
 // Response defines the model for the performNetverify API response.
 type Response struct {
@@ -52,11 +57,16 @@ type RejectReasonDetails struct {
 	Description string `json:"detailsDescription"`
 }
 
+// String returns the string representation of the RejectReasonDetails.
+func (r RejectReasonDetails) String() string {
+	return r.Code + " " + r.Description
+}
+
 // RejectReason represents the reject reason.
 type RejectReason struct {
-	Code        string              `json:"rejectReasonCode"`
-	Description string              `json:"rejectReasonDescription"`
-	Details     RejectReasonDetails `json:"rejectReasonDetails"`
+	Code        string                `json:"rejectReasonCode"`
+	Description string                `json:"rejectReasonDescription"`
+	Details     []RejectReasonDetails `json:"rejectReasonDetails"`
 }
 
 // IdentityVerification represents the identity verification.
@@ -67,10 +77,24 @@ type IdentityVerification struct {
 	HandwrittenNoteMatches string `json:"handwrittenNoteMatches"`
 }
 
+// String returns the string representation of the IdentityVerification.
+func (i IdentityVerification) String() string {
+	b := strings.Builder{}
+	b.WriteString("Identity Verification: similarity = ")
+	b.WriteString(i.Similarity)
+	b.WriteString(" | validity = ")
+	b.WriteString(i.Validity)
+	if len(i.Reason) > 0 {
+		b.WriteString("| reason = ")
+		b.WriteString(i.Reason)
+	}
+
+	return b.String()
+}
+
 // VerificationDetails represents the part of DetailsResponse.
 type VerificationDetails struct {
 	MrzCheck             string                `json:"mrzCheck"`
-	FaceMatch            string                `json:"faceMatch"`
 	RejectReason         *RejectReason         `json:"rejectReason"`
 	IdentityVerification *IdentityVerification `json:"identityVerification"`
 }
@@ -85,8 +109,36 @@ type DetailsResponse struct {
 }
 
 // toResult processes the response and generates the verification result.
-func (r *DetailsResponse) toResult() (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	// TODO: implement this.
+func (r *DetailsResponse) toResult() (result common.KYCResult, err error) {
+	switch r.Document.Status {
+	case ApprovedVerified:
+		result.Status = common.Approved
+		return
+	case DeniedFraud, DeniedUnsupportedIDType, DeniedUnsupportedIDCountry:
+		result.Status = common.Denied
+	}
+
+	if r.Verification != nil {
+		if r.Verification.RejectReason != nil {
+			result.ErrorCode = r.Verification.RejectReason.Code
+			result.Details = &common.KYCDetails{
+				Reasons: []string{r.Verification.RejectReason.Description},
+			}
+			for _, details := range r.Verification.RejectReason.Details {
+				result.Details.Reasons = append(result.Details.Reasons, details.String())
+			}
+		}
+		if r.Verification.IdentityVerification != nil {
+			if result.Details == nil {
+				result.Details = &common.KYCDetails{}
+			}
+			result.Details.Reasons = append(result.Details.Reasons, r.Verification.IdentityVerification.String())
+		}
+	}
+
+	if r.Transaction.Status == FailedStatus {
+		err = errors.New("for some reason Jumio returned the 'FAILED' status for the verification transaction")
+	}
 
 	return
 }
