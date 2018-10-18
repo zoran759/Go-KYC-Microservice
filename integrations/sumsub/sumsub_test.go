@@ -14,12 +14,11 @@ import (
 
 func TestNew(t *testing.T) {
 	sumsubService := New(Config{
-		Host:             "test_host",
-		APIKey:           "test_key",
-		TimeoutThreshold: 123456,
+		Host:   "test_host",
+		APIKey: "test_key",
 	})
 
-	assert.Equal(t, int64(123456), sumsubService.timeoutThreshold)
+	assert.NotNil(t, sumsubService)
 }
 
 func TestSumSub_CheckCustomerGreen(t *testing.T) {
