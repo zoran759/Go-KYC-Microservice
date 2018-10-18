@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/http"
+	"modulus/kyc/common"
+	"modulus/kyc/http"
 )
 
 // service defines the model for the Jumio performNetverify API.
@@ -26,9 +26,7 @@ func New(config Config) common.CustomerChecker {
 }
 
 // CheckCustomer implements customer verification using the Jumio performNetverify API.
-func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCResult, details *common.DetailedKYCResult, err error) {
-	result = common.Error
-
+func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
 		return
@@ -52,7 +50,7 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 		return
 	}
 
-	result, details, err = scanDetails.toResult()
+	result, err = scanDetails.toResult()
 
 	return
 }

@@ -4,10 +4,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 const (
@@ -95,7 +94,7 @@ type Request struct {
 
 // populateFields populate the fields of the request object with input data.
 func (r *Request) populateFields(customer *common.UserData) (err error) {
-	if err = r.populateDocumentFields(customer.Documents); err != nil {
+	if err = r.populateDocumentFields(customer); err != nil {
 		return
 	}
 
@@ -108,95 +107,113 @@ func (r *Request) populateFields(customer *common.UserData) (err error) {
 }
 
 // populateDocumentFields processes customer documents and populate the fields relate to a document with input data.
-func (r *Request) populateDocumentFields(documents []common.Document) (err error) {
-	docs := map[common.DocumentType]int{}
-	for i, doc := range documents {
-		switch doc.Metadata.Type {
-		case common.IDCard:
-			docs[common.IDCard] = i
-		case common.Passport:
-			docs[common.Passport] = i
-		case common.Drivers:
-			docs[common.Drivers] = i
-		case common.Selfie:
-			if doc.Front != nil {
-				if !acceptableImageMimeType[doc.Front.ContentType] {
-					err = fmt.Errorf("unacceptable selfie image format: %s", doc.Front.ContentType)
-					return
-				}
-				r.FaceImage, err = toBase64(doc.Front.Data)
-				if err != nil {
-					err = fmt.Errorf("during encoding selfi image data: %s", err)
-					return
-				}
-				r.FaceImageMimeType = doc.Front.ContentType
-			}
-		}
-	}
-
-	if len(docs) == 0 {
-		err = errors.New("missing acceptable document for the verification (anyone of passport, driving license or id card)")
-		return
-	}
-
-	tryDocument := func(doc *common.Document) (err error) {
-		if !acceptableImageMimeType[doc.Front.ContentType] {
-			err = fmt.Errorf("unacceptable %s front image format: %s", docTypeToName[doc.Metadata.Type], doc.Front.ContentType)
+func (r *Request) populateDocumentFields(customer *common.UserData) (err error) {
+	if customer.Selfie != nil && customer.Selfie.Image != nil {
+		if !acceptableImageMimeType[customer.Selfie.Image.ContentType] {
+			err = fmt.Errorf("unacceptable selfie image format: %s", customer.Selfie.Image.ContentType)
 			return
 		}
-		r.FrontsideImage, err = toBase64(doc.Front.Data)
+		r.FaceImage, err = toBase64(customer.Selfie.Image.Data)
 		if err != nil {
-			err = fmt.Errorf("during encoding %s front image: %s", docTypeToName[doc.Metadata.Type], err)
+			err = fmt.Errorf("during encoding selfi image data: %s", err)
 			return
 		}
-		r.FrontsideImageMimeType = doc.Front.ContentType
-		if doc.Back != nil {
-			if !acceptableImageMimeType[doc.Back.ContentType] {
-				err = fmt.Errorf("unacceptable %s back image format: %s", docTypeToName[doc.Metadata.Type], doc.Back.ContentType)
+		r.FaceImageMimeType = customer.Selfie.Image.ContentType
+	}
+
+	if customer.Passport != nil && customer.Passport.Image != nil {
+		if !acceptableImageMimeType[customer.Passport.Image.ContentType] {
+			err = fmt.Errorf("unacceptable passport image format: %s", customer.Passport.Image.ContentType)
+			return
+		}
+		r.FrontsideImage, err = toBase64(customer.Passport.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding passport image: %s", err)
+			return
+		}
+		r.FrontsideImageMimeType = customer.Passport.Image.ContentType
+		r.Country = common.CountryAlpha2ToAlpha3[customer.Passport.CountryAlpha2]
+		r.IDType = Passport
+		r.Expiry = customer.Passport.ValidUntil.Format(dateFormat)
+		r.Number = customer.Passport.Number
+		if customer.Passport.CountryAlpha2 == "US" {
+			r.USState = customer.Passport.State
+		}
+
+		return
+	}
+
+	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
+		if !acceptableImageMimeType[customer.DriverLicense.FrontImage.ContentType] {
+			err = fmt.Errorf("unacceptable driver license front image format: %s", customer.DriverLicense.FrontImage.ContentType)
+			return
+		}
+		r.FrontsideImage, err = toBase64(customer.DriverLicense.FrontImage.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding driver license front image: %s", err)
+			return
+		}
+		r.FrontsideImageMimeType = customer.DriverLicense.FrontImage.ContentType
+		if customer.DriverLicense.BackImage != nil {
+			if !acceptableImageMimeType[customer.DriverLicense.BackImage.ContentType] {
+				err = fmt.Errorf("unacceptable driver license back image format: %s", customer.DriverLicense.BackImage.ContentType)
 				return
 			}
-			r.BacksideImage, err = toBase64(doc.Back.Data)
+			r.BacksideImage, err = toBase64(customer.DriverLicense.BackImage.Data)
 			if err != nil {
-				err = fmt.Errorf("during encoding %s back image: %s", docTypeToName[doc.Metadata.Type], err)
+				err = fmt.Errorf("during encoding driver license back image: %s", err)
 				return
 			}
-			r.BacksideImageMimeType = doc.Back.ContentType
+			r.BacksideImageMimeType = customer.DriverLicense.BackImage.ContentType
 		}
-		r.Country = common.CountryName2ToAlpha3[strings.ToUpper(doc.Metadata.Country)]
-		r.IDType = documentTypeToIDType[doc.Metadata.Type]
-		r.Expiry = doc.Metadata.ValidUntil.Format(dateFormat)
-		r.Number = doc.Metadata.Number
+		r.Country = common.CountryAlpha2ToAlpha3[customer.DriverLicense.CountryAlpha2]
+		r.IDType = DrivingLicense
+		r.Expiry = customer.DriverLicense.ValidUntil.Format(dateFormat)
+		r.Number = customer.DriverLicense.Number
+		if customer.DriverLicense.CountryAlpha2 == "US" {
+			r.USState = customer.DriverLicense.State
+		}
 
 		return
 	}
 
-	i, ok := docs[common.Passport]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
-		if err == nil {
-			r.USState = documents[i].Metadata.Country
+	if customer.IDCard != nil && customer.IDCard.Image != nil {
+		if !acceptableImageMimeType[customer.IDCard.Image.ContentType] {
+			err = fmt.Errorf("unacceptable id card image format: %s", customer.IDCard.Image.ContentType)
+			return
 		}
+		r.FrontsideImage, err = toBase64(customer.IDCard.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding id card image: %s", err)
+			return
+		}
+		r.FrontsideImageMimeType = customer.IDCard.Image.ContentType
+		r.Country = common.CountryAlpha2ToAlpha3[customer.IDCard.CountryAlpha2]
+		r.IDType = IDCard
+		r.Number = customer.IDCard.Number
+
 		return
-	}
-	i, ok = docs[common.Drivers]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
-		if err == nil {
-			c := strings.ToUpper(documents[i].Metadata.Country)
-			if c == "USA" || c == "UNITED STATES OF AMERICA" {
-				r.USState = documents[i].Metadata.StateCode
-			}
-		}
-		return
-	}
-	i, ok = docs[common.IDCard]
-	if ok && documents[i].Front != nil {
-		err = tryDocument(&documents[i])
-		if err == nil {
-			r.USState = documents[i].Metadata.Country
-		}
 	}
 
+	if customer.SNILS != nil && customer.SNILS.Image != nil {
+		if !acceptableImageMimeType[customer.SNILS.Image.ContentType] {
+			err = fmt.Errorf("unacceptable SNILS image format: %s", customer.SNILS.Image.ContentType)
+			return
+		}
+		r.FrontsideImage, err = toBase64(customer.SNILS.Image.Data)
+		if err != nil {
+			err = fmt.Errorf("during encoding SNILS image: %s", err)
+			return
+		}
+		r.FrontsideImageMimeType = customer.SNILS.Image.ContentType
+		r.Country = "RUS"
+		r.IDType = IDCard
+		r.Number = customer.SNILS.Number
+
+		return
+	}
+
+	err = errors.New("missing acceptable document for the verification (anyone of passport, driving license or id card)")
 	return
 }
 
