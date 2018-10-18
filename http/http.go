@@ -8,19 +8,27 @@ import (
 	"time"
 )
 
-const defaultHttpTimeout = time.Minute
+// defaultHTTPTimeout holds the default value for a HTTP request timeout.
+// Actually, currently the timeout value for requests isn't configurable.
+const defaultHTTPTimeout = time.Minute
 
+// Headers represents a HTTP request headers.
 type Headers map[string]string
 
+// Post sends a HTTP POST request to the endpoint using the specified headers and body.
+// It returns a HTTP status code or zero in the case of an error, a response body or an error if occurred.
 func Post(endpoint string, headers Headers, body []byte) (int, []byte, error) {
 	return Request(http.MethodPost, endpoint, headers, body)
 
 }
 
+// Get sends a HTTP GET request to the endpoint using the specified headers.
 func Get(endpoint string, headers Headers) (int, []byte, error) {
 	return Request(http.MethodGet, endpoint, headers, []byte{})
 }
 
+// Request sends a HTTP request to the endpoint using the specified method and headers.
+// The body will be used as the request body.
 func Request(method string, endpoint string, headers Headers, body []byte) (int, []byte, error) {
 	request, err := http.NewRequest(method, endpoint, bytes.NewReader(body))
 
@@ -32,7 +40,7 @@ func Request(method string, endpoint string, headers Headers, body []byte) (int,
 		request.Header.Set(header, value)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), defaultHttpTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultHTTPTimeout)
 	defer cancel()
 
 	response, err := http.DefaultClient.Do(request.WithContext(ctx))
@@ -44,6 +52,8 @@ func Request(method string, endpoint string, headers Headers, body []byte) (int,
 	return extractCodeAndBodyFromResponse(response)
 }
 
+// extractCodeAndBodyFromResponse extracts the content from a HTTP response.
+// It returns a HTTP status code, a response body content or an error if occurred.
 func extractCodeAndBodyFromResponse(response *http.Response) (int, []byte, error) {
 	defer response.Body.Close()
 
