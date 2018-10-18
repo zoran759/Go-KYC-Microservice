@@ -17,6 +17,7 @@ func (e serviceError) Error() string {
 	return e.message
 }
 
+// writeErrorResponse writes the error response to the connection using the specified HTTP status code and error object.
 func writeErrorResponse(w http.ResponseWriter, status int, err error) {
 	errorResponse := common.ErrorResponse{
 		Error: err.Error(),
