@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
+	stdhttp "net/http"
 
 	"modulus/kyc/common"
 	"modulus/kyc/http"
@@ -38,41 +38,42 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 		return
 	}
 
-	response, err := s.sendRequest(req)
+	response, errorCode, err := s.sendRequest(req)
 	if err != nil {
+		if errorCode != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
 		err = fmt.Errorf("during sending request: %s", err)
 		return
 	}
 
-	scanDetails, err := s.retrieveDetails(response.JumioIDScanReference)
-	if err != nil {
-		err = fmt.Errorf("during retrieving result: %s", err)
-		return
+	result.StatusPolling = &common.StatusPolling{
+		Provider:   common.Jumio,
+		CustomerID: response.JumioIDScanReference,
 	}
-
-	result, err = scanDetails.toResult()
 
 	return
 }
 
 // sendRequest sends a vefirication request into the API.
 // It returns a response from the API or the error if occured.
-func (s *service) sendRequest(request *Request) (response *Response, err error) {
+func (s *service) sendRequest(request *Request) (response *Response, errorCode *int, err error) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return
 	}
 
-	headers := http.Headers{
-		"Accept":         accept,
-		"Content-Type":   contentType,
-		"Content-Length": fmt.Sprintf("%d", len(body)),
-		"User-Agent":     userAgent,
-		"Authorization":  s.credentials,
-	}
+	headers := s.headers()
+	headers["Content-Type"] = contentType
+	headers["Content-Length"] = fmt.Sprintf("%d", len(body))
 
-	_, resp, err := http.Post(s.baseURL+performNetverifyEndpoint, headers, body)
+	statusCode, resp, err := http.Post(s.baseURL+performNetverifyEndpoint, headers, body)
 	if err != nil {
+		return
+	}
+	if statusCode != stdhttp.StatusOK {
+		errorCode = &statusCode
+		err = errors.New("http error")
 		return
 	}
 
@@ -82,68 +83,78 @@ func (s *service) sendRequest(request *Request) (response *Response, err error) 
 	return
 }
 
-func (s *service) retrieveDetails(scanref string) (response *DetailsResponse, err error) {
+// CheckStatus implements the StatusChecker interface for Jumio.
+func (s *service) CheckStatus(scanref string) (result common.KYCResult, err error) {
 	if len(scanref) == 0 {
 		err = errors.New("empty Jumio’s reference number of an existing scan")
 		return
 	}
 
-	_, err = s.retrieveScanStatus(scanref)
+	status, errorCode, err := s.retrieveScanStatus(scanref)
 	if err != nil {
+		if errorCode != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
+		}
+		err = fmt.Errorf("during sending request: %s", err)
 		return
 	}
 
-	response, err = s.retrieveScanDetails(scanref)
+	switch status {
+	case PendingStatus:
+		result.StatusPolling = &common.StatusPolling{
+			Provider:   common.Jumio,
+			CustomerID: scanref,
+		}
+	case DoneStatus, FailedStatus:
+		scanDetails := &DetailsResponse{}
+		scanDetails, errorCode, err = s.retrieveScanDetails(scanref)
+		if err != nil {
+			if errorCode != nil {
+				result.ErrorCode = fmt.Sprintf("%d", *errorCode)
+			}
+			err = fmt.Errorf("during sending request: %s", err)
+			return
+		}
+		result, err = scanDetails.toResult()
+	default:
+		err = fmt.Errorf("unknown status of the verification: %s", status)
+	}
 
 	return
 }
 
 // retrieveScanStatus retrieves the status of an Jumio scan.
-func (s *service) retrieveScanStatus(scanref string) (status ScanStatus, err error) {
-	headers := http.Headers{
-		"Accept":        accept,
-		"User-Agent":    userAgent,
-		"Authorization": s.credentials,
+func (s *service) retrieveScanStatus(scanref string) (status ScanStatus, errorCode *int, err error) {
+	statusCode, resp, err := http.Get(s.baseURL+scanStatusEndpoint+scanref, s.headers())
+	if err != nil {
+		return
 	}
-	endpoint := s.baseURL + scanStatusEndpoint + scanref
-
-	for _, d := range timings {
-		time.Sleep(d)
-
-		_, resp, err1 := http.Get(endpoint, headers)
-		if err1 != nil {
-			err = err1
-			return
-		}
-
-		response := &StatusResponse{}
-		err1 = json.Unmarshal(resp, response)
-		if err1 != nil {
-			err = err1
-			return
-		}
-
-		if response.Status != PendingStatus {
-			status = response.Status
-			return
-		}
+	if statusCode != stdhttp.StatusOK {
+		errorCode = &statusCode
+		err = errors.New("http error")
+		return
 	}
 
-	err = errors.New("Jumio scan status is 'pending' after 10 allowed attempts - the retrieval aborted")
+	response := &StatusResponse{}
+	err = json.Unmarshal(resp, response)
+	if err != nil {
+		return
+	}
+
+	status = response.Status
 
 	return
 }
 
 // retrieveScanDetails retrieves details of an Jumio scan.
-func (s *service) retrieveScanDetails(scanref string) (response *DetailsResponse, err error) {
-	headers := http.Headers{
-		"Accept":        accept,
-		"User-Agent":    userAgent,
-		"Authorization": s.credentials,
-	}
-
-	_, resp, err := http.Get(fmt.Sprintf(s.baseURL+scanDetailsEndpoint, scanref), headers)
+func (s *service) retrieveScanDetails(scanref string) (response *DetailsResponse, errorCode *int, err error) {
+	statusCode, resp, err := http.Get(fmt.Sprintf(s.baseURL+scanDetailsEndpoint, scanref), s.headers())
 	if err != nil {
+		return
+	}
+	if statusCode != stdhttp.StatusOK {
+		errorCode = &statusCode
+		err = errors.New("http error")
 		return
 	}
 
@@ -151,4 +162,13 @@ func (s *service) retrieveScanDetails(scanref string) (response *DetailsResponse
 	err = json.Unmarshal(resp, response)
 
 	return
+}
+
+// headers is a helper that constructs HTTP request headers.
+func (s *service) headers() http.Headers {
+	return http.Headers{
+		"Accept":        accept,
+		"User-Agent":    userAgent,
+		"Authorization": s.credentials,
+	}
 }
