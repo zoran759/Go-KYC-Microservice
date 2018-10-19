@@ -37,6 +37,7 @@ type KYCProvider string
 const (
 	IdentityMind KYCProvider = "IdentityMind"
 	IDology      KYCProvider = "IDology"
+	Jumio        KYCProvider = "Jumio"
 	ShuftiPro    KYCProvider = "ShuftiPro"
 	SumSub       KYCProvider = "Sum&Substance"
 	Trulioo      KYCProvider = "Trulioo"
