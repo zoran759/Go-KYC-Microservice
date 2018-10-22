@@ -39,7 +39,7 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusBadRequest, errors.New("missing KYC provider id in the request"))
 		return
 	}
-	if len(req.CustomerID) == 0 {
+	if len(req.ReferenceID) == 0 {
 		writeErrorResponse(w, http.StatusBadRequest, errors.New("missing verification id in the request"))
 		return
 	}
@@ -52,7 +52,7 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 
 	response := common.KYCResponse{}
 
-	result, err := service.CheckStatus(req.CustomerID)
+	result, err := service.CheckStatus(req.ReferenceID)
 	if err != nil {
 		response.Error = err.Error()
 	}
