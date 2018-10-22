@@ -1,5 +1,8 @@
 package common
 
+// TooManyRequests defines the error code returned when KYC status check requests send too frequently.
+const TooManyRequests = "429"
+
 // CheckCustomerRequest represents the request for the CheckCustomer handler.
 type CheckCustomerRequest struct {
 	Provider KYCProvider

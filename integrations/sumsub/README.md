@@ -4,10 +4,10 @@ This instruction describes how to use **`sumsub`** package.
 
 ## Configuration options description
 
-| **Name** | **Type** | **Description** |
-| -------- | -------- | --------------- |
-| **Host** | _**string**_ | Sum&Substance base API host. It looks like `https://test-api.sumsub.com` |
-| **APIKey** | _**string**_ | API key provided by Sum&Substance to you |
+| **Name**   | **Type**     | **Description**                                                          |
+| ---------- | ------------ | ------------------------------------------------------------------------ |
+| **Host**   | _**string**_ | Sum&Substance base API host. It looks like `https://test-api.sumsub.com` |
+| **APIKey** | _**string**_ | API key provided by Sum&Substance to you                                 |
 
 ## How to use the package
 
@@ -42,11 +42,11 @@ result, err := service.CheckCustomer(customer)
 
 ...
 
-customerID := result.StatusPolling.CustomerID
+referenceID := result.StatusCheck.ReferenceID
 
 ...
 
 // Check the current state of the customer verification.
-result, err := service.CheckStatus(customerID)
+result, err := service.CheckStatus(referenceID)
 ...
 ```
