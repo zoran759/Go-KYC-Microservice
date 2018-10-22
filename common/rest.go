@@ -11,8 +11,8 @@ type CheckCustomerRequest struct {
 
 // CheckStatusRequest represents the status check request payload of the CheckStatus handler.
 type CheckStatusRequest struct {
-	Provider   KYCProvider
-	CustomerID string
+	Provider    KYCProvider
+	ReferenceID string
 }
 
 // KYCResponse represents the response for the CheckCustomer and the CheckStatus handlers.

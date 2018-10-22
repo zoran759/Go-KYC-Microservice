@@ -14,7 +14,7 @@ This instruction describes how to use **`jumio`** package.
 
 1) Create new [**config**](contract.go#L9) for Jumio API usage.
 
-2) Obtain the new service object by calling the [**New()**](service.go#L14) constructor. As the parameter, pass it the configuration you created in step 1.
+2) Obtain the new service object by calling the [**New()**](service.go#L20) constructor. As the parameter, pass it the configuration you created in step 1.
 
 3) Use the service object for the customer verification.
 

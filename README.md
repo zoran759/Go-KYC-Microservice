@@ -28,21 +28,21 @@ The KYC service provides REST API to interact with other components of the appli
 
 The models for requests and responses are provided.
 
-### **[CheckCustomer request](common/rest.go#L3) fields description**
+### **[CheckCustomer request](common/rest.go#L6) fields description**
 
 | **Name**     | **Type**                                       | **Description**                             |
 | ------------ | ---------------------------------------------- | ------------------------------------------- |
 | **Provider** | _**[KYCProvider](common/enum.go#L36)**_        | The identificator for the KYC provider name |
 | **UserData** | _**[UserData](#userdata-fields-description)**_ | A verification data of the customer         |
 
-### **[CheckStatus request](common/rest.go#L9) fields description**
+### **[CheckStatus request](common/rest.go#L12) fields description**
 
-| **Name**       | **Type**                                | **Description**                                                                        |
-| -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Provider**   | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
-| **CustomerID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
+| **Name**        | **Type**                                | **Description**                                                                        |
+| --------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Provider**    | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
+| **ReferenceID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
 
-### **[API response](common/rest.go#L15) fields description**
+### **[API response](common/rest.go#L18) fields description**
 
 | **Name**   | **Type**     | **Description**                                                             |
 | ---------- | ------------ | --------------------------------------------------------------------------- |
@@ -51,7 +51,7 @@ The models for requests and responses are provided.
 
 If a **KYC provider** doesn't support the instant result response then check and use the [**KYCResult.StatusPolling**](#statuspolling-fields-description) field for the info required for the KYC verification status check requests.
 
-### **[API Error response](common/rest.go#L21) fields description**
+### **[API Error response](common/rest.go#L24) fields description**
 
 | **Name**  | **Type**     | **Description**    |
 | --------- | ------------ | ------------------ |
