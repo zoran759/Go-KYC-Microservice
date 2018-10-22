@@ -195,16 +195,17 @@ type KYCDetails struct {
 
 // KYCResult represents the verification result.
 type KYCResult struct {
-	Status        KYCStatus
-	Details       *KYCDetails
-	ErrorCode     string
-	StatusPolling *StatusPolling
+	Status      KYCStatus
+	Details     *KYCDetails
+	ErrorCode   string
+	StatusCheck *KYCStatusCheck
 }
 
-// StatusPolling contains data required to do status check requests if needed.
-type StatusPolling struct {
-	Provider   KYCProvider
-	CustomerID string
+// KYCStatusCheck contains data required to do status check requests if needed.
+type KYCStatusCheck struct {
+	Provider    KYCProvider
+	ReferenceID string
+	LastCheck   time.Time
 }
 
 /*******************************************************************/

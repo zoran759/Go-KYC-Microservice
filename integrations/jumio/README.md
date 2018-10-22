@@ -4,11 +4,11 @@ This instruction describes how to use **`jumio`** package.
 
 ## Configuration options description
 
-| **Name** | **Type** | **Description** |
-| -------- | -------- | --------------- |
+| **Name**    | **Type**     | **Description**  |
+| ----------- | ------------ | ---------------- |
 | **BaseURL** | _**string**_ | Base URL for requests to the Jumio performNetverify API. It looks like `https://netverify.com/api/netverify/v2` |
-| **Token** | _**string**_ | Jumio API token |
-| **Secret** | _**string**_ | Jumio API secret |
+| **Token**   | _**string**_ | Jumio API token  |
+| **Secret**  | _**string**_ | Jumio API secret |
 
 ## How to use the package
 
@@ -37,6 +37,16 @@ config := jumio.Config{
 
 service := jumio.New(config)
 
-result, details, err := service.CheckCustomer(customer)
+// Check the customer.
+result, err := service.CheckCustomer(customer)
 ...
+
+referenceID := result.StatusCheck.ReferenceID
+
+...
+
+// Check the current state of the customer verification.
+result, err := service.CheckStatus(referenceID)
+...
+
 ```

@@ -64,13 +64,13 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.Nil(t, result.StatusPolling)
+		assert.Nil(t, result.StatusCheck)
 		assert.Equal(t, common.Approved, result.Status)
 	}
 }
@@ -106,11 +106,11 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -154,11 +154,11 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Denied, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -202,11 +202,11 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -249,11 +249,11 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 		assert.Equal(t, common.KYCDetails{

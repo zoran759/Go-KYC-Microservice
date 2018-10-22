@@ -321,16 +321,16 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](#commonkycresult-fields-description).
 
-> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*StatusPolling__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
+> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*KYCStatusCheck__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
 
 ### **[common.KYCResult](common/model.go#L196) fields description**
 
-| **Name**          | **Type**                                                  | **Description**                                                               |
-| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| **Status**        | _**[KYCStatus](#kycstatus-possible-values-description)**_ | Status of the verification                                                    |
-| **Details**       | _***[KYCDetails](#kycdetails-fields-description)**_       | Details of the verification if provided                                       |
-| **ErrorCode**     | _**string**_                                              | Error code returned by a KYC provider if the provider support error codes     |
-| **StatusPolling** | _***[StatusPolling](#statuspolling-fields-description)**_ | Data required to do the customer verification status check requests if needed |
+| **Name**        | **Type**                                                    | **Description**                                                           |
+| --------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Status**      | _**[KYCStatus](#kycstatus-possible-values-description)**_   | Status of the verification                                                |
+| **Details**     | _***[KYCDetails](#kycdetails-fields-description)**_         | Details of the verification if provided                                   |
+| **ErrorCode**   | _**string**_                                                | Error code returned by a KYC provider if the provider support error codes |
+| **StatusCheck** | _***[KYCStatusCheck](#kycstatuscheck-fields-description)**_ | Data required to do the KYC verification status check requests if needed  |
 
 ### **[KYCStatus](common/enum.go#L6) possible values description**
 
@@ -356,12 +356,13 @@ The verification response consist of two elements: a result and an error if occu
 | **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality                                                    |
 | **Unknown**  | The provider doesn't support **`Finality`** feature                                                                         |
 
-### **[StatusPolling](common/model.go#L204) fields description**
+### **[KYCStatusCheck](common/model.go#L204) fields description**
 
-| **Name**       | **Type**                                | **Description**                                                                        |
-| -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Provider**   | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
-| **CustomerID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
+| **Name**        | **Type**                                | **Description**                             |
+| --------------- | --------------------------------------- | ------------------------------------------- |
+| **Provider**    | _**[KYCProvider](common/enum.go#L36)**_ | An identificator for the KYC provider name  |
+| **ReferenceID** | _**string**_                            | An identificator that references to this verification submission. It mention in docs as applicantId/mtid/jumioIdScanReference/etc. Its value is specific for a provider |
+| **LastCheck**   | _**time.Time**_                         | Last time a verification status was checked |
 
 ## **Specific KYC providers**
 

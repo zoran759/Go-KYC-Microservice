@@ -47,9 +47,9 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 		return
 	}
 
-	result.StatusPolling = &common.StatusPolling{
-		Provider:   common.Jumio,
-		CustomerID: response.JumioIDScanReference,
+	result.StatusCheck = &common.KYCStatusCheck{
+		Provider:    common.Jumio,
+		ReferenceID: response.JumioIDScanReference,
 	}
 
 	return
@@ -84,13 +84,13 @@ func (s *service) sendRequest(request *Request) (response *Response, errorCode *
 }
 
 // CheckStatus implements the StatusChecker interface for Jumio.
-func (s *service) CheckStatus(scanref string) (result common.KYCResult, err error) {
-	if len(scanref) == 0 {
+func (s *service) CheckStatus(referenceID string) (result common.KYCResult, err error) {
+	if len(referenceID) == 0 {
 		err = errors.New("empty Jumio’s reference number of an existing scan")
 		return
 	}
 
-	status, errorCode, err := s.retrieveScanStatus(scanref)
+	status, errorCode, err := s.retrieveScanStatus(referenceID)
 	if err != nil {
 		if errorCode != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
@@ -101,13 +101,13 @@ func (s *service) CheckStatus(scanref string) (result common.KYCResult, err erro
 
 	switch status {
 	case PendingStatus:
-		result.StatusPolling = &common.StatusPolling{
-			Provider:   common.Jumio,
-			CustomerID: scanref,
+		result.StatusCheck = &common.KYCStatusCheck{
+			Provider:    common.Jumio,
+			ReferenceID: referenceID,
 		}
 	case DoneStatus, FailedStatus:
 		scanDetails := &DetailsResponse{}
-		scanDetails, errorCode, err = s.retrieveScanDetails(scanref)
+		scanDetails, errorCode, err = s.retrieveScanDetails(referenceID)
 		if err != nil {
 			if errorCode != nil {
 				result.ErrorCode = fmt.Sprintf("%d", *errorCode)
@@ -124,8 +124,8 @@ func (s *service) CheckStatus(scanref string) (result common.KYCResult, err erro
 }
 
 // retrieveScanStatus retrieves the status of an Jumio scan.
-func (s *service) retrieveScanStatus(scanref string) (status ScanStatus, errorCode *int, err error) {
-	statusCode, resp, err := http.Get(s.baseURL+scanStatusEndpoint+scanref, s.headers())
+func (s *service) retrieveScanStatus(referenceID string) (status ScanStatus, errorCode *int, err error) {
+	statusCode, resp, err := http.Get(s.baseURL+scanStatusEndpoint+referenceID, s.headers())
 	if err != nil {
 		return
 	}
@@ -147,8 +147,8 @@ func (s *service) retrieveScanStatus(scanref string) (status ScanStatus, errorCo
 }
 
 // retrieveScanDetails retrieves details of an Jumio scan.
-func (s *service) retrieveScanDetails(scanref string) (response *DetailsResponse, errorCode *int, err error) {
-	statusCode, resp, err := http.Get(fmt.Sprintf(s.baseURL+scanDetailsEndpoint, scanref), s.headers())
+func (s *service) retrieveScanDetails(referenceID string) (response *DetailsResponse, errorCode *int, err error) {
+	statusCode, resp, err := http.Get(fmt.Sprintf(s.baseURL+scanDetailsEndpoint, referenceID), s.headers())
 	if err != nil {
 		return
 	}

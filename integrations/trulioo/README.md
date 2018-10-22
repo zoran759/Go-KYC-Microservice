@@ -4,11 +4,11 @@ This instruction describes how to use **`trulioo`** package.
 
 ## Configuration options description
 
-| **Name** | **Type** | **Description** |
-| -------- | -------- | --------------- |
-| **Host** | _**string**_ | Trulioo base API host. It looks like `https://api.globaldatacompany.com` |
-| **NAPILogin** | _**string**_ | Trulioo Normalized API login |
-| **NAPIPassword** | _**string**_ | Trulioo Normalized API password |
+| **Name**         | **Type**     | **Description**                                                          |
+| ---------------- | ------------ | ------------------------------------------------------------------------ |
+| **Host**         | _**string**_ | Trulioo base API host. It looks like `https://api.globaldatacompany.com` |
+| **NAPILogin**    | _**string**_ | Trulioo Normalized API login                                             |
+| **NAPIPassword** | _**string**_ | Trulioo Normalized API password                                          |
 
 ## How to use the package
 
@@ -18,7 +18,7 @@ This instruction describes how to use **`trulioo`** package.
 
 3) Use service's verifier [**CheckCustomer**](trulioo.go#L27) for the customer verification.
 
-### Sample code
+## Sample code
 
 ```go
 customer := &common.UserData{

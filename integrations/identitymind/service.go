@@ -33,8 +33,8 @@ func (s Service) CheckCustomer(customer *common.UserData) (res common.KYCResult,
 }
 
 // CheckStatus implements StatusChecker interface for the service.
-func (s Service) CheckStatus(customerID string) (res common.KYCResult, err error) {
-	res, err = s.consumer.CheckStatus(customerID)
+func (s Service) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	res, err = s.consumer.CheckStatus(referenceID)
 
 	return
 }

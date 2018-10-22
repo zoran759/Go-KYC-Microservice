@@ -131,7 +131,7 @@ func TestCheckStatus(t *testing.T) {
 	assert.Len(t, resp.Result.Details.Reasons, 1)
 	assert.Equal(t, "ID_INVALID", resp.Result.Details.Reasons[0])
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 
 	// Testing reading request body failure.
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", &FailedReader{})
@@ -377,7 +377,7 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(t, resp.Result.Details)
 	assert.NotEmpty(t, resp.Result.ErrorCode)
 	assert.Equal(t, "401", resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 	assert.NotEmpty(t, resp.Error)
 	assert.Equal(t, "Access denied", resp.Error)
 
@@ -424,5 +424,5 @@ func TestCheckStatus(t *testing.T) {
 	assert.Equal(t, common.Unknown, resp.Result.Details.Finality)
 	assert.NotEmpty(t, resp.Result.Details.Reasons)
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 }
