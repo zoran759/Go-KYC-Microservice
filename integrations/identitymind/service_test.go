@@ -62,7 +62,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: User previously failed validation"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 		})
 
 		It("Should return suspicious reputation for the customer", func() {
@@ -86,7 +86,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: User previously failed validation"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 		})
 
 		It("Should return trusted reputation for the customer", func() {
@@ -110,7 +110,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Unvalidated, but long-lived good User"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 		})
 
 		It("Should return unknown reputation for the customer", func() {
@@ -134,7 +134,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Unknown User"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 		})
 
 		It("Should return denied policy result for the customer", func() {
@@ -162,7 +162,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Unknown User"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: DENY"))
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 		})
 
 		It("Should return review policy result for the customer", func() {
@@ -184,9 +184,9 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Status).To(Equal(common.Error))
 			Expect(result.Details).To(BeNil())
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).NotTo(BeNil())
-			Expect(result.StatusPolling.Provider).To(Equal(common.IdentityMind))
-			Expect(result.StatusPolling.CustomerID).NotTo(BeEmpty())
+			Expect(result.StatusCheck).NotTo(BeNil())
+			Expect(result.StatusCheck.Provider).To(Equal(common.IdentityMind))
+			Expect(result.StatusCheck.ReferenceID).NotTo(BeEmpty())
 		})
 
 		It("Should return accepted policy result for the customer", func() {
@@ -214,7 +214,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Unknown User"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(result.ErrorCode).To(BeEmpty())
-			Expect(result.StatusPolling).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 		})
 	})
 })
