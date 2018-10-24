@@ -1,51 +1,45 @@
 stages:
   - test
+  - build
+  - docker
 
-test-idology:
+test:
   stage: test
   image: golang:stretch
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
+  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
   - go get -d -v ./...
-  - go get github.com/jarcoal/httpmock
-  - go get github.com/onsi/ginkgo/ginkgo
-  - go get github.com/onsi/gomega/...
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/idology
-  - ginkgo -r -cover
+  - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/... github.com/stretchr/testify gopkg.in/jarcoal/httpmock.v1
+  - cd $GOPATH/src/modulus/$CI_PROJECT_NAME
+  - go test -cover ./...
 
-test-trulioo:
-  stage: test
-  image: golang:stretch
+build:
+  stage: build
+  image: golang:alpine
+  before_script:
+  - apk add --no-cache git
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
+  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
   - go get -d -v ./...
-  - go get github.com/stretchr/testify
-  - go get gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/trulioo
-  - go test ./...
+  - cd main
+  - go build -o kyc
+  artifacts:
+    paths:
+    - main/kyc
+    expire_in: 1 day
 
-test-sumsub:
-  stage: test
-  image: golang:stretch
+docker:
+  only:
+  - master
+  stage: docker
+  image: docker
+  services:
+  - docker:dind
   script:
-  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
-  - go get -d -v ./...
-  - go get github.com/stretchr/testify
-  - go get gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/sumsub
-  - go test ./...
-
-test-shufti-pro:
-  stage: test
-  image: golang:stretch
-  script:
-  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
-  - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/gitlab.com/$CI_PROJECT_PATH
-  - go get -d -v ./...
-  - go get github.com/stretchr/testify
-  - go get gopkg.in/jarcoal/httpmock.v1
-  - cd $GOPATH/src/gitlab.com/$CI_PROJECT_PATH/integrations/shuftipro
-  - go test ./...
+  - mv Dockerfile main/
+  - cd main
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+  - docker build -t registry.gitlab.com/lambospeed/kyc .
+  - docker push registry.gitlab.com/lambospeed/kyc

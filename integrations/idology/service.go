@@ -1,21 +1,30 @@
 package idology
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/idology/expectid"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/idology/expectid"
 )
 
-// Service defines the verification services of IDology API.
+// Assert that Service implements the CustomerChecker interface.
+var _ common.CustomerChecker = (*Service)(nil)
+
+// Service represents the IDology API services.
 // It shouldn't be instantiated directly.
 // Use New() constructor instead.
 type Service struct {
-	ExpectID common.CustomerChecker
-	// FIXME: AlertList has to be implemented yet.
+	expectID *expectid.Client
 }
 
 // New constructs new service object to use with IDology services.
 func New(config Config) *Service {
 	return &Service{
-		ExpectID: expectid.NewClient(expectid.Config(config)),
+		expectID: expectid.NewClient(expectid.Config(config)),
 	}
+}
+
+// CheckCustomer implements CustomerChecker interface for the Service
+func (s *Service) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
+	res, err = s.expectID.CheckCustomer(customer)
+
+	return
 }

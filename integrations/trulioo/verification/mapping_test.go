@@ -1,17 +1,19 @@
 package verification
 
 import (
+	"encoding/base64"
 	"testing"
 	"time"
 
+	"modulus/kyc/common"
+
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
 )
 
 func TestMapCustomerToDataFields(t *testing.T) {
 	testTime := common.Time(time.Now())
 
-	customer := common.UserData{
+	customer := &common.UserData{
 		FirstName:            "FirstName",
 		PaternalLastName:     "PaternalLastName",
 		LastName:             "LastName",
@@ -46,64 +48,39 @@ func TestMapCustomerToDataFields(t *testing.T) {
 			StartDate:         testTime,
 			EndDate:           testTime,
 		},
-		Business: common.Business{
+		Business: &common.Business{
 			Name:                      "BusinessName",
 			RegistrationNumber:        "RegNumber",
 			IncorporationDate:         testTime,
 			IncorporationJurisdiction: "IncorporationJurisdiction",
 		},
-		Documents: []common.Document{
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.IDCard,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
-				Back: &common.DocumentFile{
-					Filename:    "Filename2",
-					ContentType: "ContentType2",
-					Data:        []byte{7, 6, 5, 4, 3, 2, 1},
-				},
+
+		IDCard: &common.IDCard{
+			CountryAlpha2: "Country",
+			IssuedDate:    testTime,
+			Number:        "Number",
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.Selfie,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
+		},
+		Selfie: &common.Selfie{
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.Passport,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
-				Back: &common.DocumentFile{
-					Filename:    "Filename2",
-					ContentType: "ContentType2",
-					Data:        []byte{7, 6, 5, 4, 3, 2, 1},
-				},
+		},
+		Passport: &common.Passport{
+			CountryAlpha2: "Country",
+			IssuedDate:    testTime,
+			ValidUntil:    testTime,
+			Number:        "Number",
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
 		},
 	}
@@ -162,16 +139,16 @@ func TestMapCustomerToDataFields(t *testing.T) {
 
 	if assert.NotNil(t, dataFields.Document) {
 		document := dataFields.Document
-		commonDocument := customer.Documents[0]
-		selfie := customer.Documents[1]
+		commonDocument := customer.Passport
+		selfie := customer.Selfie
 
-		assert.Equal(t, "IdentityCard", document.DocumentType)
-		assert.Equal(t, commonDocument.Front.Data, document.DocumentFrontImage)
-		assert.Equal(t, commonDocument.Back.Data, document.DocumentBackImage)
-		assert.Equal(t, selfie.Front.Data, document.LivePhoto)
+		assert.Equal(t, "Passport", document.DocumentType)
+		assert.Equal(t, base64.StdEncoding.EncodeToString(commonDocument.Image.Data), document.DocumentFrontImage)
+		assert.Equal(t, "", document.DocumentBackImage)
+		assert.Equal(t, base64.StdEncoding.EncodeToString(selfie.Image.Data), document.LivePhoto)
 	}
 
-	dataFields = MapCustomerToDataFields(common.UserData{})
+	dataFields = MapCustomerToDataFields(&common.UserData{})
 
 	assert.Nil(t, dataFields.Communication)
 	assert.Nil(t, dataFields.Business)
@@ -217,59 +194,33 @@ func TestMapCustomerToDataFieldsNoSupportedDocuments(t *testing.T) {
 			StartDate:         testTime,
 			EndDate:           testTime,
 		},
-		Business: common.Business{
+		Business: &common.Business{
 			Name:                      "BusinessName",
 			RegistrationNumber:        "RegNumber",
 			IncorporationDate:         testTime,
 			IncorporationJurisdiction: "IncorporationJurisdiction",
 		},
-		Documents: []common.Document{
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.SNILS,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
-				Back: &common.DocumentFile{
-					Filename:    "Filename2",
-					ContentType: "ContentType2",
-					Data:        []byte{7, 6, 5, 4, 3, 2, 1},
-				},
+		SNILS: &common.SNILS{
+			IssuedDate: testTime,
+			Number:     "Number",
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
-			{
-				Metadata: common.DocumentMetadata{
-					Type:       common.Selfie,
-					Country:    "Country",
-					DateIssued: testTime,
-					ValidUntil: testTime,
-					Number:     "Number",
-				},
-				Front: &common.DocumentFile{
-					Filename:    "Filename",
-					ContentType: "ContentType",
-					Data:        []byte{1, 2, 3, 4, 5, 6, 7},
-				},
+		},
+		Selfie: &common.Selfie{
+			Image: &common.DocumentFile{
+				Filename:    "Filename",
+				ContentType: "ContentType",
+				Data:        []byte{1, 2, 3, 4, 5, 6, 7},
 			},
 		},
 	}
 
-	dataFields := MapCustomerToDataFields(customer)
+	dataFields := MapCustomerToDataFields(&customer)
 
 	assert.Nil(t, dataFields.Document)
-}
-
-func Test_mapDocumentType(t *testing.T) {
-	assert.Equal(t, "DrivingLicence", mapCustomerDocumentType(common.Drivers))
-	assert.Equal(t, "IdentityCard", mapCustomerDocumentType(common.IDCard))
-	assert.Equal(t, "Passport", mapCustomerDocumentType(common.Passport))
-	assert.Equal(t, "ResidencePermit", mapCustomerDocumentType(common.ResidencePermit))
 }
 
 func Test_mapGender(t *testing.T) {

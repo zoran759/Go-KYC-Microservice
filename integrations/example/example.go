@@ -1,7 +1,7 @@
 package example
 
 import (
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 // Checks the customer with the KYC provider and returns a boolean indicating whether user is approved.
