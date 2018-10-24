@@ -1,9 +1,13 @@
 package shuftipro
 
-import "gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
+import "modulus/kyc/integrations/shuftipro/verification"
 
+// Config represents the service config.
 type Config verification.Config
 
-const NotVerified = "SP0"
-const Verified = "SP1"
-const Success = "SP2"
+// Verification result codes from the API.
+const (
+	NotVerified = "SP0"
+	Verified    = "SP1"
+	Success     = "SP2"
+)

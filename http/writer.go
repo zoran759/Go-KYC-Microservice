@@ -9,12 +9,15 @@ import (
 	"strings"
 )
 
+// quoteEscaper holds the replacer function for special characters in a string.
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
+// escapeQuotes escapes special characters in a string.
 func escapeQuotes(s string) string {
 	return quoteEscaper.Replace(s)
 }
 
+// CreateFormFile returns a writer that writes data from a file to the form field.
 func CreateFormFile(writer *multipart.Writer, fieldname, filename string, contentType string) (io.Writer, error) {
 	if writer == nil {
 		return nil, errors.New("no writer supplied")

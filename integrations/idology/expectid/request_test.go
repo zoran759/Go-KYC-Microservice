@@ -5,7 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.com/lambospeed/kyc/common"
+	"modulus/kyc/common"
 )
 
 var _ = Describe("Request", func() {
@@ -19,19 +19,14 @@ var _ = Describe("Request", func() {
 					CountryAlpha2:     "US",
 					State:             "Georgia",
 					Town:              "Atlanta",
-					Street:            "222333 PeachTree Place",
+					Street:            "PeachTree Place",
+					BuildingNumber:    "222333",
 					PostCode:          "30318",
 					StateProvinceCode: "GA",
 				},
-				Documents: []common.Document{
-					common.Document{
-						Metadata: common.DocumentMetadata{
-							Type:            common.IDCard,
-							Country:         "USA",
-							Number:          "112223333",
-							CardLast4Digits: "3333",
-						},
-					},
+				IDCard: &common.IDCard{
+					CountryAlpha2: "US",
+					Number:        "112223333",
 				},
 			}
 

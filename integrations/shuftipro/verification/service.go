@@ -4,16 +4,18 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/gofrs/uuid"
-	"gitlab.com/lambospeed/kyc/http"
 	"log"
+	"modulus/kyc/http"
 	"net/url"
+
+	"github.com/gofrs/uuid"
 )
 
 type service struct {
 	config Config
 }
 
+// NewService constructs a new verification service object.
 func NewService(config Config) Verification {
 	return service{
 		config: config,

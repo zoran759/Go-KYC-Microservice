@@ -4,9 +4,10 @@ import (
 	"testing"
 
 	"errors"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/shuftipro/verification"
+
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/shuftipro/verification"
 )
 
 func TestNew(t *testing.T) {
@@ -25,10 +26,10 @@ func TestShuftiPro_CheckCustomer(t *testing.T) {
 		},
 	}
 
-	result, detailedResult, err := service.CheckCustomer(&common.UserData{})
+	result, err := service.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) {
-		assert.Equal(t, common.Denied, result)
-		assert.Nil(t, detailedResult)
+		assert.Equal(t, common.Denied, result.Status)
+		assert.Nil(t, result.Details)
 	}
 
 	service.verification = verification.Mock{
@@ -40,10 +41,10 @@ func TestShuftiPro_CheckCustomer(t *testing.T) {
 		},
 	}
 
-	result, detailedResult, err = service.CheckCustomer(&common.UserData{})
+	result, err = service.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) {
-		assert.Equal(t, common.Approved, result)
-		assert.Nil(t, detailedResult)
+		assert.Equal(t, common.Approved, result.Status)
+		assert.Nil(t, result.Details)
 	}
 }
 
@@ -59,10 +60,10 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 		},
 	}
 
-	result, detailedResult, err := service.CheckCustomer(&common.UserData{})
+	result, err := service.CheckCustomer(&common.UserData{})
 	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result)
-		assert.Nil(t, detailedResult)
+		assert.Equal(t, common.Error, result.Status)
+		assert.Nil(t, result.Details)
 		assert.Equal(t, "Invalid checksum value.", err.Error())
 	}
 
@@ -74,10 +75,10 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 		},
 	}
 
-	result, detailedResult, err = service.CheckCustomer(&common.UserData{})
+	result, err = service.CheckCustomer(&common.UserData{})
 	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result)
-		assert.Nil(t, detailedResult)
+		assert.Equal(t, common.Error, result.Status)
+		assert.Nil(t, result.Details)
 		assert.Equal(t, "There are no documents provided or they are invalid", err.Error())
 	}
 
@@ -87,17 +88,17 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 		},
 	}
 
-	result, detailedResult, err = service.CheckCustomer(&common.UserData{})
+	result, err = service.CheckCustomer(&common.UserData{})
 	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result)
-		assert.Nil(t, detailedResult)
+		assert.Equal(t, common.Error, result.Status)
+		assert.Nil(t, result.Details)
 		assert.Equal(t, "test_error", err.Error())
 	}
 
-	result, detailedResult, err = service.CheckCustomer(nil)
+	result, err = service.CheckCustomer(nil)
 	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result)
-		assert.Nil(t, detailedResult)
+		assert.Equal(t, common.Error, result.Status)
+		assert.Nil(t, result.Details)
 		assert.Equal(t, "No customer supplied", err.Error())
 	}
 }
