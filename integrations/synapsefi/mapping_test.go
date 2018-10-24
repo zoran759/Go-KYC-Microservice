@@ -4,82 +4,82 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/synapsefi/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/synapsefi/verification"
 )
 
 func Test_mapResponseToResult(t *testing.T) {
-	approvedResponse := verification.UserResponse{
+	approvedResponse := &verification.UserResponse{
 		ID: "ID",
 		DocumentStatus: verification.DocumentStatus{
-			PhysicalDoc: Valid,
+			PhysicalDoc: DocStatusValid,
 		},
 	}
 
-	status, details, err := mapResponseToResult(approvedResponse)
+	status, err := mapResponseToResult(approvedResponse)
 	if assert.NoError(t, err) {
-		assert.Equal(t, common.Approved, status)
-		assert.Nil(t, details)
+		assert.Equal(t, common.Approved, status.Status)
+		assert.Nil(t, status.Details)
 	}
 
-	deniedResponse := verification.UserResponse{
+	deniedResponse := &verification.UserResponse{
 		ID: "ID",
 		DocumentStatus: verification.DocumentStatus{
-			PhysicalDoc: Invalid,
+			PhysicalDoc: DocStatusInvalid,
 		},
 		Documents: []verification.ResponseDocument{
 			{
 				PhysicalDocs: []verification.ResponseSubDocument{
 					{
 						DocumentType: "PASSPORT",
-						Status:       Invalid,
+						Status:       DocStatusInvalid,
 					},
 					{
 						DocumentType: "SELFIE",
-						Status:       Valid,
+						Status:       DocStatusValid,
 					},
 					{
 						DocumentType: "TYPE",
-						Status:       Invalid,
+						Status:       DocStatusInvalid,
 					},
 				},
 			},
 		},
 	}
 
-	status, details, err = mapResponseToResult(deniedResponse)
+	status, err = mapResponseToResult(deniedResponse)
 	if assert.NoError(t, err) {
-		assert.Equal(t, common.Denied, status)
-		if assert.NotNil(t, details) {
-			assert.Equal(t, common.Unknown, details.Finality)
+		assert.Equal(t, common.Denied, status.Status)
+		if assert.NotNil(t, status.Details) {
+			assert.Equal(t, common.Unknown, status.Details.Finality)
 			assert.Equal(t, []string{
-				"PASSPORT:" + Invalid,
-				"TYPE:" + Invalid,
-			}, details.Reasons)
+				"PASSPORT:" + DocStatusInvalid,
+				"TYPE:" + DocStatusInvalid,
+			}, status.Details.Reasons)
 		}
 	}
 
-	missingResponse := verification.UserResponse{
+	missingResponse := &verification.UserResponse{
 		ID: "ID",
 		DocumentStatus: verification.DocumentStatus{
-			PhysicalDoc: MissingOrInvalid,
+			PhysicalDoc: DocStatusMissingOrInvalid,
 		},
 	}
 
-	status, details, err = mapResponseToResult(missingResponse)
-	if assert.Error(t, err) && assert.Equal(t, common.Error, status) && assert.Nil(t, details) {
+	status, err = mapResponseToResult(missingResponse)
+	if assert.Error(t, err) && assert.Equal(t, common.Error, status.Status) && assert.Nil(t, status.Details) {
 		assert.Equal(t, "There are no documents provided, or they are invalid", err.Error())
 	}
 
-	unexpectedResponse := verification.UserResponse{
+	unexpectedResponse := &verification.UserResponse{
 		ID: "ID",
 		DocumentStatus: verification.DocumentStatus{
 			PhysicalDoc: "UnexpectedStatus",
 		},
 	}
 
-	status, details, err = mapResponseToResult(unexpectedResponse)
-	if assert.Error(t, err) && assert.Equal(t, common.Error, status) && assert.Nil(t, details) {
+	status, err = mapResponseToResult(unexpectedResponse)
+	if assert.Error(t, err) && assert.Equal(t, common.Error, status.Status) && assert.Nil(t, status.Details) {
 		assert.Equal(t, "Unknown status: UnexpectedStatus", err.Error())
 	}
 }

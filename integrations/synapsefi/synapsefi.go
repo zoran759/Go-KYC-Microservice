@@ -2,61 +2,116 @@ package synapsefi
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/synapsefi/verification"
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/synapsefi/verification"
 	"log"
-	"math"
 	"time"
 )
 
 type SynapseFI struct {
 	verification     verification.Verification
 	timeoutThreshold int64
+	kycFlow 		 string
 }
 
 func New(config Config) SynapseFI {
-	return SynapseFI{
-		verification:     verification.NewService(config.Config),
-		timeoutThreshold: config.TimeoutThreshold,
+	kycFlow := "simple"
+	if len(config.KYCFlow) > 0 {
+		kycFlow = config.KYCFlow
 	}
+
+	timeoutThreshold := int64(time.Hour.Seconds())
+	if config.TimeoutThreshold > 0 {
+		timeoutThreshold = config.TimeoutThreshold
+	}
+
+	return SynapseFI{
+		verification:     verification.NewService(verification.Config(config.Connection)),
+		timeoutThreshold: timeoutThreshold,
+		kycFlow: kycFlow,
+	}
+
+
 }
 
-func (service SynapseFI) CheckCustomer(customer *common.UserData) (common.KYCResult, *common.DetailedKYCResult, error) {
+func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
-		return common.Error, nil, errors.New("No customer supplied")
+		err = errors.New("No customer supplied")
+		return
 	}
-	createUserRequest := verification.MapCustomerToCreateUserRequest(*customer)
+
+	createUserRequest := verification.MapCustomerToCreateUserRequest(*customer, true)
 
 	response, err := service.verification.CreateUser(createUserRequest)
 	if err != nil {
-		return common.Error, nil, err
+		return result, err
 	}
 
-	if response.DocumentStatus.PhysicalDoc == "SUBMITTED|REVIEWING" || response.DocumentStatus.PhysicalDoc == "SUBMITTED" {
-		// Begin polling SynapseFI for validation results
-		startingPower := 3
+	if service.kycFlow != "" && service.kycFlow != "simple" {
+		log.Printf("Alternative flow, auth user");
+
+		uID := response.ID
+
+		createOauthRequest := verification.MapUserToOauth(response.RefreshToken)
+		responseAuth, err := service.verification.GetOauthKey(uID, createOauthRequest)
+		if err != nil {
+			return result, err
+		}
+		log.Printf("OAuth response: %+v", responseAuth);
+
+		createDocumentRequest := verification.MapDocumentsToCreateUserRequest(*customer)
+		response, err = service.verification.AddDocument(uID, responseAuth.OAuthKey, createDocumentRequest)
+		if err != nil {
+			return result, err
+		}
+	}
+
+	log.Printf("Initial status: %+v", response)
+
+	switch response.DocumentStatus.PhysicalDoc {
+	case DocStatusInvalid:
+		fallthrough
+	case DocStatusValid:
+		result, err = mapResponseToResult(response)
+		return result, err
+
+	case DocStatusMissingOrInvalid:
+		fallthrough
+	case DocStatusPending:
+		fallthrough
+	case DocStatusReviewing:
+		startingPower := 60
 		startingDate := time.Now()
 		for {
 			if time.Now().Unix()-startingDate.Unix() >= service.timeoutThreshold {
-				return common.Error, nil, errors.New("request timed out")
+				log.Printf("Timeout exceeded")
+				continue
 			}
 
-			time.Sleep(time.Duration(math.Exp(float64(startingPower))) * time.Second)
-			startingPower += 1
+			time.Sleep(time.Duration(startingPower) * time.Second)
 
 			getUserResponse, err := service.verification.GetUser(response.ID)
 			if err != nil {
 				log.Printf("SynapseFI polling error: %s for user with id: %s", err, response.ID)
 				continue
 			}
+			log.Printf("Response: %+v", getUserResponse)
 
-			if getUserResponse.DocumentStatus.PhysicalDoc == "SUBMITTED|REVIEWING" || getUserResponse.DocumentStatus.PhysicalDoc == "SUBMITTED" {
+			if getUserResponse.DocumentStatus.PhysicalDoc == DocStatusPending || getUserResponse.DocumentStatus.PhysicalDoc == DocStatusReviewing {
 				continue
 			}
 
-			return mapResponseToResult(*getUserResponse)
+			result, err = mapResponseToResult(getUserResponse)
+			return result, err
 		}
-	}
 
-	return mapResponseToResult(*response)
+	default:
+		result.Status = common.Denied
+		result.Details = &common.KYCDetails{
+			Finality: common.Unknown,
+		}
+		result.Details.Reasons = append(result.Details.Reasons, DocStatusMissingOrInvalid)
+
+		return result, err
+	}
 }
