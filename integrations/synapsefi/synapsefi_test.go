@@ -2,19 +2,28 @@ package synapsefi
 
 import (
 	"testing"
-
-	"github.com/pkg/errors"
+	"errors"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/lambospeed/kyc/common"
-	"gitlab.com/lambospeed/kyc/integrations/synapsefi/verification"
+	"modulus/kyc/integrations/synapsefi/verification"
+	"modulus/kyc/common"
 )
 
-func TestNew(t *testing.T) {
+func TestNewShort(t *testing.T) {
+	service := New(Config{
+	})
+
+	assert.Equal(t, int64(3600), service.timeoutThreshold)
+	assert.Equal(t, "simple", service.kycFlow)
+}
+
+func TestNewFull(t *testing.T) {
 	service := New(Config{
 		TimeoutThreshold: 1000,
+		KYCFlow: "complex",
 	})
 
 	assert.Equal(t, int64(1000), service.timeoutThreshold)
+	assert.Equal(t, "complex", service.kycFlow)
 }
 
 func TestSynapseFI_CheckCustomerValid(t *testing.T) {
@@ -24,16 +33,17 @@ func TestSynapseFI_CheckCustomerValid(t *testing.T) {
 				return &verification.UserResponse{
 					ID: "someid",
 					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: Valid,
+						PhysicalDoc: DocStatusValid,
 					},
 				}, nil
 			},
 		},
+		kycFlow: "simple",
 	}
 
-	result, details, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.Nil(t, details) {
-		assert.Equal(t, common.Approved, result)
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) {
+		assert.Equal(t, common.Approved, result.Status)
 	}
 }
 
@@ -44,14 +54,14 @@ func TestSynapseFI_CheckCustomerInvalid(t *testing.T) {
 				return &verification.UserResponse{
 					ID: "someid",
 					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: Invalid,
+						PhysicalDoc: DocStatusInvalid,
 					},
 					Documents: []verification.ResponseDocument{
 						{
 							PhysicalDocs: []verification.ResponseSubDocument{
 								{
 									DocumentType: "TYPE",
-									Status:       Invalid,
+									Status: DocStatusInvalid,
 								},
 							},
 						},
@@ -59,20 +69,20 @@ func TestSynapseFI_CheckCustomerInvalid(t *testing.T) {
 				}, nil
 			},
 		},
+		kycFlow: "simple",
 	}
 
-	result, details, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, details) {
-		assert.Equal(t, common.Denied, result)
-		assert.Equal(t, common.Unknown, details.Finality)
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.NotNil(t, result) {
+		assert.Equal(t, common.Denied, result.Status)
+		assert.Equal(t, common.Unknown, result.Details.Finality)
 		assert.Equal(t, []string{
-			"TYPE:" + Invalid,
-		}, details.Reasons)
+			"TYPE:" + DocStatusInvalid,
+		}, result.Details.Reasons)
 	}
 }
 
 func TestSynapseFI_CheckCustomerPoll(t *testing.T) {
-	numberOfTImesPolled := 0
 
 	service := SynapseFI{
 		verification: verification.Mock{
@@ -85,28 +95,16 @@ func TestSynapseFI_CheckCustomerPoll(t *testing.T) {
 				}, nil
 			},
 			GetUserFn: func(userID string) (*verification.UserResponse, error) {
-				if numberOfTImesPolled == 0 {
-					numberOfTImesPolled++
-					return &verification.UserResponse{
-						DocumentStatus: verification.DocumentStatus{
-							PhysicalDoc: "SUBMITTED",
-						},
-					}, nil
-				} else if numberOfTImesPolled == 1 {
-					numberOfTImesPolled++
-					return nil, errors.New("test_error")
-				}
-
 				return &verification.UserResponse{
 					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: Invalid,
+						PhysicalDoc: "SUBMITTED|INVALID",
 					},
 					Documents: []verification.ResponseDocument{
 						{
 							PhysicalDocs: []verification.ResponseSubDocument{
 								{
 									DocumentType: "TYPE",
-									Status:       Invalid,
+									Status: "SUBMITTED|INVALID",
 								},
 							},
 						},
@@ -117,52 +115,36 @@ func TestSynapseFI_CheckCustomerPoll(t *testing.T) {
 		timeoutThreshold: 400,
 	}
 
-	result, details, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, details) {
-		assert.Equal(t, common.Denied, result)
-		assert.Equal(t, common.Unknown, details.Finality)
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
+		assert.Equal(t, common.Denied, result.Status)
+		assert.Equal(t, common.Unknown, result.Details.Finality)
 		assert.Equal(t, []string{
-			"TYPE:" + Invalid,
-		}, details.Reasons)
+			"TYPE:" + DocStatusInvalid,
+		}, result.Details.Reasons)
 	}
 }
 
-func TestSynapseFI_CheckCustomerPollTimeout(t *testing.T) {
-	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: "SUBMITTED",
-					},
-				}, nil
-			},
-			GetUserFn: func(userID string) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: Invalid,
-					},
-					Documents: []verification.ResponseDocument{
-						{
-							PhysicalDocs: []verification.ResponseSubDocument{
-								{
-									DocumentType: "TYPE",
-									Status:       Invalid,
-								},
-							},
-						},
-					},
-				}, nil
-			},
-		},
-	}
-
-	result, details, err := service.CheckCustomer(&common.UserData{})
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result)
-	assert.Nil(t, details)
-}
+//func TestSynapseFI_CheckCustomerWithoutDocuments(t *testing.T) {
+//	service := SynapseFI{
+//		verification: verification.Mock{
+//			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
+//				return &verification.UserResponse{
+//					ID: "someid",
+//				}, nil
+//			},
+//		},
+//	}
+//
+//	result, err := service.CheckCustomer(&common.UserData{})
+//	if assert.NoError(t, err) {
+//		assert.Equal(t, common.Denied, result.Status)
+//		assert.Equal(t, common.Unknown, result.Details.Finality)
+//		assert.Equal(t, []string{
+//			DocStatusMissingOrInvalid,
+//		}, result.Details.Reasons)
+//	}
+//}
 
 func TestSynapseFI_CheckCustomerError(t *testing.T) {
 	service := SynapseFI{
@@ -173,13 +155,153 @@ func TestSynapseFI_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	result, details, err := service.CheckCustomer(&common.UserData{})
+	result, err := service.CheckCustomer(&common.UserData{})
 	assert.Error(t, err)
-	assert.Equal(t, common.Error, result)
-	assert.Nil(t, details)
+	assert.Equal(t, common.Error, result.Status)
+	assert.Nil(t, result.Details)
 
-	result, details, err = service.CheckCustomer(nil)
+	result, err = service.CheckCustomer(nil)
 	assert.Error(t, err)
-	assert.Equal(t, common.Error, result)
-	assert.Nil(t, details)
+	assert.Equal(t, common.Error, result.Status)
+	assert.Nil(t, result.Details)
 }
+
+func TestSynapseFI_CheckCustomerValidComplexFlow(t *testing.T) {
+	service := SynapseFI{
+		verification: verification.Mock{
+			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
+				return &verification.UserResponse{
+					ID: "someid",
+					DocumentStatus: verification.DocumentStatus{
+						PhysicalDoc: DocStatusValid,
+					},
+				}, nil
+			},
+			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
+				return &verification.OauthResponse{
+					ID: "someid",
+					OAuthKey: "somekey",
+					RefreshToken: "sometoken",
+					ExpiresAt: "1498297390",
+				}, nil
+			},
+			AddDocumentFn: func(userID string, userOAuth string, request verification.CreateDocumentsRequest) (*verification.UserResponse, error) {
+				return &verification.UserResponse{
+					ID: "someid",
+					DocumentStatus: verification.DocumentStatus{
+						PhysicalDoc: DocStatusValid,
+					},
+				}, nil
+			},
+		},
+		kycFlow: "complex",
+	}
+
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) {
+		assert.Equal(t, common.Approved, result.Status)
+	}
+}
+
+func TestSynapseFI_CheckCustomerValidComplexFlowInvalid(t *testing.T) {
+	service := SynapseFI{
+		verification: verification.Mock{
+			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
+				return &verification.UserResponse{
+					ID: "someid",
+					DocumentStatus: verification.DocumentStatus{
+						PhysicalDoc: DocStatusValid,
+					},
+				}, nil
+			},
+			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
+				return &verification.OauthResponse{
+					ID: "someid",
+					OAuthKey: "somekey",
+					RefreshToken: "sometoken",
+					ExpiresAt: "1498297390",
+				}, nil
+			},
+			AddDocumentFn: func(userID string, userOAuth string, request verification.CreateDocumentsRequest) (*verification.UserResponse, error) {
+				return &verification.UserResponse{
+					ID: "someid",
+					DocumentStatus: verification.DocumentStatus{
+						PhysicalDoc: DocStatusInvalid,
+					},
+					Documents: []verification.ResponseDocument{
+						{
+							PhysicalDocs: []verification.ResponseSubDocument{
+								{
+									DocumentType: "TYPE",
+									Status: DocStatusInvalid,
+								},
+							},
+						},
+					},
+				}, nil
+			},
+		},
+		kycFlow: "complex",
+	}
+
+	result, err := service.CheckCustomer(&common.UserData{})
+	if assert.NoError(t, err) && assert.NotNil(t, result) {
+		assert.Equal(t, common.Denied, result.Status)
+		assert.Equal(t, common.Unknown, result.Details.Finality)
+		assert.Equal(t, []string{
+			"TYPE:" + DocStatusInvalid,
+		}, result.Details.Reasons)
+	}
+}
+
+func TestSynapseFI_CheckCustomerComplexCreateUserError(t *testing.T) {
+	service := SynapseFI{
+		verification: verification.Mock{
+			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
+				return nil, errors.New("test_error")
+			},
+		},
+		kycFlow: "complex",
+	}
+
+	result, err := service.CheckCustomer(&common.UserData{})
+	assert.Error(t, err)
+	assert.Equal(t, common.Error, result.Status)
+	assert.Nil(t, result.Details)
+
+	result, err = service.CheckCustomer(nil)
+	assert.Error(t, err)
+	assert.Equal(t, common.Error, result.Status)
+	assert.Nil(t, result.Details)
+}
+
+func TestSynapseFI_CheckCustomerComplexOAuthError(t *testing.T) {
+	service := SynapseFI{
+		verification: verification.Mock{
+			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
+				return &verification.UserResponse{
+					ID: "someid",
+					DocumentStatus: verification.DocumentStatus{
+						PhysicalDoc: DocStatusValid,
+					},
+				}, nil
+			},
+			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
+				return nil, errors.New("test_error")
+			},
+		},
+		kycFlow: "complex",
+	}
+
+
+	result, err := service.CheckCustomer(&common.UserData{})
+	assert.Error(t, err)
+	assert.Equal(t, common.Error, result.Status)
+	assert.Nil(t, result.Details)
+
+	result, err = service.CheckCustomer(nil)
+	assert.Error(t, err)
+	assert.Equal(t, common.Error, result.Status)
+	assert.Nil(t, result.Details)
+}
+

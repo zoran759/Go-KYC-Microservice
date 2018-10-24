@@ -1,5 +1,16 @@
 package verification
 
+type ResponseError struct {
+	Error		map[string]string 	`json:"error"`
+	ErrorCode	string 				`json:"error_code"`
+	HttpCode	string 				`json:"http_code"`
+	Status 		bool 				`json:"success"`
+}
+
+type CreateDocumentsRequest struct {
+	Documents    Document `json:"documents"`
+}
+
 type CreateUserRequest struct {
 	Logins       []Login    `json:"logins"`
 	PhoneNumbers []string   `json:"phone_numbers"`
@@ -8,9 +19,37 @@ type CreateUserRequest struct {
 	Extra        Extra      `json:"extra"`
 }
 
+type CreateOauthRequest struct {
+	RefreshToken	string	`json:"refresh_token"`
+}
+
+type OauthResponse struct {
+	ID				string  `json:"user_id"`
+	OAuthKey		string 	`json:"oauth_key"`
+	RefreshToken	string	`json:"refresh_token"`
+	ExpiresAt		string	`json:"expires_at"`
+}
+
 type Login struct {
 	Email string `json:"email"`
 	Scope string `json:"scope"`
+}
+
+type UserResponse struct {
+	ID             	string             	`json:"_id"`
+	DocumentStatus 	DocumentStatus     	`json:"doc_status"`
+	Documents      	[]ResponseDocument	`json:"documents"`
+	RefreshToken	string 			  	`json:"refresh_token"`
+}
+
+type UserResponseClient struct {
+	ID		string	`json:"id"`
+	Name	string	`json:"name"`
+}
+
+type Extra struct {
+	CIPTag     int  `json:"cip_tag"`
+	IsBusiness bool `json:"is_business"`
 }
 
 type Document struct {
@@ -36,23 +75,13 @@ type SubDocument struct {
 	DocumentValue string `json:"document_value"`
 }
 
-type Extra struct {
-	CIPTag     int  `json:"cip_tag"`
-	IsBusiness bool `json:"is_business"`
-}
-
-type UserResponse struct {
-	ID             string             `json:"_id"`
-	DocumentStatus DocumentStatus     `json:"doc_status"`
-	Documents      []ResponseDocument `json:"documents"`
-}
-
 type ResponseDocument struct {
 	PhysicalDocs []ResponseSubDocument `json:"physical_docs"`
 }
 
 type ResponseSubDocument struct {
 	DocumentType string `json:"document_type"`
+	DocumentID 	 string `json:"id"`
 	Status       string `json:"status"`
 }
 

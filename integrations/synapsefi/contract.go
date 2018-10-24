@@ -1,12 +1,20 @@
 package synapsefi
 
-import "gitlab.com/lambospeed/kyc/integrations/synapsefi/verification"
+import "modulus/kyc/integrations/synapsefi/verification"
+
+type Connection verification.Config
 
 type Config struct {
-	verification.Config
+	Connection Connection
 	TimeoutThreshold int64
+	KYCFlow	string
 }
 
-const MissingOrInvalid = "MISSING|INVALID"
-const Valid = "SUBMITTED|VALID"
-const Invalid = "SUBMITTED|INVALID"
+const (
+	DocStatusMissingOrInvalid = "MISSING|INVALID"
+	DocStatusValid = "SUBMITTED|VALID"
+	DocStatusInvalid = "SUBMITTED|INVALID"
+	DocStatusPending = "SUBMITTED"
+	DocStatusReviewing = "SUBMITTED|REVIEWING"
+)
+
