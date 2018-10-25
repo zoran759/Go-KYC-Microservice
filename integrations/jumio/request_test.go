@@ -281,6 +281,13 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).To(BeNil())
+			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
+			Expect(r.Country).To(Equal("USA"))
+			Expect(r.IDType).To(Equal(Passport))
+			Expect(r.Expiry).To(Equal(common.Time(time.Date(2025, 05, 14, 0, 0, 0, 0, time.UTC)).Format("2006-01-02")))
+			Expect(r.Number).To(Equal("1234567890"))
+			Expect(r.USState).To(Equal("WA"))
 		})
 
 		It("should success with the valid customer.DriverLicense", func() {
@@ -307,6 +314,14 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).To(BeNil())
+			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.FrontsideImageMimeType).To(Equal("image/jpeg"))
+			Expect(r.BacksideImageMimeType).To(Equal("image/jpeg"))
+			Expect(r.Country).To(Equal("USA"))
+			Expect(r.IDType).To(Equal(DrivingLicense))
+			Expect(r.Expiry).To(Equal(common.Time(time.Date(2022, 12, 21, 0, 0, 0, 0, time.UTC)).Format("2006-01-02")))
+			Expect(r.Number).To(Equal("123456789"))
+			Expect(r.USState).To(Equal("WA"))
 		})
 
 		It("should success with the valid customer.IDCard", func() {
@@ -326,12 +341,17 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).To(BeNil())
+			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.FrontsideImageMimeType).To(Equal("image/jpeg"))
+			Expect(r.Country).To(Equal("CAN"))
+			Expect(r.IDType).To(Equal(IDCard))
+			Expect(r.Number).To(Equal("0123456789"))
 		})
 
 		It("should success with the valid customer.SNILS", func() {
 			customer := &common.UserData{
 				SNILS: &common.SNILS{
-					Number:     "0123456789",
+					Number:     "11112223333",
 					IssuedDate: common.Time(time.Date(2018, 03, 14, 0, 0, 0, 0, time.UTC)),
 					Image: &common.DocumentFile{
 						Filename:    "SNILS.png",
@@ -344,6 +364,11 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).To(BeNil())
+			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
+			Expect(r.Country).To(Equal("RUS"))
+			Expect(r.IDType).To(Equal(IDCard))
+			Expect(r.Number).To(Equal("11112223333"))
 		})
 
 		It("should success with the valid user data", func() {
@@ -375,6 +400,16 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).To(BeNil())
+			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.FirstName).To(Equal("Bruce"))
+			Expect(r.LastName).To(Equal("Wayne"))
+			Expect(r.DOB).To(Equal(common.Time(time.Date(1950, 03, 17, 0, 0, 0, 0, time.UTC)).Format("2006-01-02")))
+			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
+			Expect(r.Country).To(Equal("USA"))
+			Expect(r.IDType).To(Equal(Passport))
+			Expect(r.Expiry).To(Equal(common.Time(time.Date(2020, 05, 14, 0, 0, 0, 0, time.UTC)).Format("2006-01-02")))
+			Expect(r.Number).To(Equal("1234567890"))
+			Expect(r.USState).To(Equal("WA"))
 		})
 	})
 })
