@@ -50,4 +50,5 @@ var KYCProviders = map[KYCProvider]bool{
 	ShuftiPro:    true,
 	SumSub:       true,
 	Trulioo:      true,
+	Jumio:        true,
 }
