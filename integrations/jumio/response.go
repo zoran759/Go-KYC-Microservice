@@ -85,7 +85,7 @@ func (i IdentityVerification) String() string {
 	b.WriteString(" | validity = ")
 	b.WriteString(i.Validity)
 	if len(i.Reason) > 0 {
-		b.WriteString("| reason = ")
+		b.WriteString(" | reason = ")
 		b.WriteString(i.Reason)
 	}
 

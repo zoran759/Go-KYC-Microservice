@@ -17,7 +17,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("missing acceptable document for the verification (anyone of passport, driving license or id card)"))
 		})
 
@@ -35,7 +35,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("unacceptable selfie image format: image/bmp"))
 			})
 
@@ -52,7 +52,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during encoding selfi image data: too large image file"))
 			})
 		})
@@ -71,7 +71,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("unacceptable passport image format: image/bmp"))
 			})
 
@@ -88,7 +88,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during encoding passport image: too large image file"))
 			})
 		})
@@ -107,7 +107,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("unacceptable driver license front image format: image/bmp"))
 			})
 
@@ -124,7 +124,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during encoding driver license front image: too large image file"))
 			})
 
@@ -146,7 +146,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("unacceptable driver license back image format: image/gif"))
 			})
 
@@ -168,7 +168,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during encoding driver license back image: too large image file"))
 			})
 		})
@@ -187,7 +187,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("unacceptable id card image format: image/bmp"))
 			})
 
@@ -204,7 +204,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during encoding id card image: too large image file"))
 			})
 		})
@@ -223,7 +223,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("unacceptable SNILS image format: image/bmp"))
 			})
 
@@ -240,7 +240,7 @@ var _ = Describe("Request", func() {
 
 				err := r.populateFields(customer)
 
-				Expect(err).NotTo(BeNil())
+				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("during encoding SNILS image: too large image file"))
 			})
 		})
@@ -258,7 +258,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("missing acceptable document for the verification (anyone of passport, driving license or id card)"))
 		})
 
@@ -280,7 +280,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
 			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
 			Expect(r.Country).To(Equal("USA"))
@@ -313,7 +313,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
 			Expect(r.FrontsideImageMimeType).To(Equal("image/jpeg"))
 			Expect(r.BacksideImageMimeType).To(Equal("image/jpeg"))
@@ -340,7 +340,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
 			Expect(r.FrontsideImageMimeType).To(Equal("image/jpeg"))
 			Expect(r.Country).To(Equal("CAN"))
@@ -363,7 +363,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
 			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
 			Expect(r.Country).To(Equal("RUS"))
@@ -399,7 +399,7 @@ var _ = Describe("Request", func() {
 
 			err := r.populateFields(customer)
 
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
 			Expect(r.FirstName).To(Equal("Bruce"))
 			Expect(r.LastName).To(Equal("Wayne"))
