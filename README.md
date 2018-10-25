@@ -388,12 +388,12 @@ For instructions on integration of a specific KYC provider, please, refer this l
 | ------------------------- | ----------- | :----------: | -------------------------------------------------------------------- |
 | **FirstName**             | _string_    | **Yes**      |                                                                      |
 | **LastName**              | _string_    | **Yes**      |                                                                      |
-| DateOfBirth               | _Time_      |              |                                                                      |
 | Email                     | _string_    |              |                                                                      |
+| DateOfBirth               | _Time_      |              |                                                                      |
 | Phone                     | _string_    |              | It will be used if non-empty and has length of 10                    |
 | MobilePhone               | _string_    |              | It will be used if has lenght of 10 and the **Phone** field is empty |
 | **CurrentAddress**        | _Address_   | **Yes**      |                                                                      |
-| SupplementalAddresses     | _[]Address_ |              | For ex. it might be a shipping address                               |
+| SupplementalAddresses     | _[]Address_ |              | It might be a shipping address                                       |
 | **IDCard**                | _*IDCard_   | **Yes**      |                                                                      |
 
 [**Address**](#address-fields-description) mandatory fields:
@@ -410,6 +410,9 @@ According to the [API Reference](https://developers.sumsub.com) all fields of [*
 
 * PaternalLastName
 * LatinISO1Name
+* AccountName
+* IPaddress
+* Location
 * Business
 
 Sum&Substance requires at least one document to be present to start the verification process, so anyone of the following fields should present:
