@@ -113,6 +113,16 @@ func validate(config Config) (err error) {
 			if len(options["NAPIPassword"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "NAPIPassword"}
 			}
+		case common.Jumio:
+			if len(options["BaseURL"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "BaseURL"}
+			}
+			if len(options["Token"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Token"}
+			}
+			if len(options["Secret"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Secret"}
+			}
 		}
 	}
 
