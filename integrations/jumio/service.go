@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	stdhttp "net/http"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/http"
@@ -47,9 +48,11 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 		return
 	}
 
+	result.Status = common.Unclear
 	result.StatusCheck = &common.KYCStatusCheck{
 		Provider:    common.Jumio,
 		ReferenceID: response.JumioIDScanReference,
+		LastCheck:   time.Now(),
 	}
 
 	return
@@ -104,6 +107,7 @@ func (s *service) CheckStatus(referenceID string) (result common.KYCResult, err 
 		result.StatusCheck = &common.KYCStatusCheck{
 			Provider:    common.Jumio,
 			ReferenceID: referenceID,
+			LastCheck:   time.Now(),
 		}
 	case DoneStatus, FailedStatus:
 		scanDetails := &DetailsResponse{}
