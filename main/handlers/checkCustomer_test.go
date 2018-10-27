@@ -112,7 +112,7 @@ func init() {
 func TestCheckCustomer(t *testing.T) {
 	request, err := json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.IDology,
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -208,7 +208,7 @@ func TestCheckCustomer(t *testing.T) {
 
 	// Testing missing Provider field in the request.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -234,7 +234,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing nonexistent KYC provider.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: "Nonexistent Provider",
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -260,7 +260,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: "Provider Without Config",
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -290,7 +290,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: "Not Implemented Provider",
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -321,7 +321,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.IDology,
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -357,7 +357,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing ShuftiPro.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.ShuftiPro,
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -392,7 +392,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing Sum&Substance.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.SumSub,
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)
@@ -431,7 +431,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing Trulioo.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.Trulioo,
-		UserData: common.UserData{
+		UserData: &common.UserData{
 			CountryAlpha2: "AU",
 		},
 	})
@@ -477,7 +477,7 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing IDology config error.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.IDology,
-		UserData: common.UserData{},
+		UserData: &common.UserData{},
 	})
 
 	assert.Nil(t, err)

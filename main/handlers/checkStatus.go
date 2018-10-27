@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/sumsub"
 	"modulus/kyc/main/config"
-	"net/http"
 )
 
 // CheckStatus handles requests for a status check.
@@ -67,6 +69,11 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 
 // createStatusChecker returns the StatusChecker object for the specified provider or an error if occurred.
 func createStatusChecker(provider common.KYCProvider) (service common.StatusChecker, err *serviceError) {
+	if provider == common.Example {
+		service = &example.Service{}
+		return
+	}
+
 	if !common.KYCProviders[provider] {
 		err = &serviceError{
 			status:  http.StatusNotFound,
