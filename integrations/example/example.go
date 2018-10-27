@@ -28,7 +28,7 @@ func (s *Service) CheckCustomer(customer *common.UserData) (res common.KYCResult
 	case "Destiny":
 		res = deniedResultWithFinality()
 	case "Urbi":
-		res = unclearResult()
+		res = unclearResult("lily_was_here")
 	case "Erika":
 		res.ErrorCode = "429"
 		err = errors.New("during sending request: http error")
@@ -40,7 +40,20 @@ func (s *Service) CheckCustomer(customer *common.UserData) (res common.KYCResult
 }
 
 // CheckStatus implements StatusChecker interface for the example KYC provider.
-func (s *Service) CheckStatus(customerID string) (res common.KYCResult, err error) {
+func (s *Service) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	switch referenceID {
+	case "ada":
+		res.Status = common.Approved
+	case "dana":
+		res = deniedResult()
+	case "uma":
+		res = unclearResult("uma")
+	case "elin":
+		res.ErrorCode = "401"
+		err = errors.New("during sending request: http error")
+	default:
+		res = errorResult()
+	}
 
 	return
 }
@@ -83,11 +96,11 @@ func deniedResultWithFinality() (res common.KYCResult) {
 	return
 }
 
-func unclearResult() (res common.KYCResult) {
+func unclearResult(id string) (res common.KYCResult) {
 	res.Status = common.Unclear
 	res.StatusPolling = &common.StatusPolling{
 		Provider:   common.Example,
-		CustomerID: "lily_was_here",
+		CustomerID: id,
 	}
 
 	return
