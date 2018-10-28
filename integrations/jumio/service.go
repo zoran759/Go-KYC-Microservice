@@ -12,6 +12,12 @@ import (
 	"modulus/kyc/http"
 )
 
+// Verification represents the verification interface of Jumio performNetverify API.
+type Verification interface {
+	common.CustomerChecker
+	common.StatusChecker
+}
+
 // service defines the model for the Jumio performNetverify API.
 type service struct {
 	baseURL     string
@@ -19,7 +25,7 @@ type service struct {
 }
 
 // New constructs new service object to use with the Jumio performNetverify API.
-func New(config Config) common.CustomerChecker {
+func New(config Config) Verification {
 	return &service{
 		baseURL:     config.BaseURL,
 		credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Token+":"+config.Secret)),
@@ -104,6 +110,7 @@ func (s *service) CheckStatus(referenceID string) (result common.KYCResult, err 
 
 	switch status {
 	case PendingStatus:
+		result.Status = common.Unclear
 		result.StatusCheck = &common.KYCStatusCheck{
 			Provider:    common.Jumio,
 			ReferenceID: referenceID,

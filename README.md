@@ -103,9 +103,9 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **PaternalLastName**         | _**string**_                       | Paternal last name of the customer                                    |
 | **LastName**                 | _**string**_                       | _Required_. Last name of the customer, for ex. "Doe"                  |
 | **MiddleName**               | _**string**_                       | Middle name of the customer, for ex. "Benedikt"                       |
-| **LegalName**                | _**string**_                       | Legal name of the customer, for ex. "Foobar Co."                      |
-| **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer                                       |
-| **AccountName**              | _**string**_                       | Account name for the customer                                         |
+| **LegalName**                | _**string**_                       | Legal name of the customer, for ex. "Astrid Lindgren"                 |
+| **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer, for ex. russian "Иван" be IVAN       |
+| **AccountName**              | _**string**_                       | Account name for the customer, for ex. "john_doe"                     |
 | **Email**                    | _**string**_                       | Email of the customer                                                 |
 | **IPaddress**                | _**string**_                       | Customer’s IP address                                                 |
 | **Gender**                   | [_**Gender**_](common/enum.go#L27) | Gender of the customer                                                |
@@ -133,7 +133,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Agreement**                | _***[Agreement](#agreement-fields-description)**_             | Agreement of some sort, e.g. for processing personal info      |
 | **EmploymentCertificate**    | _***[EmploymentCertificate](#employmentcertificate-fields-description)**_ | Employment certificate of the customer (a document from an employer, e.g. proof that a user works there) |
 | **Contract**                 | _***[Contract](#contract-fields-description)**_               | Some sort of contract                      |
-| **DocumentPhoto**            | _***[DocumentPhoto](#documentphoto-fields-description)**_     | Document photo of the customer (like a photo from a passport)  |
+| **DocumentPhoto**            | _***[DocumentPhoto](#documentphoto-fields-description)**_     | Document photo of the customer (like a photo from the passport) |
 | **Selfie**                   | _***[Selfie](#selfie-fields-description)**_                   | Selfie image of the customer               |
 | **Avatar**                   | _***[Avatar](#avatar-fields-description)**_                   | A profile image aka avatar of the customer |
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
