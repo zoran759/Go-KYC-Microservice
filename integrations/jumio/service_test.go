@@ -2,6 +2,7 @@ package jumio
 
 import (
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -47,7 +48,7 @@ var _ = Describe("Service", func() {
 			Secret:  "test_secret",
 		})
 
-		It("should fail with the nil customer", func() {
+		It("should fail using the nil customer", func() {
 			Expect(service).NotTo(BeNil())
 
 			_, err := service.CheckCustomer(nil)
@@ -56,7 +57,7 @@ var _ = Describe("Service", func() {
 			Expect(err.Error()).To(Equal("no customer supplied"))
 		})
 
-		It("should fail with the empty customer", func() {
+		It("should fail using the empty customer", func() {
 			Expect(service).NotTo(BeNil())
 
 			_, err := service.CheckCustomer(&common.UserData{})
@@ -99,6 +100,15 @@ var _ = Describe("Service", func() {
 				},
 			}
 
+			It("should fail with an error", func() {
+				Expect(service).NotTo(BeNil())
+
+				_, err := service.CheckCustomer(customer)
+
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("during sending request: Post https://netverify.com/api/netverify/v2/performNetverify: no responder found"))
+			})
+
 			It("should fail with http error", func() {
 				Expect(service).NotTo(BeNil())
 
@@ -128,6 +138,137 @@ var _ = Describe("Service", func() {
 				Expect(result.StatusCheck.ReferenceID).To(Equal("sample-jumio-scan-reference"))
 				Expect(result.StatusCheck.LastCheck).NotTo(BeZero())
 			})
+		})
+	})
+
+	Describe("CheckStatus", func() {
+		var service = New(Config{
+			BaseURL: USbaseURL,
+			Token:   "test_token",
+			Secret:  "test_secret",
+		})
+
+		var (
+			referenceID            = "jumioID"
+			retrieveScanStatusURL  = USbaseURL + scanStatusEndpoint + referenceID
+			retrieveScanDetailsURL = fmt.Sprintf(USbaseURL+scanDetailsEndpoint, referenceID)
+		)
+
+		BeforeEach(func() {
+			httpmock.Activate()
+		})
+
+		AfterEach(func() {
+			httpmock.DeactivateAndReset()
+		})
+
+		It("should fail using empty reference id", func() {
+			Expect(service).NotTo(BeNil())
+
+			_, err := service.CheckStatus("")
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("empty Jumio’s reference number of an existing scan"))
+		})
+
+		It("should fail with an error", func() {
+			Expect(service).NotTo(BeNil())
+
+			_, err := service.CheckStatus(referenceID)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("during sending request: Get https://netverify.com/api/netverify/v2/scans/jumioID: no responder found"))
+		})
+
+		It("should fail with an http error", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusNotFound, nil))
+
+			result, err := service.CheckStatus(referenceID)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("during sending request: http error"))
+			Expect(result.ErrorCode).To(Equal("404"))
+		})
+
+		It("should fail due to malformed response", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusOK, []byte(`{"status":7}`)))
+
+			result, err := service.CheckStatus(referenceID)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("during sending request: json: cannot unmarshal number into Go struct field StatusResponse.status of type jumio.ScanStatus"))
+			Expect(result.ErrorCode).To(BeEmpty())
+		})
+
+		It("should success with pending status", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusOK, []byte(`{"status":"PENDING"}`)))
+
+			result, err := service.CheckStatus(referenceID)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Status).To(Equal(common.Unclear))
+			Expect(result.Details).To(BeNil())
+			Expect(result.ErrorCode).To(BeEmpty())
+			Expect(result.StatusCheck).NotTo(BeNil())
+			Expect(result.StatusCheck.Provider).To(Equal(common.Jumio))
+			Expect(result.StatusCheck.ReferenceID).To(Equal(referenceID))
+			Expect(time.Time(result.StatusCheck.LastCheck)).NotTo(BeZero())
+		})
+
+		It("should fail to retrieve details with an http error", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusOK, []byte(`{"status":"DONE"}`)))
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanDetailsURL, httpmock.NewBytesResponder(http.StatusInternalServerError, nil))
+
+			result, err := service.CheckStatus(referenceID)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("during sending request: http error"))
+			Expect(result.ErrorCode).To(Equal("500"))
+		})
+
+		It("should success to retrieve details with approved status", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusOK, []byte(`{"status":"DONE"}`)))
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanDetailsURL, httpmock.NewBytesResponder(http.StatusOK, approvedResponse))
+
+			result, err := service.CheckStatus(referenceID)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Status).To(Equal(common.Approved))
+			Expect(result.Details).To(BeNil())
+			Expect(result.ErrorCode).To(BeEmpty())
+			Expect(result.StatusCheck).To(BeNil())
+		})
+
+		It("should fail with an unknown status", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusOK, []byte(`{"status":"OTHER"}`)))
+
+			_, err := service.CheckStatus(referenceID)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("unknown status of the verification: OTHER"))
+		})
+
+		It("should fail to retrieve details with an error", func() {
+			Expect(service).NotTo(BeNil())
+
+			httpmock.RegisterResponder(http.MethodGet, retrieveScanStatusURL, httpmock.NewBytesResponder(http.StatusOK, []byte(`{"status":"DONE"}`)))
+
+			_, err := service.CheckStatus(referenceID)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("during sending request: Get https://netverify.com/api/netverify/v2/scans/jumioID/data: no responder found"))
 		})
 	})
 })
