@@ -2,7 +2,6 @@ package common
 
 import (
 	"strings"
-	"time"
 )
 
 // UserData defines the model for user data provided to KYC provider in order to check an individual.
@@ -153,17 +152,6 @@ func (a Address) String() string {
 	}
 
 	return b.String()
-}
-
-// Time defines the model for time values.
-type Time time.Time
-
-// Format returns time string formatted according to the provided layout.
-func (t Time) Format(layout string) string {
-	if !time.Time(t).IsZero() {
-		return time.Time(t).Format(layout)
-	}
-	return ""
 }
 
 // Location defines the model for the geopositional data.

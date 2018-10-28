@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/idology"
 	"modulus/kyc/integrations/shuftipro"
@@ -52,7 +53,7 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 
 	response := common.KYCResponse{}
 
-	result, err := service.CheckCustomer(&req.UserData)
+	result, err := service.CheckCustomer(req.UserData)
 	if err != nil {
 		response.Error = err.Error()
 	}
@@ -69,6 +70,11 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 
 // createCustomerChecker returns the CustomerChecker object for the specified provider or an error if occurred.
 func createCustomerChecker(provider common.KYCProvider) (service common.CustomerChecker, err *serviceError) {
+	if provider == common.Example {
+		service = &example.Service{}
+		return
+	}
+
 	if !common.KYCProviders[provider] {
 		err = &serviceError{
 			status:  http.StatusNotFound,
