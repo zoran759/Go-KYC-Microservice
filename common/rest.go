@@ -6,7 +6,7 @@ const TooManyRequests = "429"
 // CheckCustomerRequest represents the request for the CheckCustomer handler.
 type CheckCustomerRequest struct {
 	Provider KYCProvider
-	UserData UserData
+	UserData *UserData
 }
 
 // CheckStatusRequest represents the status check request payload of the CheckStatus handler.
