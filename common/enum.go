@@ -35,6 +35,7 @@ type KYCProvider string
 
 // Possible values of KYCProvider.
 const (
+	Example      KYCProvider = "Example"
 	IdentityMind KYCProvider = "IdentityMind"
 	IDology      KYCProvider = "IDology"
 	ShuftiPro    KYCProvider = "ShuftiPro"
