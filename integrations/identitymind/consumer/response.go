@@ -64,6 +64,7 @@ type DocumentVerification struct {
 func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
 	case UnderReview:
+		result.Status = common.Unclear
 		result.StatusCheck = &common.KYCStatusCheck{
 			Provider:    common.IdentityMind,
 			ReferenceID: r.KYCTxID,

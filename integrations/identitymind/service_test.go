@@ -182,7 +182,7 @@ var _ = Describe("The IdentityMind service", func() {
 			result, err := service.CheckCustomer(customer)
 
 			Expect(err).To(BeNil())
-			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Status).To(Equal(common.Unclear))
 			Expect(result.Details).To(BeNil())
 			Expect(result.ErrorCode).To(BeEmpty())
 			Expect(result.StatusCheck).NotTo(BeNil())

@@ -198,7 +198,7 @@ var _ = Describe("Client", func() {
 			Expect(result.StatusCheck.ReferenceID).To(Equal("26860023"))
 			Expect(time.Time(result.StatusCheck.LastCheck)).NotTo(BeZero())
 
-			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Status).To(Equal(common.Unclear))
 			Expect(result.Details).To(BeNil())
 			Expect(err).NotTo(HaveOccurred())
 
