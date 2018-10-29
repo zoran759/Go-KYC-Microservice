@@ -3,6 +3,7 @@ package consumer
 import (
 	"encoding/base64"
 	"net/http"
+	"time"
 
 	"modulus/kyc/common"
 
@@ -195,6 +196,7 @@ var _ = Describe("Client", func() {
 			Expect(result.StatusCheck).NotTo(BeNil())
 			Expect(result.StatusCheck.Provider).To(Equal(common.IdentityMind))
 			Expect(result.StatusCheck.ReferenceID).To(Equal("26860023"))
+			Expect(time.Time(result.StatusCheck.LastCheck)).NotTo(BeZero())
 
 			Expect(result.Status).To(Equal(common.Error))
 			Expect(result.Details).To(BeNil())

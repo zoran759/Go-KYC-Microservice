@@ -2,6 +2,7 @@ package sumsub
 
 import (
 	"testing"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/sumsub/applicants"
@@ -65,7 +66,9 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
 	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
@@ -107,7 +110,9 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
 	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
@@ -155,7 +160,9 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
 	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
@@ -203,7 +210,9 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
 	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
@@ -250,7 +259,9 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
 	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)

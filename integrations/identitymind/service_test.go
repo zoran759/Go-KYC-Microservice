@@ -2,6 +2,7 @@ package identitymind
 
 import (
 	"reflect"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/identitymind/consumer"
@@ -187,6 +188,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.StatusCheck).NotTo(BeNil())
 			Expect(result.StatusCheck.Provider).To(Equal(common.IdentityMind))
 			Expect(result.StatusCheck.ReferenceID).NotTo(BeEmpty())
+			Expect(time.Time(result.StatusCheck.LastCheck)).NotTo(BeZero())
 		})
 
 		It("Should return accepted policy result for the customer", func() {

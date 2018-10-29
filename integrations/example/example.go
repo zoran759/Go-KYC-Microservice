@@ -2,6 +2,8 @@ package example
 
 import (
 	"errors"
+	"time"
+
 	"modulus/kyc/common"
 )
 
@@ -98,9 +100,10 @@ func deniedResultWithFinality() (res common.KYCResult) {
 
 func unclearResult(id string) (res common.KYCResult) {
 	res.Status = common.Unclear
-	res.StatusPolling = &common.StatusPolling{
-		Provider:   common.Example,
-		CustomerID: id,
+	res.StatusCheck = &common.KYCStatusCheck{
+		Provider:    common.Example,
+		ReferenceID: id,
+		LastCheck:   time.Now(),
 	}
 
 	return

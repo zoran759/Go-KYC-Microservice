@@ -2,6 +2,7 @@ package common
 
 import (
 	"strings"
+	"time"
 )
 
 // UserData defines the model for user data provided to KYC provider in order to check an individual.
