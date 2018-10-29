@@ -65,6 +65,7 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
 		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
@@ -109,6 +110,7 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
 		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
@@ -159,6 +161,7 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
 		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
@@ -209,6 +212,7 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
 		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
@@ -258,6 +262,7 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
+		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
 		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
 		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
