@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/main/config"
@@ -494,6 +495,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NotNil(t, resp.Result.StatusCheck)
 	assert.Equal(t, common.SumSub, resp.Result.StatusCheck.Provider)
 	assert.Equal(t, "596eb3c93a0eb985b8ade34d", resp.Result.StatusCheck.ReferenceID)
+	assert.NotZero(t, time.Time(resp.Result.StatusCheck.LastCheck))
 
 	// Testing Trulioo.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
