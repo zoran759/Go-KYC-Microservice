@@ -13,6 +13,7 @@
   * **[Trulioo](#trulioo)**
   * **[Shufti Pro](#shufti-pro)**
   * **[IdentityMind](#identitymind)**
+  * **[Jumio](#jumio)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
 ## **REST API**
@@ -375,6 +376,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
 * [**IdentityMind**](integrations/identitymind/README.md)
+* [**Jumio**](integrations/jumio/README.md)
 
 ## **Applicable fields grouped per provider**
 
@@ -520,6 +522,23 @@ It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/referen
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
+### **Jumio**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**             | **Type**         | **Required**       | **Comment**                                 |
+| -------------------- | ---------------- | :----------------: | ------------------------------------------- |
+| FirstName            | _string_         |                    |                                             |
+| LastName             | _string_         |                    |                                             |
+| DateOfBirth          | _Time_           |                    |                                             |
+| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk |
+| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                             |
+| **SNILS**(*)         | _*SNILS_         | **(*)**            |                                             |
+| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                             |
+| **Selfie**           | _*Selfie_        | **See comment(*)** | (*)Mandatory if Face match enabled          |
+
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
+
 ## **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
@@ -551,6 +570,11 @@ KYC providers may require various set of `common.UserData` fields depending on t
 * No fields variations found in the docs
 
 ### **IdentityMind covered countries**
+
+* International
+* No fields variations found in the docs
+
+### **Jumio covered countries**
 
 * International
 * No fields variations found in the docs
