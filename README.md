@@ -22,7 +22,7 @@ The KYC service provides REST API to interact with other components of the appli
 | **Route**          |  **Description**                                                    |
 | ------------------ | ------------------------------------------------------------------- |
 | **/**              | Answers with the welcome message in plain text format               |
-| **/ping**          | Answers with the "pong!" response in plain text format              |
+| **/Ping**          | Answers with the "Pong!" response in plain text format              |
 | **/CheckCustomer** | The endpoint to send KYC verification requests                      |
 | **/CheckStatus**   | The endpoint to send KYC verification current status check requests |
 
@@ -374,6 +374,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
 * [**IdentityMind**](integrations/identitymind/README.md)
+* [**SynapseFI**](integrations/synapsefi/README.md)
 
 ## **Applicable fields grouped per provider**
 
@@ -516,7 +517,31 @@ It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/referen
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
-## **The countries supported by KYC providers and the fields variability**
+#### **SynapseFI**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**             | **Type**         | **FileType**        | **Required**       | **Comment**                                                       |
+| -------------------- | ---------------- |---------------------| :----------------: | ----------------------------------------------------------------- |
+| **FirstName**        | _string_         |                     | **Yes**            |                                                                   |
+| **LastName**         | _string_         |                     | **Yes**            |                                                                   |
+| MiddleName           | _string_         |                     |                    |                                                                   |
+| Gender               | _Gender_         |                     |                    |                                                                   |
+| **Email**            | _string_         |                     | **Yes**            |                                                                   |
+| **DateOfBirth**      | _Time_           |                     | **Yes**            | Required for documents only                                       |
+| **CountryAlpha2**    | _string_         |                     | **Yes**            |                                                                   |
+| **Phone**            | _string_         |                     | **(**)**           | (**)Anyone of documents marked with double asterisk               |
+| **Mobile phone**     | _string_         |                     | **(**)**           |                                                                   |
+| **CurrentAddress**   | _Address_        |                     | **Yes**            | Required for documents only                                       |
+| **Passport**(*)      | _*Passport_      | .png/.jpg/.jpeg     | **(*)**            | (*)Anyone of documents marked with asterisk                       |
+| **IDCard**(*)        | _*IDCard_        | .png/.jpg/.jpeg     | **(*)**            |                                                                   |
+| **DriverLicense**(*) | _*DriverLicense_ | .png/.jpg/.jpeg     | **(*)**            |                                                                   |
+| UtilityBill          | _*UtilityBill_   | .png/.jpg/.jpeg/.pdf|                    |                                                                   |
+| **Selfie**           | _*Selfie_        | .png/.jpg/.jpeg     | **Yes**            |                                                                   |
+
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
+
+### **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
 
@@ -549,4 +574,9 @@ KYC providers may require various set of `common.UserData` fields depending on t
 ### **IdentityMind covered countries**
 
 * International
+* No fields variations found in the docs
+
+#### **SemperFI covered countries**
+
+* International (no list of supported countries)
 * No fields variations found in the docs

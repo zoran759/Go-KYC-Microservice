@@ -40,8 +40,8 @@ func createHandlers() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to the KYC service. Have a nice day!\n"))
 	})
-	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong!"))
+	http.HandleFunc("/Ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Pong!"))
 	})
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
