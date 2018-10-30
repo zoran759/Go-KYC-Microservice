@@ -23,7 +23,7 @@ The KYC service provides REST API to interact with other components of the appli
 | **Route**          |  **Description**                                                    |
 | ------------------ | ------------------------------------------------------------------- |
 | **/**              | Answers with the welcome message in plain text format               |
-| **/ping**          | Answers with the "pong!" response in plain text format              |
+| **/Ping**          | Answers with the "Pong!" response in plain text format              |
 | **/CheckCustomer** | The endpoint to send KYC verification requests                      |
 | **/CheckStatus**   | The endpoint to send KYC verification current status check requests |
 
