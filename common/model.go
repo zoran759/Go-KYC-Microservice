@@ -12,7 +12,9 @@ type UserData struct {
 	MiddleName               string
 	LegalName                string
 	LatinISO1Name            string
+	AccountName              string
 	Email                    string
+	IPaddress                string
 	Gender                   Gender
 	DateOfBirth              Time
 	PlaceOfBirth             string
@@ -24,6 +26,7 @@ type UserData struct {
 	MobilePhone              string
 	CurrentAddress           Address
 	SupplementalAddresses    []Address
+	Location                 *Location
 	Business                 *Business
 	Passport                 *Passport
 	IDCard                   *IDCard
@@ -78,6 +81,29 @@ func (a Address) StreetAddress() string {
 	return b.String()
 }
 
+// HouseStreetApartment returns street address string in the form required for some providers.
+// It includes house number, street name and apartment number.
+func (a Address) HouseStreetApartment() string {
+	insertWhitespace := func(b *strings.Builder) {
+		if b.Len() > 0 {
+			b.WriteString(" ")
+		}
+	}
+
+	b := &strings.Builder{}
+	b.WriteString(a.BuildingNumber)
+	if len(a.Street) > 0 {
+		insertWhitespace(b)
+		b.WriteString(a.Street)
+	}
+	if len(a.FlatNumber) > 0 {
+		insertWhitespace(b)
+		b.WriteString(a.FlatNumber)
+	}
+
+	return b.String()
+}
+
 // String returns string representation of the address.
 func (a Address) String() string {
 	// ATM, USPS standard is used. Maybe, we need to take into count Country's specifics.
@@ -126,6 +152,12 @@ func (a Address) String() string {
 	}
 
 	return b.String()
+}
+
+// Location defines the model for the geopositional data.
+type Location struct {
+	Latitude  string
+	Longitude string
 }
 
 // Business defines the model for a business.

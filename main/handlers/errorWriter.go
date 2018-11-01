@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"modulus/kyc/common"
 	"net/http"
+
+	"modulus/kyc/common"
 )
 
 // serviceError represents an error that might happen during creating the KYC provider service.

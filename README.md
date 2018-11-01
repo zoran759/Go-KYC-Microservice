@@ -12,6 +12,7 @@
   * **[Sum&Substance](#sum&substance)**
   * **[Trulioo](#trulioo)**
   * **[Shufti Pro](#shufti-pro)**
+  * **[IdentityMind](#identitymind)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
 ## **REST API**
@@ -104,9 +105,11 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **MiddleName**               | _**string**_                       | Middle name of the customer, for ex. "Benedikt"                       |
 | **LegalName**                | _**string**_                       | Legal name of the customer, for ex. "Foobar Co."                      |
 | **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer                                       |
+| **AccountName**              | _**string**_                       | Account name for the customer                                         |
 | **Email**                    | _**string**_                       | Email of the customer                                                 |
+| **IPaddress**                | _**string**_                       | Customer’s IP address                                                 |
 | **Gender**                   | [_**Gender**_](common/enum.go#L27) | Gender of the customer                                                |
-| **DateOfBirth**              | [_**Time**_](common/model.go#L132) | Date of birth of the customer                                         |
+| **DateOfBirth**              | [_**Time**_](common/model.go#L158) | Date of birth of the customer                                         |
 | **PlaceOfBirth**             | _**string**_                       | Place of birth of the customer                                        |
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
@@ -116,6 +119,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **MobilePhone**              | _**string**_                       | Mobile phone of the customer                                          |
 | **CurrentAddress**           | [_**Address**_](#address-fields-description) | Current address of the customer                             |
 | **SupplementalAddresses**    | _**[]Address**_                    | List of supplemental addresses of the customer                        |
+| **Location**                 | _***[Location](#location-fields-description)**_ | Geopositional data of the customer                       |
 | **Business**                 | _***[Business](#business-fields-description)**_ | The business which the customer is linked to or is one of the owners |
 | **Passport**                 | _***[Passport](#passport-fields-description)**_               | Passport of the customer                   |
 | **IDCard**                   | _***[IDCard](#idcard-fields-description)**_                   | Id card of the customer, for ex. US SSN    |
@@ -134,7 +138,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Avatar**                   | _***[Avatar](#avatar-fields-description)**_                   | A profile image aka avatar of the customer |
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
 
-### **[Address](common/model.go#L47) fields description**
+### **[Address](common/model.go#L50) fields description**
 
 | **Name**              | **Type**     | **Description**                                         |
 | --------------------- | ------------ | ------------------------------------------------------- |
@@ -155,7 +159,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **StartDate**         | _**Time**_   | When the customer settled at this address               |
 | **EndDate**           | _**Time**_   | When the customer moved out from this address           |
 
-### **[Business](common/model.go#L143) fields description**
+### **[Business](common/model.go#L175) fields description**
 
 | **Name**                      | **Type**     | **Description**                                |
 | ----------------------------- | ------------ | ---------------------------------------------- |
@@ -164,7 +168,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IncorporationDate**         | _**Time**_   | Incorporation date of the Enterprise           |
 | **IncorporationJurisdiction** | _**string**_ | Incorporation jurisdiction of the Enterprise   |
 
-### **[Passport](common/model.go#L193) fields description**
+### **[Passport](common/model.go#L215) fields description**
 
 | **Name**          | **Type**                                                | **Description**                                         |
 | ----------------- | ------------------------------------------------------- | ------------------------------------------------------- |
@@ -177,7 +181,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil**    | _**Time**_                                              | Valid until date                                        |
 | **Image**         | _***[DocumentFile](#documentfile-fields-description)**_ | Scan or photo of the passport                           |
 
-### **[IDCard](common/model.go#L205) fields description**
+### **[IDCard](common/model.go#L227) fields description**
 
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
@@ -186,7 +190,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate**    | _**Time**_          | Issued date                                        |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the card                          |
 
-### **[SNILS](common/model.go#L213) fields description**
+### **[SNILS](common/model.go#L235) fields description**
 
 | **Name**       | **Type**            | **Description**                             |
 | -------------- | ------------------- | ------------------------------------------- |
@@ -194,7 +198,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate** | _**Time**_          | Issued date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the SNILS                  |
 
-### **[DriverLicense](common/model.go#L220) fields description**
+### **[DriverLicense](common/model.go#L242) fields description**
 
 | **Name**          | **Type**            | **Description**                                         |
 | ----------------- | ------------------- | ------------------------------------------------------- |
@@ -206,7 +210,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **FrontImage**    | _***DocumentFile**_ | Scan or photo of the front side of the driver license   |
 | **BackImage**     | _***DocumentFile**_ | Scan or photo of the back side of the driver license    |
 
-### **[DriverLicenseTranslation](common/model.go#L231) fields description**
+### **[DriverLicenseTranslation](common/model.go#L253) fields description**
 
 | **Name**          | **Type**            | **Description**                                                   |
 | ----------------- | ------------------- | ----------------------------------------------------------------- |
@@ -218,7 +222,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **FrontImage**    | _***DocumentFile**_ | Scan or photo of the front side of the driver license translation |
 | **BackImage**     | _***DocumentFile**_ | Scan or photo of the back side of the driver license translation  |
 
-### **[CreditCard](common/model.go#L242) fields description**
+### **[CreditCard](common/model.go#L264) fields description**
 
 | **Name**       | **Type**            | **Description**                                   |
 | -------------- | ------------------- | ------------------------------------------------- |
@@ -226,7 +230,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil** | _**Time**_          | Valid until date                                  |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the face side of the credit card |
 
-### **[DebitCard](common/model.go#L249) fields description**
+### **[DebitCard](common/model.go#L271) fields description**
 
 | **Name**       | **Type**            | **Description**                                  |
 | -------------- | ------------------- | ------------------------------------------------ |
@@ -234,14 +238,14 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil** | _**Time**_          | Valid until date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the face side of the debit card |
 
-### **[UtilityBill](common/model.go#L256) fields description**
+### **[UtilityBill](common/model.go#L278) fields description**
 
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "ID" |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the utility bill                  |
 
-### **[ResidencePermit](common/model.go#L262) fields description**
+### **[ResidencePermit](common/model.go#L284) fields description**
 
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
@@ -250,44 +254,44 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil**    | _**Time**_          | Valid until date                                   |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the residence permit              |
 
-### **[Agreement](common/model.go#L270) fields description**
+### **[Agreement](common/model.go#L292) fields description**
 
 | **Name**  | **Type**            | **Description**                |
 | --------- | ------------------- | ------------------------------ |
 | **Image** | _***DocumentFile**_ | Scan or photo of the agreement |
 
-### **[EmploymentCertificate](common/model.go#L280) fields description**
+### **[EmploymentCertificate](common/model.go#L302) fields description**
 
 | **Name**       | **Type**            | **Description**                             |
 | -------------- | ------------------- | ------------------------------------------- |
 | **IssuedDate** | _**Time**_          | Issued date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the employment certificate |
 
-### **[Contract](common/model.go#L275) fields description**
+### **[Contract](common/model.go#L297) fields description**
 
 | **Name**  | **Type**            | **Description**               |
 | --------- | ------------------- | ----------------------------- |
 | **Image** | _***DocumentFile**_ | Scan or photo of the contract |
 
-### **[DocumentPhoto](common/model.go#L296) fields description**
+### **[DocumentPhoto](common/model.go#L318) fields description**
 
 | **Name**  | **Type**            | **Description**                            |
 | --------- | ------------------- | ------------------------------------------ |
 | **Image** | _***DocumentFile**_ | Scan or photo of the photo from a document |
 
-### **[Selfie](common/model.go#L286) fields description**
+### **[Selfie](common/model.go#L308) fields description**
 
 | **Name**  | **Type**            | **Description** |
 | --------- | ------------------- | --------------- |
 | **Image** | _***DocumentFile**_ | Selfie image    |
 
-### **[Avatar](common/model.go#L291) fields description**
+### **[Avatar](common/model.go#L313) fields description**
 
 | **Name**  | **Type**            | **Description**          |
 | --------- | ------------------- | ------------------------ |
 | **Image** | _***DocumentFile**_ | Profile image aka avatar |
 
-### **[Other](common/model.go#L301) fields description**
+### **[Other](common/model.go#L323) fields description**
 
 | **Name**          | **Type**            | **Description**                                         |
 | ----------------- | ------------------- | ------------------------------------------------------- |
@@ -298,7 +302,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil**    | _**Time**_          | Valid until date                                        |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                           |
 
-### **[DocumentFile](common/model.go#L151) fields description**
+### **[DocumentFile](common/model.go#L183) fields description**
 
 | **Name**        | **Type**     | **Description**                                               |
 | --------------- | ------------ | ------------------------------------------------------------- |
@@ -306,13 +310,20 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ContentType** | _**string**_ | MIME type of the content, for ex. "image/jpeg"                |
 | **Data**        | _**[]byte**_ | Raw content of the document image file                        |
 
+### **[Location](common/model.go#L169) fields description**
+
+| **Name**      | **Type**     | **Description**                            |
+| ------------- | ------------ | ------------------------------------------ |
+| **Latitude**  | _**string**_ | the location latitude, for ex. "55.678849" |
+| **Longitude** | _**string**_ | the location longitude "52.327662"         |
+
 ## **KYC response**
 
 The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](#commonkycresult-fields-description).
 
 > Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*StatusPolling__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
 
-### **[common.KYCResult](common/model.go#L164) fields description**
+### **[common.KYCResult](common/model.go#L196) fields description**
 
 | **Name**          | **Type**                                                  | **Description**                                                               |
 | ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
@@ -330,7 +341,7 @@ The verification response consist of two elements: a result and an error if occu
 | **Denied**   | Successful verification with rejected result. The details should be non-nil and contain additional info about the verification |
 | **Unclear**  | Verification completed with an indefinite result. That might mean that some additional info is required. The details should be non-nil and contain additional info |
 
-### **[KYCDetails](common/model.go#L158) fields description**
+### **[KYCDetails](common/model.go#L190) fields description**
 
 | **Name**     | **Type**                                                      | **Description**                                                          |
 | ------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -345,7 +356,7 @@ The verification response consist of two elements: a result and an error if occu
 | **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality                                                    |
 | **Unknown**  | The provider doesn't support **`Finality`** feature                                                                         |
 
-### **[StatusPolling](common/model.go#L172) fields description**
+### **[StatusPolling](common/model.go#L204) fields description**
 
 | **Name**       | **Type**                                | **Description**                                                                        |
 | -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -362,6 +373,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Sum&Substance**](integrations/sumsub/README.md)
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
+* [**IdentityMind**](integrations/identitymind/README.md)
 * [**SynapseFI**](integrations/synapsefi/README.md)
 
 ## **Applicable fields grouped per provider**
@@ -476,6 +488,35 @@ It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/referen
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
+### **IdentityMind**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**              | **Type**           | **Required**       | **Comment**                                  |
+| --------------------- | ------------------ | :----------------: | -------------------------------------------- |
+| FirstName             | _string_           |                    |                                              |
+| LastName              | _string_           |                    |                                              |
+| MiddleName            | _string_           |                    |                                              |
+| **AccountName**       | _string_           | **Yes**            |                                              |
+| Email                 | _string_           |                    |                                              |
+| IPaddress             | _string_           |                    |                                              |
+| Gender                | _Gender_           |                    |                                              |
+| DateOfBirth           | _Time_             |                    |                                              |
+| CountryAlpha2         | _string_           |                    |                                              |
+| Phone                 | _string_           |                    |                                              |
+| MobilePhone           | _string_           |                    |                                              |
+| CurrentAddress        | _Address_          |                    |                                              |
+| Location              | _*Location_        |                    |                                              |
+| Passport              | _*Passport_        |                    |                                              |
+| IDCard                | _*IDCard_          |                    |                                              |
+| SNILS                 | _*SNILS_           |                    |                                              |
+| DriverLicense         | _*DriverLicense_   |                    |                                              |
+| UtilityBill           | _*UtilityBill_     |                    |                                              |
+| ResidencePermit       | _*ResidencePermit_ |                    |                                              |
+| Selfie(*)             | _*Selfie_          | **See comment(*)** | (*)Provide it if using Document Verification |
+
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
+
 #### **SynapseFI**
 
 [**UserData**](#userdata-fields-description) applicable fields:
@@ -530,7 +571,12 @@ KYC providers may require various set of `common.UserData` fields depending on t
 * International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
 * No fields variations found in the docs
 
+### **IdentityMind covered countries**
+
+* International
+* No fields variations found in the docs
+
 #### **SemperFI covered countries**
 
-* International (no list of supported country)
+* International (no list of supported countries)
 * No fields variations found in the docs

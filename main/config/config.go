@@ -60,6 +60,16 @@ func FromFile(filename string) (err error) {
 func validate(config Config) (err error) {
 	for provider, options := range config {
 		switch provider {
+		case common.IdentityMind:
+			if len(options["Host"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Host"}
+			}
+			if len(options["Username"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Username"}
+			}
+			if len(options["Password"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Password"}
+			}
 		case common.IDology:
 			if len(options["Host"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "Host"}
