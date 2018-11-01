@@ -9,6 +9,7 @@ import (
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/example"
+	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/sumsub"
 	"modulus/kyc/main/config"
 )
@@ -97,6 +98,12 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 			status:  http.StatusUnprocessableEntity,
 			message: fmt.Sprintf("%s doesn't support status polling", provider),
 		}
+	case common.IdentityMind:
+		service = identitymind.New(identitymind.Config{
+			Host:     cfg["Host"],
+			Username: cfg["Username"],
+			Password: cfg["Password"],
+		})
 	case common.SumSub:
 		service = sumsub.New(sumsub.Config{
 			Host:   cfg["Host"],

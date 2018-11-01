@@ -133,10 +133,11 @@ func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error
 		}
 	case "init":
 		err = errors.New("documents upload failed. Please, try to upload a document for this applicant")
-	case "pending":
-		res.Status = common.Pending
-	case "queued":
-		res.Status = common.Queued
+	case "pending", "queued":
+		res.StatusPolling = &common.StatusPolling{
+			Provider:   common.SumSub,
+			CustomerID: refID,
+		}
 	case "awaitingUser":
 		err = errors.New("waiting some additional documents from the applicant (e.g. a selfie or a better passport image)")
 	}

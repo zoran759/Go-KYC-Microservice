@@ -7,6 +7,9 @@ import (
 	"modulus/kyc/common"
 )
 
+// Assert that Client implements the CustomerChecker interface.
+var _ common.CustomerChecker = (*Client)(nil)
+
 // Client defines the client for IDology ExpectID® API.
 // It shouldn't be instantiated directly.
 // Use NewClient() constructor instead.

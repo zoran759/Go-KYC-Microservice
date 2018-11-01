@@ -10,6 +10,7 @@ import (
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/example"
+	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/idology"
 	"modulus/kyc/integrations/shuftipro"
 	"modulus/kyc/integrations/sumsub"
@@ -92,6 +93,12 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 	}
 
 	switch provider {
+	case common.IdentityMind:
+		service = identitymind.New(identitymind.Config{
+			Host:     cfg["Host"],
+			Username: cfg["Username"],
+			Password: cfg["Password"],
+		})
 	case common.IDology:
 		useSummaryResult, err1 := strconv.ParseBool(cfg["UseSummaryResult"])
 		if err1 != nil {

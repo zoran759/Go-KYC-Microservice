@@ -10,6 +10,11 @@ import (
 )
 
 var validConfig = Config{
+	common.IdentityMind: Options{
+		"Host":     "host",
+		"Username": "fakeuser",
+		"Password": "fakepassword",
+	},
 	common.IDology: Options{
 		"Host":             "host",
 		"Username":         "fakeuser",
@@ -37,6 +42,42 @@ func TestVerifySuccess(t *testing.T) {
 	err := validate(validConfig)
 
 	assert.Nil(t, err)
+}
+
+func TestVerifyIdentityMind(t *testing.T) {
+	config := Config{
+		common.IdentityMind: Options{
+			"Username": "fakeuser",
+			"Password": "fakepassword",
+		},
+	}
+
+	err := validate(config)
+	assert.NotNil(t, err)
+	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(t, `IdentityMind configuration error: missing or empty option "Host"`, err.Error())
+
+	config = Config{
+		common.IdentityMind: Options{
+			"Host":     "host",
+			"Password": "fakepassword",
+		},
+	}
+
+	err = validate(config)
+	assert.NotNil(t, err)
+	assert.Equal(t, `IdentityMind configuration error: missing or empty option "Username"`, err.Error())
+
+	config = Config{
+		common.IdentityMind: Options{
+			"Host":     "host",
+			"Username": "fakeuser",
+		},
+	}
+
+	err = validate(config)
+	assert.NotNil(t, err)
+	assert.Equal(t, `IdentityMind configuration error: missing or empty option "Password"`, err.Error())
 }
 
 func TestVerifyIDology(t *testing.T) {
