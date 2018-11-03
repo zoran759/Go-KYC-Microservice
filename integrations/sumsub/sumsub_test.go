@@ -2,6 +2,7 @@ package sumsub
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"testing"
@@ -18,8 +19,9 @@ import (
 )
 
 var (
-	testPassport []byte
-	testSelfie   []byte
+	testImageUpload = flag.Bool("use-images", false, "test document images uploading")
+	testPassport    []byte
+	testSelfie      []byte
 )
 
 func TestNew(t *testing.T) {
@@ -443,6 +445,10 @@ func TestSumSub_CheckCustomerNoApplicantError(t *testing.T) {
 }
 
 func TestSumSubImageUpload(t *testing.T) {
+	if !*testImageUpload {
+		t.Skip("use '-use-images' flag to activate images uploading test")
+	}
+
 	assert := assert.New(t)
 
 	if !assert.NotEmpty(testPassport, "testPassport must contain the content of the image data file 'passport.jpg'") {
