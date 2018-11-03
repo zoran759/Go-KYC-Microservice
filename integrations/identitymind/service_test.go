@@ -1,7 +1,9 @@
 package identitymind
 
 import (
+	"io/ioutil"
 	"reflect"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/identitymind/consumer"
@@ -9,6 +11,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
+
+var testImage []byte
 
 var _ = Describe("The IdentityMind service", func() {
 	Specify("should be properly created", func() {
@@ -96,6 +100,18 @@ var _ = Describe("The IdentityMind service", func() {
 				AccountName: "trusted_tom",
 				FirstName:   "Tom",
 				LastName:    "Pennington",
+				Passport: &common.Passport{
+					Number:        "0123456789",
+					CountryAlpha2: "US",
+					State:         "WA",
+					IssuedDate:    common.Time(time.Date(2015, 05, 25, 0, 0, 0, 0, time.UTC)),
+					ValidUntil:    common.Time(time.Date(2025, 05, 24, 0, 0, 0, 0, time.UTC)),
+					Image: &common.DocumentFile{
+						Filename:    "passport.jpg",
+						ContentType: "image/jpeg",
+						Data:        testImage,
+					},
+				},
 			}
 
 			result, err := service.CheckCustomer(customer)
@@ -218,3 +234,7 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 	})
 })
+
+func init() {
+	testImage, _ = ioutil.ReadFile("../../test_data/passport.jpg")
+}
