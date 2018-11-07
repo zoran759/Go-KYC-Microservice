@@ -31,8 +31,8 @@ func TestTrulioo_CheckCustomerNoMatch(t *testing.T) {
 			},
 		},
 		verification: verification.Mock{
-			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.VerificationResponse, error) {
-				return &verification.VerificationResponse{
+			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.Response, error) {
+				return &verification.Response{
 					Record: verification.Record{
 						RecordStatus: NoMatch,
 						DatasourceResults: []verification.DatasourceResult{
@@ -105,8 +105,8 @@ func TestTrulioo_CheckCustomerUnclear(t *testing.T) {
 			},
 		},
 		verification: verification.Mock{
-			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.VerificationResponse, error) {
-				return &verification.VerificationResponse{
+			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.Response, error) {
+				return &verification.Response{
 					Record: verification.Record{
 						RecordStatus: "sdfsdf",
 						DatasourceResults: []verification.DatasourceResult{
@@ -179,8 +179,8 @@ func TestTrulioo_CheckCustomerApproved(t *testing.T) {
 			},
 		},
 		verification: verification.Mock{
-			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.VerificationResponse, error) {
-				return &verification.VerificationResponse{
+			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.Response, error) {
+				return &verification.Response{
 					Record: verification.Record{
 						RecordStatus: Match,
 					},
@@ -203,8 +203,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 			},
 		},
 		verification: verification.Mock{
-			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.VerificationResponse, error) {
-				return &verification.VerificationResponse{
+			VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.Response, error) {
+				return &verification.Response{
 					Record: verification.Record{
 						RecordStatus: NoMatch,
 						Errors: verification.Errors{
@@ -229,8 +229,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.VerificationResponse, error) {
-			return &verification.VerificationResponse{
+		VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.Response, error) {
+			return &verification.Response{
 				Errors: verification.Errors{
 					{
 						Code:    "400",
@@ -251,7 +251,7 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.VerificationResponse, error) {
+		VerifyFn: func(countryAlpha2 string, consents configuration.Consents, fields verification.DataFields) (*verification.Response, error) {
 			return nil, errors.New("test error")
 		},
 	}
