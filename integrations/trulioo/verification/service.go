@@ -36,7 +36,7 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 		service.config.Host+"/verify",
 		http.Headers{
 			"Authorization": "Basic " + service.config.Token,
-			"Content-Type":  "application/json",
+			"Content-Type":  "application/json; charset=utf-8",
 		},
 		requestBytes,
 	)
