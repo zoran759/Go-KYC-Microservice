@@ -37,16 +37,13 @@ func (service service) Consents(countryAlpha2 string) (Consents, *int, error) {
 		if code != 0 {
 			errorCode = &code
 		}
-		errResp := new(Error)
-		if err := json.Unmarshal(responseBytes, errResp); err != nil {
-			return nil, errorCode, err
+		err := &Error{}
+		if len(responseBytes) == 0 {
+			err.Message = "Unknown error"
+		} else {
+			err.Message = string(responseBytes)
 		}
-
-		if errResp.Message != "" {
-			return nil, errorCode, errResp
-		}
-
-		return nil, errorCode, errors.New("Unknown error")
+		return nil, errorCode, err
 	}
 
 	consents := make(Consents, 0)
