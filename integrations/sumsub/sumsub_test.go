@@ -1,15 +1,27 @@
 package sumsub
 
 import (
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io/ioutil"
 	"testing"
+	"time"
 
 	"modulus/kyc/common"
+	"modulus/kyc/http"
 	"modulus/kyc/integrations/sumsub/applicants"
 	"modulus/kyc/integrations/sumsub/documents"
 	"modulus/kyc/integrations/sumsub/verification"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	testImageUpload = flag.Bool("use-images", false, "test document images uploading")
+	testPassport    []byte
+	testSelfie      []byte
 )
 
 func TestNew(t *testing.T) {
@@ -430,4 +442,168 @@ func TestSumSub_CheckCustomerNoApplicantError(t *testing.T) {
 	if assert.Error(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 	}
+}
+
+func TestSumSubImageUpload(t *testing.T) {
+	if !*testImageUpload {
+		t.Skip("use '-use-images' flag to activate images uploading test")
+	}
+
+	assert := assert.New(t)
+
+	if !assert.NotEmpty(testPassport, "testPassport must contain the content of the image data file 'passport.jpg'") {
+		return
+	}
+	if !assert.NotEmpty(testSelfie, "testSelfie must contain the content of the image data file 'selfie.png'") {
+		return
+	}
+
+	customer := &common.UserData{
+		FirstName:     "John",
+		LastName:      "Doe",
+		Email:         "john.doe@mail.com",
+		Gender:        common.Male,
+		DateOfBirth:   common.Time(time.Date(1975, 06, 15, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "US",
+		Nationality:   "US",
+		CurrentAddress: common.Address{
+			CountryAlpha2:     "US",
+			State:             "Georgia",
+			Town:              "Albany",
+			Street:            "PeachTree Avenue",
+			StreetType:        "Avenue",
+			BuildingNumber:    "7315",
+			FlatNumber:        "13",
+			PostCode:          "31707",
+			StateProvinceCode: "GA",
+			StartDate:         common.Time(time.Date(1975, 06, 20, 0, 0, 0, 0, time.UTC)),
+		},
+		Passport: &common.Passport{
+			Number:        "0123456789",
+			CountryAlpha2: "US",
+			State:         "GA",
+			IssuedDate:    common.Time(time.Date(2015, 06, 20, 0, 0, 0, 0, time.UTC)),
+			ValidUntil:    common.Time(time.Date(2025, 06, 19, 0, 0, 0, 0, time.UTC)),
+			Image: &common.DocumentFile{
+				Filename:    "passport.jpg",
+				ContentType: "image/jpeg",
+				Data:        testPassport,
+			},
+		},
+		Selfie: &common.Selfie{
+			Image: &common.DocumentFile{
+				Filename:    "selfie.png",
+				ContentType: "image/png",
+				Data:        testSelfie,
+			},
+		},
+	}
+
+	config := Config{
+		Host:   "https://test-api.sumsub.com",
+		APIKey: "GKTBNXNEPJHCXY",
+	}
+
+	service := New(config)
+
+	result, err := service.CheckCustomer(customer)
+
+	if !assert.Nil(err) {
+		return
+	}
+	if !assert.NotNil(result.StatusPolling, "status polling data has to be provided") {
+		return
+	}
+
+	applicantID := result.StatusPolling.CustomerID
+	t.Log("Received applicant id:", applicantID)
+
+	// Simulate approved result of the verification.
+	_, _, err = http.Post(
+		fmt.Sprintf(config.Host+"/resources/applicants/%s/status/testCompleted?key=%s", applicantID, config.APIKey),
+		http.Headers{
+			"Content-Type": "application/json",
+		},
+		[]byte(`{"reviewAnswer":"GREEN","rejectLabels":[]}`))
+
+	if !assert.Nil(err) {
+		return
+	}
+
+	result, err = service.CheckStatus(applicantID)
+
+	if !assert.Nil(err) {
+		return
+	}
+	assert.Equal(common.Approved, result.Status)
+	assert.Nil(result.Details)
+	assert.Empty(result.ErrorCode)
+	assert.Nil(result.StatusPolling)
+
+	// Get back the downloaded documents.
+	type doc struct {
+		IDDocType string `json:"idDocType"`
+		Country   string `json:"country"`
+		ImageID   int    `json:"imageId"`
+	}
+	type docs struct {
+		Status struct {
+			InspectionID string `json:"inspectionId"`
+		} `json:"status"`
+		DocumentStatus []doc `json:"documentStatus"`
+	}
+
+	_, body, err := http.Get(fmt.Sprintf(config.Host+"/resources/applicants/%s/state?key=%s", applicantID, config.APIKey), nil)
+
+	if !assert.Nil(err) {
+		return
+	}
+	if !assert.NotEmpty(body) {
+		return
+	}
+
+	docsFromAPI := docs{}
+	err = json.Unmarshal(body, &docsFromAPI)
+	if !assert.Nil(err) {
+		return
+	}
+
+	// Get back the downloaded document images.
+	type img struct {
+		doctype string
+		data    []byte
+	}
+
+	docImages := []img{}
+	for _, d := range docsFromAPI.DocumentStatus {
+		_, body, err := http.Get(fmt.Sprintf(config.Host+"/resources/inspections/%s/resources/%d?key=%s", docsFromAPI.Status.InspectionID, d.ImageID, config.APIKey), nil)
+		if !assert.Nil(err) {
+			return
+		}
+		if !assert.NotEmpty(body) {
+			return
+		}
+		docImages = append(docImages, img{
+			doctype: d.IDDocType,
+			data:    body,
+		})
+	}
+
+	if !assert.NotEmpty(docImages) {
+		return
+	}
+
+	for _, docImg := range docImages {
+		switch docImg.doctype {
+		case "PASSPORT":
+			assert.Equal(customer.Passport.Image.Data, docImg.data)
+		case "SELFIE":
+			assert.Equal(customer.Selfie.Image.Data, docImg.data)
+		}
+	}
+}
+
+func init() {
+	testPassport, _ = ioutil.ReadFile("../../test_data/passport.jpg")
+	testSelfie, _ = ioutil.ReadFile("../../test_data/selfie.png")
 }

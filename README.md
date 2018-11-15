@@ -114,7 +114,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
 | **CountryAlpha2**            | _**string**_                       | Country of the customer in ISO 3166-1 alpha-2 format, for ex. "DE"    |
-| **Nationality**              | _**string**_                       | Citizenship of the customer. Perhaps, it should be country's name, for ex. "Italy" |
+| **Nationality**              | _**string**_                       | Citizenship of the customer. ISO 3166-1 alpha-2 format, for ex. "TH" |
 | **Phone**                    | _**string**_                       | Primary phone of the customer. It isn't the mobile phone!             |
 | **MobilePhone**              | _**string**_                       | Mobile phone of the customer                                          |
 | **CurrentAddress**           | [_**Address**_](#address-fields-description) | Current address of the customer                             |
