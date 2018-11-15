@@ -1,13 +1,21 @@
 package identitymind
 
 import (
+	"flag"
+	"io/ioutil"
 	"reflect"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/identitymind/consumer"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+)
+
+var (
+	useSandbox = flag.Bool("sandbox", false, "activate sandbox testing")
+	testImages = flag.Bool("test-images", false, "test document images upload")
 )
 
 var _ = Describe("The IdentityMind service", func() {
@@ -35,6 +43,12 @@ var _ = Describe("The IdentityMind service", func() {
 	})
 
 	Describe("CheckCustomer Sandbox Testing", func() {
+		var skipTest = func() {
+			if !*useSandbox {
+				Skip("use '-sandbox' command line flag to activate sandbox testing")
+			}
+		}
+
 		var service = New(Config{
 			Host:     SandboxBaseURL,
 			Username: "modulusglobal",
@@ -42,6 +56,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return bad reputation for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -66,6 +82,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return suspicious reputation for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -90,6 +108,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return trusted reputation for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -114,6 +134,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return unknown reputation for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -138,6 +160,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return denied policy result for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -166,6 +190,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return review policy result for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -190,6 +216,8 @@ var _ = Describe("The IdentityMind service", func() {
 		})
 
 		It("Should return accepted policy result for the customer", func() {
+			skipTest()
+
 			Expect(service).NotTo(BeNil())
 
 			customer := &common.UserData{
@@ -215,6 +243,49 @@ var _ = Describe("The IdentityMind service", func() {
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: ACCEPT"))
 			Expect(result.ErrorCode).To(BeEmpty())
 			Expect(result.StatusPolling).To(BeNil())
+		})
+	})
+
+	Describe("testing document image upload", func() {
+		It("should upload document image and successfully retrieve it from the API", func() {
+			if !*testImages {
+				Skip("use '-test-images' command line flag to activate document images upload testing")
+			}
+
+			service := New(Config{
+				Host:     SandboxBaseURL,
+				Username: "modulusglobal",
+				Password: "64117e699462ce859d970648461a625bc6a6f3cb",
+			})
+
+			Expect(service).NotTo(BeNil())
+
+			passport, err := ioutil.ReadFile("../../test_data/passport.jpg")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(passport).NotTo(BeEmpty())
+
+			customer := &common.UserData{
+				AccountName: "trusted_tom",
+				FirstName:   "Tom",
+				LastName:    "Pennington",
+				Passport: &common.Passport{
+					Number:        "0123456789",
+					CountryAlpha2: "US",
+					State:         "WA",
+					IssuedDate:    common.Time(time.Date(2015, 05, 25, 0, 0, 0, 0, time.UTC)),
+					ValidUntil:    common.Time(time.Date(2025, 05, 24, 0, 0, 0, 0, time.UTC)),
+					Image: &common.DocumentFile{
+						Filename:    "passport.jpg",
+						ContentType: "image/jpeg",
+						Data:        passport,
+					},
+				},
+			}
+
+			_, err = service.CheckCustomer(customer)
+
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })

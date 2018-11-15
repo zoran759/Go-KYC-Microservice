@@ -10,15 +10,15 @@ type Config struct {
 
 // Verification defines the interface for the verification services.
 type Verification interface {
-	Verify(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*VerificationResponse, error)
+	Verify(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*Response, error)
 }
 
 // Mock represents the mock of the service for tests.
 type Mock struct {
-	VerifyFn func(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*VerificationResponse, error)
+	VerifyFn func(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*Response, error)
 }
 
 // Verify implements Verification interface for Mock.
-func (mock Mock) Verify(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*VerificationResponse, error) {
+func (mock Mock) Verify(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*Response, error) {
 	return mock.VerifyFn(countryAlpha2, consents, fields)
 }
