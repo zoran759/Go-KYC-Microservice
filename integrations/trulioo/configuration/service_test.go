@@ -113,7 +113,7 @@ func Test_service_Consents_Error(t *testing.T) {
 		func(request *http.Request) (*http.Response, error) {
 			return httpmock.NewStringResponse(
 				http.StatusBadRequest,
-				`{}`,
+				"",
 			), nil
 		},
 	)

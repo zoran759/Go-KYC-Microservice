@@ -36,7 +36,7 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 		service.config.Host+"/verify",
 		http.Headers{
 			"Authorization": "Basic " + service.config.Token,
-			"Content-Type":  "application/json",
+			"Content-Type":  "application/json; charset=utf-8",
 		},
 		requestBytes,
 	)
@@ -45,11 +45,10 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 	}
 
 	response := new(VerificationResponse)
-	if code != stdhttp.StatusOK && code != 0 {
+	if code != stdhttp.StatusOK {
 		response.ErrorCode = &code
 	}
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return response, err
-	}
+	err = json.Unmarshal(responseBytes, response)
+
 	return response, err
 }
