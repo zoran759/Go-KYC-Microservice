@@ -1,5 +1,20 @@
 package common
 
+// KYCStatus2Status maps KYCStatus value to it's API representation.
+var KYCStatus2Status = map[KYCStatus]string{
+	Error:    "Error",
+	Approved: "Approved",
+	Denied:   "Denied",
+	Unclear:  "Unclear",
+}
+
+// KYCFinality2Finality maps KYCFinality value to it's API representation.
+var KYCFinality2Finality = map[KYCFinality]string{
+	Unknown:  "Unknown",
+	Final:    "Final",
+	NonFinal: "NonFinal",
+}
+
 // CountryAlpha2ToAlpha3 maps country Alpha-2 ISO codes to their Alpha-3 ISO code counterparts.
 var CountryAlpha2ToAlpha3 = map[string]string{
 	"AF": "AFG",
