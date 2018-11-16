@@ -172,13 +172,13 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, resp.Result)
 	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.Denied, resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Denied], resp.Result.Status)
 	assert.NotEmpty(t, resp.Result.Details)
-	assert.Equal(t, common.Unknown, resp.Result.Details.Finality)
+	assert.Equal(t, common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
 	assert.Len(t, resp.Result.Details.Reasons, 1)
 	assert.Equal(t, "COPPA Alert", resp.Result.Details.Reasons[0])
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 
 	// Testing reading request body failure.
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", &FailedReader{})
@@ -375,10 +375,10 @@ func TestCheckCustomer(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.Error, resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
 	assert.Nil(t, resp.Result.Details)
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 	assert.NotEmpty(t, resp.Error)
 	assert.Equal(t, "during verification: Invalid username and password", resp.Error)
 
@@ -413,12 +413,12 @@ func TestCheckCustomer(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.Approved, resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Approved], resp.Result.Status)
 	assert.NotNil(t, resp.Result.Details)
-	assert.Equal(t, common.Unknown, resp.Result.Details.Finality)
+	assert.Equal(t, common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
 	assert.NotEmpty(t, resp.Result.Details.Reasons)
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 	assert.Empty(t, resp.Error)
 
 	// Testing ShuftiPro.
@@ -450,10 +450,10 @@ func TestCheckCustomer(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.Approved, resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Approved], resp.Result.Status)
 	assert.Nil(t, resp.Result.Details)
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 	assert.Empty(t, resp.Error)
 
 	// Testing Sum&Substance.
@@ -488,12 +488,12 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, resp.Result)
 	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.Error, resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
 	assert.Nil(t, resp.Result.Details)
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.NotNil(t, resp.Result.StatusPolling)
-	assert.Equal(t, common.SumSub, resp.Result.StatusPolling.Provider)
-	assert.Equal(t, "596eb3c93a0eb985b8ade34d", resp.Result.StatusPolling.CustomerID)
+	assert.NotNil(t, resp.Result.StatusCheck)
+	assert.Equal(t, common.SumSub, resp.Result.StatusCheck.Provider)
+	assert.Equal(t, "596eb3c93a0eb985b8ade34d", resp.Result.StatusCheck.CustomerID)
 
 	// Testing Trulioo.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -534,10 +534,10 @@ func TestCheckCustomer(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.Error, resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
 	assert.Nil(t, resp.Result.Details)
 	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusPolling)
+	assert.Nil(t, resp.Result.StatusCheck)
 	assert.NotEmpty(t, resp.Error)
 	assert.Equal(t, "Test error;", resp.Error)
 
