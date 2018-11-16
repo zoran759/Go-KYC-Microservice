@@ -49,15 +49,16 @@ result, err := service.CheckCustomer(customer)
 ### KYC flow
 
 [Documentation](https://docs.synapsefi.com/docs/adding-documents) says the following
-```
-Submitting more than one physical document at a time might result in a delay in response time. It is recommended that you perform separate calls to add each physical document if you have more than one.
-```
+
+> Submitting more than one physical document at a time might result in a delay in response time. It is recommended that you perform separate calls to add each physical document if you have more than one.
+
 Usually this is not a problem and the mentioned delay is barely more than 20 secs, but sometimes it becomes up to 5+ minutes (very rarely, but it happens).
 
 In case when the such delay isn't critical for the application, you can use the default **"simple"** user registration flow, that issues the only one step and API call -- [CreateUser](https://docs.synapsefi.com/docs/create-a-user).
 
 Otherwise, you can switch the **KYCFlow** configuration option to any other **string** value -- let's say, **"complex"**, i.e.:
-```
+
+```go
 config = synapsefi.Config{
     Connection: synapsefi.Connection{
         Host:         "https://uat-api.synapsefi.com/v3.1/",
@@ -68,14 +69,14 @@ config = synapsefi.Config{
     KYCFlow: "complex",                             // optional, might be skipped
 }
 ```
+
 This flow implies a bit more complex sequence:
 1) [CreateUser](https://docs.synapsefi.com/docs/create-a-user) without documents
 2) [OAuth user](https://docs.synapsefi.com/docs/get-oauth_key-refresh-token) to obtain write permissions
 3) [Upload user documents](https://docs.synapsefi.com/docs/adding-documents) using OAuth key
- 
+
 ### Testing notes
+
 Even in sandbox mode, SynapseFI uses USPS to verify addresses. It means that address like "123 test st Chikago TX" will be rejected with message "Supplied address is invalid / Unable to verify address".
 
-Use [LOB](https://lob.com/products/address-verification) to check if an address is deliverable in the testing mode. 
-
-   
+Use [LOB](https://lob.com/products/address-verification) to check if an address is deliverable in the testing mode.
