@@ -1,13 +1,14 @@
 package verification
 
 import (
-	"modulus/kyc/common"
-	"fmt"
-	"time"
-	"errors"
-	"log"
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"time"
+
+	"modulus/kyc/common"
 )
 
 func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool) CreateUserRequest {
@@ -44,9 +45,9 @@ func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool)
 	return request
 }
 
-func mapCustomerDocuments(customer common.UserData) []Document  {
+func mapCustomerDocuments(customer common.UserData) []Document {
 	document := Document{
-		PhysicalDocs:       []SubDocument{},
+		PhysicalDocs: []SubDocument{},
 		OwnerName:    fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
 		Email:        customer.Email,
 		PhoneNumber:  customer.Phone,
@@ -65,12 +66,12 @@ func mapCustomerDocuments(customer common.UserData) []Document  {
 		AddressCity:        customer.CurrentAddress.Town,
 		AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
 		AddressPostalCode:  customer.CurrentAddress.PostCode,
-		AddressCountryCode: customer.CountryAlpha2,
+		AddressCountryCode: customer.CurrentAddress.CountryAlpha2,
 	}
 
 	if (&common.IDCard{}) != customer.IDCard {
 		document.PhysicalDocs = append(document.PhysicalDocs, SubDocument{
-			DocumentType: mapDocumentType("IDCard"),
+			DocumentType:  mapDocumentType("IDCard"),
 			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
 			//DocumentValue: "data:image/png;base64,SUQs==",
 		})
@@ -78,7 +79,7 @@ func mapCustomerDocuments(customer common.UserData) []Document  {
 
 	if (&common.Selfie{}) != customer.Selfie {
 		document.PhysicalDocs = append(document.PhysicalDocs, SubDocument{
-			DocumentType: mapDocumentType("Selfie"),
+			DocumentType:  mapDocumentType("Selfie"),
 			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
 			//DocumentValue: "data:image/png;base64,SUQs==",
 		})
@@ -114,7 +115,7 @@ func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRe
 			OwnerName:    fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
 			Email:        customer.Email,
 			PhoneNumber:  customer.Phone,
-			IPAddress:    "127.0.0.1",
+			IPAddress:    customer.IPaddress,
 			EntityType:   mapCustomerGender(customer.Gender),
 			EntityScope:  "Not Known",
 			DayOfBirth:   time.Time(customer.DateOfBirth).Day(),
@@ -136,7 +137,7 @@ func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRe
 
 	if customer.IDCard != nil {
 		request.Documents.PhysicalDocs = append(request.Documents.PhysicalDocs, SubDocument{
-			DocumentType: mapDocumentType("IDCard"),
+			DocumentType:  mapDocumentType("IDCard"),
 			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
 			//DocumentValue: "data:image/png;base64,SUQs==",
 		})
@@ -144,7 +145,7 @@ func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRe
 
 	if customer.Selfie != nil {
 		request.Documents.PhysicalDocs = append(request.Documents.PhysicalDocs, SubDocument{
-			DocumentType: mapDocumentType("Selfie"),
+			DocumentType:  mapDocumentType("Selfie"),
 			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
 			//DocumentValue: "data:image/png;base64,SUQs==",
 		})
@@ -155,11 +156,11 @@ func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRe
 
 func mapDocumentType(documentType string) string {
 	switch documentType {
-	case "IDCard", "DriverLicense", "DriverLicenseTranslation", "Passport", "SNILS", "DocumentPhoto":
+	case "IDCard", "DriverLicense", "DriverLicenseTranslation", "Passport", "SNILS":
 		return "GOVT_ID_INT"
 	case "Selfie":
 		return "SELFIE"
-	case "UtilityBill", "ResidencePermit":
+	case "UtilityBill":
 		return "PROOF_OF_ADDRESS"
 	case "Contract", "Agreement":
 		return "LEGAL_AGREEMENT"
@@ -175,10 +176,9 @@ func MapResponseError(responseBytes []byte) (result error, err error) {
 		log.Printf("Error decoding SynapseFi response: %v", err)
 		return nil, err
 	}
-	log.Printf("SynapseFi response status: %v", response.Status);
+	log.Printf("SynapseFi response status: %v", response.Status)
 
 	errMsg := response.Error[AppLanguage]
 
 	return errors.New(errMsg), nil
 }
-

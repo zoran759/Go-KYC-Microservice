@@ -1,12 +1,14 @@
 package verification
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"modulus/kyc/common"
-	"time"
 	"encoding/base64"
 	"errors"
+	"testing"
+	"time"
+
+	"modulus/kyc/common"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMapCustomerToCreateUserRequest(t *testing.T) {
@@ -20,6 +22,7 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 		LegalName:            "LegalName",
 		LatinISO1Name:        "LATIN",
 		Email:                "Email",
+		IPaddress:            "127.0.0.1",
 		Gender:               common.Male,
 		DateOfBirth:          testTime,
 		PlaceOfBirth:         "PlaceOfBirth",
@@ -128,7 +131,7 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 	assert.Equal(t, "Town1", document.AddressCity)
 	assert.Equal(t, "SPC1", document.AddressSubdivision)
 	assert.Equal(t, "PostCode1", document.AddressPostalCode)
-	assert.Equal(t, "CountryAlpha2", document.AddressCountryCode)
+	assert.Equal(t, "Country1", document.AddressCountryCode)
 
 	if assert.Len(t, document.PhysicalDocs, 2) {
 		assert.Equal(t,
@@ -136,7 +139,7 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 			document.PhysicalDocs[0].DocumentType,
 		)
 		assert.Equal(t,
-			"data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
+			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
 			document.PhysicalDocs[0].DocumentValue,
 		)
 
@@ -145,7 +148,7 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 			document.PhysicalDocs[1].DocumentType,
 		)
 		assert.Equal(t,
-			"data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
+			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
 			document.PhysicalDocs[1].DocumentValue,
 		)
 	}
@@ -161,6 +164,7 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",
 		LatinISO1Name:        "LATIN",
+		IPaddress:            "127.0.0.1",
 		Email:                "Email",
 		Gender:               common.Male,
 		DateOfBirth:          testTime,
@@ -261,7 +265,7 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 			docsRequest.Documents.PhysicalDocs[0].DocumentType,
 		)
 		assert.Equal(t,
-			"data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
+			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
 			docsRequest.Documents.PhysicalDocs[0].DocumentValue,
 		)
 
@@ -270,7 +274,7 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 			docsRequest.Documents.PhysicalDocs[1].DocumentType,
 		)
 		assert.Equal(t,
-			"data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
+			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
 			docsRequest.Documents.PhysicalDocs[1].DocumentValue,
 		)
 	}
@@ -292,7 +296,7 @@ func Test_mapDocumentType(t *testing.T) {
 	assert.Equal(t, "SELFIE", mapDocumentType("Selfie"))
 
 	assert.Equal(t, "PROOF_OF_ADDRESS", mapDocumentType("UtilityBill"))
-	assert.Equal(t, "PROOF_OF_ADDRESS", mapDocumentType("ResidencePermit"))
+	assert.Equal(t, "OTHER", mapDocumentType("ResidencePermit"))
 
 	assert.Equal(t, "LEGAL_AGREEMENT", mapDocumentType("Agreement"))
 	assert.Equal(t, "LEGAL_AGREEMENT", mapDocumentType("Contract"))

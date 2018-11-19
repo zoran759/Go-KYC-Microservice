@@ -83,6 +83,16 @@ func validate(config Config) (err error) {
 			if len(options["UseSummaryResult"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "UseSummaryResult"}
 			}
+		case common.SynapseFI:
+			if len(options["Host"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Host"}
+			}
+			if len(options["ClientID"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "ClientID"}
+			}
+			if len(options["ClientSecret"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "ClientSecret"}
+			}
 		case common.ShuftiPro:
 			if len(options["Host"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "Host"}
