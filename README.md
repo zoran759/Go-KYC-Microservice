@@ -115,7 +115,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
 | **CountryAlpha2**            | _**string**_                       | Country of the customer in ISO 3166-1 alpha-2 format, for ex. "DE"    |
-| **Nationality**              | _**string**_                       | Citizenship of the customer. Perhaps, it should be country's name, for ex. "Italy" |
+| **Nationality**              | _**string**_                       | Citizenship of the customer. ISO 3166-1 alpha-2 format, for ex. "TH" |
 | **Phone**                    | _**string**_                       | Primary phone of the customer. It isn't the mobile phone!             |
 | **MobilePhone**              | _**string**_                       | Mobile phone of the customer                                          |
 | **CurrentAddress**           | [_**Address**_](#address-fields-description) | Current address of the customer                             |
@@ -320,36 +320,36 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 ## **KYC response**
 
-The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](#commonkycresult-fields-description).
+The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.Result**](#commonresult-fields-description).
 
-> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*KYCStatusCheck__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
+> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*StatusCheck__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
 
-### **[common.KYCResult](common/model.go#L185) fields description**
+### **[common.Result](common/rest.go#L29) fields description**
 
-| **Name**        | **Type**                                                    | **Description**                                                           |
-| --------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **Status**      | _**[KYCStatus](#kycstatus-possible-values-description)**_   | Status of the verification                                                |
-| **Details**     | _***[KYCDetails](#kycdetails-fields-description)**_         | Details of the verification if provided                                   |
-| **ErrorCode**   | _**string**_                                                | Error code returned by a KYC provider if the provider support error codes |
-| **StatusCheck** | _***[KYCStatusCheck](#kycstatuscheck-fields-description)**_ | Data required to do the KYC verification status check requests if needed  |
+| **Name**        | **Type**                                                  | **Description**                                                               |
+| --------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Status**      | _**[string](#status-possible-values-description)**_       | Status of the verification                                                    |
+| **Details**     | _***[Details](#details-fields-description)**_             | Details of the verification if provided                                       |
+| **ErrorCode**   | _**string**_                                              | Error code returned by a KYC provider if the provider support error codes     |
+| **StatusCheck** | _***[KYCStatusCheck](#kycstatuscheck-fields-description)**_ | Data required to do the customer verification status check requests if needed |
 
-### **[KYCStatus](common/enum.go#L6) possible values description**
+### **[Status](common/mapping.go#L3) possible values description**
 
 | **Value**    | **Description**                                                                                                                |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Error**    | Verification has failed. Probably, some error has occurred. Returned error value must be non-nil and **`common.KYCResult.ErrorCode`** may contain error code value |
+| **Error**    | Verification has failed. Probably, some error has occurred. Returned error value must be non-nil and **`common.Result.ErrorCode`** may contain error code value |
 | **Approved** | Successful verification with approved result. The details maybe non-nil and contain additional info about the verification     |
 | **Denied**   | Successful verification with rejected result. The details should be non-nil and contain additional info about the verification |
 | **Unclear**  | Needs subsequent status polling or the verification completed with an indefinite result. That might mean that some additional info is required. The details should be non-nil and contain additional info. If status polling is required then **`common.KYCResult.StatusCheck`** must be non-nil |
 
-### **[KYCDetails](common/model.go#L179) fields description**
+### **[Details](common/rest.go#L37) fields description**
 
-| **Name**     | **Type**                                                      | **Description**                                                          |
-| ------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **Finality** | [_**KYCFinality**_](#kycfinality-possible-values-description) | Rejection type of the result (if the negative answer is given)           |
-| **Reasons**  | _**[]string**_                                                | List of additional response info describing result-related circumstances |
+| **Name**     | **Type**                                              | **Description**                                                          |
+| ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Finality** | [_**string**_](#finality-possible-values-description) | Rejection type of the result (if the negative answer is given)           |
+| **Reasons**  | _**[]string**_                                        | List of additional response info describing result-related circumstances |
 
-### **[KYCFinality](common/enum.go#L17) possible values description**
+### **[Finality](common/mapping.go#L11) possible values description**
 
 | **Value**    | **Description**                                                                                                             |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
