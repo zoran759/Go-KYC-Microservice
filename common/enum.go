@@ -49,9 +49,9 @@ const (
 var KYCProviders = map[KYCProvider]bool{
 	IdentityMind: true,
 	IDology:      true,
-	SynapseFI:    true,
+	Jumio:        true,
 	ShuftiPro:    true,
 	SumSub:       true,
+	SynapseFI:    true,
 	Trulioo:      true,
-	Jumio:        true,
 }

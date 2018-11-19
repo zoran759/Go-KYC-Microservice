@@ -526,11 +526,11 @@ func TestSumSubImageUpload(t *testing.T) {
 	if !assert.Nil(err) {
 		return
 	}
-	if !assert.NotNil(result.StatusPolling, "status polling data has to be provided") {
+	if !assert.NotNil(result.StatusCheck, "status polling data has to be provided") {
 		return
 	}
 
-	applicantID := result.StatusPolling.CustomerID
+	applicantID := result.StatusCheck.ReferenceID
 	t.Log("Received applicant id:", applicantID)
 
 	// Simulate approved result of the verification.
@@ -553,7 +553,7 @@ func TestSumSubImageUpload(t *testing.T) {
 	assert.Equal(common.Approved, result.Status)
 	assert.Nil(result.Details)
 	assert.Empty(result.ErrorCode)
-	assert.Nil(result.StatusPolling)
+	assert.Nil(result.StatusCheck)
 
 	// Get back the downloaded documents.
 	type doc struct {

@@ -489,7 +489,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, resp.Result)
 	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
+	assert.Equal(t, common.KYCStatus2Status[common.Unclear], resp.Result.Status)
 	assert.Nil(t, resp.Result.Details)
 	assert.Empty(t, resp.Result.ErrorCode)
 	assert.NotNil(t, resp.Result.StatusCheck)
