@@ -281,7 +281,7 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.MerchantIDScanReference).NotTo(BeEmpty())
 			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
 			Expect(r.Country).To(Equal("USA"))
 			Expect(r.IDType).To(Equal(Passport))
@@ -314,7 +314,7 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.MerchantIDScanReference).NotTo(BeEmpty())
 			Expect(r.FrontsideImageMimeType).To(Equal("image/jpeg"))
 			Expect(r.BacksideImageMimeType).To(Equal("image/jpeg"))
 			Expect(r.Country).To(Equal("USA"))
@@ -341,7 +341,7 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.MerchantIDScanReference).NotTo(BeEmpty())
 			Expect(r.FrontsideImageMimeType).To(Equal("image/jpeg"))
 			Expect(r.Country).To(Equal("CAN"))
 			Expect(r.IDType).To(Equal(IDCard))
@@ -364,7 +364,7 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.MerchantIDScanReference).NotTo(BeEmpty())
 			Expect(r.FrontsideImageMimeType).To(Equal("image/png"))
 			Expect(r.Country).To(Equal("RUS"))
 			Expect(r.IDType).To(Equal(IDCard))
@@ -400,7 +400,7 @@ var _ = Describe("Request", func() {
 			err := r.populateFields(customer)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(r.MerchantIDScanReference).To(Equal("Modulus"))
+			Expect(r.MerchantIDScanReference).NotTo(BeEmpty())
 			Expect(r.FirstName).To(Equal("Bruce"))
 			Expect(r.LastName).To(Equal("Wayne"))
 			Expect(r.DOB).To(Equal(common.Time(time.Date(1950, 03, 17, 0, 0, 0, 0, time.UTC)).Format("2006-01-02")))

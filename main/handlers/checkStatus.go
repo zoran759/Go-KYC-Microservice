@@ -10,6 +10,7 @@ import (
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
+	"modulus/kyc/integrations/jumio"
 	"modulus/kyc/integrations/sumsub"
 	"modulus/kyc/main/config"
 )
@@ -104,6 +105,12 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 			Host:     cfg["Host"],
 			Username: cfg["Username"],
 			Password: cfg["Password"],
+		})
+	case common.Jumio:
+		service = jumio.New(jumio.Config{
+			BaseURL: cfg["BaseURL"],
+			Token:   cfg["Token"],
+			Secret:  cfg["Secret"],
 		})
 	case common.SumSub:
 		service = sumsub.New(sumsub.Config{
