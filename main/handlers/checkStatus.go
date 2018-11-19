@@ -57,7 +57,8 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response.Error = err.Error()
 	}
-	response.Result = &result
+
+	response.Result = common.ResultFromKYCResult(result)
 
 	resp, err := json.Marshal(response)
 	if err != nil {

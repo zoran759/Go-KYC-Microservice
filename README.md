@@ -319,36 +319,36 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 ## **KYC response**
 
-The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.KYCResult**](#commonkycresult-fields-description).
+The verification response consist of two elements: a result and an error if occurred. The result is of the type [**common.Result**](#commonresult-fields-description).
 
-> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*StatusPolling__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
+> Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the __*StatusCheck__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
 
-### **[common.KYCResult](common/model.go#L196) fields description**
+### **[common.Result](common/rest.go#L26) fields description**
 
-| **Name**          | **Type**                                                  | **Description**                                                               |
-| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| **Status**        | _**[KYCStatus](#kycstatus-possible-values-description)**_ | Status of the verification                                                    |
-| **Details**       | _***[KYCDetails](#kycdetails-fields-description)**_       | Details of the verification if provided                                       |
-| **ErrorCode**     | _**string**_                                              | Error code returned by a KYC provider if the provider support error codes     |
-| **StatusPolling** | _***[StatusPolling](#statuspolling-fields-description)**_ | Data required to do the customer verification status check requests if needed |
+| **Name**        | **Type**                                                  | **Description**                                                               |
+| --------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Status**      | _**[string](#status-possible-values-description)**_       | Status of the verification                                                    |
+| **Details**     | _***[Details](#details-fields-description)**_             | Details of the verification if provided                                       |
+| **ErrorCode**   | _**string**_                                              | Error code returned by a KYC provider if the provider support error codes     |
+| **StatusCheck** | _***[StatusPolling](#statuspolling-fields-description)**_ | Data required to do the customer verification status check requests if needed |
 
-### **[KYCStatus](common/enum.go#L6) possible values description**
+### **[Status](common/mapping.go#L3) possible values description**
 
 | **Value**    | **Description**                                                                                                                |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Error**    | Verification has failed. Probably, some error has occurred. Returned error value must be non-nil and **`common.KYCResult.ErrorCode`** may contain error code value |
+| **Error**    | Verification has failed. Probably, some error has occurred. Returned error value must be non-nil and **`common.Result.ErrorCode`** may contain error code value |
 | **Approved** | Successful verification with approved result. The details maybe non-nil and contain additional info about the verification     |
 | **Denied**   | Successful verification with rejected result. The details should be non-nil and contain additional info about the verification |
 | **Unclear**  | Verification completed with an indefinite result. That might mean that some additional info is required. The details should be non-nil and contain additional info |
 
-### **[KYCDetails](common/model.go#L190) fields description**
+### **[Details](common/rest.go#L34) fields description**
 
-| **Name**     | **Type**                                                      | **Description**                                                          |
-| ------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **Finality** | [_**KYCFinality**_](#kycfinality-possible-values-description) | Rejection type of the result (if the negative answer is given)           |
-| **Reasons**  | _**[]string**_                                                | List of additional response info describing result-related circumstances |
+| **Name**     | **Type**                                              | **Description**                                                          |
+| ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Finality** | [_**string**_](#finality-possible-values-description) | Rejection type of the result (if the negative answer is given)           |
+| **Reasons**  | _**[]string**_                                        | List of additional response info describing result-related circumstances |
 
-### **[KYCFinality](common/enum.go#L17) possible values description**
+### **[Finality](common/mapping.go#L11) possible values description**
 
 | **Value**    | **Description**                                                                                                             |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
@@ -356,7 +356,7 @@ The verification response consist of two elements: a result and an error if occu
 | **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality                                                    |
 | **Unknown**  | The provider doesn't support **`Finality`** feature                                                                         |
 
-### **[StatusPolling](common/model.go#L204) fields description**
+### **[StatusPolling](common/model.go#L192) fields description**
 
 | **Name**       | **Type**                                | **Description**                                                                        |
 | -------------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
