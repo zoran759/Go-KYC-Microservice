@@ -18,7 +18,7 @@ func NewService(config Config) Verification {
 	}
 }
 
-func (service service) Verify(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*VerificationResponse, error) {
+func (service service) Verify(countryAlpha2 string, consents configuration.Consents, fields DataFields) (*Response, error) {
 	request := StartVerificationRequest{
 		AcceptTruliooTermsAndConditions: true,
 		ConfigurationName:               "Identity Verification",
@@ -36,7 +36,7 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 		service.config.Host+"/verify",
 		http.Headers{
 			"Authorization": "Basic " + service.config.Token,
-			"Content-Type":  "application/json",
+			"Content-Type":  "application/json; charset=utf-8",
 		},
 		requestBytes,
 	)
@@ -44,12 +44,11 @@ func (service service) Verify(countryAlpha2 string, consents configuration.Conse
 		return nil, err
 	}
 
-	response := new(VerificationResponse)
+	response := new(Response)
 	if code != stdhttp.StatusOK && code != 0 {
 		response.ErrorCode = &code
 	}
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return response, err
-	}
+	err = json.Unmarshal(responseBytes, response)
+
 	return response, err
 }
