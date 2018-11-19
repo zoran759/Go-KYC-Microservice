@@ -41,6 +41,7 @@ const (
 	Jumio        KYCProvider = "Jumio"
 	ShuftiPro    KYCProvider = "ShuftiPro"
 	SumSub       KYCProvider = "Sum&Substance"
+	SynapseFI    KYCProvider = "SynapseFI"
 	Trulioo      KYCProvider = "Trulioo"
 )
 
@@ -48,6 +49,7 @@ const (
 var KYCProviders = map[KYCProvider]bool{
 	IdentityMind: true,
 	IDology:      true,
+	SynapseFI:    true,
 	ShuftiPro:    true,
 	SumSub:       true,
 	Trulioo:      true,

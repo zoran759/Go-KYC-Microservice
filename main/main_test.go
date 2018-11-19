@@ -1,6 +1,7 @@
-package main
+package main_test
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
 	"testing"
@@ -10,7 +11,12 @@ import (
 	"modulus/kyc/integrations/shuftipro"
 )
 
-func Test_Shufti(*testing.T) {
+var testShufti = flag.Bool("test-shufti", false, "Run Test_Shufti")
+
+func Test_Shufti(t *testing.T) {
+	if !*testShufti {
+		t.Skip("Use '-test-shufti' command line flag to run this test")
+	}
 
 	id, err := ioutil.ReadFile("../test_data/realId.jpg")
 	if err != nil {
