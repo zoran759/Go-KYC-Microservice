@@ -38,6 +38,7 @@ const (
 	Example      KYCProvider = "Example"
 	IdentityMind KYCProvider = "IdentityMind"
 	IDology      KYCProvider = "IDology"
+	SynapseFI    KYCProvider = "SynapseFI"
 	ShuftiPro    KYCProvider = "ShuftiPro"
 	SumSub       KYCProvider = "Sum&Substance"
 	Trulioo      KYCProvider = "Trulioo"
@@ -47,6 +48,7 @@ const (
 var KYCProviders = map[KYCProvider]bool{
 	IdentityMind: true,
 	IDology:      true,
+	SynapseFI:    true,
 	ShuftiPro:    true,
 	SumSub:       true,
 	Trulioo:      true,
