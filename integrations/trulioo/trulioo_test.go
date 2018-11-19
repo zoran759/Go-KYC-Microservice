@@ -320,12 +320,6 @@ func TestImagesUpload(t *testing.T) {
 		return
 	}
 
-	// This will be removed after debugging.
-	// fmt.Printf("::: ENTITY:\n\n%+v\n\n", testEntities[2])
-	// fmt.Printf("::: CUSTOMER:\n\n%+v\n\n", *customer)
-	// fmt.Printf("::: PASSPORT:\n\n%+v\n\n", *customer.Passport)
-	// return
-
 	service := New(Config{
 		Host:         host,
 		NAPILogin:    nAPILogin,
@@ -348,6 +342,9 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 		personInfo, ok := personInfoI.(map[string]interface{})
 		if ok {
 			if firstName, ok := personInfo["FirstGivenName"].(string); ok {
+				if firstName == "J" {
+					firstName = "Justin"
+				}
 				customer.FirstName = firstName
 			}
 			if middleName, ok := personInfo["MiddleName"].(string); ok {
@@ -379,30 +376,30 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 	}
 
 	if locationI, ok := testEntity["Location"]; ok {
-		location, ok := locationI.(map[string]string)
+		location, ok := locationI.(map[string]interface{})
 		if ok {
-			if buildingNumber, ok := location["BuildingNumber"]; ok {
+			if buildingNumber, ok := location["BuildingNumber"].(string); ok {
 				customer.CurrentAddress.BuildingNumber = buildingNumber
 			}
-			if unitNumber, ok := location["UnitNumber"]; ok {
+			if unitNumber, ok := location["UnitNumber"].(string); ok {
 				customer.CurrentAddress.FlatNumber = unitNumber
 			}
-			if streetName, ok := location["StreetName"]; ok {
+			if streetName, ok := location["StreetName"].(string); ok {
 				customer.CurrentAddress.Street = streetName
 			}
-			if streetType, ok := location["StreetType"]; ok {
+			if streetType, ok := location["StreetType"].(string); ok {
 				customer.CurrentAddress.StreetType = streetType
 			}
-			if city, ok := location["City"]; ok {
+			if city, ok := location["City"].(string); ok {
 				customer.CurrentAddress.Town = city
 			}
-			if suburb, ok := location["Suburb"]; ok {
+			if suburb, ok := location["Suburb"].(string); ok {
 				customer.CurrentAddress.Suburb = suburb
 			}
-			if stateProvinceCode, ok := location["StateProvinceCode"]; ok {
+			if stateProvinceCode, ok := location["StateProvinceCode"].(string); ok {
 				customer.CurrentAddress.StateProvinceCode = stateProvinceCode
 			}
-			if postalCode, ok := location["PostalCode"]; ok {
+			if postalCode, ok := location["PostalCode"].(string); ok {
 				customer.CurrentAddress.PostCode = postalCode
 			}
 		}

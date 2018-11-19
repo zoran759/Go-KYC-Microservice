@@ -12,13 +12,44 @@ type CheckStatusRequest struct {
 	CustomerID string
 }
 
-// KYCResponse represents the response for the CheckCustomer and the CheckStatus handlers.
-type KYCResponse struct {
-	Result *KYCResult
-	Error  string
-}
-
 // ErrorResponse represents the error response payload from the service.
 type ErrorResponse struct {
 	Error string
+}
+
+// KYCResponse represents the response for the CheckCustomer and the CheckStatus handlers.
+type KYCResponse struct {
+	Result *Result
+	Error  string
+}
+
+// Result represents the verification result for the KYCResponse.
+type Result struct {
+	Status      string
+	Details     *Details
+	ErrorCode   string
+	StatusCheck *StatusPolling
+}
+
+// Details defines additional details about the verification result.
+type Details struct {
+	Finality string
+	Reasons  []string
+}
+
+// ResultFromKYCResult fills Result's fields with the data from KYCResult object.
+func ResultFromKYCResult(kycResult KYCResult) (result *Result) {
+	result = &Result{}
+
+	result.Status = KYCStatus2Status[kycResult.Status]
+	if kycResult.Details != nil {
+		result.Details = &Details{
+			Finality: KYCFinality2Finality[kycResult.Details.Finality],
+			Reasons:  kycResult.Details.Reasons,
+		}
+	}
+	result.ErrorCode = kycResult.ErrorCode
+	result.StatusCheck = kycResult.StatusPolling
+
+	return
 }
