@@ -12,6 +12,7 @@ import (
 	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/idology"
+	"modulus/kyc/integrations/jumio"
 	"modulus/kyc/integrations/shuftipro"
 	"modulus/kyc/integrations/sumsub"
 	"modulus/kyc/integrations/synapsefi"
@@ -116,13 +117,11 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 			Password:         cfg["Password"],
 			UseSummaryResult: useSummaryResult,
 		})
-	case common.SynapseFI:
-		service = synapsefi.New(synapsefi.Config{
-			Connection: synapsefi.Connection{
-				Host:         cfg["Host"],
-				ClientID:     cfg["ClientID"],
-				ClientSecret: cfg["ClientSecret"],
-			},
+	case common.Jumio:
+		service = jumio.New(jumio.Config{
+			BaseURL: cfg["BaseURL"],
+			Token:   cfg["Token"],
+			Secret:  cfg["Secret"],
 		})
 	case common.ShuftiPro:
 		service = shuftipro.New(shuftipro.Config{
@@ -135,6 +134,14 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 		service = sumsub.New(sumsub.Config{
 			Host:   cfg["Host"],
 			APIKey: cfg["APIKey"],
+		})
+	case common.SynapseFI:
+		service = synapsefi.New(synapsefi.Config{
+			Connection: synapsefi.Connection{
+				Host:         cfg["Host"],
+				ClientID:     cfg["ClientID"],
+				ClientSecret: cfg["ClientSecret"],
+			},
 		})
 	case common.Trulioo:
 		service = trulioo.New(trulioo.Config{

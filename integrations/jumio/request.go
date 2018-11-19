@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"time"
 
 	"modulus/kyc/common"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -25,20 +26,6 @@ const (
 var acceptableImageMimeType = map[string]bool{
 	"image/jpeg": true,
 	"image/png":  true,
-}
-
-// Request timings recommendation according to https://github.com/Jumio/implementation-guides/blob/master/netverify/netverify-retrieval-api.md#usage.
-var timings = [10]time.Duration{
-	40 * time.Second,
-	60 * time.Second,
-	100 * time.Second,
-	160 * time.Second,
-	240 * time.Second,
-	340 * time.Second,
-	460 * time.Second,
-	600 * time.Second,
-	760 * time.Second,
-	940 * time.Second,
 }
 
 // Request defines the model for a request body for the performNetverify API request.
@@ -89,7 +76,7 @@ type Request struct {
 	CallbackGranularity string `json:"callbackGranularity,omitempty"`
 	// FIXME: What's the difference between this and the Identification number?
 	// Personal number of the document. Max. length 14.
-	PersonalNumber string `json:"personalNumber"`
+	PersonalNumber string `json:"personalNumber,omitempty"`
 }
 
 // populateFields populate the fields of the request object with input data.
@@ -98,7 +85,7 @@ func (r *Request) populateFields(customer *common.UserData) (err error) {
 		return
 	}
 
-	r.MerchantIDScanReference = "Modulus"
+	r.MerchantIDScanReference = uuid.New().String()
 	r.FirstName = customer.FirstName
 	r.LastName = customer.LastName
 	r.DOB = customer.DateOfBirth.Format(dateFormat)
