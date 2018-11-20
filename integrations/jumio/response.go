@@ -116,23 +116,29 @@ func (r *DetailsResponse) toResult() (result common.KYCResult, err error) {
 		return
 	case DeniedFraud, DeniedUnsupportedIDType, DeniedUnsupportedIDCountry:
 		result.Status = common.Denied
+	case ErrorNotReadableID, NoIDUploaded:
+		result.Details = &common.KYCDetails{
+			Reasons: []string{"Document status: " + string(r.Document.Status)},
+		}
 	}
 
 	if r.Verification != nil {
+		reasons := []string{}
 		if r.Verification.RejectReason != nil {
 			result.ErrorCode = r.Verification.RejectReason.Code
-			result.Details = &common.KYCDetails{
-				Reasons: []string{r.Verification.RejectReason.Description},
-			}
+			reasons = append(reasons, r.Verification.RejectReason.Description)
 			for _, details := range r.Verification.RejectReason.Details {
-				result.Details.Reasons = append(result.Details.Reasons, details.String())
+				reasons = append(reasons, details.String())
 			}
 		}
 		if r.Verification.IdentityVerification != nil {
+			reasons = append(reasons, r.Verification.IdentityVerification.String())
+		}
+		if len(reasons) != 0 {
 			if result.Details == nil {
 				result.Details = &common.KYCDetails{}
 			}
-			result.Details.Reasons = append(result.Details.Reasons, r.Verification.IdentityVerification.String())
+			result.Details.Reasons = append(result.Details.Reasons, reasons...)
 		}
 	}
 
