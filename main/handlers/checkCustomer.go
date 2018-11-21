@@ -14,6 +14,7 @@ import (
 	"modulus/kyc/integrations/idology"
 	"modulus/kyc/integrations/shuftipro"
 	"modulus/kyc/integrations/sumsub"
+	"modulus/kyc/integrations/synapsefi"
 	"modulus/kyc/integrations/trulioo"
 	"modulus/kyc/main/config"
 )
@@ -114,6 +115,14 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 			Username:         cfg["Username"],
 			Password:         cfg["Password"],
 			UseSummaryResult: useSummaryResult,
+		})
+	case common.SynapseFI:
+		service = synapsefi.New(synapsefi.Config{
+			Connection: synapsefi.Connection{
+				Host:         cfg["Host"],
+				ClientID:     cfg["ClientID"],
+				ClientSecret: cfg["ClientSecret"],
+			},
 		})
 	case common.ShuftiPro:
 		service = shuftipro.New(shuftipro.Config{

@@ -4,11 +4,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"log"
-	"modulus/kyc/http"
 	"net/url"
 
 	"github.com/gofrs/uuid"
+
+	"modulus/kyc/http"
 )
 
 type service struct {
@@ -64,7 +64,7 @@ func (service service) Verify(request Request) (*Response, error) {
 	form.Add("verification_services", string(servicesBytes))
 	form.Add("signature", hex.EncodeToString(hashedSignatureString[:]))
 
-	code, responseBytes, err := http.Post(
+	_, responseBytes, err := http.Post(
 		service.config.Host,
 		http.Headers{
 			"Content-Type": "application/x-www-form-urlencoded",
@@ -74,9 +74,7 @@ func (service service) Verify(request Request) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println(form.Encode())
-	log.Println(string(responseBytes))
-	log.Println(code)
+
 	response := new(Response)
 	if err := json.Unmarshal(responseBytes, response); err != nil {
 		return nil, err
