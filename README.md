@@ -363,6 +363,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 * [**Trulioo**](integrations/trulioo/README.md)
 * [**Shufti Pro**](integrations/shuftipro/README.md)
 * [**SynapseFI**](integrations/synapsefi/README.md)
+* [**4Stop**](integrations/stop4/README.md)
 
 ## **Applicable fields grouped per provider**
 
@@ -500,6 +501,30 @@ It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/referen
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
+#### **4Stop**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+
+| **Name**             | **Type**         |  **Required**       | **Comment**                                                       |
+| -------------------- | ---------------- | :----------------:  | ----------------------------------------------------------------- |
+| **FirstName**        | _string_         |  **Yes**            |                                                                   |
+| **LastName**         | _string_         |  **Yes**            |                                                                   |
+| **MiddleName**       | _string_         |                     |                                                                   |
+| **Gender**           | _Gender_         |                     |                                                                   |
+| **Email**            | _string_         |  **Yes**            |                                                                   |
+| **DateOfBirth**      | _Time_           |  **Yes**            |                                                                   |
+| **CountryAlpha2**    | _string_         |  **Yes**            |                                                                   |
+| **Phone**            | _string_         |  **Yes**            |                                                                   |
+| **Mobile phone**     | _string_         |  **Yes**            |                                                                   |
+| **CurrentAddress**   | _Address_        |  **Yes**            |                                                                   |
+| **Passport**(*)      | _*Passport_      |  **(*)**            | (*)Anyone of documents marked with asterisk                       |
+| **IDCard**(*)        | _*IDCard_        |  **(*)**            |                                                                   |
+| **DriverLicense**(*) | _*DriverLicense_ |  **(*)**            |                                                                   |
+| **ResidensePermit**(*)** | _*ResidencePermit_ |  **(*)**            |                                                                   |
+
+> **DOCUMENTS NOTE:** 4Stop does not support files
+
 ### **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
@@ -530,7 +555,23 @@ KYC providers may require various set of `common.UserData` fields depending on t
 * International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
 * No fields variations found in the docs
 
-#### **SemperFI covered countries**
+### **SemperFI covered countries**
 
 * International (no list of supported country)
 * No fields variations found in the docs
+
+### **4Stop covered countries**
+* No fields variations found in the docs
+* No supported countries list found in documentation
+* Supported document types:
+    * SSN
+    * Passport Registry
+    * Personal ID / National ID
+    * Identity Card
+    * Driver License
+    * Travel Document
+    * Residence Permit
+    * Identity Certificate
+    * Registro Federal de Contribuyentes
+    * Credencial de Elector
+    * CPF (Cadastro de Pessoas Físicas)

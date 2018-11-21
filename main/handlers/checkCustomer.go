@@ -15,6 +15,7 @@ import (
 	"modulus/kyc/integrations/sumsub"
 	"modulus/kyc/integrations/trulioo"
 	"modulus/kyc/main/config"
+	"modulus/kyc/integrations/stop4"
 )
 
 // CheckCustomer handles requests for KYC verifications.
@@ -124,6 +125,12 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 			Host:         cfg["Host"],
 			NAPILogin:    cfg["NAPILogin"],
 			NAPIPassword: cfg["NAPIPassword"],
+		})
+	case common.Stop4:
+		service = stop4.New(stop4.Config{
+			Host:         cfg["Host"],
+			MerchantID:   cfg["MerchantID"],
+			Password: 	  cfg["Password"],
 		})
 	default:
 		err = &serviceError{

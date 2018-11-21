@@ -38,6 +38,11 @@ func (service Stop4) CheckCustomer(customer *common.UserData) (result common.KYC
 		result.Status = common.Approved
 	} else {
 		result.Status = common.Denied
+		result.Details = &common.KYCDetails{
+			Finality: common.Unknown,
+		}
+		result.Details.Reasons = append(result.Details.Reasons, response.Details)
+
 		result.ErrorCode = strconv.FormatInt(int64(response.Status), 10)
 	}
 	return

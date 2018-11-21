@@ -7,5 +7,5 @@ type Config verification.Config
 
 // Verification result codes from the API.
 const (
-	Success = "0"
+	Success = 0
 )

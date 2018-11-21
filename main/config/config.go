@@ -103,6 +103,17 @@ func validate(config Config) (err error) {
 			if len(options["NAPIPassword"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "NAPIPassword"}
 			}
+		case common.Stop4:
+			if len(options["Host"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Host"}
+			}
+			if len(options["MerchantID"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "MerchantID"}
+			}
+			if len(options["Password"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Password"}
+			}
+
 		}
 	}
 

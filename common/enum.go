@@ -42,6 +42,7 @@ const (
 	ShuftiPro KYCProvider = "ShuftiPro"
 	SumSub    KYCProvider = "Sum&Substance"
 	Trulioo   KYCProvider = "Trulioo"
+	Stop4	  KYCProvider = "Stop4"
 )
 
 // KYCProviders enumerates the implemented KYC providers.
@@ -50,4 +51,5 @@ var KYCProviders = map[KYCProvider]bool{
 	ShuftiPro: true,
 	SumSub:    true,
 	Trulioo:   true,
+	Stop4:	   true,
 }
