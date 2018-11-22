@@ -9,8 +9,8 @@ import (
 )
 
 // defaultHTTPTimeout holds the default value for a HTTP request timeout.
-// Actually, currently the timeout value for requests isn't configurable.
-const defaultHTTPTimeout = time.Minute
+// Currently, the timeout value for requests isn't configurable.
+const defaultHTTPTimeout = 5 * time.Minute
 
 // Headers represents a HTTP request headers.
 type Headers map[string]string
