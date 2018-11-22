@@ -148,6 +148,13 @@ func TestShuftiProImageUpload(t *testing.T) {
 				Data:        testIDCard,
 			},
 		},
+		UtilityBill: &common.UtilityBill{
+			Image: &common.DocumentFile{
+				Filename:    "util_bill.jpg",
+				ContentType: "image/jpeg",
+				Data:        testIDCard,
+			},
+		},
 		Selfie: &common.Selfie{
 			Image: &common.DocumentFile{
 				Filename:    "realFace.png",
