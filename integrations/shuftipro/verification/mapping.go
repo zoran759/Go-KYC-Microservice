@@ -17,7 +17,6 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 			FirstName:   customer.FirstName,
 			LastName:    customer.LastName,
 			MiddleName:  customer.MiddleName,
-			Address:     customer.CurrentAddress.String(),
 			DateOfBirth: customer.DateOfBirth.Format("2006-01-02"),
 		},
 	}
@@ -26,6 +25,7 @@ func MapCustomerToVerificationRequest(customer common.UserData) Request {
 		request.VerificationData.FaceImage = base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data)
 	}
 	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
+		request.VerificationServices.Address = customer.CurrentAddress.String()
 		request.VerificationData.UtilityBill = base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data)
 	}
 	if customer.Passport != nil && customer.Passport.Image != nil {
