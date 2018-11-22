@@ -18,11 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	testImageUpload = flag.Bool("use-images", false, "test document images uploading")
-	testPassport    []byte
-	testSelfie      []byte
-)
+var testImageUpload = flag.Bool("use-images", false, "test document images uploading")
 
 func TestNew(t *testing.T) {
 	sumsubService := New(Config{
@@ -449,6 +445,9 @@ func TestSumSubImageUpload(t *testing.T) {
 		t.Skip("use '-use-images' flag to activate images uploading test")
 	}
 
+	testPassport, _ := ioutil.ReadFile("../../test_data/passport.jpg")
+	testSelfie, _ := ioutil.ReadFile("../../test_data/selfie.png")
+
 	assert := assert.New(t)
 
 	if !assert.NotEmpty(testPassport, "testPassport must contain the content of the image data file 'passport.jpg'") {
@@ -601,9 +600,4 @@ func TestSumSubImageUpload(t *testing.T) {
 			assert.Equal(customer.Selfie.Image.Data, docImg.data)
 		}
 	}
-}
-
-func init() {
-	testPassport, _ = ioutil.ReadFile("../../test_data/passport.jpg")
-	testSelfie, _ = ioutil.ReadFile("../../test_data/selfie.png")
 }
