@@ -4,10 +4,10 @@ This instruction describes how to use **`identitymind`** package.
 
 ## Configuration options description
 
-| **Name** | **Type** | **Description** |
-| -------- | -------- | --------------- |
-| **Host** | _**string**_ | Endpoint URL of the IdentityMind API. It looks like `https://edna.identitymind.com/im` |
-| **Username** | _**string**_ | IdentityMind API username |
+| **Name**     | **Type**     | **Description**                       |
+| ------------ | ------------ | ------------------------------------- |
+| **Host**     | _**string**_ | Endpoint URL of the IdentityMind API. It looks like `https://edna.identitymind.com/im` |
+| **Username** | _**string**_ | IdentityMind API username             |
 | **Password** | _**string**_ | IdentityMind API password/license key |
 
 ## How to use the package
@@ -43,12 +43,12 @@ service := identitymind.New(config)
 result, err := service.CheckCustomer(customer)
 ...
 
-customerID := result.StatusPolling.CustomerID
+referenceID := result.StatusCheck.ReferenceID
 
 ...
 
 // Check the current state of the customer verification.
-result, err := service.CheckStatus(customerID)
+result, err := service.CheckStatus(referenceID)
 ...
 
 ```

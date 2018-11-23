@@ -1,5 +1,8 @@
 package common
 
+// TooManyRequests defines the error code returned when KYC status check requests send too frequently.
+const TooManyRequests = "429"
+
 // CheckCustomerRequest represents the request for the CheckCustomer handler.
 type CheckCustomerRequest struct {
 	Provider KYCProvider
@@ -8,8 +11,8 @@ type CheckCustomerRequest struct {
 
 // CheckStatusRequest represents the status check request payload of the CheckStatus handler.
 type CheckStatusRequest struct {
-	Provider   KYCProvider
-	CustomerID string
+	Provider    KYCProvider
+	ReferenceID string
 }
 
 // ErrorResponse represents the error response payload from the service.
@@ -28,7 +31,7 @@ type Result struct {
 	Status      string
 	Details     *Details
 	ErrorCode   string
-	StatusCheck *StatusPolling
+	StatusCheck *KYCStatusCheck
 }
 
 // Details defines additional details about the verification result.
@@ -49,7 +52,7 @@ func ResultFromKYCResult(kycResult KYCResult) (result *Result) {
 		}
 	}
 	result.ErrorCode = kycResult.ErrorCode
-	result.StatusCheck = kycResult.StatusPolling
+	result.StatusCheck = kycResult.StatusCheck
 
 	return
 }

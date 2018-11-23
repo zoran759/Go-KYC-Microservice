@@ -15,7 +15,7 @@ const (
 	contentType = "application/json"
 
 	consumerEndpoint       = "/account/consumer"
-	stateRetrievalEndpoint = "/account/consumer/v2/%s"
+	stateRetrievalEndpoint = "/account/consumer/v2/"
 )
 
 // Client defines the client for IdentityMind API.
@@ -93,13 +93,12 @@ func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, er
 
 // CheckStatus queries IDM API for the current state of a consumer KYC.
 // If the application is not found then an error message is provided in the response.
-func (c *Client) CheckStatus(mtid string) (result common.KYCResult, err error) {
+func (c *Client) CheckStatus(referenceID string) (result common.KYCResult, err error) {
 	headers := http.Headers{
 		"Authorization": c.credentials,
 	}
-	endpoint := fmt.Sprintf(c.host+stateRetrievalEndpoint, mtid)
 
-	status, resp, err := http.Get(endpoint, headers)
+	status, resp, err := http.Get(c.host+stateRetrievalEndpoint+referenceID, headers)
 	if err != nil {
 		err = fmt.Errorf("during sending request: %s", err)
 		return

@@ -331,7 +331,7 @@ func TestImagesUpload(t *testing.T) {
 		assert.Equal(common.Approved, result.Status)
 		assert.Nil(result.Details)
 		assert.Empty(result.ErrorCode)
-		assert.Nil(result.StatusPolling)
+		assert.Nil(result.StatusCheck)
 	}
 }
 
