@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"fmt"
+	"time"
 
 	"modulus/kyc/common"
 )
@@ -63,9 +64,11 @@ type DocumentVerification struct {
 func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
 	case UnderReview:
-		result.StatusPolling = &common.StatusPolling{
-			Provider:   common.IdentityMind,
-			CustomerID: r.KYCTxID,
+		result.Status = common.Unclear
+		result.StatusCheck = &common.KYCStatusCheck{
+			Provider:    common.IdentityMind,
+			ReferenceID: r.KYCTxID,
+			LastCheck:   time.Now(),
 		}
 		return
 	case Accepted:

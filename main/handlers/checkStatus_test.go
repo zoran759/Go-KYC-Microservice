@@ -89,11 +89,11 @@ func TestCheckStatus(t *testing.T) {
 
 	assert.NotNil(t, cfg)
 
-	customerID := "testID"
+	referenceID := "testID"
 
 	request, err := json.Marshal(&common.CheckStatusRequest{
 		Provider:   common.SumSub,
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -105,7 +105,7 @@ func TestCheckStatus(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], customerID, cfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], referenceID, cfg["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusOK, response),
 	)
 
@@ -189,7 +189,7 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing missing Provider field in the request.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -240,7 +240,7 @@ func TestCheckStatus(t *testing.T) {
 	// Testing nonexistent KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:   "Nonexistent Provider",
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -266,7 +266,7 @@ func TestCheckStatus(t *testing.T) {
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:   "Fake Provider",
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -296,7 +296,7 @@ func TestCheckStatus(t *testing.T) {
 	// Testing KYC provider that doesn't support status polling.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:   common.IDology,
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -322,7 +322,7 @@ func TestCheckStatus(t *testing.T) {
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:   "Fake Provider",
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -350,12 +350,12 @@ func TestCheckStatus(t *testing.T) {
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:   common.SumSub,
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], customerID, cfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], referenceID, cfg["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusForbidden, errorResponse),
 	)
 
@@ -388,7 +388,7 @@ func TestCheckStatus(t *testing.T) {
 
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:   common.IdentityMind,
-		CustomerID: customerID,
+		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
@@ -400,7 +400,7 @@ func TestCheckStatus(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/account/consumer/v2/%s", cfg["Host"], customerID),
+		fmt.Sprintf("%s/account/consumer/v2/%s", cfg["Host"], referenceID),
 		httpmock.NewBytesResponder(http.StatusOK, identitymindResponse),
 	)
 

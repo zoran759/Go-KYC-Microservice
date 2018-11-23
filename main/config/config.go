@@ -83,15 +83,15 @@ func validate(config Config) (err error) {
 			if len(options["UseSummaryResult"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "UseSummaryResult"}
 			}
-		case common.SynapseFI:
-			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+		case common.Jumio:
+			if len(options["BaseURL"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "BaseURL"}
 			}
-			if len(options["ClientID"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "ClientID"}
+			if len(options["Token"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Token"}
 			}
-			if len(options["ClientSecret"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "ClientSecret"}
+			if len(options["Secret"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Secret"}
 			}
 		case common.ShuftiPro:
 			if len(options["Host"]) == 0 {
@@ -112,6 +112,16 @@ func validate(config Config) (err error) {
 			}
 			if len(options["APIKey"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "APIKey"}
+			}
+		case common.SynapseFI:
+			if len(options["Host"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Host"}
+			}
+			if len(options["ClientID"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "ClientID"}
+			}
+			if len(options["ClientSecret"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "ClientSecret"}
 			}
 		case common.Trulioo:
 			if len(options["Host"]) == 0 {

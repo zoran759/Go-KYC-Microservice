@@ -2,8 +2,8 @@ package consumer
 
 import (
 	"encoding/base64"
-	"fmt"
 	"net/http"
+	"time"
 
 	"modulus/kyc/common"
 
@@ -189,19 +189,20 @@ var _ = Describe("Client", func() {
 			Expect(client).ToNot(BeNil())
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, underReviewResponse))
-			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
+			httpmock.RegisterResponder(http.MethodGet, client.host+stateRetrievalEndpoint+"26860023", httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
 
 			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
 
-			Expect(result.StatusPolling).NotTo(BeNil())
-			Expect(result.StatusPolling.Provider).To(Equal(common.IdentityMind))
-			Expect(result.StatusPolling.CustomerID).To(Equal("26860023"))
+			Expect(result.StatusCheck).NotTo(BeNil())
+			Expect(result.StatusCheck.Provider).To(Equal(common.IdentityMind))
+			Expect(result.StatusCheck.ReferenceID).To(Equal("26860023"))
+			Expect(time.Time(result.StatusCheck.LastCheck)).NotTo(BeZero())
 
-			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Status).To(Equal(common.Unclear))
 			Expect(result.Details).To(BeNil())
 			Expect(err).NotTo(HaveOccurred())
 
-			result, err = client.CheckStatus("26860023")
+			result, err = client.CheckStatus(result.StatusCheck.ReferenceID)
 
 			Expect(result.Status).To(Equal(common.Error))
 			Expect(result.Details).To(BeNil())
@@ -293,6 +294,8 @@ var _ = Describe("Client", func() {
 			Password: "test",
 		})
 
+		var referenceID = "26860023"
+
 		BeforeEach(func() {
 			httpmock.Activate()
 		})
@@ -304,11 +307,11 @@ var _ = Describe("Client", func() {
 		It("should fail with error message", func() {
 			Expect(client).ToNot(BeNil())
 
-			resp, err := client.CheckStatus("26860023")
+			resp, err := client.CheckStatus(referenceID)
 
 			Expect(resp.Details).To(BeNil())
 			Expect(resp.ErrorCode).To(BeEmpty())
-			Expect(resp.StatusPolling).To(BeNil())
+			Expect(resp.StatusCheck).To(BeNil())
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("during sending request: Get host/account/consumer/v2/26860023: no responder found"))
 		})
@@ -316,9 +319,9 @@ var _ = Describe("Client", func() {
 		It("should fail with error message", func() {
 			Expect(client).ToNot(BeNil())
 
-			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
+			httpmock.RegisterResponder(http.MethodGet, client.host+stateRetrievalEndpoint+"26860023", httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
 
-			resp, err := client.CheckStatus("26860023")
+			resp, err := client.CheckStatus(referenceID)
 
 			Expect(resp).ToNot(BeNil())
 			Expect(err).To(HaveOccurred())
@@ -328,9 +331,9 @@ var _ = Describe("Client", func() {
 		It("should fail with error message", func() {
 			Expect(client).ToNot(BeNil())
 
-			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, malformedResponse))
+			httpmock.RegisterResponder(http.MethodGet, client.host+stateRetrievalEndpoint+"26860023", httpmock.NewStringResponder(http.StatusOK, malformedResponse))
 
-			resp, err := client.CheckStatus("26860023")
+			resp, err := client.CheckStatus(referenceID)
 
 			Expect(resp).ToNot(BeNil())
 			Expect(err).To(HaveOccurred())
@@ -339,9 +342,9 @@ var _ = Describe("Client", func() {
 		It("should success", func() {
 			Expect(client).ToNot(BeNil())
 
-			httpmock.RegisterResponder(http.MethodGet, fmt.Sprintf(client.host+stateRetrievalEndpoint, "26860023"), httpmock.NewStringResponder(http.StatusOK, acceptedResponse))
+			httpmock.RegisterResponder(http.MethodGet, client.host+stateRetrievalEndpoint+"26860023", httpmock.NewStringResponder(http.StatusOK, acceptedResponse))
 
-			resp, err := client.CheckStatus("26860023")
+			resp, err := client.CheckStatus(referenceID)
 
 			Expect(resp).ToNot(BeNil())
 			Expect(resp.Status).To(Equal(common.Approved))

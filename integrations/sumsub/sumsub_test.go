@@ -18,11 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	testImageUpload = flag.Bool("use-images", false, "test document images uploading")
-	testPassport    []byte
-	testSelfie      []byte
-)
+var testImageUpload = flag.Bool("use-images", false, "test document images uploading")
 
 func TestNew(t *testing.T) {
 	sumsubService := New(Config{
@@ -76,13 +72,16 @@ func TestSumSub_CheckCustomerGreen(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.Nil(t, result.StatusPolling)
+		assert.Nil(t, result.StatusCheck)
 		assert.Equal(t, common.Approved, result.Status)
 	}
 }
@@ -118,11 +117,14 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -166,11 +168,14 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Denied, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -214,11 +219,14 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -261,11 +269,14 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 
 	result, err := sumsubService.CheckCustomer(&common.UserData{})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
-		assert.NotNil(t, result.StatusPolling)
-		assert.Equal(t, "test id", result.StatusPolling.CustomerID)
+		assert.Equal(t, common.Unclear, result.Status)
+		assert.NotNil(t, result.StatusCheck)
+		assert.Equal(t, common.SumSub, result.StatusCheck.Provider)
+		assert.Equal(t, "test id", result.StatusCheck.ReferenceID)
+		assert.NotZero(t, time.Time(result.StatusCheck.LastCheck))
 	}
 
-	result, err = sumsubService.CheckStatus(result.StatusPolling.CustomerID)
+	result, err = sumsubService.CheckStatus(result.StatusCheck.ReferenceID)
 	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
 		assert.Equal(t, common.Error, result.Status)
 		assert.Equal(t, common.KYCDetails{
@@ -449,6 +460,9 @@ func TestSumSubImageUpload(t *testing.T) {
 		t.Skip("use '-use-images' flag to activate images uploading test")
 	}
 
+	testPassport, _ := ioutil.ReadFile("../../test_data/passport.jpg")
+	testSelfie, _ := ioutil.ReadFile("../../test_data/selfie.png")
+
 	assert := assert.New(t)
 
 	if !assert.NotEmpty(testPassport, "testPassport must contain the content of the image data file 'passport.jpg'") {
@@ -511,11 +525,11 @@ func TestSumSubImageUpload(t *testing.T) {
 	if !assert.Nil(err) {
 		return
 	}
-	if !assert.NotNil(result.StatusPolling, "status polling data has to be provided") {
+	if !assert.NotNil(result.StatusCheck, "status polling data has to be provided") {
 		return
 	}
 
-	applicantID := result.StatusPolling.CustomerID
+	applicantID := result.StatusCheck.ReferenceID
 	t.Log("Received applicant id:", applicantID)
 
 	// Simulate approved result of the verification.
@@ -538,7 +552,7 @@ func TestSumSubImageUpload(t *testing.T) {
 	assert.Equal(common.Approved, result.Status)
 	assert.Nil(result.Details)
 	assert.Empty(result.ErrorCode)
-	assert.Nil(result.StatusPolling)
+	assert.Nil(result.StatusCheck)
 
 	// Get back the downloaded documents.
 	type doc struct {
@@ -601,9 +615,4 @@ func TestSumSubImageUpload(t *testing.T) {
 			assert.Equal(customer.Selfie.Image.Data, docImg.data)
 		}
 	}
-}
-
-func init() {
-	testPassport, _ = ioutil.ReadFile("../../test_data/passport.jpg")
-	testSelfie, _ = ioutil.ReadFile("../../test_data/selfie.png")
 }

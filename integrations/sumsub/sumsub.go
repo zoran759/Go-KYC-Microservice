@@ -2,6 +2,7 @@ package sumsub
 
 import (
 	"fmt"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/sumsub/applicants"
@@ -80,9 +81,11 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 		}
 	}
 
-	res.StatusPolling = &common.StatusPolling{
-		Provider:   common.SumSub,
-		CustomerID: applicantResponse.ID,
+	res.Status = common.Unclear
+	res.StatusCheck = &common.KYCStatusCheck{
+		Provider:    common.SumSub,
+		ReferenceID: applicantResponse.ID,
+		LastCheck:   time.Now(),
 	}
 
 	return
@@ -134,9 +137,11 @@ func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error
 	case "init":
 		err = errors.New("documents upload failed. Please, try to upload a document for this applicant")
 	case "pending", "queued":
-		res.StatusPolling = &common.StatusPolling{
-			Provider:   common.SumSub,
-			CustomerID: refID,
+		res.Status = common.Unclear
+		res.StatusCheck = &common.KYCStatusCheck{
+			Provider:    common.SumSub,
+			ReferenceID: refID,
+			LastCheck:   time.Now(),
 		}
 	case "awaitingUser":
 		err = errors.New("waiting some additional documents from the applicant (e.g. a selfie or a better passport image)")
