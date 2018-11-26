@@ -2,8 +2,8 @@
     "Provider": "Trulioo",
     "UserData": {
         "FirstName": "Abby",
-        "PaternalLastName": "Walker",
         "LastName": "Walker",
+        "MaternalLastName": "Walker",
         "MiddleName": "Allison",
         "LatinISO1Name": "Abby",
         "Email": "abbywal@gmail.com",

@@ -351,7 +351,7 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 				customer.MiddleName = middleName
 			}
 			if firstSurName, ok := personInfo["FirstSurName"].(string); ok {
-				customer.PaternalLastName = firstSurName
+				customer.MaternalLastName = firstSurName
 			}
 			if dayOfBirth, ok := personInfo["DayOfBirth"].(float64); ok {
 				if monthOfBirth, ok := personInfo["MonthOfBirth"].(float64); ok {

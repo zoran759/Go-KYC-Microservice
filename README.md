@@ -101,11 +101,11 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Name**                     | **Type**                           | **Description**                                                       |
 | ---------------------------- | ---------------------------------- | --------------------------------------------------------------------- |
 | **FirstName**                | _**string**_                       | _Required_. First name of the customer, for ex. "John"                |
-| **PaternalLastName**         | _**string**_                       | Paternal last name of the customer                                    |
 | **LastName**                 | _**string**_                       | _Required_. Last name of the customer, for ex. "Doe"                  |
+| **MaternalLastName**         | _**string**_                       | Maternal (second) last name of the customer                           |
 | **MiddleName**               | _**string**_                       | Middle name of the customer, for ex. "Benedikt"                       |
 | **LegalName**                | _**string**_                       | Legal name of the customer, for ex. "Astrid Lindgren"                 |
-| **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer, for ex. russian "Иван" be IVAN       |
+| **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer, for ex. russian "Иван Сидоров" be "IVAN SIDOROV" |
 | **AccountName**              | _**string**_                       | Account name for the customer, for ex. "john_doe"                     |
 | **Email**                    | _**string**_                       | Email of the customer                                                 |
 | **IPaddress**                | _**string**_                       | Customer’s IP address                                                 |
@@ -411,7 +411,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 
 According to the [API Reference](https://developers.sumsub.com) all fields of [**UserData**](#userdata-fields-description) are applicable except the following:
 
-* PaternalLastName
+* MaternalLastName
 * LatinISO1Name
 * AccountName
 * IPaddress
@@ -448,7 +448,7 @@ All fields in the Reference are marked as optional but at least first name and l
 | **Name**          | **Type**           | **Required** | **Comment** |
 | ----------------- | ------------------ | :----------: | ----------- |
 | FirstName         | _string_           |              |             |
-| PaternalLastName  | _string_           |              |             |
+| MaternalLastName  | _string_           |              |             |
 | LastName          | _string_           |              |             |
 | MiddleName        | _string_           |              |             |
 | LatinISO1Name     | _string_           |              |             |
