@@ -351,7 +351,7 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 				customer.MiddleName = middleName
 			}
 			if firstSurName, ok := personInfo["FirstSurName"].(string); ok {
-				customer.MaternalLastName = firstSurName
+				customer.LastName = firstSurName
 			}
 			if dayOfBirth, ok := personInfo["DayOfBirth"].(float64); ok {
 				if monthOfBirth, ok := personInfo["MonthOfBirth"].(float64); ok {
@@ -413,6 +413,17 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 			}
 			if email, ok := communication["EmailAddress"].(string); ok {
 				customer.Email = email
+			}
+		}
+	}
+
+	if driversI, ok := testEntity["DriverLicence"]; ok {
+		drivers, ok := driversI.(map[string]interface{})
+		if ok {
+			if number, ok := drivers["Number"].(string); ok {
+				customer.DriverLicense = &common.DriverLicense{
+					Number: number,
+				}
 			}
 		}
 	}
