@@ -8,8 +8,8 @@ import (
 // UserData defines the model for user data provided to KYC provider in order to check an individual.
 type UserData struct {
 	FirstName                string
-	PaternalLastName         string
 	LastName                 string
+	MaternalLastName         string
 	MiddleName               string
 	LegalName                string
 	LatinISO1Name            string
@@ -25,6 +25,10 @@ type UserData struct {
 	Nationality              string
 	Phone                    string
 	MobilePhone              string
+	BankAccountNumber        string
+	VehicleRegistrationPlate string
+	UKNHSNumber              string
+	UKNINumber               string
 	CurrentAddress           Address
 	SupplementalAddresses    []Address
 	Location                 *Location
@@ -232,6 +236,7 @@ type SNILS struct {
 // DriverLicense represents the driver/driving license.
 type DriverLicense struct {
 	Number        string
+	Version       string
 	CountryAlpha2 string
 	State         string
 	IssuedDate    Time
@@ -318,4 +323,30 @@ type Other struct {
 	IssuedDate    Time
 	ValidUntil    Time
 	Image         *DocumentFile
+}
+
+// FullName builds and returns full name of the customer.
+func (u *UserData) FullName() string {
+	insertWhitespace := func(b *strings.Builder) {
+		if b.Len() > 0 {
+			b.WriteString(" ")
+		}
+	}
+
+	b := &strings.Builder{}
+	b.WriteString(u.FirstName)
+	if len(u.MiddleName) > 0 {
+		insertWhitespace(b)
+		b.WriteString(u.MiddleName)
+	}
+	if len(u.LastName) > 0 {
+		insertWhitespace(b)
+		b.WriteString(u.LastName)
+	}
+	if len(u.MaternalLastName) > 0 {
+		insertWhitespace(b)
+		b.WriteString(u.MaternalLastName)
+	}
+
+	return b.String()
 }

@@ -34,14 +34,15 @@ func (service service) Consents(countryAlpha2 string) (Consents, *int, error) {
 
 	var errorCode *int
 	if code != stdhttp.StatusOK {
-		if code != 0 {
-			errorCode = &code
-		}
+		errorCode = &code
 		err := &Error{}
 		if len(responseBytes) == 0 {
 			err.Message = "Unknown error"
 		} else {
-			err.Message = string(responseBytes)
+			err1 := json.Unmarshal(responseBytes, err)
+			if err1 != nil {
+				err.Message = string(responseBytes)
+			}
 		}
 		return nil, errorCode, err
 	}

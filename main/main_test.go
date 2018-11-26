@@ -30,7 +30,7 @@ func Test_Shufti(t *testing.T) {
 
 	customer := &common.UserData{
 		FirstName:        "Smith",
-		PaternalLastName: "James",
+		MaternalLastName: "James",
 		LastName:         "James",
 		MiddleName:       "M",
 		CountryAlpha2:    "US",
