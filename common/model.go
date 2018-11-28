@@ -11,6 +11,7 @@ type UserData struct {
 	LastName                 string
 	MaternalLastName         string
 	MiddleName               string
+	FullName                 string
 	LegalName                string
 	LatinISO1Name            string
 	AccountName              string
@@ -36,6 +37,10 @@ type UserData struct {
 	Passport                 *Passport
 	IDCard                   *IDCard
 	SNILS                    *SNILS
+	NationalID               *NationalID
+	Health                   *Health
+	SocialService            *SocialService
+	TaxID                    *TaxID
 	DriverLicense            *DriverLicense
 	DriverLicenseTranslation *DriverLicenseTranslation
 	CreditCard               *CreditCard
@@ -325,8 +330,52 @@ type Other struct {
 	Image         *DocumentFile
 }
 
-// FullName builds and returns full name of the customer.
-func (u *UserData) FullName() string {
+// NationalID represents National Identification Information.
+type NationalID struct {
+	Number        string
+	CountryAlpha2 string
+	City          string
+	County        string
+	Province      string
+	District      string
+}
+
+// Health represents National Health Service Identification Information.
+type Health struct {
+	Number        string
+	CountryAlpha2 string
+	County        string
+	City          string
+	Province      string
+	District      string
+}
+
+// SocialService represents National Social Service Identification Information.
+type SocialService struct {
+	Number        string
+	CountryAlpha2 string
+	County        string
+	City          string
+	Province      string
+	District      string
+}
+
+// TaxID represents National Taxpayer Identification Information.
+type TaxID struct {
+	Number        string
+	CountryAlpha2 string
+	County        string
+	City          string
+	Province      string
+	District      string
+}
+
+// Fullname builds and returns full name of the customer.
+func (u *UserData) Fullname() string {
+	if len(u.FullName) != 0 {
+		return u.FullName
+	}
+
 	insertWhitespace := func(b *strings.Builder) {
 		if b.Len() > 0 {
 			b.WriteString(" ")

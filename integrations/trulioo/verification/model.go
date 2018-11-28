@@ -213,3 +213,7 @@ func (errors Errors) Error() string {
 
 	return err
 }
+
+func (err Error) String() string {
+	return err.Code + " " + err.Message
+}
