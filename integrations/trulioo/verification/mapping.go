@@ -41,7 +41,7 @@ func mapCustomerToPersonalInfo(customer *common.UserData) *PersonInfo {
 	switch customer.CountryAlpha2 {
 	case "MY", "SG":
 		pi.AdditionalFields = &PIAdditionalFields{
-			FullName: customer.FullName(),
+			FullName: customer.Fullname(),
 		}
 	}
 
@@ -189,17 +189,36 @@ func mapCustomerToNationalIds(customer *common.UserData) (nIDs []NationalID) {
 		}
 	case "AE", "AR", "BR", "CN", "CO", "CR", "DK", "EC", "EG", "FR", "HK", "KW",
 		"LB", "MX", "MY", "NL", "OM", "RO", "SA", "SE", "SG", "SV", "TH", "ZA":
-		if customer.IDCard != nil {
+		if customer.NationalID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.IDCard.Number,
+				Number: customer.NationalID.Number,
 				Type:   "nationalid",
 			})
 		}
-	case "CA", "IE", "IT", "UA":
-		if customer.IDCard != nil {
+		if customer.SocialService != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.IDCard.Number,
+				Number: customer.SocialService.Number,
 				Type:   "socialservice",
+			})
+		}
+	case "CA", "IE", "IT", "UA":
+		if customer.SocialService != nil {
+			nIDs = append(nIDs, NationalID{
+				Number: customer.SocialService.Number,
+				Type:   "socialservice",
+			})
+		}
+	case "RU":
+		if customer.SocialService != nil {
+			nIDs = append(nIDs, NationalID{
+				Number: customer.SocialService.Number,
+				Type:   "socialservice",
+			})
+		}
+		if customer.TaxID != nil {
+			nIDs = append(nIDs, NationalID{
+				Number: customer.SocialService.Number,
+				Type:   "taxidnumber",
 			})
 		}
 	}
@@ -211,67 +230,25 @@ func mapCustomerToCountrySpecific(customer *common.UserData) map[CountryCode]Cou
 	cspec := CountrySpecific{}
 
 	switch customer.CountryAlpha2 {
-	case "AE", "AR", "AT", "BE", "BR", "CA", "CH", "CL", "CO", "CR", "DE", "DK",
-		"EC", "EG", "ES", "FR", "HK", "IE", "IT", "JP", "KW", "LB", "NL", "OM",
-		"PE", "PT", "SA", "SE", "SG", "SV", "TH", "UA", "ZA":
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-		}
 	case "AU":
 		if customer.Passport != nil {
 			cspec.PassportCountry = customer.Passport.CountryAlpha2
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-			cspec.PassportNumber = customer.Passport.Number
 		}
 	case "CN":
 		cspec.BankAccountNumber = customer.BankAccountNumber
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-		}
-	case "GB":
-		if customer.DriverLicense != nil {
-			cspec.DriverLicenceNumber = customer.DriverLicense.Number
-		}
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-		}
 	case "KR":
-		if customer.DriverLicense != nil {
-			cspec.DriverLicenceNumber = customer.DriverLicense.Number
-		}
 		if customer.IDCard != nil {
-			cspec.NameOnCard = customer.FirstName
+			cspec.NameOnCard = customer.Fullname()
 			cspec.SerialNumber = customer.IDCard.Number
 		}
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-		}
 	case "MX":
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-		}
 		cspec.StateOfBirth = customer.StateOfBirth
 	case "MY":
 		cspec.CountryOfBirth = customer.CountryOfBirthAlpha2
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
-		}
 		cspec.StateOfBirth = customer.StateOfBirth
 	case "NZ":
 		if customer.DriverLicense != nil {
-			cspec.DriverLicenceNumber = customer.DriverLicense.Number
 			cspec.DriverLicenceVerNumber = customer.DriverLicense.Version
-		}
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
 		}
 		cspec.VehicleRegistrationPlate = customer.VehicleRegistrationPlate
 	case "RU":
@@ -286,12 +263,7 @@ func mapCustomerToCountrySpecific(customer *common.UserData) map[CountryCode]Cou
 		}
 	case "US":
 		if customer.DriverLicense != nil {
-			cspec.DriverLicenceNumber = customer.DriverLicense.Number
 			cspec.DriverLicenceState = customer.DriverLicense.State
-		}
-		if customer.Passport != nil {
-			cspec.PassportMRZLine1 = customer.Passport.Mrz1
-			cspec.PassportMRZLine2 = customer.Passport.Mrz2
 		}
 	default:
 		return nil
