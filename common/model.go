@@ -28,8 +28,6 @@ type UserData struct {
 	MobilePhone              string
 	BankAccountNumber        string
 	VehicleRegistrationPlate string
-	UKNHSNumber              string
-	UKNINumber               string
 	CurrentAddress           Address
 	SupplementalAddresses    []Address
 	Location                 *Location

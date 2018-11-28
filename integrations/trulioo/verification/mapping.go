@@ -175,15 +175,15 @@ func mapCustomerDriverLicence(drivers *common.DriverLicense) *DriverLicence {
 func mapCustomerToNationalIds(customer *common.UserData) (nIDs []NationalID) {
 	switch customer.CountryAlpha2 {
 	case "GB":
-		if len(customer.UKNHSNumber) > 0 {
+		if customer.Health != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.UKNHSNumber,
+				Number: customer.Health.Number,
 				Type:   "health",
 			})
 		}
-		if len(customer.UKNINumber) > 0 {
+		if customer.SocialService != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.UKNINumber,
+				Number: customer.SocialService.Number,
 				Type:   "socialservice",
 			})
 		}

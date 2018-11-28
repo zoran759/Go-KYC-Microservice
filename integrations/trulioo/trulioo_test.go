@@ -618,8 +618,6 @@ func TestGBValidTestEntity(t *testing.T) {
 		CountryAlpha2: "GB",
 		Phone:         "+44865413985",
 		MobilePhone:   "+448654139123",
-		UKNHSNumber:   "1634567897",
-		UKNINumber:    "BL261079C",
 		CurrentAddress: common.Address{
 			Town:           "Aylesbury",
 			Street:         "Chiltern",
@@ -636,6 +634,12 @@ func TestGBValidTestEntity(t *testing.T) {
 		},
 		DriverLicense: &common.DriverLicense{
 			Number: "AUDI9710269JR9AB",
+		},
+		Health: &common.Health{
+			Number: "1634567897",
+		},
+		SocialService: &common.SocialService{
+			Number: "BL261079C",
 		},
 	}
 
