@@ -98,8 +98,10 @@ func TestGet(t *testing.T) {
 }
 
 func TestTimeout(t *testing.T) {
+	defaultHTTPTimeout = 3 * time.Second
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(time.Second * 70)
+		time.Sleep(time.Second * 5)
 		fmt.Fprintln(w, "Hello, client")
 	}))
 	defer ts.Close()

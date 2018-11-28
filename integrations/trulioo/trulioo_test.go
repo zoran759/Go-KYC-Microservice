@@ -224,8 +224,13 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "Test error;Another test error;", err.Error())
+
+	assert := assert.New(t)
+	if assert.NoError(err) {
+		assert.NotNil(result.Details)
+		assert.Len(result.Details.Reasons, 2)
+		assert.Equal("400 Test error", result.Details.Reasons[0])
+		assert.Equal("500 Another test error", result.Details.Reasons[1])
 	}
 
 	service.verification = verification.Mock{
@@ -246,8 +251,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "Test error1;Another test error2;", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("Test error1;Another test error2;", err.Error())
 	}
 
 	service.verification = verification.Mock{
@@ -257,8 +262,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "test error", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("test error", err.Error())
 	}
 
 	service.configuration = configuration.Mock{
@@ -268,13 +273,13 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "test error2", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("test error2", err.Error())
 	}
 
 	result, err = service.CheckCustomer(nil)
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "No customer supplied", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("No customer supplied", err.Error())
 	}
 }
 
@@ -500,7 +505,7 @@ func TestAEValidTestEntity(t *testing.T) {
 			Mrz2:       "5060798672ARE8610245M24051827847968855030570",
 			ValidUntil: common.Time(time.Date(2024, 5, 18, 0, 0, 0, 0, time.UTC)),
 		},
-		IDCard: &common.IDCard{
+		NationalID: &common.NationalID{
 			Number: "784-7968-8550305-0",
 		},
 	}
@@ -581,7 +586,7 @@ func TestCNValidTestEntity(t *testing.T) {
 			Mrz2:       "C8456324<1CNL8303052359438740809<<<<<<<<<<54",
 			ValidUntil: common.Time(time.Date(2020, 6, 12, 0, 0, 0, 0, time.UTC)),
 		},
-		IDCard: &common.IDCard{
+		NationalID: &common.NationalID{
 			Number: "440861896421345987",
 		},
 	}

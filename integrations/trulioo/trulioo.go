@@ -96,7 +96,6 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		if status != "" {
 			reasons = append(reasons, fmt.Sprintf("Datasource %s has %s", result.DatasourceName, status))
 		}
-
 	}
 
 	if len(reasons) > 0 {
