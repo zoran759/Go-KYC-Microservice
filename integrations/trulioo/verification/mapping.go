@@ -110,12 +110,6 @@ func mapCustomerDocument(customer *common.UserData) (document *Document) {
 		return
 	}
 
-	if customer.IDCard != nil && customer.IDCard.Image != nil {
-		document.DocumentType = "IdentityCard"
-		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data)
-		return
-	}
-
 	// NationalID.
 	if customer.NationalID != nil && customer.NationalID.Image != nil {
 		document.DocumentType = "IdentityCard"
