@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var integrationTests = flag.Bool("integration-tests", false, "also run integration tests")
 var testImageUpload = flag.Bool("use-images", false, "test document images uploading")
 
 func TestNew(t *testing.T) {
@@ -429,6 +430,7 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 				customer.DriverLicense = &common.DriverLicense{
 					Number: number,
 				}
+				customer.DriverLicense.State = "CA"
 			}
 		}
 	}
@@ -485,6 +487,10 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 }
 
 func TestAEValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -520,6 +526,10 @@ func TestAEValidTestEntity(t *testing.T) {
 }
 
 func TestAUValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -564,6 +574,10 @@ func TestAUValidTestEntity(t *testing.T) {
 }
 
 func TestCNValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -601,6 +615,10 @@ func TestCNValidTestEntity(t *testing.T) {
 }
 
 func TestGBValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -653,6 +671,10 @@ func TestGBValidTestEntity(t *testing.T) {
 }
 
 func TestKRValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -674,7 +696,7 @@ func TestKRValidTestEntity(t *testing.T) {
 			CountryAlpha2: "KR",
 			ValidUntil:    common.Time(time.Date(2021, 11, 3, 0, 0, 0, 0, time.UTC)),
 		},
-		IDCard: &common.IDCard{
+		NationalID: &common.NationalID{
 			Number: "AM125D",
 		},
 		DriverLicense: &common.DriverLicense{
@@ -692,6 +714,10 @@ func TestKRValidTestEntity(t *testing.T) {
 }
 
 func TestMXValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -736,6 +762,10 @@ func TestMXValidTestEntity(t *testing.T) {
 }
 
 func TestMYValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -783,6 +813,10 @@ func TestMYValidTestEntity(t *testing.T) {
 }
 
 func TestNZValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -830,6 +864,10 @@ func TestNZValidTestEntity(t *testing.T) {
 }
 
 func TestRUValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -874,6 +912,10 @@ func TestRUValidTestEntity(t *testing.T) {
 }
 
 func TestUSValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
 	assert := assert.New(t)
 
 	service := New(Config{
@@ -907,6 +949,7 @@ func TestUSValidTestEntity(t *testing.T) {
 		},
 		DriverLicense: &common.DriverLicense{
 			Number: "0812319884104",
+			State:  "CA",
 		},
 		SocialService: &common.SocialService{
 			Number: "000568791",

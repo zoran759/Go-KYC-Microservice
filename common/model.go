@@ -336,36 +336,40 @@ type NationalID struct {
 	County        string
 	Province      string
 	District      string
+	Image         *DocumentFile
 }
 
 // Health represents National Health Service Identification Information.
 type Health struct {
 	Number        string
 	CountryAlpha2 string
-	County        string
 	City          string
+	County        string
 	Province      string
 	District      string
+	Image         *DocumentFile
 }
 
 // SocialService represents National Social Service Identification Information.
 type SocialService struct {
 	Number        string
 	CountryAlpha2 string
-	County        string
 	City          string
+	County        string
 	Province      string
 	District      string
+	Image         *DocumentFile
 }
 
 // TaxID represents National Taxpayer Identification Information.
 type TaxID struct {
 	Number        string
 	CountryAlpha2 string
-	County        string
 	City          string
+	County        string
 	Province      string
 	District      string
+	Image         *DocumentFile
 }
 
 // Fullname builds and returns full name of the customer.

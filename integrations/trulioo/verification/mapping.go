@@ -116,6 +116,27 @@ func mapCustomerDocument(customer *common.UserData) (document *Document) {
 		return
 	}
 
+	// NationalID.
+	if customer.NationalID != nil && customer.NationalID.Image != nil {
+		document.DocumentType = "IdentityCard"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.NationalID.Image.Data)
+		return
+	}
+
+	// SocialService (SSN, SNILS).
+	if customer.SocialService != nil && customer.SocialService.Image != nil {
+		document.DocumentType = "IdentityCard"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.SocialService.Image.Data)
+		return
+	}
+
+	// TaxID (TIN).
+	if customer.TaxID != nil && customer.TaxID.Image != nil {
+		document.DocumentType = "IdentityCard"
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.TaxID.Image.Data)
+		return
+	}
+
 	if customer.ResidencePermit != nil && customer.ResidencePermit.Image != nil {
 		document.DocumentType = "ResidencePermit"
 		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.ResidencePermit.Image.Data)
@@ -167,9 +188,18 @@ func mapCustomerDriverLicence(drivers *common.DriverLicense) *DriverLicence {
 		return nil
 	}
 
-	return &DriverLicence{
+	d := &DriverLicence{
 		Number: drivers.Number,
+		State:  drivers.State,
 	}
+
+	if !time.Time(drivers.ValidUntil).IsZero() {
+		d.YearOfExpiry = time.Time(drivers.ValidUntil).Year()
+		d.MonthOfExpiry = int(time.Time(drivers.ValidUntil).Month())
+		d.DayOfExpiry = time.Time(drivers.ValidUntil).Day()
+	}
+
+	return d
 }
 
 func mapCustomerToNationalIds(customer *common.UserData) (nIDs []NationalID) {
@@ -237,9 +267,9 @@ func mapCustomerToCountrySpecific(customer *common.UserData) map[CountryCode]Cou
 	case "CN":
 		cspec.BankAccountNumber = customer.BankAccountNumber
 	case "KR":
-		if customer.IDCard != nil {
+		if customer.NationalID != nil {
 			cspec.NameOnCard = customer.Fullname()
-			cspec.SerialNumber = customer.IDCard.Number
+			cspec.SerialNumber = customer.NationalID.Number
 		}
 	case "MX":
 		cspec.StateOfBirth = customer.StateOfBirth
@@ -253,17 +283,13 @@ func mapCustomerToCountrySpecific(customer *common.UserData) map[CountryCode]Cou
 		cspec.VehicleRegistrationPlate = customer.VehicleRegistrationPlate
 	case "RU":
 		if customer.Passport != nil {
-			cspec.DayOfIssue = strconv.Itoa(time.Time(customer.Passport.IssuedDate).Day())
-			cspec.MonthOfIssue = strconv.Itoa(int(time.Time(customer.Passport.IssuedDate).Month()))
 			cspec.YearOfIssue = strconv.Itoa(time.Time(customer.Passport.IssuedDate).Year())
+			cspec.MonthOfIssue = strconv.Itoa(int(time.Time(customer.Passport.IssuedDate).Month()))
+			cspec.DayOfIssue = strconv.Itoa(time.Time(customer.Passport.IssuedDate).Day())
 			if len(customer.Passport.Number) > 4 {
 				cspec.PassportSerie = customer.Passport.Number[:4]
 				cspec.InternalPassportNumber = customer.Passport.Number[4:]
 			}
-		}
-	case "US":
-		if customer.DriverLicense != nil {
-			cspec.DriverLicenceState = customer.DriverLicense.State
 		}
 	default:
 		return nil
