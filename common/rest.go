@@ -40,7 +40,7 @@ type Details struct {
 	Reasons  []string
 }
 
-// ResultFromKYCResult fills Result's fields with the data from KYCResult object.
+// ResultFromKYCResult converts KYC verification result into the API representation.
 func ResultFromKYCResult(kycResult KYCResult) (result *Result) {
 	result = &Result{}
 
