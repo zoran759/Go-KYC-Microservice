@@ -116,7 +116,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
 | **CountryAlpha2**            | _**string**_                       | Country of the customer in ISO 3166-1 alpha-2 format, for ex. "DE"    |
-| **Nationality**              | _**string**_                       | Citizenship of the customer. ISO 3166-1 alpha-2 format, for ex. "TH" |
+| **Nationality**              | _**string**_                       | Citizenship of the customer. ISO 3166-1 alpha-2 format, for ex. "TH"  |
 | **Phone**                    | _**string**_                       | Primary phone of the customer. It isn't the mobile phone!             |
 | **MobilePhone**              | _**string**_                       | Mobile phone of the customer                                          |
 | **BankAccountNumber**        | _**string**_                       | Chinese bank account number                                           |
@@ -126,12 +126,11 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Location**                 | _***[Location](#location-fields-description)**_ | Geopositional data of the customer                       |
 | **Business**                 | _***[Business](#business-fields-description)**_ | The business which the customer is linked to or is one of the owners |
 | **Passport**                 | _***[Passport](#passport-fields-description)**_ | Passport of the customer                                 |
-| **IDCard**                   | _***[IDCard](#idcard-fields-description)**_     | Id card of the customer, for ex. US SSN                  |
+| **IDCard**                   | _***[IDCard](#idcard-fields-description)**_     | National ID Number (Malaysia NRIC Number, Swedish PIN, etc...)       |
 | **SNILS**                    | _***[SNILS](#snils-fields-description)**_       | SNILS (Russian insurance number of individual ledger account) of the customer |
-| **NationalID**               | _***[NationalID](#nationalid-fields-description)**_           | National ID Number (Malaysia NRIC Number, Swedish PIN, etc...)  |
-| **Health**                   | _***[Health](#health-fields-description)**_                   | National Health Service Identification                          |
-| **SocialService**            | _***[SocialService](#socialservice-fields-description)**_     | National Social Service Identification (Social Security Number, Social Insurance Number, National Insurance Number) |
-| **TaxID**                    | _***[TaxID](#taxid-fields-description)**_                     | National Taxpayer Personal Identification Number                |
+| **HealthID**                 | _***[HealthID](#healthid-fields-description)**_               | National Health Service Identification     |
+| **SocialServiceID**          | _***[SocialServiceID](#socialserviceid-fields-description)**_ | National Social Service Identification (Social Security Number, Social Insurance Number, National Insurance Number) |
+| **TaxID**                    | _***[TaxID](#taxid-fields-description)**_                     | National Taxpayer Personal Identification Number       |
 | **DriverLicense**            | _***[DriverLicense](#driverlicense-fields-description)**_     | Driver license of the customer             |
 | **DriverLicenseTranslation** | _***[DriverLicenseTranslation](#driverlicensetranslation-fields-description)**_ | Driver license translation of the customer (translation of the driving license required in the target country) |
 | **CreditCard**               | _***[CreditCard](#creditcard-fields-description)**_           | Banking credit card of the customer        |
@@ -206,52 +205,26 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate** | _**Time**_          | Issued date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the SNILS                  |
 
-### **[NationalID](common/model.go#L331) fields description**
+### **[HealthID](common/model.go#L331) fields description**
 
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
 | **Number**        | _**string**_        | Number of the document                        |
-| **CountryAlpha2** | _**string**_        | Country of issue in ISO 3166-1 alpha-2 format |
-| **City**          | _**string**_        | City of issue                                 |
-| **County**        | _**string**_        | County of issue                               |
-| **Province**      | _**string**_        | Province of issue                             |
-| **District**      | _**string**_        | District of issue                             |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
-### **[Health](common/model.go#L342) fields description**
+### **[SocialServiceID](common/model.go#L337) fields description**
 
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
 | **Number**        | _**string**_        | Number of the document                        |
-| **CountryAlpha2** | _**string**_        | Country of issue in ISO 3166-1 alpha-2 format |
-| **City**          | _**string**_        | City of issue                                 |
-| **County**        | _**string**_        | County of issue                               |
-| **Province**      | _**string**_        | Province of issue                             |
-| **District**      | _**string**_        | District of issue                             |
+| **IssuedDate**    | _**Time**_          | Issued date                                   |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
-### **[SocialService](common/model.go#L353) fields description**
+### **[TaxID](common/model.go#L345) fields description**
 
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
 | **Number**        | _**string**_        | Number of the document                        |
-| **CountryAlpha2** | _**string**_        | Country of issue in ISO 3166-1 alpha-2 format |
-| **City**          | _**string**_        | City of issue                                 |
-| **County**        | _**string**_        | County of issue                               |
-| **Province**      | _**string**_        | Province of issue                             |
-| **District**      | _**string**_        | District of issue                             |
-| **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
-
-### **[TaxID](common/model.go#L364) fields description**
-
-| **Name**          | **Type**            | **Description**                               |
-| ----------------- | ------------------- | --------------------------------------------- |
-| **Number**        | _**string**_        | Number of the document                        |
-| **CountryAlpha2** | _**string**_        | Country of issue in ISO 3166-1 alpha-2 format |
-| **City**          | _**string**_        | City of issue                                 |
-| **County**        | _**string**_        | County of issue                               |
-| **Province**      | _**string**_        | Province of issue                             |
-| **District**      | _**string**_        | District of issue                             |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
 ### **[DriverLicense](common/model.go#L232) fields description**
