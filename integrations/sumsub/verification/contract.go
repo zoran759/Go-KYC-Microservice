@@ -6,9 +6,10 @@ type Config struct {
 	APIKey string
 }
 
-// Verificator represents KYC verification checker.
-type Verificator interface {
+// Verification represents KYC verification interface.
+type Verification interface {
 	CheckApplicantStatus(applicantID string) (string, *ReviewResult, error)
+	RequestApplicantCheck(applicantID string) error
 }
 
 // Mock represents the service mock.
@@ -17,7 +18,12 @@ type Mock struct {
 	CheckApplicantStatusFn func(applicantID string) (string, *ReviewResult, error)
 }
 
-// CheckApplicantStatus implememnts Verificator interface for the Mock.
+// CheckApplicantStatus implements Verification interface for the Mock.
 func (mock Mock) CheckApplicantStatus(applicantID string) (string, *ReviewResult, error) {
 	return mock.CheckApplicantStatusFn(applicantID)
+}
+
+// RequestApplicantCheck implements Verification interface for the Mock.
+func (mock Mock) RequestApplicantCheck(applicantID string) error {
+	return nil
 }
