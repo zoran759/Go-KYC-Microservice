@@ -110,17 +110,17 @@ func mapCustomerDocument(customer *common.UserData) (document *Document) {
 		return
 	}
 
-	// NationalID.
-	if customer.NationalID != nil && customer.NationalID.Image != nil {
+	// IDCard.
+	if customer.IDCard != nil && customer.IDCard.Image != nil {
 		document.DocumentType = "IdentityCard"
-		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.NationalID.Image.Data)
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data)
 		return
 	}
 
 	// SocialService (SSN, SNILS).
-	if customer.SocialService != nil && customer.SocialService.Image != nil {
+	if customer.SocialServiceID != nil && customer.SocialServiceID.Image != nil {
 		document.DocumentType = "IdentityCard"
-		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.SocialService.Image.Data)
+		document.DocumentFrontImage = base64.StdEncoding.EncodeToString(customer.SocialServiceID.Image.Data)
 		return
 	}
 
@@ -199,49 +199,49 @@ func mapCustomerDriverLicence(drivers *common.DriverLicense) *DriverLicence {
 func mapCustomerToNationalIds(customer *common.UserData) (nIDs []NationalID) {
 	switch customer.CountryAlpha2 {
 	case "GB":
-		if customer.Health != nil {
+		if customer.HealthID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.Health.Number,
+				Number: customer.HealthID.Number,
 				Type:   "health",
 			})
 		}
-		if customer.SocialService != nil {
+		if customer.SocialServiceID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.SocialService.Number,
+				Number: customer.SocialServiceID.Number,
 				Type:   "socialservice",
 			})
 		}
 	case "AE", "AR", "BR", "CN", "CO", "CR", "DK", "EC", "EG", "FR", "HK", "KW",
 		"LB", "MX", "MY", "NL", "OM", "RO", "SA", "SE", "SG", "SV", "TH", "ZA":
-		if customer.NationalID != nil {
+		if customer.IDCard != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.NationalID.Number,
+				Number: customer.IDCard.Number,
 				Type:   "nationalid",
 			})
 		}
-		if customer.SocialService != nil {
+		if customer.SocialServiceID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.SocialService.Number,
+				Number: customer.SocialServiceID.Number,
 				Type:   "socialservice",
 			})
 		}
 	case "CA", "IE", "IT", "UA":
-		if customer.SocialService != nil {
+		if customer.SocialServiceID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.SocialService.Number,
+				Number: customer.SocialServiceID.Number,
 				Type:   "socialservice",
 			})
 		}
 	case "RU":
-		if customer.SocialService != nil {
+		if customer.SocialServiceID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.SocialService.Number,
+				Number: customer.SocialServiceID.Number,
 				Type:   "socialservice",
 			})
 		}
 		if customer.TaxID != nil {
 			nIDs = append(nIDs, NationalID{
-				Number: customer.SocialService.Number,
+				Number: customer.TaxID.Number,
 				Type:   "taxidnumber",
 			})
 		}
@@ -261,9 +261,9 @@ func mapCustomerToCountrySpecific(customer *common.UserData) map[CountryCode]Cou
 	case "CN":
 		cspec.BankAccountNumber = customer.BankAccountNumber
 	case "KR":
-		if customer.NationalID != nil {
+		if customer.IDCard != nil {
 			cspec.NameOnCard = customer.Fullname()
-			cspec.SerialNumber = customer.NationalID.Number
+			cspec.SerialNumber = customer.IDCard.Number
 		}
 	case "MX":
 		cspec.StateOfBirth = customer.StateOfBirth

@@ -35,9 +35,8 @@ type UserData struct {
 	Passport                 *Passport
 	IDCard                   *IDCard
 	SNILS                    *SNILS
-	NationalID               *NationalID
-	Health                   *Health
-	SocialService            *SocialService
+	HealthID                 *HealthID
+	SocialServiceID          *SocialServiceID
 	TaxID                    *TaxID
 	DriverLicense            *DriverLicense
 	DriverLicenseTranslation *DriverLicenseTranslation
@@ -328,48 +327,24 @@ type Other struct {
 	Image         *DocumentFile
 }
 
-// NationalID represents National Identification Information.
-type NationalID struct {
-	Number        string
-	CountryAlpha2 string
-	City          string
-	County        string
-	Province      string
-	District      string
-	Image         *DocumentFile
+// HealthID represents National Health Service Identification Information.
+type HealthID struct {
+	Number string
+	Image  *DocumentFile
 }
 
-// Health represents National Health Service Identification Information.
-type Health struct {
-	Number        string
-	CountryAlpha2 string
-	City          string
-	County        string
-	Province      string
-	District      string
-	Image         *DocumentFile
-}
-
-// SocialService represents National Social Service Identification Information.
-type SocialService struct {
-	Number        string
-	CountryAlpha2 string
-	City          string
-	County        string
-	Province      string
-	District      string
-	Image         *DocumentFile
+// SocialServiceID represents National Social Service Identification Information
+// (Social Security Number, Social Insurance Number, National Insurance Number).
+type SocialServiceID struct {
+	Number     string
+	IssuedDate Time
+	Image      *DocumentFile
 }
 
 // TaxID represents National Taxpayer Identification Information.
 type TaxID struct {
-	Number        string
-	CountryAlpha2 string
-	City          string
-	County        string
-	Province      string
-	District      string
-	Image         *DocumentFile
+	Number string
+	Image  *DocumentFile
 }
 
 // Fullname builds and returns full name of the customer.

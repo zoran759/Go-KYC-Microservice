@@ -511,7 +511,7 @@ func TestAEValidTestEntity(t *testing.T) {
 			Mrz2:       "5060798672ARE8610245M24051827847968855030570",
 			ValidUntil: common.Time(time.Date(2024, 5, 18, 0, 0, 0, 0, time.UTC)),
 		},
-		NationalID: &common.NationalID{
+		IDCard: &common.IDCard{
 			Number: "784-7968-8550305-0",
 		},
 	}
@@ -600,7 +600,7 @@ func TestCNValidTestEntity(t *testing.T) {
 			Mrz2:       "C8456324<1CNL8303052359438740809<<<<<<<<<<54",
 			ValidUntil: common.Time(time.Date(2020, 6, 12, 0, 0, 0, 0, time.UTC)),
 		},
-		NationalID: &common.NationalID{
+		IDCard: &common.IDCard{
 			Number: "440861896421345987",
 		},
 	}
@@ -653,10 +653,10 @@ func TestGBValidTestEntity(t *testing.T) {
 		DriverLicense: &common.DriverLicense{
 			Number: "AUDI9710269JR9AB",
 		},
-		Health: &common.Health{
+		HealthID: &common.HealthID{
 			Number: "1634567897",
 		},
-		SocialService: &common.SocialService{
+		SocialServiceID: &common.SocialServiceID{
 			Number: "BL261079C",
 		},
 	}
@@ -696,7 +696,7 @@ func TestKRValidTestEntity(t *testing.T) {
 			CountryAlpha2: "KR",
 			ValidUntil:    common.Time(time.Date(2021, 11, 3, 0, 0, 0, 0, time.UTC)),
 		},
-		NationalID: &common.NationalID{
+		IDCard: &common.IDCard{
 			Number: "AM125D",
 		},
 		DriverLicense: &common.DriverLicense{
@@ -744,10 +744,10 @@ func TestMXValidTestEntity(t *testing.T) {
 			Mrz2:       "99003853<1CZE1101018M1207046110101111<<<<<94",
 			ValidUntil: common.Time(time.Date(2021, 1, 5, 0, 0, 0, 0, time.UTC)),
 		},
-		NationalID: &common.NationalID{
+		IDCard: &common.IDCard{
 			Number: "HEGG560427MVZRRL05",
 		},
-		SocialService: &common.SocialService{
+		SocialServiceID: &common.SocialServiceID{
 			Number: "HEGG560427ABC",
 		},
 	}
@@ -798,7 +798,7 @@ func TestMYValidTestEntity(t *testing.T) {
 			Mrz2:       "S8441773<1MYS8303052359438740809<<<<<<<<<<54",
 			ValidUntil: common.Time(time.Date(2022, 10, 20, 0, 0, 0, 0, time.UTC)),
 		},
-		NationalID: &common.NationalID{
+		IDCard: &common.IDCard{
 			Number: "871129134567",
 		},
 	}
@@ -894,7 +894,7 @@ func TestRUValidTestEntity(t *testing.T) {
 			Number:     "2594123456",
 			IssuedDate: common.Time(time.Date(2005, 8, 16, 0, 0, 0, 0, time.UTC)),
 		},
-		SocialService: &common.SocialService{
+		SocialServiceID: &common.SocialServiceID{
 			Number: "12345678901",
 		},
 		TaxID: &common.TaxID{
@@ -951,7 +951,7 @@ func TestUSValidTestEntity(t *testing.T) {
 			Number: "0812319884104",
 			State:  "CA",
 		},
-		SocialService: &common.SocialService{
+		SocialServiceID: &common.SocialServiceID{
 			Number: "000568791",
 		},
 	}
