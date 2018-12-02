@@ -16,7 +16,7 @@ import (
 type SumSub struct {
 	applicants   applicants.Applicants
 	documents    documents.Documents
-	verification verification.Verificator
+	verification verification.Verification
 }
 
 // New constructs new verification service object.
