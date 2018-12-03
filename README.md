@@ -492,9 +492,9 @@ All fields in the Reference are marked as optional but at least first name and l
 | CurrentAddress           | _Address_          |              |             |
 | Business                 | _*Business_        |              |             |
 | Passport                 | _*Passport_        |              |             |
-| NationalID               | _*NationalID_      |              |             |
-| Health                   | _*Health_          |              |             |
-| SocialService            | _*SocialService_   |              |             |
+| IDCard                   | _*IDCard_          |              |             |
+| HealthID                 | _*HealthID_        |              |             |
+| SocialServiceID          | _*SocialServiceID_ |              |             |
 | TaxID                    | _*TaxID_           |              |             |
 | DriverLicense            | _*DriverLicense_   |              |             |
 | ResidencePermit          | _*ResidencePermit_ |              |             |
@@ -687,8 +687,8 @@ These are the countries that supported since last check.
 | **CurrentAddress** | **_Address_**        |              | AR AU BE CA CH CR DE DK ES FR GB IE IT JP MX NL NZ PE PT SE US ZA |
 | Business           | _*Business_          |              |                                               |
 | **Passport**       | **_*Passport_**      |              | AE, AR, AT, AU, BE, BR, CA, CH, CL, CN, CO, CR, DE, DK, EC, EG, ES, FR, GB, HK, IE, IT, JP, KR, KW, LB, MX, MY, NL, NZ, OM, PE, PT, RU, SA, SE, SG, SV, TH, UA, US, ZA |
-| NationalID         | _*NationalID_        |              | AE, AR, BR, CN, CO, CR, DK, EC, EG, FR, HK, KR, KW, LB, MX, MY, NL, OM, RO, SA, SE, SG, SV, TH, ZA |
-| SocialService      | _*SocialService_     |              | CA, GB, IE, IT, UA                            |
+| IDCard             | _*IDCard_            |              | AE, AR, BR, CN, CO, CR, DK, EC, EG, FR, HK, KR, KW, LB, MX, MY, NL, OM, RO, SA, SE, SG, SV, TH, ZA |
+| SocialServiceID    | _*SocialServiceID_   |              | CA, GB, IE, IT, UA                            |
 | TaxID              | _*TaxID_             |              |                                               |
 | **DriverLicense**  | **_*DriverLicense_** |              | GB, KR, NZ, US                                |
 | ResidencePermit    | _*ResidencePermit_   |              |                                               |
@@ -696,15 +696,15 @@ These are the countries that supported since last check.
 
 [**UserData**](#userdata-fields-description) required fields for the specific countries:
 
-| **Name**                 | **Type**  | **Countries for which the field is required** |
-| ------------------------ | --------- | --------------------------------------------- |
-| MaternalLastName         | _string_  | CO, MX, PE                                    |
-| FullName                 | _string_  | MY, SG                                        |
-| CountryOfBirthAlpha2     | _string_  | MY                                            |
-| StateOfBirth             | _string_  | MX, MY                                        |
-| BankAccountNumber        | _string_  | CN                                            |
-| VehicleRegistrationPlate | _string_  | NZ                                            |
-| Health                   | _*Health_ | GB                                            |
+| **Name**                 | **Type**    | **Countries for which the field is required** |
+| ------------------------ | ----------- | --------------------------------------------- |
+| MaternalLastName         | _string_    | CO, MX, PE                                    |
+| FullName                 | _string_    | MY, SG                                        |
+| CountryOfBirthAlpha2     | _string_    | MY                                            |
+| StateOfBirth             | _string_    | MX, MY                                        |
+| BankAccountNumber        | _string_    | CN                                            |
+| VehicleRegistrationPlate | _string_    | NZ                                            |
+| HealthID                 | _*HealthID_ | GB                                            |
 
 [**Address**](#address-fields-description) required fields for the specific countries:
 
@@ -733,19 +733,13 @@ These are the countries that supported since last check.
 | -------- | -------- | -------------------------------------------------------------------------------------------------------------- |
 | Number   | _string_ | AE, AR, BR, CA, CN, CO, CR, DK, EC, EG, FR, HK, IE, IT, KW, LB, MX, MY, NL, OM, RO, SA, SE, SG, SV, TH, UA, ZA |
 
-[**NationalID**](#nationalid-fields-description) required fields for the specific countries:
-
-| **Name** | **Type** | **Countries for which the field is required**                                                  |
-| -------- | -------- | ---------------------------------------------------------------------------------------------- |
-| Number   | _string_ | AE, AR, BR, CN, CO, CR, DK, EC, EG, FR, HK, KW, LB, MX, MY, NL, OM, RO, SA, SE, SG, SV, TH, ZA |
-
-[**Health**](#health-fields-description) required fields for the specific countries:
+[**HealthID**](#healthid-fields-description) required fields for the specific countries:
 
 | **Name** | **Type** | **Countries for which the field is required** |
 | -------- | -------- | --------------------------------------------- |
 | Number   | _string_ | GB                                            |
 
-[**SocialService**](#socialservice-fields-description) required fields for the specific countries:
+[**SocialServiceID**](#socialserviceid-fields-description) required fields for the specific countries:
 
 | **Name** | **Type** | **Countries for which the field is required** |
 | -------- | -------- | --------------------------------------------- |
