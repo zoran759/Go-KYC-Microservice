@@ -2,20 +2,22 @@ package verification
 
 import (
 	"encoding/json"
-	"modulus/kyc/http"
 	"log"
+
+	"modulus/kyc/http"
 )
 
 const (
-	EndpointUsers = "users"
-	EndpointOauth = "oauth"
-	AppLanguage = "en"
+	endpointUsers = "users"
+	endpointOauth = "oauth"
+	appLanguage   = "en"
 )
 
 type service struct {
 	config Config
 }
 
+// NewService constructs the new verification service object.
 func NewService(config Config) Verification {
 	return service{
 		config: config,
@@ -30,7 +32,7 @@ func (service service) CreateUser(request CreateUserRequest) (*UserResponse, err
 	}
 
 	headers := service.composeHeaders(true, "")
-	host := service.config.Host + EndpointUsers
+	host := service.config.Host + endpointUsers
 
 	log.Printf("Request user: %+v\n\nHeaders: %+v\n\nHost: %+v\n\n", request.Logins, headers, host)
 
@@ -40,7 +42,7 @@ func (service service) CreateUser(request CreateUserRequest) (*UserResponse, err
 		return nil, err
 	}
 
-	if (responseStatus != 200) {
+	if responseStatus != 200 {
 		err, _ := MapResponseError(responseBytes)
 		return nil, err
 	}
@@ -61,10 +63,10 @@ func (service service) AddDocument(userID string, userOAuth string, request Crea
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Adding documents...");
+	log.Println("Adding documents...")
 
 	headers := service.composeHeaders(false, userOAuth)
-	host := service.config.Host + EndpointUsers + "/" + userID
+	host := service.config.Host + endpointUsers + "/" + userID
 
 	log.Printf("Request: %+v\n\nHeaders: %+v\n\nHost: %+v\n\n", request, headers, host)
 
@@ -74,11 +76,10 @@ func (service service) AddDocument(userID string, userOAuth string, request Crea
 		return nil, err
 	}
 
-	if (responseStatus != 200) {
+	if responseStatus != 200 {
 		err, _ := MapResponseError(responseBytes)
 		return nil, err
 	}
-
 
 	response := &UserResponse{}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
@@ -94,7 +95,7 @@ func (service service) GetUser(userID string) (*UserResponse, error) {
 
 	headers := service.composeHeaders(true, "")
 	_, responseBytes, err := http.Get(
-		service.config.Host + EndpointUsers + "/" +userID,
+		service.config.Host+endpointUsers+"/"+userID,
 		headers,
 	)
 	if err != nil {
@@ -116,10 +117,10 @@ func (service service) GetOauthKey(userID string, request CreateOauthRequest) (*
 		return nil, err
 	}
 
-	log.Println("Get OAuth key...");
+	log.Println("Get OAuth key...")
 
 	headers := service.composeHeaders(false, "")
-	host := service.config.Host + EndpointOauth + "/" + userID
+	host := service.config.Host + endpointOauth + "/" + userID
 
 	log.Printf("Request: %+v\n\nHeaders: %+v\n\nHost: %+v\n\n", request, headers, host)
 
@@ -129,7 +130,7 @@ func (service service) GetOauthKey(userID string, request CreateOauthRequest) (*
 		return nil, err
 	}
 
-	if (responseStatus != 200) {
+	if responseStatus != 200 {
 		err, _ := MapResponseError(responseBytes)
 		return nil, err
 	}

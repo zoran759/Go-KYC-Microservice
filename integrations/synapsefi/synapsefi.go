@@ -1,19 +1,23 @@
 package synapsefi
 
 import (
-	"github.com/pkg/errors"
-	"modulus/kyc/common"
-	"modulus/kyc/integrations/synapsefi/verification"
 	"log"
 	"time"
+
+	"modulus/kyc/common"
+	"modulus/kyc/integrations/synapsefi/verification"
+
+	"github.com/pkg/errors"
 )
 
+// SynapseFI represents the verification service.
 type SynapseFI struct {
 	verification     verification.Verification
 	timeoutThreshold int64
-	kycFlow 		 string
+	kycFlow          string
 }
 
+// New constructs and returns the new verification service object.
 func New(config Config) SynapseFI {
 	kycFlow := "simple"
 	if len(config.KYCFlow) > 0 {
@@ -28,12 +32,12 @@ func New(config Config) SynapseFI {
 	return SynapseFI{
 		verification:     verification.NewService(verification.Config(config.Connection)),
 		timeoutThreshold: timeoutThreshold,
-		kycFlow: kycFlow,
+		kycFlow:          kycFlow,
 	}
-
 
 }
 
+// CheckCustomer implements CustomerChecker interface for the SynapseFI.
 func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("No customer supplied")
@@ -48,7 +52,7 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 	}
 
 	if service.kycFlow != "" && service.kycFlow != "simple" {
-		log.Printf("Alternative flow, auth user");
+		log.Printf("Alternative flow, auth user")
 
 		uID := response.ID
 
@@ -57,7 +61,7 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 		if err != nil {
 			return result, err
 		}
-		log.Printf("OAuth response: %+v", responseAuth);
+		log.Printf("OAuth response: %+v", responseAuth)
 
 		createDocumentRequest := verification.MapDocumentsToCreateUserRequest(*customer)
 		response, err = service.verification.AddDocument(uID, responseAuth.OAuthKey, createDocumentRequest)

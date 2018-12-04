@@ -1,16 +1,17 @@
 package synapsefi
 
 import (
-	"testing"
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"modulus/kyc/integrations/synapsefi/verification"
+	"testing"
+
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/synapsefi/verification"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewShort(t *testing.T) {
-	service := New(Config{
-	})
+	service := New(Config{})
 
 	assert.Equal(t, int64(3600), service.timeoutThreshold)
 	assert.Equal(t, "simple", service.kycFlow)
@@ -19,7 +20,7 @@ func TestNewShort(t *testing.T) {
 func TestNewFull(t *testing.T) {
 	service := New(Config{
 		TimeoutThreshold: 1000,
-		KYCFlow: "complex",
+		KYCFlow:          "complex",
 	})
 
 	assert.Equal(t, int64(1000), service.timeoutThreshold)
@@ -61,7 +62,7 @@ func TestSynapseFI_CheckCustomerInvalid(t *testing.T) {
 							PhysicalDocs: []verification.ResponseSubDocument{
 								{
 									DocumentType: "TYPE",
-									Status: DocStatusInvalid,
+									Status:       DocStatusInvalid,
 								},
 							},
 						},
@@ -104,7 +105,7 @@ func TestSynapseFI_CheckCustomerPoll(t *testing.T) {
 							PhysicalDocs: []verification.ResponseSubDocument{
 								{
 									DocumentType: "TYPE",
-									Status: "SUBMITTED|INVALID",
+									Status:       "SUBMITTED|INVALID",
 								},
 							},
 						},
@@ -179,10 +180,10 @@ func TestSynapseFI_CheckCustomerValidComplexFlow(t *testing.T) {
 			},
 			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
 				return &verification.OauthResponse{
-					ID: "someid",
-					OAuthKey: "somekey",
+					ID:           "someid",
+					OAuthKey:     "somekey",
 					RefreshToken: "sometoken",
-					ExpiresAt: "1498297390",
+					ExpiresAt:    "1498297390",
 				}, nil
 			},
 			AddDocumentFn: func(userID string, userOAuth string, request verification.CreateDocumentsRequest) (*verification.UserResponse, error) {
@@ -216,10 +217,10 @@ func TestSynapseFI_CheckCustomerValidComplexFlowInvalid(t *testing.T) {
 			},
 			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
 				return &verification.OauthResponse{
-					ID: "someid",
-					OAuthKey: "somekey",
+					ID:           "someid",
+					OAuthKey:     "somekey",
 					RefreshToken: "sometoken",
-					ExpiresAt: "1498297390",
+					ExpiresAt:    "1498297390",
 				}, nil
 			},
 			AddDocumentFn: func(userID string, userOAuth string, request verification.CreateDocumentsRequest) (*verification.UserResponse, error) {
@@ -233,7 +234,7 @@ func TestSynapseFI_CheckCustomerValidComplexFlowInvalid(t *testing.T) {
 							PhysicalDocs: []verification.ResponseSubDocument{
 								{
 									DocumentType: "TYPE",
-									Status: DocStatusInvalid,
+									Status:       DocStatusInvalid,
 								},
 							},
 						},
@@ -293,7 +294,6 @@ func TestSynapseFI_CheckCustomerComplexOAuthError(t *testing.T) {
 		kycFlow: "complex",
 	}
 
-
 	result, err := service.CheckCustomer(&common.UserData{})
 	assert.Error(t, err)
 	assert.Equal(t, common.Error, result.Status)
@@ -304,4 +304,3 @@ func TestSynapseFI_CheckCustomerComplexOAuthError(t *testing.T) {
 	assert.Equal(t, common.Error, result.Status)
 	assert.Nil(t, result.Details)
 }
-

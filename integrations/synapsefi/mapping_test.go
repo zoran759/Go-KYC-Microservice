@@ -3,9 +3,10 @@ package synapsefi
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/synapsefi/verification"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_mapResponseToResult(t *testing.T) {

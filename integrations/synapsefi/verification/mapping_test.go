@@ -318,5 +318,5 @@ func TestMapResponseError(t *testing.T) {
 
 	response, _ := MapResponseError(err)
 
-	assert.Equal(t, errors.New("Invalid/expired oauth_key."), response)
+	assert.Equal(t, errors.New("invalid/expired oauth_key"), response)
 }

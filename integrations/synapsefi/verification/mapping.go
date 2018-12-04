@@ -11,6 +11,7 @@ import (
 	"modulus/kyc/common"
 )
 
+// MapCustomerToCreateUserRequest constructs and returns user creation request.
 func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool) CreateUserRequest {
 
 	request := CreateUserRequest{
@@ -47,22 +48,17 @@ func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool)
 
 func mapCustomerDocuments(customer common.UserData) []Document {
 	document := Document{
-		PhysicalDocs: []SubDocument{},
-		OwnerName:    fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
-		Email:        customer.Email,
-		PhoneNumber:  customer.Phone,
-		IPAddress:    "127.0.0.1",
-		EntityType:   mapCustomerGender(customer.Gender),
-		EntityScope:  "Not Known",
-		DayOfBirth:   time.Time(customer.DateOfBirth).Day(),
-		MonthOfBirth: int(time.Time(customer.DateOfBirth).Month()),
-		YearOfBirth:  time.Time(customer.DateOfBirth).Year(),
-		AddressStreet: fmt.Sprintf(
-			"%s %s %s",
-			customer.CurrentAddress.BuildingNumber,
-			customer.CurrentAddress.Street,
-			customer.CurrentAddress.StreetType,
-		),
+		PhysicalDocs:       []SubDocument{},
+		OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
+		Email:              customer.Email,
+		PhoneNumber:        customer.Phone,
+		IPAddress:          customer.IPaddress,
+		EntityType:         mapCustomerGender(customer.Gender),
+		EntityScope:        "Not Known",
+		DayOfBirth:         time.Time(customer.DateOfBirth).Day(),
+		MonthOfBirth:       int(time.Time(customer.DateOfBirth).Month()),
+		YearOfBirth:        time.Time(customer.DateOfBirth).Year(),
+		AddressStreet:      customer.CurrentAddress.StreetAddress(),
 		AddressCity:        customer.CurrentAddress.Town,
 		AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
 		AddressPostalCode:  customer.CurrentAddress.PostCode,
@@ -91,6 +87,7 @@ func mapCustomerDocuments(customer common.UserData) []Document {
 
 }
 
+// MapUserToOauth returns OAuth token obtaining request.
 func MapUserToOauth(refreshToken string) CreateOauthRequest {
 	return CreateOauthRequest{
 		RefreshToken: refreshToken,
@@ -108,25 +105,21 @@ func mapCustomerGender(gender common.Gender) string {
 	}
 }
 
+// MapDocumentsToCreateUserRequest constructs and returns CreateDocumentsRequest object.
 func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRequest {
 
 	request := CreateDocumentsRequest{
 		Documents: Document{
-			OwnerName:    fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
-			Email:        customer.Email,
-			PhoneNumber:  customer.Phone,
-			IPAddress:    customer.IPaddress,
-			EntityType:   mapCustomerGender(customer.Gender),
-			EntityScope:  "Not Known",
-			DayOfBirth:   time.Time(customer.DateOfBirth).Day(),
-			MonthOfBirth: int(time.Time(customer.DateOfBirth).Month()),
-			YearOfBirth:  time.Time(customer.DateOfBirth).Year(),
-			AddressStreet: fmt.Sprintf(
-				"%s %s %s",
-				customer.CurrentAddress.BuildingNumber,
-				customer.CurrentAddress.Street,
-				customer.CurrentAddress.StreetType,
-			),
+			OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
+			Email:              customer.Email,
+			PhoneNumber:        customer.Phone,
+			IPAddress:          customer.IPaddress,
+			EntityType:         mapCustomerGender(customer.Gender),
+			EntityScope:        "Not Known",
+			DayOfBirth:         time.Time(customer.DateOfBirth).Day(),
+			MonthOfBirth:       int(time.Time(customer.DateOfBirth).Month()),
+			YearOfBirth:        time.Time(customer.DateOfBirth).Year(),
+			AddressStreet:      customer.CurrentAddress.StreetAddress(),
 			AddressCity:        customer.CurrentAddress.Town,
 			AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
 			AddressPostalCode:  customer.CurrentAddress.PostCode,
@@ -169,7 +162,8 @@ func mapDocumentType(documentType string) string {
 	}
 }
 
-func MapResponseError(responseBytes []byte) (result error, err error) {
+// MapResponseError extracts and returns errors from the error response.
+func MapResponseError(responseBytes []byte) (result, err error) {
 
 	response := &ResponseError{}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
@@ -178,7 +172,7 @@ func MapResponseError(responseBytes []byte) (result error, err error) {
 	}
 	log.Printf("SynapseFi response status: %v", response.Status)
 
-	errMsg := response.Error[AppLanguage]
+	errMsg := response.Error[appLanguage]
 
 	return errors.New(errMsg), nil
 }
