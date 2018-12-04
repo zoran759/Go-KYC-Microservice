@@ -2,9 +2,11 @@ package synapsefi
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
+
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/synapsefi/verification"
+
+	"github.com/pkg/errors"
 )
 
 func mapResponseToResult(response *verification.UserResponse) (result common.KYCResult, err error) {

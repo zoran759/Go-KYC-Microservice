@@ -1,11 +1,12 @@
 package verification
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"net/http"
-	"testing"
 )
 
 func TestNewService(t *testing.T) {
