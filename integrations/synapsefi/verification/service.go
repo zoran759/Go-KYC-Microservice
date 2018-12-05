@@ -1,7 +1,9 @@
 package verification
 
 import (
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"modulus/kyc/http"
@@ -19,9 +21,12 @@ type service struct {
 
 // NewService constructs the new verification service object.
 func NewService(config Config) Verification {
-	return service{
+	s := service{
 		config: config,
 	}
+	s.config.fingerprint = fmt.Sprintf("%x", sha256.Sum256([]byte(config.ClientID+config.ClientSecret)))
+
+	return s
 }
 
 // TODO: resend on fail, process errors, PROCESS RESPONSE PERMISSIONS!!!
@@ -159,7 +164,7 @@ func (service service) composeHeaders(isIdempodent bool, oauthKey string) http.H
 
 	if isIdempodent {
 		// optional
-		headers["X-SP-IDEMPOTENCY-KEY"] = generateIdempodencyKey()
+		headers["X-SP-IDEMPOTENCY-KEY"] = newIdempotencyKey()
 	}
 
 	return headers

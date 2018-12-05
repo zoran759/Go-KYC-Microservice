@@ -2,6 +2,7 @@ package verification
 
 import "github.com/google/uuid"
 
-func generateIdempodencyKey() string {
+// newIdempotencyKey returns new idempotency key.
+func newIdempotencyKey() string {
 	return uuid.New().String()
 }
