@@ -138,6 +138,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Selfie**                   | _***[Selfie](#selfie-fields-description)**_                   | Selfie image of the customer               |
 | **Avatar**                   | _***[Avatar](#avatar-fields-description)**_                   | A profile image aka avatar of the customer |
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
+| **VideoAuth**                | _***[VideoAuth](#videoauth-fields-description)**_             | Short authorization video of the customer (up to 5 seconds)    |
 
 ### **[Address](common/model.go#L50) fields description**
 
@@ -310,6 +311,14 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Filename**    | _**string**_ | File name of the document image, for ex. "passport_front.jpg" |
 | **ContentType** | _**string**_ | MIME type of the content, for ex. "image/jpeg"                |
 | **Data**        | _**[]byte**_ | Raw content of the document image file                        |
+
+### **[VideoAuth](common/model.go#L324) fields description**
+
+| **Name**        | **Type**     | **Description**                                  |
+| --------------- | ------------ | ------------------------------------------------ |
+| **Filename**    | _**string**_ | Name of the video file, for ex. "auth_video.mp4" |
+| **ContentType** | _**string**_ | MIME type of the content, for ex. "video/mp4"    |
+| **Data**        | _**[]byte**_ | Raw content of the video file                    |
 
 ### **[Location](common/model.go#L158) fields description**
 
@@ -544,23 +553,24 @@ It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/referen
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**             | **Type**         | **FileType**        | **Required**       | **Comment**                                                       |
-| -------------------- | ---------------- |---------------------| :----------------: | ----------------------------------------------------------------- |
-| **FirstName**        | _string_         |                     | **Yes**            |                                                                   |
-| **LastName**         | _string_         |                     | **Yes**            |                                                                   |
-| MiddleName           | _string_         |                     |                    |                                                                   |
-| Gender               | _Gender_         |                     |                    |                                                                   |
-| **Email**            | _string_         |                     | **Yes**            |                                                                   |
-| **DateOfBirth**      | _Time_           |                     | **Yes**            | Required for documents only                                       |
-| **CountryAlpha2**    | _string_         |                     | **Yes**            |                                                                   |
-| **Phone**            | _string_         |                     | **(**)**           | (**)Anyone of documents marked with double asterisk               |
-| **Mobile phone**     | _string_         |                     | **(**)**           |                                                                   |
-| **CurrentAddress**   | _Address_        |                     | **Yes**            | Required for documents only                                       |
-| **Passport**(*)      | _*Passport_      | .png/.jpg/.jpeg     | **(*)**            | (*)Anyone of documents marked with asterisk                       |
-| **IDCard**(*)        | _*IDCard_        | .png/.jpg/.jpeg     | **(*)**            |                                                                   |
-| **DriverLicense**(*) | _*DriverLicense_ | .png/.jpg/.jpeg     | **(*)**            |                                                                   |
-| UtilityBill          | _*UtilityBill_   | .png/.jpg/.jpeg/.pdf|                    |                                                                   |
-| **Selfie**           | _*Selfie_        | .png/.jpg/.jpeg     | **Yes**            |                                                                   |
+| **Name**             | **Type**         | **FileType**         | **Required** | **Comment**                                         |
+| -------------------- | ---------------- | -------------------- | :----------: | --------------------------------------------------- |
+| **FirstName**        | _string_         |                      | **Yes**      |                                                     |
+| **LastName**         | _string_         |                      | **Yes**      |                                                     |
+| MiddleName           | _string_         |                      |              |                                                     |
+| Gender               | _Gender_         |                      |              |                                                     |
+| **Email**            | _string_         |                      | **Yes**      |                                                     |
+| **DateOfBirth**      | _Time_           |                      | **Yes**      | Required for documents only                         |
+| **CountryAlpha2**    | _string_         |                      | **Yes**      |                                                     |
+| **Phone**            | _string_         |                      | **(**)**     | (**)Anyone of documents marked with double asterisk |
+| **Mobile phone**     | _string_         |                      | **(**)**     |                                                     |
+| **CurrentAddress**   | _Address_        |                      | **Yes**      | Required for documents only                         |
+| **Passport**(*)      | _*Passport_      | .png/.jpg/.jpeg      | **(*)**      | (*)Anyone of documents marked with asterisk         |
+| **IDCard**(*)        | _*IDCard_        | .png/.jpg/.jpeg      | **(*)**      |                                                     |
+| **DriverLicense**(*) | _*DriverLicense_ | .png/.jpg/.jpeg      | **(*)**      |                                                     |
+| UtilityBill          | _*UtilityBill_   | .png/.jpg/.jpeg/.pdf |              |                                                     |
+| **Selfie**           | _*Selfie_        | .png/.jpg/.jpeg      | **Yes**      | Deprecated in favor of video authorization          |
+| **VideoAuth**        | _*VideoAuth_     | .mov/.mp4/.webm      | **Yes**      | 5 second authorization video of the customer. Requires document with customer photo (passport, etc.) |
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
@@ -604,7 +614,7 @@ KYC providers may require various set of `common.UserData` fields depending on t
 * International
 * No fields variations found in the docs
 
-#### **SemperFI covered countries**
+#### **SynapseFI covered countries**
 
 * International (no list of supported countries)
 * No fields variations found in the docs

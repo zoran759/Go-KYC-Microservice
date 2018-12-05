@@ -48,7 +48,6 @@ func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool)
 
 func mapCustomerDocuments(customer common.UserData) []Document {
 	document := Document{
-		PhysicalDocs:       []SubDocument{},
 		OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
 		Email:              customer.Email,
 		PhoneNumber:        customer.Phone,
@@ -81,10 +80,16 @@ func mapCustomerDocuments(customer common.UserData) []Document {
 		})
 	}
 
+	if customer.VideoAuth != nil {
+		document.PhysicalDocs = append(document.PhysicalDocs, SubDocument{
+			DocumentType:  mapDocumentType("VideoAuth"),
+			DocumentValue: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
+		})
+	}
+
 	return []Document{
 		document,
 	}
-
 }
 
 // MapUserToOauth returns OAuth token obtaining request.
@@ -124,7 +129,6 @@ func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRe
 			AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
 			AddressPostalCode:  customer.CurrentAddress.PostCode,
 			AddressCountryCode: customer.CountryAlpha2,
-			PhysicalDocs:       []SubDocument{},
 		},
 	}
 
@@ -144,6 +148,13 @@ func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRe
 		})
 	}
 
+	if customer.VideoAuth != nil {
+		request.Documents.PhysicalDocs = append(request.Documents.PhysicalDocs, SubDocument{
+			DocumentType:  mapDocumentType("VideoAuth"),
+			DocumentValue: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
+		})
+	}
+
 	return request
 }
 
@@ -153,6 +164,8 @@ func mapDocumentType(documentType string) string {
 		return "GOVT_ID_INT"
 	case "Selfie":
 		return "SELFIE"
+	case "VideoAuth":
+		return "VIDEO_AUTHORIZATION"
 	case "UtilityBill":
 		return "PROOF_OF_ADDRESS"
 	case "Contract", "Agreement":

@@ -45,6 +45,7 @@ type UserData struct {
 	Selfie                   *Selfie
 	Avatar                   *Avatar
 	Other                    *Other
+	VideoAuth                *VideoAuth
 }
 
 // Address defines user's address.
@@ -319,3 +320,6 @@ type Other struct {
 	ValidUntil    Time
 	Image         *DocumentFile
 }
+
+// VideoAuth represents authorization video of the customer.
+type VideoAuth DocumentFile
