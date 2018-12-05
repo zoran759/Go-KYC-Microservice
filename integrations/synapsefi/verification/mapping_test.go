@@ -96,6 +96,14 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 			ValidUntil:    testTime,
 			Number:        "Number",
 		},
+		VideoAuth: &common.VideoAuth{
+			Filename:    "my_video.mp4",
+			ContentType: "video/mp4",
+			Data: []byte{0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70,
+				0x6D, 0x70, 0x34, 0x32, 0x00, 0x00, 0x00, 0x00,
+				0x69, 0x73, 0x6F, 0x6D, 0x6D, 0x70, 0x34, 0x32,
+				0x00, 0x14, 0xDF, 0x3B, 0x6D, 0x6F, 0x6F, 0x76},
+		},
 	}
 
 	userRequest := MapCustomerToCreateUserRequest(customer, true)
@@ -134,7 +142,7 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 	assert.Equal("PostCode1", document.AddressPostalCode)
 	assert.Equal("Country1", document.AddressCountryCode)
 
-	if assert.Len(document.PhysicalDocs, 2) {
+	if assert.Len(document.PhysicalDocs, 3) {
 		assert.Equal(
 			"GOVT_ID_INT",
 			document.PhysicalDocs[0].DocumentType,
@@ -152,6 +160,10 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
 			document.PhysicalDocs[1].DocumentValue,
 		)
+
+		assert.Equal("VIDEO_AUTHORIZATION", document.PhysicalDocs[2].DocumentType)
+		assert.Equal("data:video/mp4;base64,"+base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
+			document.PhysicalDocs[2].DocumentValue)
 	}
 }
 
@@ -241,6 +253,14 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 			ValidUntil:    testTime,
 			Number:        "Number",
 		},
+		VideoAuth: &common.VideoAuth{
+			Filename:    "my_video.mp4",
+			ContentType: "video/mp4",
+			Data: []byte{0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70,
+				0x6D, 0x70, 0x34, 0x32, 0x00, 0x00, 0x00, 0x00,
+				0x69, 0x73, 0x6F, 0x6D, 0x6D, 0x70, 0x34, 0x32,
+				0x00, 0x14, 0xDF, 0x3B, 0x6D, 0x6F, 0x6F, 0x76},
+		},
 	}
 
 	docsRequest := MapDocumentsToCreateUserRequest(customer)
@@ -262,7 +282,7 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 	assert.Equal("PostCode1", docsRequest.Documents.AddressPostalCode)
 	assert.Equal("CountryAlpha2", docsRequest.Documents.AddressCountryCode)
 
-	if assert.Len(docsRequest.Documents.PhysicalDocs, 2) {
+	if assert.Len(docsRequest.Documents.PhysicalDocs, 3) {
 		assert.Equal(
 			"GOVT_ID_INT",
 			docsRequest.Documents.PhysicalDocs[0].DocumentType,
@@ -280,6 +300,10 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
 			docsRequest.Documents.PhysicalDocs[1].DocumentValue,
 		)
+
+		assert.Equal("VIDEO_AUTHORIZATION", docsRequest.Documents.PhysicalDocs[2].DocumentType)
+		assert.Equal("data:video/mp4;base64,"+base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
+			docsRequest.Documents.PhysicalDocs[2].DocumentValue)
 	}
 }
 
@@ -323,4 +347,11 @@ func TestMapResponseError(t *testing.T) {
 	response, _ := MapResponseError(err)
 
 	assert.Equal(t, "Invalid/expired oauth_key.", response.Error())
+
+	err = []byte("wrong response")
+
+	resp, err1 := MapResponseError(err)
+
+	assert.Nil(t, resp)
+	assert.Equal(t, "invalid character 'w' looking for beginning of value", err1.Error())
 }
