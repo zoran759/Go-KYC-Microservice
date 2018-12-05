@@ -5,6 +5,7 @@ type Config struct {
 	Host         string
 	ClientID     string
 	ClientSecret string
+	fingerprint  string
 }
 
 // Verification describes the verification interface.

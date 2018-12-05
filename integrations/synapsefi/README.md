@@ -6,13 +6,13 @@ Current API version: **3.1**
 
 ## Configuration options description
 
-| **Name** | **Type** | **Description** |
-| -------- | -------- | --------------- |
-| **Host*** | _**string**_ | SynapseFI API host. `https://api.synapsefi.com/v3.1/` for live mode, `https://uat-api.synapsefi.com/v3.1/` for the sandbox|
-| **ClientID*** | _**string**_ | Client’s ID provided by SynapseFI |
-| **ClientSecret*** | _**string**_ | Secret Key provided by SynapseFI |
-| TimeoutThreshold | _**int64**_ | Timeout for polling requests, optional. Default: 5 minutes |
-| KYCFlow | _**string**_ | User creating flow (see below), optional. Default: simple |
+| **Name**          | **Type**     | **Description**                                            |
+| ----------------- | ------------ | ---------------------------------------------------------- |
+| **Host***         | _**string**_ | SynapseFI API host. `https://api.synapsefi.com/v3.1/` for live mode, `https://uat-api.synapsefi.com/v3.1/` for the sandbox |
+| **ClientID***     | _**string**_ | Client’s ID provided by SynapseFI                          |
+| **ClientSecret*** | _**string**_ | Secret Key provided by SynapseFI                           |
+| TimeoutThreshold  | _**int64**_  | Timeout for polling requests, optional. Default: 5 minutes |
+| KYCFlow           | _**string**_ | User creating flow (see below), optional. Default: simple  |
 
 ## How to use the package
 

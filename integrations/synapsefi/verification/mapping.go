@@ -46,8 +46,8 @@ func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool)
 	return request
 }
 
-func mapCustomerDocuments(customer common.UserData) []Document {
-	document := Document{
+func mapCustomerDocuments(customer common.UserData) []Documents {
+	document := Documents{
 		OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
 		Email:              customer.Email,
 		PhoneNumber:        customer.Phone,
@@ -87,7 +87,7 @@ func mapCustomerDocuments(customer common.UserData) []Document {
 		})
 	}
 
-	return []Document{
+	return []Documents{
 		document,
 	}
 }
@@ -114,7 +114,7 @@ func mapCustomerGender(gender common.Gender) string {
 func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRequest {
 
 	request := CreateDocumentsRequest{
-		Documents: Document{
+		Documents: Documents{
 			OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
 			Email:              customer.Email,
 			PhoneNumber:        customer.Phone,

@@ -34,7 +34,6 @@ func New(config Config) SynapseFI {
 		timeoutThreshold: timeoutThreshold,
 		kycFlow:          kycFlow,
 	}
-
 }
 
 // CheckCustomer implements CustomerChecker interface for the SynapseFI.
