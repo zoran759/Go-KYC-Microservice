@@ -54,19 +54,22 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		return
 	}
 
+	if len(response.Record.Errors) > 0 {
+		res.Details = &common.KYCDetails{}
+		for _, e := range response.Record.Errors {
+			res.Details.Reasons = append(res.Details.Reasons, e.String())
+		}
+	}
+
 	if response.Record.RecordStatus == Match {
 		res.Status = common.Approved
 		return
 	}
-	if len(response.Record.Errors) > 0 {
-		err = response.Record.Errors
-		return
-	}
 
-	details := &common.KYCDetails{}
-
+	reasons := []string{}
+	status := ""
 	for _, result := range response.Record.DatasourceResults {
-		status := ""
+		status = ""
 
 		if result.DatasourceStatus != "" {
 			status += fmt.Sprintf("status: %s; ", result.DatasourceStatus)
@@ -91,20 +94,15 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		}
 
 		if status != "" {
-			details.Reasons = append(
-				details.Reasons,
-				fmt.Sprintf(
-					"Datasource %s has %s",
-					result.DatasourceName,
-					status,
-				),
-			)
+			reasons = append(reasons, fmt.Sprintf("Datasource %s has %s", result.DatasourceName, status))
 		}
-
 	}
 
-	if len(details.Reasons) > 0 {
-		res.Details = details
+	if len(reasons) > 0 {
+		if res.Details == nil {
+			res.Details = &common.KYCDetails{}
+		}
+		res.Details.Reasons = append(res.Details.Reasons, reasons...)
 	}
 
 	if response.Record.RecordStatus == NoMatch {

@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var integrationTests = flag.Bool("integration-tests", false, "also run integration tests")
 var testImageUpload = flag.Bool("use-images", false, "test document images uploading")
 
 func TestNew(t *testing.T) {
@@ -224,8 +225,13 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "Test error;Another test error;", err.Error())
+
+	assert := assert.New(t)
+	if assert.NoError(err) {
+		assert.NotNil(result.Details)
+		assert.Len(result.Details.Reasons, 2)
+		assert.Equal("400 Test error", result.Details.Reasons[0])
+		assert.Equal("500 Another test error", result.Details.Reasons[1])
 	}
 
 	service.verification = verification.Mock{
@@ -246,8 +252,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "Test error1;Another test error2;", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("Test error1;Another test error2;", err.Error())
 	}
 
 	service.verification = verification.Mock{
@@ -257,8 +263,8 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "test error", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("test error", err.Error())
 	}
 
 	service.configuration = configuration.Mock{
@@ -268,13 +274,13 @@ func TestTrulioo_CheckCustomerError(t *testing.T) {
 	}
 
 	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "test error2", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("test error2", err.Error())
 	}
 
 	result, err = service.CheckCustomer(nil)
-	if assert.Error(t, err) && assert.Nil(t, result.Details) {
-		assert.Equal(t, "No customer supplied", err.Error())
+	if assert.Error(err) && assert.Nil(result.Details) {
+		assert.Equal("No customer supplied", err.Error())
 	}
 }
 
@@ -351,7 +357,7 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 				customer.MiddleName = middleName
 			}
 			if firstSurName, ok := personInfo["FirstSurName"].(string); ok {
-				customer.PaternalLastName = firstSurName
+				customer.LastName = firstSurName
 			}
 			if dayOfBirth, ok := personInfo["DayOfBirth"].(float64); ok {
 				if monthOfBirth, ok := personInfo["MonthOfBirth"].(float64); ok {
@@ -417,6 +423,18 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 		}
 	}
 
+	if driversI, ok := testEntity["DriverLicence"]; ok {
+		drivers, ok := driversI.(map[string]interface{})
+		if ok {
+			if number, ok := drivers["Number"].(string); ok {
+				customer.DriverLicense = &common.DriverLicense{
+					Number: number,
+				}
+				customer.DriverLicense.State = "CA"
+			}
+		}
+	}
+
 	passportI, ok := testEntity["Passport"]
 	if !ok {
 		err = errors.New("no passport in the test entity")
@@ -466,4 +484,483 @@ func fillCustomer(testEntity map[string]interface{}) (customer *common.UserData,
 	customer.CountryAlpha2 = "US"
 
 	return
+}
+
+func TestAEValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:     "Amir",
+		LastName:      "Saliba",
+		LatinISO1Name: "Amir Saliba",
+		DateOfBirth:   common.Time(time.Date(1986, 10, 24, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "AE",
+		Passport: &common.Passport{
+			Number:     "506079867",
+			Mrz1:       "P<ARESALIBA<<AMIR<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "5060798672ARE8610245M24051827847968855030570",
+			ValidUntil: common.Time(time.Date(2024, 5, 18, 0, 0, 0, 0, time.UTC)),
+		},
+		IDCard: &common.IDCard{
+			Number: "784-7968-8550305-0",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestAUValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:            "John",
+		LastName:             "Smith",
+		MiddleName:           "Henry",
+		Email:                "testpersonAU@gdctest.com",
+		DateOfBirth:          common.Time(time.Date(1983, 3, 5, 0, 0, 0, 0, time.UTC)),
+		CountryOfBirthAlpha2: "AU",
+		CountryAlpha2:        "AU",
+		Phone:                "0398968785",
+		CurrentAddress: common.Address{
+			Suburb:            "Doncaster",
+			Street:            "Lawford",
+			StreetType:        "st",
+			BuildingNumber:    "10",
+			FlatNumber:        "3",
+			PostCode:          "3108",
+			StateProvinceCode: "VIC",
+		},
+		Passport: &common.Passport{
+			Number:     "N1236548",
+			Mrz1:       "P<SAGSMITH<<JOHN<HENRY<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "N1236548<1AUS8303052359438740809<<<<<<<<<<54",
+			ValidUntil: common.Time(time.Date(2018, 12, 5, 0, 0, 0, 0, time.UTC)),
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestCNValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:         "言明",
+		LastName:          "胡",
+		LatinISO1Name:     "SUSAN MITCHELL",
+		DateOfBirth:       common.Time(time.Date(1976, 6, 5, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2:     "CN",
+		Phone:             "15022246786",
+		BankAccountNumber: "1000000000000456",
+		Passport: &common.Passport{
+			Number:     "G86453123",
+			Mrz1:       "P<CHNSUSAN<<MITCHELL<<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "C8456324<1CNL8303052359438740809<<<<<<<<<<54",
+			ValidUntil: common.Time(time.Date(2020, 6, 12, 0, 0, 0, 0, time.UTC)),
+		},
+		IDCard: &common.IDCard{
+			Number: "440861896421345987",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestGBValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:     "Julia",
+		LastName:      "Audi",
+		MiddleName:    "Ronald",
+		Gender:        1,
+		DateOfBirth:   common.Time(time.Date(1979, 10, 26, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "GB",
+		Phone:         "+44865413985",
+		MobilePhone:   "+448654139123",
+		CurrentAddress: common.Address{
+			Town:           "Aylesbury",
+			Street:         "Chiltern",
+			StreetType:     "Court",
+			BuildingName:   "Beck",
+			BuildingNumber: "12",
+			PostCode:       "HP22 6EP",
+		},
+		Passport: &common.Passport{
+			Number:     "54846031",
+			Mrz1:       "P<SAGAUDI<<JULIA<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "99003853<1CZE1101018M1207046110101111<<<<<94",
+			ValidUntil: common.Time(time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC)),
+		},
+		DriverLicense: &common.DriverLicense{
+			Number: "AUDI9710269JR9AB",
+		},
+		HealthID: &common.HealthID{
+			Number: "1634567897",
+		},
+		SocialServiceID: &common.SocialServiceID{
+			Number: "BL261079C",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestKRValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:     "한",
+		LastName:      "이친",
+		LatinISO1Name: "Lee Chin Han",
+		DateOfBirth:   common.Time(time.Date(1992, 3, 14, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "KR",
+		Passport: &common.Passport{
+			Number:        "JH56851",
+			Mrz1:          "P<KORHAN<<LEE<CHIN<<<<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:          "JH56851<<7KOR9203147M2111038<<<<<<<<<<<<<<04",
+			CountryAlpha2: "KR",
+			ValidUntil:    common.Time(time.Date(2021, 11, 3, 0, 0, 0, 0, time.UTC)),
+		},
+		IDCard: &common.IDCard{
+			Number: "AM125D",
+		},
+		DriverLicense: &common.DriverLicense{
+			Number: "경기9852342287",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestMXValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:        "Jose",
+		LastName:         "Santano",
+		MaternalLastName: "Martinez",
+		DateOfBirth:      common.Time(time.Date(1978, 12, 12, 0, 0, 0, 0, time.UTC)),
+		StateOfBirth:     "Sonora",
+		CountryAlpha2:    "MX",
+		Phone:            "6251140504",
+		CurrentAddress: common.Address{
+			Town:     "Hermosillo",
+			PostCode: "83010",
+		},
+		Passport: &common.Passport{
+			Number:     "S85416687",
+			Mrz1:       "P<SAGSANTANO<MARTINEZ<<JOSE<<<<<<<<<<<<<<<<<",
+			Mrz2:       "99003853<1CZE1101018M1207046110101111<<<<<94",
+			ValidUntil: common.Time(time.Date(2021, 1, 5, 0, 0, 0, 0, time.UTC)),
+		},
+		IDCard: &common.IDCard{
+			Number: "HEGG560427MVZRRL05",
+		},
+		SocialServiceID: &common.SocialServiceID{
+			Number: "HEGG560427ABC",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestMYValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:            "Wu",
+		LastName:             "Boon Chai",
+		FullName:             "Boon Chai Wu",
+		DateOfBirth:          common.Time(time.Date(1987, 11, 29, 0, 0, 0, 0, time.UTC)),
+		CountryOfBirthAlpha2: "MY",
+		StateOfBirth:         "SRW",
+		Gender:               1,
+		CountryAlpha2:        "MY",
+		Phone:                "0122323273",
+		Location: &common.Location{
+			Latitude:  "45.661",
+			Longitude: "-111.067",
+		},
+		CurrentAddress: common.Address{
+			Town:     "Miri",
+			PostCode: "35500",
+		},
+		Passport: &common.Passport{
+			Number:     "S8441773",
+			Mrz1:       "P<SAGWU<<BOON<<CHAI<<<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "S8441773<1MYS8303052359438740809<<<<<<<<<<54",
+			ValidUntil: common.Time(time.Date(2022, 10, 20, 0, 0, 0, 0, time.UTC)),
+		},
+		IDCard: &common.IDCard{
+			Number: "871129134567",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestNZValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:     "Snow",
+		LastName:      "Huntsman",
+		MiddleName:    "White",
+		DateOfBirth:   common.Time(time.Date(1976, 3, 6, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "NZ",
+		Phone:         "078475332",
+		VehicleRegistrationPlate: "ABC123",
+		CurrentAddress: common.Address{
+			Town:           "Auckland",
+			Suburb:         "Mt Roskill",
+			Street:         "Carr",
+			StreetType:     "Road",
+			BuildingNumber: "50",
+			FlatNumber:     "2",
+			PostCode:       "1041",
+		},
+		Passport: &common.Passport{
+			Number:     "A7894634",
+			Mrz1:       "P<NZLWHITE<<SNOW<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "N8456324<1NZL8303052359438740809<<<<<<<<<<54",
+			ValidUntil: common.Time(time.Date(2020, 6, 4, 0, 0, 0, 0, time.UTC)),
+		},
+		DriverLicense: &common.DriverLicense{
+			Number:  "8465341",
+			Version: "3",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestRUValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:     "Борис",
+		LastName:      "Иванов",
+		MiddleName:    "Сергеевич",
+		DateOfBirth:   common.Time(time.Date(1922, 12, 30, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "RU",
+		Phone:         "8311234567",
+		CurrentAddress: common.Address{
+			Town:           "Октябрьский",
+			Street:         "Советская",
+			BuildingNumber: "9",
+			FlatNumber:     "34",
+			PostCode:       "606123",
+		},
+		Passport: &common.Passport{
+			Number:     "2594123456",
+			IssuedDate: common.Time(time.Date(2005, 8, 16, 0, 0, 0, 0, time.UTC)),
+		},
+		SocialServiceID: &common.SocialServiceID{
+			Number: "12345678901",
+		},
+		TaxID: &common.TaxID{
+			Number: "123456789012",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
+}
+
+func TestUSValidTestEntity(t *testing.T) {
+	if !*integrationTests {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+
+	service := New(Config{
+		Host:         "https://api.globaldatacompany.com",
+		NAPILogin:    "modulus.dev",
+		NAPIPassword: "p9LF(m~CEKam*@88RHKDJ",
+	})
+
+	customer := &common.UserData{
+		FirstName:     "Justin",
+		LastName:      "Williams",
+		MiddleName:    "Mark",
+		Email:         "testpersonUS@gdctest.com",
+		DateOfBirth:   common.Time(time.Date(1988, 8, 4, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2: "US",
+		Phone:         "802 660 9697",
+		CurrentAddress: common.Address{
+			Town:              "New York",
+			Street:            "9th",
+			StreetType:        "Avenue",
+			BuildingNumber:    "420",
+			FlatNumber:        "18",
+			PostCode:          "10001",
+			StateProvinceCode: "NY",
+		},
+		Passport: &common.Passport{
+			Number:     "S85416687",
+			Mrz1:       "P<USAWILLIAMS<<JUSTIN<<<<<<<<<<<<<<<<<<<<<<<",
+			Mrz2:       "99003853<1USA1101018M1207046110101111<<<<<94",
+			IssuedDate: common.Time(time.Date(2021, 1, 5, 0, 0, 0, 0, time.UTC)),
+		},
+		DriverLicense: &common.DriverLicense{
+			Number: "0812319884104",
+			State:  "CA",
+		},
+		SocialServiceID: &common.SocialServiceID{
+			Number: "000568791",
+		},
+	}
+
+	result, err := service.CheckCustomer(customer)
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
+	}
 }
