@@ -15,8 +15,8 @@ func TestMapCustomerToDataFields(t *testing.T) {
 
 	customer := &common.UserData{
 		FirstName:            "FirstName",
-		PaternalLastName:     "PaternalLastName",
 		LastName:             "LastName",
+		MaternalLastName:     "MaternalLastName",
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",
 		LatinISO1Name:        "LATIN",
@@ -91,8 +91,8 @@ func TestMapCustomerToDataFields(t *testing.T) {
 		personInfo := dataFields.PersonInfo
 
 		assert.Equal(t, customer.FirstName, personInfo.FirstGivenName)
-		assert.Equal(t, customer.PaternalLastName, personInfo.FirstSurName)
-		assert.Equal(t, customer.LastName, personInfo.SecondSurname)
+		assert.Equal(t, customer.LastName, personInfo.FirstSurName)
+		assert.Equal(t, customer.MaternalLastName, personInfo.SecondSurname)
 		assert.Equal(t, customer.MiddleName, personInfo.MiddleName)
 		assert.Equal(t, customer.LatinISO1Name, personInfo.ISOLatin1Name)
 		assert.Equal(t, "M", personInfo.Gender)
@@ -161,7 +161,7 @@ func TestMapCustomerToDataFieldsNoSupportedDocuments(t *testing.T) {
 
 	customer := common.UserData{
 		FirstName:            "FirstName",
-		PaternalLastName:     "PaternalLastName",
+		MaternalLastName:     "MaternalLastName",
 		LastName:             "LastName",
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",

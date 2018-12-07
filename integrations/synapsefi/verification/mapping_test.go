@@ -16,7 +16,7 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 
 	customer := common.UserData{
 		FirstName:            "FirstName",
-		PaternalLastName:     "PaternalLastName",
+		MaternalLastName:     "MaternalLastName",
 		LastName:             "LastName",
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",
@@ -159,7 +159,7 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 
 	customer := common.UserData{
 		FirstName:            "FirstName",
-		PaternalLastName:     "PaternalLastName",
+		MaternalLastName:     "MaternalLastName",
 		LastName:             "LastName",
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",
