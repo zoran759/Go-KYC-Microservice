@@ -1,9 +1,16 @@
 package verification
 
+import "fmt"
+
 // Error represents an error in the response if occured.
 type Error struct {
 	Code        *int    `json:"code"`
 	Description *string `json:"description"`
+}
+
+// Error implements error interface for the Error.
+func (e Error) Error() string {
+	return fmt.Sprintf("%d %s", *e.Code, *e.Description)
 }
 
 // ApplicantStatusResponse represents status check response.
