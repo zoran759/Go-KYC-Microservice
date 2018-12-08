@@ -12,27 +12,13 @@ import (
 
 // SynapseFI represents the verification service.
 type SynapseFI struct {
-	verification     verification.Verification
-	timeoutThreshold int64
-	kycFlow          string
+	verification verification.Verification
 }
 
 // New constructs and returns the new verification service object.
 func New(config Config) SynapseFI {
-	kycFlow := "simple"
-	if len(config.KYCFlow) > 0 {
-		kycFlow = config.KYCFlow
-	}
-
-	timeoutThreshold := int64(time.Hour.Seconds())
-	if config.TimeoutThreshold > 0 {
-		timeoutThreshold = config.TimeoutThreshold
-	}
-
 	return SynapseFI{
-		verification:     verification.NewService(verification.Config(config.Connection)),
-		timeoutThreshold: timeoutThreshold,
-		kycFlow:          kycFlow,
+		verification: verification.NewService(verification.Config(config)),
 	}
 }
 
@@ -55,7 +41,7 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 
 		uID := response.ID
 
-		createOauthRequest := verification.MapUserToOauth(response.RefreshToken)
+		// createOauthRequest := verification.MapUserToOauth(response.RefreshToken)
 		responseAuth, err := service.verification.GetOauthKey(uID, createOauthRequest)
 		if err != nil {
 			return result, err
@@ -117,4 +103,10 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 
 		return result, err
 	}
+}
+
+// CheckStatus implements StatusChecker interface for the SynapseFI.
+func (service SynapseFI) CheckStatus(customer *common.UserData) (result common.KYCResult, err error) {
+	// TODO: implement this.
+	return
 }

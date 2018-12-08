@@ -1,5 +1,20 @@
 package verification
 
+import "fmt"
+
+// OAuthRequest represents OAuth token obtaining request.
+type OAuthRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+// OAuthResponse represents response on OAuth token request.
+type OAuthResponse struct {
+	ID           string `json:"user_id"`
+	OAuthKey     string `json:"oauth_key"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresAt    string `json:"expires_at"`
+}
+
 // User represents the user to verify with KYC.
 type User struct {
 	Logins       []Login    `json:"logins"`
@@ -47,39 +62,26 @@ type SubDocument struct {
 	Value string `json:"document_value"`
 }
 
-// NewDocuments represents KYC documents to add to a user.
-// Use it to upload physical documents.
-type NewDocuments struct {
+// PhysicalDocs represents physical KYC documents to add to a user.
+type PhysicalDocs struct {
 	Documents []Document `json:"documents"`
 }
 
-// OAuthRequest represents OAuth token obtaining request.
-type OAuthRequest struct {
-	RefreshToken string `json:"refresh_token"`
-}
-
-// OAuthResponse represents response on OAuth token request.
-type OAuthResponse struct {
-	ID           string `json:"user_id"`
-	OAuthKey     string `json:"oauth_key"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresAt    string `json:"expires_at"`
-}
-
-// Response represents the API verification response.
+// Response represents the API response on KYC related requests.
 type Response struct {
 	ID           string             `json:"_id"`
 	Documents    []ResponseDocument `json:"documents"`
 	RefreshToken string             `json:"refresh_token"`
 }
 
-// ResponseDocument represents document object from the API verification response.
+// ResponseDocument represents document object from the API response.
 type ResponseDocument struct {
+	ID           string                `json:"id"`
 	VirtualDocs  []ResponseSubDocument `json:"virtual_docs"`
 	PhysicalDocs []ResponseSubDocument `json:"physical_docs"`
 }
 
-// ResponseSubDocument represents sub-document object from the API verification response.
+// ResponseSubDocument represents sub-document object from the API response.
 type ResponseSubDocument struct {
 	ID          string `json:"id"`
 	Type        string `json:"document_type"`
@@ -89,8 +91,13 @@ type ResponseSubDocument struct {
 
 // ErrorResponse represents error response from the API.
 type ErrorResponse struct {
-	Error     map[string]string `json:"error"`
-	ErrorCode string            `json:"error_code"`
-	HTTPCode  string            `json:"http_code"`
-	Success   bool              `json:"success"`
+	Text     map[string]string `json:"error"`
+	Code     string            `json:"error_code"`
+	HTTPCode string            `json:"http_code"`
+	Success  bool              `json:"success"`
+}
+
+// Error implements error interface for the ErrorResponse.
+func (er ErrorResponse) Error() string {
+	return fmt.Sprintf("http status: %s | error code: %s | error: %s", er.HTTPCode, er.Code, er.Text[appLanguage])
 }

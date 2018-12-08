@@ -1,6 +1,8 @@
 package verification
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -8,6 +10,30 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
 )
+
+var oauthResponse = `{
+		"client_id": "589acd9ecb3cd400fa75ac06",
+		"client_name": "clientName",
+		"expires_at": "1498297390",
+		"expires_in": "7200",
+		"oauth_key": "oauth_bo4WXMIT5V0zKSRLYcqNwGtHZEDaA1k3pBv7r20s",
+		"refresh_expires_in": 8,
+		"refresh_token": "refresh_ehG7YBS8ZiD0sLa6PQHMUxryovVkJzElC5gWROXq",
+		"scope": [
+			"USER|PATCH",
+			"USER|GET",
+			"NODES|POST",
+			"NODES|GET",
+			"NODE|GET",
+			"NODE|PATCH",
+			"NODE|DELETE",
+			"TRANS|POST",
+			"TRANS|GET",
+			"TRAN|GET",
+			"TRAN|PATCH",
+			"TRAN|DELETE"
+		],
+		"user_id": "594e0fa2838454002ea317a0"}`
 
 func TestNewService(t *testing.T) {
 	config := Config{
@@ -17,6 +43,7 @@ func TestNewService(t *testing.T) {
 	}
 
 	testService := service{config: config}
+	testService.config.fingerprint = fmt.Sprintf("%x", sha256.Sum256([]byte(config.ClientID+config.ClientSecret)))
 
 	service := NewService(config)
 
@@ -107,16 +134,16 @@ func Test_service_CreateUser(t *testing.T) {
 		},
 	)
 
-	response, err := service.CreateUser(CreateUserRequest{})
+	response, code, err := service.CreateUser(User{})
 	if assert.NoError(t, err) {
+		assert.Nil(t, code)
 		assert.Equal(t, "594e0fa2838454002ea317a0", response.ID)
-		assert.Equal(t, "MISSING|INVALID", response.DocumentStatus.PhysicalDoc)
 		assert.Len(t, response.Documents, 1)
 		document := response.Documents[0]
 		assert.Len(t, document.PhysicalDocs, 2)
-		assert.Equal(t, "GOVT_ID", document.PhysicalDocs[0].DocumentType)
+		assert.Equal(t, "GOVT_ID", document.PhysicalDocs[0].Type)
 		assert.Equal(t, "SUBMITTED|REVIEWING", document.PhysicalDocs[0].Status)
-		assert.Equal(t, "SELFIE", document.PhysicalDocs[1].DocumentType)
+		assert.Equal(t, "SELFIE", document.PhysicalDocs[1].Type)
 		assert.Equal(t, "SUBMITTED", document.PhysicalDocs[1].Status)
 	}
 }
@@ -141,8 +168,9 @@ func Test_service_CreateUserError(t *testing.T) {
 		},
 	)
 
-	response, err := service.CreateUser(CreateUserRequest{})
+	response, code, err := service.CreateUser(User{})
 	assert.Error(t, err)
+	assert.Nil(t, code)
 	assert.Nil(t, response)
 
 	httpmock.Reset()
@@ -154,8 +182,9 @@ func Test_service_CreateUserError(t *testing.T) {
 		},
 	)
 
-	response, err = service.CreateUser(CreateUserRequest{})
+	response, code, err = service.CreateUser(User{})
 	assert.Error(t, err)
+	assert.Nil(t, code)
 	assert.Nil(t, response)
 }
 
@@ -242,17 +271,18 @@ func Test_service_GetUser(t *testing.T) {
 		},
 	)
 
-	response, err := service.GetUser("id")
+	response, code, err := service.GetUser("id")
 	if assert.NoError(t, err) {
+		assert.Nil(t, code)
 		assert.Equal(t, "594e0fa2838454002ea317a0", response.ID)
-		assert.Equal(t, "SUBMITTED|VALID", response.DocumentStatus.PhysicalDoc)
+		assert.Equal(t, "SUBMITTED|VALID", response.Documents[0].PhysicalDocs[0].Status)
 
 		document := response.Documents[0]
 
 		if assert.Len(t, document.PhysicalDocs, 2) {
-			assert.Equal(t, "GOVT_ID", document.PhysicalDocs[0].DocumentType)
+			assert.Equal(t, "GOVT_ID", document.PhysicalDocs[0].Type)
 			assert.Equal(t, "SUBMITTED|VALID", document.PhysicalDocs[0].Status)
-			assert.Equal(t, "SELFIE", document.PhysicalDocs[1].DocumentType)
+			assert.Equal(t, "SELFIE", document.PhysicalDocs[1].Type)
 			assert.Equal(t, "SUBMITTED|UNVALID", document.PhysicalDocs[1].Status)
 		}
 	}
@@ -278,8 +308,9 @@ func Test_service_GetUserError(t *testing.T) {
 		},
 	)
 
-	response, err := service.GetUser("id")
+	response, code, err := service.GetUser("id")
 	assert.Error(t, err)
+	assert.Nil(t, code)
 	assert.Nil(t, response)
 
 	httpmock.Reset()
@@ -291,13 +322,13 @@ func Test_service_GetUserError(t *testing.T) {
 		},
 	)
 
-	response, err = service.GetUser("id")
+	response, code, err = service.GetUser("id")
 	assert.Error(t, err)
 	assert.Nil(t, response)
 }
 
-func Test_service_GetOauthKey(t *testing.T) {
-	service := NewService(Config{
+func Test_service_getOAuthKey(t *testing.T) {
+	svc := NewService(Config{
 		Host:         "https://uat-api.synapsefi.com/v3.1/",
 		ClientID:     "client_id",
 		ClientSecret: "secret",
@@ -313,43 +344,19 @@ func Test_service_GetOauthKey(t *testing.T) {
 		func(request *http.Request) (*http.Response, error) {
 			return httpmock.NewStringResponse(
 				http.StatusOK,
-				`{
-	"client_id": "589acd9ecb3cd400fa75ac06",
-    "client_name": "clientName",
-    "expires_at": "1498297390",
-    "expires_in": "7200",
-    "oauth_key": "oauth_bo4WXMIT5V0zKSRLYcqNwGtHZEDaA1k3pBv7r20s",
-    "refresh_expires_in": 8,
-    "refresh_token": "refresh_ehG7YBS8ZiD0sLa6PQHMUxryovVkJzElC5gWROXq",
-    "scope": [
-        "USER|PATCH",
-        "USER|GET",
-        "NODES|POST",
-        "NODES|GET",
-        "NODE|GET",
-        "NODE|PATCH",
-        "NODE|DELETE",
-        "TRANS|POST",
-        "TRANS|GET",
-        "TRAN|GET",
-        "TRAN|PATCH",
-        "TRAN|DELETE"
-    ],
-    "user_id": "594e0fa2838454002ea317a0"}`), nil
+				oauthResponse,
+			), nil
 		},
 	)
 
-	response, err := service.GetOauthKey(userID, CreateOauthRequest{})
+	key, err := svc.(service).getOAuthKey(userID, "")
 	if assert.NoError(t, err) {
-		assert.Equal(t, "594e0fa2838454002ea317a0", response.ID)
-		assert.Equal(t, "oauth_bo4WXMIT5V0zKSRLYcqNwGtHZEDaA1k3pBv7r20s", response.OAuthKey)
-		assert.Equal(t, "refresh_ehG7YBS8ZiD0sLa6PQHMUxryovVkJzElC5gWROXq", response.RefreshToken)
-		assert.Equal(t, "1498297390", response.ExpiresAt)
+		assert.Equal(t, "oauth_bo4WXMIT5V0zKSRLYcqNwGtHZEDaA1k3pBv7r20s", key)
 	}
 }
 
-func Test_service_GetOauthKeyError(t *testing.T) {
-	service := NewService(Config{
+func Test_service_getOAuthKeyError(t *testing.T) {
+	svc := NewService(Config{
 		Host:         "https://uat-api.synapsefi.com/v3.1/",
 		ClientID:     "client_id",
 		ClientSecret: "secret",
@@ -369,9 +376,9 @@ func Test_service_GetOauthKeyError(t *testing.T) {
 		},
 	)
 
-	response, err := service.GetOauthKey(userID, CreateOauthRequest{})
+	key, err := svc.(service).getOAuthKey(userID, "")
 	assert.Error(t, err)
-	assert.Nil(t, response)
+	assert.Empty(t, key)
 
 	httpmock.Reset()
 	httpmock.RegisterResponder(
@@ -382,12 +389,12 @@ func Test_service_GetOauthKeyError(t *testing.T) {
 		},
 	)
 
-	response, err = service.GetOauthKey(userID, CreateOauthRequest{})
+	key, err = svc.(service).getOAuthKey(userID, "")
 	assert.Error(t, err)
-	assert.Nil(t, response)
+	assert.Empty(t, key)
 }
 
-func Test_service_AddDocument(t *testing.T) {
+func Test_service_AddPhysicalDocs(t *testing.T) {
 	service := NewService(Config{
 		Host:         "https://uat-api.synapsefi.com/v3.1/",
 		ClientID:     "client_id",
@@ -472,21 +479,24 @@ func Test_service_AddDocument(t *testing.T) {
 		},
 	)
 
-	response, err := service.AddDocument(userID, userOAuth, CreateDocumentsRequest{})
+	httpmock.RegisterResponder(
+		http.MethodPost,
+		"https://uat-api.synapsefi.com/v3.1/oauth/594e0fa2838454002ea317a0",
+		func(request *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(
+				http.StatusOK,
+				oauthResponse,
+			), nil
+		},
+	)
+
+	code, err := service.AddPhysicalDocs(userID, userOAuth, PhysicalDocs{})
 	if assert.NoError(t, err) {
-		assert.Equal(t, "594e0fa2838454002ea317a0", response.ID)
-		assert.Equal(t, "MISSING|INVALID", response.DocumentStatus.PhysicalDoc)
-		assert.Len(t, response.Documents, 1)
-		document := response.Documents[0]
-		assert.Len(t, document.PhysicalDocs, 2)
-		assert.Equal(t, "GOVT_ID", document.PhysicalDocs[0].DocumentType)
-		assert.Equal(t, "SUBMITTED|REVIEWING", document.PhysicalDocs[0].Status)
-		assert.Equal(t, "SELFIE", document.PhysicalDocs[1].DocumentType)
-		assert.Equal(t, "SUBMITTED", document.PhysicalDocs[1].Status)
+		assert.Nil(t, code)
 	}
 }
 
-func Test_service_AddDocumentError(t *testing.T) {
+func Test_service_AddPhysicalDocsError(t *testing.T) {
 	service := NewService(Config{
 		Host:         "https://uat-api.synapsefi.com/v3.1/",
 		ClientID:     "client_id",
@@ -508,9 +518,9 @@ func Test_service_AddDocumentError(t *testing.T) {
 		},
 	)
 
-	response, err := service.AddDocument(userID, userOAuth, CreateDocumentsRequest{})
+	code, err := service.AddPhysicalDocs(userID, userOAuth, PhysicalDocs{})
 	assert.Error(t, err)
-	assert.Nil(t, response)
+	assert.Nil(t, code)
 
 	httpmock.Reset()
 	httpmock.RegisterResponder(
@@ -521,7 +531,7 @@ func Test_service_AddDocumentError(t *testing.T) {
 		},
 	)
 
-	response, err = service.AddDocument(userID, userOAuth, CreateDocumentsRequest{})
+	code, err = service.AddPhysicalDocs(userID, userOAuth, PhysicalDocs{})
 	assert.Error(t, err)
-	assert.Nil(t, response)
+	assert.Nil(t, code)
 }

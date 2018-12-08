@@ -3,54 +3,43 @@ package verification
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"fmt"
-	"log"
 	"time"
 
 	"modulus/kyc/common"
 )
 
-// MapCustomerToCreateUserRequest constructs and returns user creation request.
-func MapCustomerToCreateUserRequest(customer common.UserData, isSimpleMode bool) CreateUserRequest {
-
-	request := CreateUserRequest{
+// MapCustomerToUser constructs and returns user object with virtual documents if any from customer data.
+func MapCustomerToUser(customer *common.UserData) User {
+	user := User{
 		Logins: []Login{
-			{
+			Login{
 				Email: customer.Email,
 				Scope: "READ_AND_WRITE",
 			},
 		},
-		LegalNames: []string{
-			fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
-		},
+		LegalNames: []string{customer.LegalName},
 		Extra: Extra{
 			CIPTag:     1,
 			IsBusiness: false,
 		},
 	}
 
-	phoneNumbers := make([]string, 0)
-	if customer.Phone != "" {
-		phoneNumbers = append(phoneNumbers, customer.Phone)
+	if len(customer.Phone) > 0 {
+		user.PhoneNumbers = append(user.PhoneNumbers, customer.Phone)
 	}
-	if customer.MobilePhone != "" {
-		phoneNumbers = append(phoneNumbers, customer.MobilePhone)
-	}
-
-	request.PhoneNumbers = phoneNumbers
-	if isSimpleMode && customer.IDCard != nil && customer.Selfie != nil {
-		request.Documents = mapCustomerDocuments(customer)
+	if len(customer.MobilePhone) > 0 {
+		user.PhoneNumbers = append(user.PhoneNumbers, customer.MobilePhone)
 	}
 
-	return request
+	user.Documents = mapCustomerToVirtualDocs(customer)
+
+	return user
 }
 
-func mapCustomerDocuments(customer common.UserData) []Documents {
-	document := Documents{
-		OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
+func mapCustomerToVirtualDocs(customer *common.UserData) []Document {
+	doc := Document{
+		OwnerName:          customer.LegalName,
 		Email:              customer.Email,
-		PhoneNumber:        customer.Phone,
 		IPAddress:          customer.IPaddress,
 		EntityType:         mapCustomerGender(customer.Gender),
 		EntityScope:        "Not Known",
@@ -64,39 +53,42 @@ func mapCustomerDocuments(customer common.UserData) []Documents {
 		AddressCountryCode: customer.CurrentAddress.CountryAlpha2,
 	}
 
-	if (&common.IDCard{}) != customer.IDCard {
-		document.PhysicalDocs = append(document.PhysicalDocs, SubDocument{
-			DocumentType:  mapDocumentType("IDCard"),
-			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
-			//DocumentValue: "data:image/png;base64,SUQs==",
+	switch {
+	case len(customer.Phone) > 0:
+		doc.PhoneNumber = customer.Phone
+	case len(customer.MobilePhone) > 0:
+		doc.PhoneNumber = customer.MobilePhone
+	}
+
+	if customer.IDCard != nil {
+		if customer.IDCard.CountryAlpha2 == "US" {
+			doc.VirtualDocs = append(doc.VirtualDocs, SubDocument{
+				Type:  "SSN",
+				Value: customer.IDCard.Number,
+			})
+		} else {
+			doc.VirtualDocs = append(doc.VirtualDocs, SubDocument{
+				Type:  "PERSONAL_IDENTIFICATION",
+				Value: customer.IDCard.Number,
+			})
+		}
+	}
+
+	if customer.Passport != nil {
+		doc.VirtualDocs = append(doc.VirtualDocs, SubDocument{
+			Type:  "PASSPORT",
+			Value: customer.Passport.Number,
 		})
 	}
 
-	if (&common.Selfie{}) != customer.Selfie {
-		document.PhysicalDocs = append(document.PhysicalDocs, SubDocument{
-			DocumentType:  mapDocumentType("Selfie"),
-			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
-			//DocumentValue: "data:image/png;base64,SUQs==",
+	if customer.DriverLicense != nil {
+		doc.VirtualDocs = append(doc.VirtualDocs, SubDocument{
+			Type:  "DRIVERS_LICENSE",
+			Value: customer.DriverLicense.Number,
 		})
 	}
 
-	if customer.VideoAuth != nil {
-		document.PhysicalDocs = append(document.PhysicalDocs, SubDocument{
-			DocumentType:  mapDocumentType("VideoAuth"),
-			DocumentValue: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
-		})
-	}
-
-	return []Documents{
-		document,
-	}
-}
-
-// MapUserToOauth returns OAuth token obtaining request.
-func MapUserToOauth(refreshToken string) CreateOauthRequest {
-	return CreateOauthRequest{
-		RefreshToken: refreshToken,
-	}
+	return []Document{doc}
 }
 
 func mapCustomerGender(gender common.Gender) string {
@@ -110,56 +102,150 @@ func mapCustomerGender(gender common.Gender) string {
 	}
 }
 
-// MapDocumentsToCreateUserRequest constructs and returns CreateDocumentsRequest object.
-func MapDocumentsToCreateUserRequest(customer common.UserData) CreateDocumentsRequest {
-
-	request := CreateDocumentsRequest{
-		Documents: Documents{
-			OwnerName:          fmt.Sprintf("%s %s %s", customer.FirstName, customer.MiddleName, customer.LastName),
-			Email:              customer.Email,
-			PhoneNumber:        customer.Phone,
-			IPAddress:          customer.IPaddress,
-			EntityType:         mapCustomerGender(customer.Gender),
-			EntityScope:        "Not Known",
-			DayOfBirth:         time.Time(customer.DateOfBirth).Day(),
-			MonthOfBirth:       int(time.Time(customer.DateOfBirth).Month()),
-			YearOfBirth:        time.Time(customer.DateOfBirth).Year(),
-			AddressStreet:      customer.CurrentAddress.StreetAddress(),
-			AddressCity:        customer.CurrentAddress.Town,
-			AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
-			AddressPostalCode:  customer.CurrentAddress.PostCode,
-			AddressCountryCode: customer.CountryAlpha2,
-		},
+// MapCustomerToPhysicalDocs constructs and returns physical documents from customer data.
+func MapCustomerToPhysicalDocs(customer *common.UserData) (docs PhysicalDocs) {
+	commonPart := Document{
+		OwnerName:          customer.LegalName,
+		Email:              customer.Email,
+		IPAddress:          customer.IPaddress,
+		EntityType:         mapCustomerGender(customer.Gender),
+		EntityScope:        "Not Known",
+		DayOfBirth:         time.Time(customer.DateOfBirth).Day(),
+		MonthOfBirth:       int(time.Time(customer.DateOfBirth).Month()),
+		YearOfBirth:        time.Time(customer.DateOfBirth).Year(),
+		AddressStreet:      customer.CurrentAddress.StreetAddress(),
+		AddressCity:        customer.CurrentAddress.Town,
+		AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
+		AddressPostalCode:  customer.CurrentAddress.PostCode,
+		AddressCountryCode: customer.CurrentAddress.CountryAlpha2,
 	}
 
-	if customer.IDCard != nil {
-		request.Documents.PhysicalDocs = append(request.Documents.PhysicalDocs, SubDocument{
-			DocumentType:  mapDocumentType("IDCard"),
-			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
-			//DocumentValue: "data:image/png;base64,SUQs==",
-		})
+	switch {
+	case len(customer.Phone) > 0:
+		commonPart.PhoneNumber = customer.Phone
+	case len(customer.MobilePhone) > 0:
+		commonPart.PhoneNumber = customer.MobilePhone
 	}
 
-	if customer.Selfie != nil {
-		request.Documents.PhysicalDocs = append(request.Documents.PhysicalDocs, SubDocument{
-			DocumentType:  mapDocumentType("Selfie"),
-			DocumentValue: "data:image/png;base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
-			//DocumentValue: "data:image/png;base64,SUQs==",
-		})
+	if customer.Passport != nil && customer.Passport.Image != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("Passport"),
+				Value: "data:" + customer.Passport.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.IDCard != nil && customer.IDCard.Image != nil {
+		doctype := mapDocType("IDCard")
+		if customer.IDCard.CountryAlpha2 == "US" {
+			doctype = "SSN_CARD"
+		}
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  doctype,
+				Value: "data:" + customer.IDCard.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.SNILS != nil && customer.SNILS.Image != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("SNILS"),
+				Value: "data:" + customer.SNILS.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("DriverLicense"),
+				Value: "data:" + customer.DriverLicense.FrontImage.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.DriverLicenseTranslation != nil && customer.DriverLicenseTranslation.FrontImage != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("DriverLicenseTranslation"),
+				Value: "data:" + customer.DriverLicenseTranslation.FrontImage.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.DriverLicenseTranslation.FrontImage.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("UtilityBill"),
+				Value: "data:" + customer.UtilityBill.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.Agreement != nil && customer.Agreement.Image != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("Agreement"),
+				Value: "data:" + customer.Agreement.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Agreement.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.Contract != nil && customer.Contract.Image != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("Contract"),
+				Value: "data:" + customer.Contract.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Contract.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
+	}
+
+	if customer.Selfie != nil && customer.Selfie.Image != nil {
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("Selfie"),
+				Value: "data:" + customer.Selfie.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
 	}
 
 	if customer.VideoAuth != nil {
-		request.Documents.PhysicalDocs = append(request.Documents.PhysicalDocs, SubDocument{
-			DocumentType:  mapDocumentType("VideoAuth"),
-			DocumentValue: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
-		})
+		doc := commonPart
+		doc.PhysicalDocs = []SubDocument{
+			SubDocument{
+				Type:  mapDocType("VideoAuth"),
+				Value: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
+			},
+		}
+		docs.Documents = append(docs.Documents, doc)
 	}
 
-	return request
+	return
 }
 
-func mapDocumentType(documentType string) string {
-	switch documentType {
+func mapDocType(docType string) string {
+	switch docType {
 	case "IDCard", "DriverLicense", "DriverLicenseTranslation", "Passport", "SNILS":
 		return "GOVT_ID_INT"
 	case "Selfie":
@@ -175,17 +261,16 @@ func mapDocumentType(documentType string) string {
 	}
 }
 
-// MapResponseError extracts and returns errors from the error response.
-func MapResponseError(responseBytes []byte) (result, err error) {
+// MapErrorResponse extracts and returns errors from the error response.
+func MapErrorResponse(response []byte) (code *string, err error) {
+	eresp := &ErrorResponse{}
 
-	response := &ResponseError{}
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		log.Printf("Error decoding SynapseFi response: %v", err)
-		return nil, err
+	if err = json.Unmarshal(response, eresp); err != nil {
+		return
 	}
-	log.Printf("SynapseFi response status: %v", response.Status)
 
-	errMsg := response.Error[appLanguage]
+	code = &eresp.Code
+	err = eresp
 
-	return errors.New(errMsg), nil
+	return
 }
