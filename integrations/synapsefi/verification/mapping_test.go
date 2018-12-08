@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMapCustomerToCreateUserRequest(t *testing.T) {
+func TestMapCustomerToUser(t *testing.T) {
 	testTime := common.Time(time.Date(1967, 1, 2, 0, 0, 0, 0, time.UTC))
 
-	customer := common.UserData{
+	customer := &common.UserData{
 		FirstName:            "FirstName",
 		PaternalLastName:     "PaternalLastName",
 		LastName:             "LastName",
@@ -106,28 +106,28 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 		},
 	}
 
-	userRequest := MapCustomerToCreateUserRequest(customer, true)
+	user := MapCustomerToUser(customer)
 
 	assert := assert.New(t)
 
-	assert.Len(userRequest.PhoneNumbers, 2)
-	assert.Equal("Phone", userRequest.PhoneNumbers[0])
-	assert.Equal("MobilePhone", userRequest.PhoneNumbers[1])
+	assert.Len(user.PhoneNumbers, 2)
+	assert.Equal("Phone", user.PhoneNumbers[0])
+	assert.Equal("MobilePhone", user.PhoneNumbers[1])
 
-	assert.Len(userRequest.Logins, 1)
+	assert.Len(user.Logins, 1)
 	assert.Equal(Login{
 		Email: "Email",
 		Scope: "READ_AND_WRITE",
-	}, userRequest.Logins[0])
+	}, user.Logins[0])
 
-	assert.Len(userRequest.LegalNames, 1)
-	assert.Equal("FirstName MiddleName LastName", userRequest.LegalNames[0])
+	assert.Len(user.LegalNames, 1)
+	assert.Equal("LegalName", user.LegalNames[0])
 
-	assert.Len(userRequest.Documents, 1)
+	assert.Len(user.Documents, 1)
 
-	document := userRequest.Documents[0]
+	document := user.Documents[0]
 
-	assert.Equal("FirstName MiddleName LastName", document.OwnerName)
+	assert.Equal("LegalName", document.OwnerName)
 	assert.Equal("Email", document.Email)
 	assert.Equal("Phone", document.PhoneNumber)
 	assert.Equal("127.0.0.1", document.IPAddress)
@@ -142,35 +142,19 @@ func TestMapCustomerToCreateUserRequest(t *testing.T) {
 	assert.Equal("PostCode1", document.AddressPostalCode)
 	assert.Equal("Country1", document.AddressCountryCode)
 
-	if assert.Len(document.PhysicalDocs, 3) {
-		assert.Equal(
-			"GOVT_ID_INT",
-			document.PhysicalDocs[0].DocumentType,
-		)
-		assert.Equal(
-			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
-			document.PhysicalDocs[0].DocumentValue,
-		)
+	if assert.Len(document.VirtualDocs, 2) {
+		assert.Equal("PERSONAL_IDENTIFICATION", document.VirtualDocs[0].Type)
+		assert.Equal("Number", document.VirtualDocs[0].Value)
 
-		assert.Equal(
-			"SELFIE",
-			document.PhysicalDocs[1].DocumentType,
-		)
-		assert.Equal(
-			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
-			document.PhysicalDocs[1].DocumentValue,
-		)
-
-		assert.Equal("VIDEO_AUTHORIZATION", document.PhysicalDocs[2].DocumentType)
-		assert.Equal("data:video/mp4;base64,"+base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
-			document.PhysicalDocs[2].DocumentValue)
+		assert.Equal("PASSPORT", document.VirtualDocs[1].Type)
+		assert.Equal("Number", document.VirtualDocs[1].Value)
 	}
 }
 
-func TestMapDocumentsToCreateUserRequest(t *testing.T) {
+func TestMapCustomerToPhysicalDocs(t *testing.T) {
 	testTime := common.Time(time.Date(1967, 1, 2, 0, 0, 0, 0, time.UTC))
 
-	customer := common.UserData{
+	customer := &common.UserData{
 		FirstName:            "FirstName",
 		PaternalLastName:     "PaternalLastName",
 		LastName:             "LastName",
@@ -263,47 +247,53 @@ func TestMapDocumentsToCreateUserRequest(t *testing.T) {
 		},
 	}
 
-	docsRequest := MapDocumentsToCreateUserRequest(customer)
+	docs := MapCustomerToPhysicalDocs(customer)
 
 	assert := assert.New(t)
 
-	assert.Equal("FirstName MiddleName LastName", docsRequest.Documents.OwnerName)
-	assert.Equal("Email", docsRequest.Documents.Email)
-	assert.Equal("Phone", docsRequest.Documents.PhoneNumber)
-	assert.Equal("127.0.0.1", docsRequest.Documents.IPAddress)
-	assert.Equal("M", docsRequest.Documents.EntityType)
-	assert.Equal("Not Known", docsRequest.Documents.EntityScope)
-	assert.Equal(2, docsRequest.Documents.DayOfBirth)
-	assert.Equal(1, docsRequest.Documents.MonthOfBirth)
-	assert.Equal(1967, docsRequest.Documents.YearOfBirth)
-	assert.Equal("BuildingNumber1 Street1", docsRequest.Documents.AddressStreet)
-	assert.Equal("Town1", docsRequest.Documents.AddressCity)
-	assert.Equal("SPC1", docsRequest.Documents.AddressSubdivision)
-	assert.Equal("PostCode1", docsRequest.Documents.AddressPostalCode)
-	assert.Equal("CountryAlpha2", docsRequest.Documents.AddressCountryCode)
+	assert.Equal("LegalName", docs.Documents[0].OwnerName)
+	assert.Equal("Email", docs.Documents[0].Email)
+	assert.Equal("Phone", docs.Documents[0].PhoneNumber)
+	assert.Equal("127.0.0.1", docs.Documents[0].IPAddress)
+	assert.Equal("M", docs.Documents[0].EntityType)
+	assert.Equal("Not Known", docs.Documents[0].EntityScope)
+	assert.Equal(2, docs.Documents[0].DayOfBirth)
+	assert.Equal(1, docs.Documents[0].MonthOfBirth)
+	assert.Equal(1967, docs.Documents[0].YearOfBirth)
+	assert.Equal("BuildingNumber1 Street1", docs.Documents[0].AddressStreet)
+	assert.Equal("Town1", docs.Documents[0].AddressCity)
+	assert.Equal("SPC1", docs.Documents[0].AddressSubdivision)
+	assert.Equal("PostCode1", docs.Documents[0].AddressPostalCode)
+	assert.Equal("Country1", docs.Documents[0].AddressCountryCode)
 
-	if assert.Len(docsRequest.Documents.PhysicalDocs, 3) {
+	if assert.Len(docs.Documents, 5) {
+		assert.Equal("GOVT_ID_INT", docs.Documents[0].PhysicalDocs[0].Type)
 		assert.Equal(
-			"GOVT_ID_INT",
-			docsRequest.Documents.PhysicalDocs[0].DocumentType,
-		)
-		assert.Equal(
-			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
-			docsRequest.Documents.PhysicalDocs[0].DocumentValue,
+			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
+			docs.Documents[0].PhysicalDocs[0].Value,
 		)
 
+		assert.Equal("GOVT_ID_INT", docs.Documents[1].PhysicalDocs[0].Type)
 		assert.Equal(
-			"SELFIE",
-			docsRequest.Documents.PhysicalDocs[1].DocumentType,
-		)
-		assert.Equal(
-			"data:image/png;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
-			docsRequest.Documents.PhysicalDocs[1].DocumentValue,
+			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
+			docs.Documents[1].PhysicalDocs[0].Value,
 		)
 
-		assert.Equal("VIDEO_AUTHORIZATION", docsRequest.Documents.PhysicalDocs[2].DocumentType)
+		assert.Equal("PROOF_OF_ADDRESS", docs.Documents[2].PhysicalDocs[0].Type)
+		assert.Equal(
+			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
+			docs.Documents[2].PhysicalDocs[0].Value,
+		)
+
+		assert.Equal("SELFIE", docs.Documents[3].PhysicalDocs[0].Type)
+		assert.Equal(
+			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
+			docs.Documents[3].PhysicalDocs[0].Value,
+		)
+
+		assert.Equal("VIDEO_AUTHORIZATION", docs.Documents[4].PhysicalDocs[0].Type)
 		assert.Equal("data:video/mp4;base64,"+base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
-			docsRequest.Documents.PhysicalDocs[2].DocumentValue)
+			docs.Documents[4].PhysicalDocs[0].Value)
 	}
 }
 
@@ -314,44 +304,36 @@ func Test_mapCustomerGender(t *testing.T) {
 
 }
 
-func Test_mapDocumentType(t *testing.T) {
+func Test_mapDocType(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal("GOVT_ID_INT", mapDocumentType("IDCard"))
-	assert.Equal("GOVT_ID_INT", mapDocumentType("DriverLicense"))
-	assert.Equal("GOVT_ID_INT", mapDocumentType("Passport"))
+	assert.Equal("GOVT_ID_INT", mapDocType("IDCard"))
+	assert.Equal("GOVT_ID_INT", mapDocType("DriverLicense"))
+	assert.Equal("GOVT_ID_INT", mapDocType("Passport"))
 
-	assert.Equal("SELFIE", mapDocumentType("Selfie"))
+	assert.Equal("SELFIE", mapDocType("Selfie"))
 
-	assert.Equal("PROOF_OF_ADDRESS", mapDocumentType("UtilityBill"))
-	assert.Equal("OTHER", mapDocumentType("ResidencePermit"))
+	assert.Equal("PROOF_OF_ADDRESS", mapDocType("UtilityBill"))
+	assert.Equal("OTHER", mapDocType("ResidencePermit"))
 
-	assert.Equal("LEGAL_AGREEMENT", mapDocumentType("Agreement"))
-	assert.Equal("LEGAL_AGREEMENT", mapDocumentType("Contract"))
+	assert.Equal("LEGAL_AGREEMENT", mapDocType("Agreement"))
+	assert.Equal("LEGAL_AGREEMENT", mapDocType("Contract"))
 
-	assert.Equal("OTHER", mapDocumentType("DriversTranslation"))
-}
-
-func TestMapUserToOauth(t *testing.T) {
-
-	refreshToken := "sometoken"
-
-	oauthRequest := MapUserToOauth(refreshToken)
-
-	assert.Equal(t, "sometoken", oauthRequest.RefreshToken)
+	assert.Equal("OTHER", mapDocType("DriversTranslation"))
 }
 
 func TestMapResponseError(t *testing.T) {
-	err := []byte(`{"error":{"en":"Invalid/expired oauth_key."},"error_code":"110","http_code":"401","success":false}`)
+	resp := []byte(`{"error":{"en":"Invalid/expired oauth_key."},"error_code":"110","http_code":"401","success":false}`)
 
-	response, _ := MapResponseError(err)
+	code, err := MapErrorResponse(resp)
 
-	assert.Equal(t, "Invalid/expired oauth_key.", response.Error())
+	assert.Equal(t, "110", *code)
+	assert.Equal(t, "http status: 401 | error code: 110 | error: Invalid/expired oauth_key.", err.Error())
 
-	err = []byte("wrong response")
+	resp = []byte("wrong response")
 
-	resp, err1 := MapResponseError(err)
+	code, err = MapErrorResponse(resp)
 
-	assert.Nil(t, resp)
-	assert.Equal(t, "invalid character 'w' looking for beginning of value", err1.Error())
+	assert.Nil(t, code)
+	assert.Equal(t, "invalid character 'w' looking for beginning of value", err.Error())
 }

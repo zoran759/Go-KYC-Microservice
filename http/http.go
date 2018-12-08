@@ -19,12 +19,17 @@ type Headers map[string]string
 // It returns a HTTP status code or zero in the case of an error, a response body or an error if occurred.
 func Post(endpoint string, headers Headers, body []byte) (int, []byte, error) {
 	return Request(http.MethodPost, endpoint, headers, body)
-
 }
 
 // Get sends a HTTP GET request to the endpoint using the specified headers.
 func Get(endpoint string, headers Headers) (int, []byte, error) {
 	return Request(http.MethodGet, endpoint, headers, []byte{})
+}
+
+// Patch sends a HTTP PATCH request to the endpoint using the specified headers and body.
+// It returns a HTTP status code or zero in the case of an error, a response body or an error if occurred.
+func Patch(endpoint string, headers Headers, body []byte) (int, []byte, error) {
+	return Request(http.MethodPatch, endpoint, headers, body)
 }
 
 // Request sends a HTTP request to the endpoint using the specified method and headers.

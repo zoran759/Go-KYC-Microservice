@@ -2,15 +2,8 @@ package synapsefi
 
 import "modulus/kyc/integrations/synapsefi/verification"
 
-// Connection represents the config of verification.
-type Connection verification.Config
-
 // Config represents the service config.
-type Config struct {
-	Connection
-	TimeoutThreshold int64
-	KYCFlow          string
-}
+type Config verification.Config
 
 // Possible document status values.
 const (
