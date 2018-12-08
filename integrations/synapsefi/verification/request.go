@@ -1,7 +1,5 @@
 package verification
 
-import "fmt"
-
 // OAuthRequest represents OAuth token obtaining request.
 type OAuthRequest struct {
 	RefreshToken string `json:"refresh_token"`
@@ -65,39 +63,4 @@ type SubDocument struct {
 // PhysicalDocs represents physical KYC documents to add to a user.
 type PhysicalDocs struct {
 	Documents []Document `json:"documents"`
-}
-
-// Response represents the API response on KYC related requests.
-type Response struct {
-	ID           string             `json:"_id"`
-	Documents    []ResponseDocument `json:"documents"`
-	RefreshToken string             `json:"refresh_token"`
-}
-
-// ResponseDocument represents document object from the API response.
-type ResponseDocument struct {
-	ID           string                `json:"id"`
-	VirtualDocs  []ResponseSubDocument `json:"virtual_docs"`
-	PhysicalDocs []ResponseSubDocument `json:"physical_docs"`
-}
-
-// ResponseSubDocument represents sub-document object from the API response.
-type ResponseSubDocument struct {
-	ID          string `json:"id"`
-	Type        string `json:"document_type"`
-	LastUpdated int64  `json:"last_updated"`
-	Status      string `json:"status"`
-}
-
-// ErrorResponse represents error response from the API.
-type ErrorResponse struct {
-	Text     map[string]string `json:"error"`
-	Code     string            `json:"error_code"`
-	HTTPCode string            `json:"http_code"`
-	Success  bool              `json:"success"`
-}
-
-// Error implements error interface for the ErrorResponse.
-func (er ErrorResponse) Error() string {
-	return fmt.Sprintf("http status: %s | error code: %s | error: %s", er.HTTPCode, er.Code, er.Text[appLanguage])
 }

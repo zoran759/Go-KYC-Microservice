@@ -1,7 +1,6 @@
 package synapsefi
 
 import (
-	"log"
 	"time"
 
 	"modulus/kyc/common"
@@ -18,95 +17,68 @@ type SynapseFI struct {
 // New constructs and returns the new verification service object.
 func New(config Config) SynapseFI {
 	return SynapseFI{
-		verification: verification.NewService(verification.Config(config)),
+		verification: verification.NewService(config),
 	}
 }
 
 // CheckCustomer implements CustomerChecker interface for the SynapseFI.
 func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
-		err = errors.New("No customer supplied")
+		err = errors.New("no customer supplied")
 		return
 	}
 
-	createUserRequest := verification.MapCustomerToCreateUserRequest(*customer, true)
+	user := verification.MapCustomerToUser(customer)
 
-	response, err := service.verification.CreateUser(createUserRequest)
+	if len(user.Documents[0].VirtualDocs) == 0 {
+		err = errors.New("failed to get document's number from customer documents or document wasn't supplied")
+		return
+	}
+
+	physDocs := verification.MapCustomerToPhysicalDocs(customer)
+
+	if len(physDocs.Documents) == 0 {
+		err = errors.New("failed to get document's content or document wasn't supplied")
+		return
+	}
+
+	response, code, err := service.verification.CreateUser(user)
 	if err != nil {
-		return result, err
+		if code != nil {
+			result.ErrorCode = *code
+		}
+		return
 	}
 
-	if service.kycFlow != "" && service.kycFlow != "simple" {
-		log.Printf("Alternative flow, auth user")
-
-		uID := response.ID
-
-		// createOauthRequest := verification.MapUserToOauth(response.RefreshToken)
-		responseAuth, err := service.verification.GetOauthKey(uID, createOauthRequest)
-		if err != nil {
-			return result, err
+	code, err = service.verification.AddPhysicalDocs(response.ID, response.RefreshToken, physDocs)
+	if err != nil {
+		if code != nil {
+			result.ErrorCode = *code
 		}
-		log.Printf("OAuth response: %+v", responseAuth)
-
-		createDocumentRequest := verification.MapDocumentsToCreateUserRequest(*customer)
-		response, err = service.verification.AddDocument(uID, responseAuth.OAuthKey, createDocumentRequest)
-		if err != nil {
-			return result, err
-		}
+		return
 	}
 
-	log.Printf("Initial status: %+v", response)
-
-	switch response.DocumentStatus.PhysicalDoc {
-	case DocStatusInvalid:
-		fallthrough
-	case DocStatusValid:
-		result, err = mapResponseToResult(response)
-		return result, err
-
-	case DocStatusMissingOrInvalid:
-		fallthrough
-	case DocStatusPending:
-		fallthrough
-	case DocStatusReviewing:
-		startingPower := 60
-		startingDate := time.Now()
-		for {
-			if time.Now().Unix()-startingDate.Unix() >= service.timeoutThreshold {
-				log.Printf("Timeout exceeded")
-				continue
-			}
-
-			time.Sleep(time.Duration(startingPower) * time.Second)
-
-			getUserResponse, err := service.verification.GetUser(response.ID)
-			if err != nil {
-				log.Printf("SynapseFI polling error: %s for user with id: %s", err, response.ID)
-				continue
-			}
-			log.Printf("Response: %+v", getUserResponse)
-
-			if getUserResponse.DocumentStatus.PhysicalDoc == DocStatusPending || getUserResponse.DocumentStatus.PhysicalDoc == DocStatusReviewing {
-				continue
-			}
-
-			result, err = mapResponseToResult(getUserResponse)
-			return result, err
-		}
-
-	default:
-		result.Status = common.Denied
-		result.Details = &common.KYCDetails{
-			Finality: common.Unknown,
-		}
-		result.Details.Reasons = append(result.Details.Reasons, DocStatusMissingOrInvalid)
-
-		return result, err
+	result.Status = common.Unclear
+	result.StatusCheck = &common.KYCStatusCheck{
+		Provider:    common.SynapseFI,
+		ReferenceID: response.ID,
+		LastCheck:   time.Now(),
 	}
+
+	return
 }
 
 // CheckStatus implements StatusChecker interface for the SynapseFI.
-func (service SynapseFI) CheckStatus(customer *common.UserData) (result common.KYCResult, err error) {
-	// TODO: implement this.
+func (service SynapseFI) CheckStatus(refID string) (result common.KYCResult, err error) {
+	resp, code, err := service.verification.GetUser(refID)
+	if err != nil {
+		if code != nil {
+			result.ErrorCode = *code
+		}
+		return
+	}
+
+	result, err = resp.ToKYCResult()
+
 	return
 }
