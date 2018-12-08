@@ -3,6 +3,7 @@ package synapsefi
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/synapsefi/verification"
@@ -10,297 +11,304 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewShort(t *testing.T) {
-	service := New(Config{})
+var testTime = time.Now().Unix()
 
-	assert.Equal(t, int64(3600), service.timeoutThreshold)
-	assert.Equal(t, "simple", service.kycFlow)
+type Mock struct {
+	CreateUserFn      func(verification.User) (*verification.Response, *string, error)
+	AddPhysicalDocsFn func(string, string, string, []verification.SubDocument) (*string, error)
+	GetUserFn         func(string) (*verification.Response, *string, error)
 }
 
-func TestNewFull(t *testing.T) {
-	service := New(Config{
-		TimeoutThreshold: 1000,
-		KYCFlow:          "complex",
-	})
+func (m Mock) CreateUser(user verification.User) (*verification.Response, *string, error) {
+	return m.CreateUserFn(user)
+}
 
-	assert.Equal(t, int64(1000), service.timeoutThreshold)
-	assert.Equal(t, "complex", service.kycFlow)
+func (m Mock) AddPhysicalDocs(userID string, rtoken string, docsID string, physdocs []verification.SubDocument) (*string, error) {
+	return m.AddPhysicalDocsFn(userID, rtoken, docsID, physdocs)
+}
+
+func (m Mock) GetUser(refID string) (*verification.Response, *string, error) {
+	return m.GetUserFn(refID)
+}
+
+func TestNew(t *testing.T) {
+	config := Config{
+		Host:         "host",
+		ClientID:     "client_id",
+		ClientSecret: "client_secret",
+	}
+
+	service := SynapseFI{
+		verification: verification.NewService(config),
+	}
+
+	testservice := New(config)
+
+	assert.Equal(t, service, testservice)
 }
 
 func TestSynapseFI_CheckCustomerValid(t *testing.T) {
 	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusValid,
+		verification: Mock{
+			CreateUserFn: func(verification.User) (*verification.Response, *string, error) {
+				return &verification.Response{
+					ID: "test_id",
+					Documents: []verification.ResponseDocument{
+						verification.ResponseDocument{
+							ID:              "rdid",
+							PermissionScope: "UNVERIFIED",
+							VirtualDocs: []verification.ResponseSubDocument{
+								verification.ResponseSubDocument{
+									ID:          "vid",
+									Type:        "SSN",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED",
+								},
+							},
+							PhysicalDocs: []verification.ResponseSubDocument{
+								verification.ResponseSubDocument{
+									ID:          "phid",
+									Type:        "SSN_CARD",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED",
+								},
+							},
+						},
 					},
-				}, nil
+					Permission:   "UNVERIFIED",
+					RefreshToken: "rtoken",
+				}, nil, nil
+			},
+			AddPhysicalDocsFn: func(string, string, string, []verification.SubDocument) (*string, error) {
+				return nil, nil
+			},
+			GetUserFn: func(string) (*verification.Response, *string, error) {
+				return &verification.Response{
+					ID: "test_id",
+					Documents: []verification.ResponseDocument{
+						verification.ResponseDocument{
+							ID:              "rdid",
+							PermissionScope: "SEND|RECEIVE|1000|DAILY",
+							VirtualDocs: []verification.ResponseSubDocument{
+								verification.ResponseSubDocument{
+									ID:          "vid",
+									Type:        "SSN",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED|VALID",
+								},
+							},
+							PhysicalDocs: []verification.ResponseSubDocument{
+								verification.ResponseSubDocument{
+									ID:          "phid",
+									Type:        "SSN_CARD",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED|VALID",
+								},
+							},
+						},
+					},
+					Permission:   "SEND|RECEIVE|1000|DAILY",
+					RefreshToken: "rtoken",
+				}, nil, nil
 			},
 		},
-		kycFlow: "simple",
 	}
 
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) {
-		assert.Equal(t, common.Approved, result.Status)
+	assert := assert.New(t)
+
+	result, err := service.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number:        "123456789",
+			CountryAlpha2: "US",
+			IssuedDate:    common.Time(time.Date(1968, 6, 30, 0, 0, 0, 0, time.UTC)),
+			Image: &common.DocumentFile{
+				Filename:    "ssn.jpg",
+				ContentType: "image/jpeg",
+				Data:        []byte("fake content"),
+			},
+		},
+	})
+
+	if assert.NoError(err) {
+		assert.Equal(common.Unclear, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+
+		if assert.NotNil(result.StatusCheck) {
+			assert.Equal(common.SynapseFI, result.StatusCheck.Provider)
+			assert.Equal("test_id", result.StatusCheck.ReferenceID)
+			assert.NotZero(result.StatusCheck.LastCheck)
+		}
+	}
+
+	result, err = service.CheckStatus(result.StatusCheck.ReferenceID)
+
+	if assert.NoError(err) {
+		assert.Equal(common.Approved, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
 	}
 }
 
 func TestSynapseFI_CheckCustomerInvalid(t *testing.T) {
 	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusInvalid,
-					},
+		verification: Mock{
+			CreateUserFn: func(verification.User) (*verification.Response, *string, error) {
+				return &verification.Response{
+					ID: "test_id",
 					Documents: []verification.ResponseDocument{
-						{
+						verification.ResponseDocument{
+							ID:              "rdid",
+							PermissionScope: "UNVERIFIED",
+							VirtualDocs: []verification.ResponseSubDocument{
+								verification.ResponseSubDocument{
+									ID:          "vid",
+									Type:        "SSN",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED",
+								},
+							},
 							PhysicalDocs: []verification.ResponseSubDocument{
-								{
-									DocumentType: "TYPE",
-									Status:       DocStatusInvalid,
+								verification.ResponseSubDocument{
+									ID:          "phid",
+									Type:        "SSN_CARD",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED",
 								},
 							},
 						},
 					},
-				}, nil
+					Permission:   "UNVERIFIED",
+					RefreshToken: "rtoken",
+				}, nil, nil
 			},
-		},
-		kycFlow: "simple",
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result) {
-		assert.Equal(t, common.Denied, result.Status)
-		assert.Equal(t, common.Unknown, result.Details.Finality)
-		assert.Equal(t, []string{
-			"TYPE:" + DocStatusInvalid,
-		}, result.Details.Reasons)
-	}
-}
-
-func TestSynapseFI_CheckCustomerPoll(t *testing.T) {
-
-	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: "SUBMITTED",
-					},
-				}, nil
+			AddPhysicalDocsFn: func(string, string, string, []verification.SubDocument) (*string, error) {
+				return nil, nil
 			},
-			GetUserFn: func(userID string) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: "SUBMITTED|INVALID",
-					},
+			GetUserFn: func(string) (*verification.Response, *string, error) {
+				return &verification.Response{
+					ID: "test_id",
 					Documents: []verification.ResponseDocument{
-						{
+						verification.ResponseDocument{
+							ID:              "rdid",
+							PermissionScope: "UNVERIFIED",
+							VirtualDocs: []verification.ResponseSubDocument{
+								verification.ResponseSubDocument{
+									ID:          "vid",
+									Type:        "SSN",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED|INVALID",
+								},
+							},
 							PhysicalDocs: []verification.ResponseSubDocument{
-								{
-									DocumentType: "TYPE",
-									Status:       "SUBMITTED|INVALID",
+								verification.ResponseSubDocument{
+									ID:          "phid",
+									Type:        "SSN_CARD",
+									LastUpdated: testTime,
+									Status:      "SUBMITTED|VALID",
 								},
 							},
 						},
 					},
-				}, nil
+					Permission:   "UNVERIFIED",
+					RefreshToken: "rtoken",
+				}, nil, nil
 			},
 		},
-		timeoutThreshold: 400,
 	}
 
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result.Details) {
-		assert.Equal(t, common.Denied, result.Status)
-		assert.Equal(t, common.Unknown, result.Details.Finality)
-		assert.Equal(t, []string{
-			"TYPE:" + DocStatusInvalid,
-		}, result.Details.Reasons)
+	assert := assert.New(t)
+
+	result, err := service.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number:        "123456789",
+			CountryAlpha2: "US",
+			IssuedDate:    common.Time(time.Date(1968, 6, 30, 0, 0, 0, 0, time.UTC)),
+			Image: &common.DocumentFile{
+				Filename:    "ssn.jpg",
+				ContentType: "image/jpeg",
+				Data:        []byte("fake content"),
+			},
+		},
+	})
+
+	if assert.NoError(err) {
+		assert.Equal(common.Unclear, result.Status)
+		assert.Nil(result.Details)
+		assert.Empty(result.ErrorCode)
+
+		if assert.NotNil(result.StatusCheck) {
+			assert.Equal(common.SynapseFI, result.StatusCheck.Provider)
+			assert.Equal("test_id", result.StatusCheck.ReferenceID)
+			assert.NotZero(result.StatusCheck.LastCheck)
+		}
+	}
+
+	result, err = service.CheckStatus(result.StatusCheck.ReferenceID)
+
+	if assert.NoError(err) {
+		assert.Equal(common.Denied, result.Status)
+		if assert.NotNil(result.Details) {
+			assert.Equal(common.Unknown, result.Details.Finality)
+			assert.Len(result.Details.Reasons, 2)
+			assert.Equal("Docs set permission: UNVERIFIED", result.Details.Reasons[0])
+			assert.Equal("Virtual doc | type: SSN | status: SUBMITTED|INVALID", result.Details.Reasons[1])
+		}
+		assert.Empty(result.ErrorCode)
+		assert.Nil(result.StatusCheck)
 	}
 }
-
-//func TestSynapseFI_CheckCustomerWithoutDocuments(t *testing.T) {
-//	service := SynapseFI{
-//		verification: verification.Mock{
-//			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-//				return &verification.UserResponse{
-//					ID: "someid",
-//				}, nil
-//			},
-//		},
-//	}
-//
-//	result, err := service.CheckCustomer(&common.UserData{})
-//	if assert.NoError(t, err) {
-//		assert.Equal(t, common.Denied, result.Status)
-//		assert.Equal(t, common.Unknown, result.Details.Finality)
-//		assert.Equal(t, []string{
-//			DocStatusMissingOrInvalid,
-//		}, result.Details.Reasons)
-//	}
-//}
 
 func TestSynapseFI_CheckCustomerError(t *testing.T) {
 	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return nil, errors.New("test_error")
+		verification: Mock{
+			CreateUserFn: func(verification.User) (*verification.Response, *string, error) {
+				code := "404"
+
+				return nil, &code, errors.New("test_error")
+			},
+			AddPhysicalDocsFn: func(string, string, string, []verification.SubDocument) (*string, error) {
+				return nil, nil
 			},
 		},
 	}
 
+	assert := assert.New(t)
+
 	result, err := service.CheckCustomer(&common.UserData{})
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result.Status)
-	assert.Nil(t, result.Details)
+	assert.Error(err)
+	assert.EqualError(err, "failed to get document's number from customer documents or no document was supplied")
+	assert.Equal(common.Error, result.Status)
+	assert.Nil(result.Details)
+	assert.Empty(result.ErrorCode)
+	assert.Nil(result.StatusCheck)
+
+	result, err = service.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number:        "123456789",
+			CountryAlpha2: "US",
+			IssuedDate:    common.Time(time.Date(1968, 6, 30, 0, 0, 0, 0, time.UTC)),
+			Image: &common.DocumentFile{
+				Filename:    "ssn.jpg",
+				ContentType: "image/jpeg",
+				Data:        []byte("fake content"),
+			},
+		},
+	})
+
+	assert.Error(err)
+	assert.EqualError(err, "test_error")
+	assert.Equal(common.Error, result.Status)
+	assert.Nil(result.Details)
+	assert.Equal("404", result.ErrorCode)
+	assert.Nil(result.StatusCheck)
 
 	result, err = service.CheckCustomer(nil)
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result.Status)
-	assert.Nil(t, result.Details)
-}
-
-func TestSynapseFI_CheckCustomerValidComplexFlow(t *testing.T) {
-	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusValid,
-					},
-				}, nil
-			},
-			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
-				return &verification.OauthResponse{
-					ID:           "someid",
-					OAuthKey:     "somekey",
-					RefreshToken: "sometoken",
-					ExpiresAt:    "1498297390",
-				}, nil
-			},
-			AddDocumentFn: func(userID string, userOAuth string, request verification.CreateDocumentsRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusValid,
-					},
-				}, nil
-			},
-		},
-		kycFlow: "complex",
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) {
-		assert.Equal(t, common.Approved, result.Status)
-	}
-}
-
-func TestSynapseFI_CheckCustomerValidComplexFlowInvalid(t *testing.T) {
-	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusValid,
-					},
-				}, nil
-			},
-			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
-				return &verification.OauthResponse{
-					ID:           "someid",
-					OAuthKey:     "somekey",
-					RefreshToken: "sometoken",
-					ExpiresAt:    "1498297390",
-				}, nil
-			},
-			AddDocumentFn: func(userID string, userOAuth string, request verification.CreateDocumentsRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusInvalid,
-					},
-					Documents: []verification.ResponseDocument{
-						{
-							PhysicalDocs: []verification.ResponseSubDocument{
-								{
-									DocumentType: "TYPE",
-									Status:       DocStatusInvalid,
-								},
-							},
-						},
-					},
-				}, nil
-			},
-		},
-		kycFlow: "complex",
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) && assert.NotNil(t, result) {
-		assert.Equal(t, common.Denied, result.Status)
-		assert.Equal(t, common.Unknown, result.Details.Finality)
-		assert.Equal(t, []string{
-			"TYPE:" + DocStatusInvalid,
-		}, result.Details.Reasons)
-	}
-}
-
-func TestSynapseFI_CheckCustomerComplexCreateUserError(t *testing.T) {
-	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return nil, errors.New("test_error")
-			},
-		},
-		kycFlow: "complex",
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result.Status)
-	assert.Nil(t, result.Details)
-
-	result, err = service.CheckCustomer(nil)
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result.Status)
-	assert.Nil(t, result.Details)
-}
-
-func TestSynapseFI_CheckCustomerComplexOAuthError(t *testing.T) {
-	service := SynapseFI{
-		verification: verification.Mock{
-			CreateUserFn: func(request verification.CreateUserRequest) (*verification.UserResponse, error) {
-				return &verification.UserResponse{
-					ID: "someid",
-					DocumentStatus: verification.DocumentStatus{
-						PhysicalDoc: DocStatusValid,
-					},
-				}, nil
-			},
-			GetOauthKeyFn: func(userID string, request verification.CreateOauthRequest) (*verification.OauthResponse, error) {
-				return nil, errors.New("test_error")
-			},
-		},
-		kycFlow: "complex",
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result.Status)
-	assert.Nil(t, result.Details)
-
-	result, err = service.CheckCustomer(nil)
-	assert.Error(t, err)
-	assert.Equal(t, common.Error, result.Status)
-	assert.Nil(t, result.Details)
+	assert.Error(err)
+	assert.EqualError(err, "no customer supplied")
+	assert.Equal(common.Error, result.Status)
+	assert.Nil(result.Details)
+	assert.Empty(result.ErrorCode)
+	assert.Nil(result.StatusCheck)
 }

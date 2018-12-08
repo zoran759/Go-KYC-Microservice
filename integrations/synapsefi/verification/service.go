@@ -1,9 +1,7 @@
 package verification
 
 import (
-	"crypto/sha256"
 	"encoding/json"
-	"fmt"
 	stdhttp "net/http"
 
 	"modulus/kyc/http"
@@ -23,7 +21,7 @@ type service struct {
 
 // NewService constructs the new verification service object.
 func NewService(config Config) Verification {
-	config.fingerprint = fmt.Sprintf("%x", sha256.Sum256([]byte(config.ClientID+config.ClientSecret)))
+	config.fingerprint = config.calcFingerprint()
 
 	return service{
 		config: config,
