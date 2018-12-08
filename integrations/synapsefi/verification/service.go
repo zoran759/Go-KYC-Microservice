@@ -58,7 +58,7 @@ func (service service) CreateUser(user User) (resp *Response, code *string, err 
 	return
 }
 
-func (service service) AddPhysicalDocs(userID, rtoken string, docs PhysicalDocs) (code *string, err error) {
+func (service service) AddPhysicalDocs(userID, rtoken, docsID string, docs []SubDocument) (code *string, err error) {
 	key, err := service.getOAuthKey(userID, rtoken)
 	if err != nil {
 		return
@@ -67,10 +67,19 @@ func (service service) AddPhysicalDocs(userID, rtoken string, docs PhysicalDocs)
 	headers := service.composeHeaders(false, key)
 	endpoint := service.config.Host + endpointUsers + "/" + userID
 
-	for _, doc := range docs.Documents {
-		body, err1 := json.Marshal(PhysicalDocs{
-			Documents: []Document{doc},
-		})
+	physdocs := PhysicalDocs{
+		Documents: []Document{
+			Document{
+				ID: docsID,
+				PhysicalDocs: []SubDocument{
+					SubDocument{},
+				},
+			},
+		},
+	}
+	for _, doc := range docs {
+		physdocs.Documents[0].PhysicalDocs[0] = doc
+		body, err1 := json.Marshal(physdocs)
 		if err1 != nil {
 			return nil, err1
 		}

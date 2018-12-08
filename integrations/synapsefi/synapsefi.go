@@ -31,14 +31,14 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 	user := verification.MapCustomerToUser(customer)
 
 	if len(user.Documents[0].VirtualDocs) == 0 {
-		err = errors.New("failed to get document's number from customer documents or document wasn't supplied")
+		err = errors.New("failed to get document's number from customer documents or no document was supplied")
 		return
 	}
 
 	physDocs := verification.MapCustomerToPhysicalDocs(customer)
 
-	if len(physDocs.Documents) == 0 {
-		err = errors.New("failed to get document's content or document wasn't supplied")
+	if len(physDocs) == 0 {
+		err = errors.New("failed to get document's content or no document was supplied")
 		return
 	}
 
@@ -50,7 +50,12 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 		return
 	}
 
-	code, err = service.verification.AddPhysicalDocs(response.ID, response.RefreshToken, physDocs)
+	if len(response.Documents) == 0 {
+		err = errors.New("failed to get documents id for the user " + response.ID)
+		return
+	}
+
+	code, err = service.verification.AddPhysicalDocs(response.ID, response.RefreshToken, response.Documents[0].ID, physDocs)
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = *code

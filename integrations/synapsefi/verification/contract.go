@@ -11,6 +11,6 @@ type Config struct {
 // Verification describes the verification interface.
 type Verification interface {
 	CreateUser(User) (*Response, *string, error)
-	AddPhysicalDocs(string, string, PhysicalDocs) (*string, error)
+	AddPhysicalDocs(string, string, string, []SubDocument) (*string, error)
 	GetUser(string) (*Response, *string, error)
 }
