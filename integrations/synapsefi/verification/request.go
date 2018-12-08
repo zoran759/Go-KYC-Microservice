@@ -36,20 +36,21 @@ type Extra struct {
 
 // Document represents customer's KYC Document.
 type Document struct {
-	OwnerName          string        `json:"name"`
-	Email              string        `json:"email"`
-	PhoneNumber        string        `json:"phone_number"`
-	IPAddress          string        `json:"ip"`
-	EntityType         string        `json:"entity_type"`
-	EntityScope        string        `json:"entity_scope"`
-	DayOfBirth         int           `json:"day"`
-	MonthOfBirth       int           `json:"month"`
-	YearOfBirth        int           `json:"year"`
-	AddressStreet      string        `json:"address_street"`
-	AddressCity        string        `json:"address_city"`
-	AddressSubdivision string        `json:"address_subdivision"`
-	AddressPostalCode  string        `json:"address_postal_code"`
-	AddressCountryCode string        `json:"address_country_code"`
+	ID                 string        `json:"id,omitempty"`
+	OwnerName          string        `json:"name,omitempty"`
+	Email              string        `json:"email,omitempty"`
+	PhoneNumber        string        `json:"phone_number,omitempty"`
+	IPAddress          string        `json:"ip,omitempty"`
+	EntityType         string        `json:"entity_type,omitempty"`
+	EntityScope        string        `json:"entity_scope,omitempty"`
+	DayOfBirth         int           `json:"day,omitempty"`
+	MonthOfBirth       int           `json:"month,omitempty"`
+	YearOfBirth        int           `json:"year,omitempty"`
+	AddressStreet      string        `json:"address_street,omitempty"`
+	AddressCity        string        `json:"address_city,omitempty"`
+	AddressSubdivision string        `json:"address_subdivision,omitempty"`
+	AddressPostalCode  string        `json:"address_postal_code,omitempty"`
+	AddressCountryCode string        `json:"address_country_code,omitempty"`
 	VirtualDocs        []SubDocument `json:"virtual_docs,omitempty"`
 	PhysicalDocs       []SubDocument `json:"physical_docs,omitempty"`
 }

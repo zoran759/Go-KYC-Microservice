@@ -103,39 +103,12 @@ func mapCustomerGender(gender common.Gender) string {
 }
 
 // MapCustomerToPhysicalDocs constructs and returns physical documents from customer data.
-func MapCustomerToPhysicalDocs(customer *common.UserData) (docs PhysicalDocs) {
-	commonPart := Document{
-		OwnerName:          customer.LegalName,
-		Email:              customer.Email,
-		IPAddress:          customer.IPaddress,
-		EntityType:         mapCustomerGender(customer.Gender),
-		EntityScope:        "Not Known",
-		DayOfBirth:         time.Time(customer.DateOfBirth).Day(),
-		MonthOfBirth:       int(time.Time(customer.DateOfBirth).Month()),
-		YearOfBirth:        time.Time(customer.DateOfBirth).Year(),
-		AddressStreet:      customer.CurrentAddress.StreetAddress(),
-		AddressCity:        customer.CurrentAddress.Town,
-		AddressSubdivision: customer.CurrentAddress.StateProvinceCode,
-		AddressPostalCode:  customer.CurrentAddress.PostCode,
-		AddressCountryCode: customer.CurrentAddress.CountryAlpha2,
-	}
-
-	switch {
-	case len(customer.Phone) > 0:
-		commonPart.PhoneNumber = customer.Phone
-	case len(customer.MobilePhone) > 0:
-		commonPart.PhoneNumber = customer.MobilePhone
-	}
-
+func MapCustomerToPhysicalDocs(customer *common.UserData) (docs []SubDocument) {
 	if customer.Passport != nil && customer.Passport.Image != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("Passport"),
-				Value: "data:" + customer.Passport.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("Passport"),
+			Value: "data:" + customer.Passport.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
+		})
 	}
 
 	if customer.IDCard != nil && customer.IDCard.Image != nil {
@@ -143,102 +116,66 @@ func MapCustomerToPhysicalDocs(customer *common.UserData) (docs PhysicalDocs) {
 		if customer.IDCard.CountryAlpha2 == "US" {
 			doctype = "SSN_CARD"
 		}
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  doctype,
-				Value: "data:" + customer.IDCard.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  doctype,
+			Value: "data:" + customer.IDCard.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
+		})
 	}
 
 	if customer.SNILS != nil && customer.SNILS.Image != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("SNILS"),
-				Value: "data:" + customer.SNILS.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("SNILS"),
+			Value: "data:" + customer.SNILS.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data),
+		})
 	}
 
 	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("DriverLicense"),
-				Value: "data:" + customer.DriverLicense.FrontImage.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("DriverLicense"),
+			Value: "data:" + customer.DriverLicense.FrontImage.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data),
+		})
 	}
 
 	if customer.DriverLicenseTranslation != nil && customer.DriverLicenseTranslation.FrontImage != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("DriverLicenseTranslation"),
-				Value: "data:" + customer.DriverLicenseTranslation.FrontImage.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.DriverLicenseTranslation.FrontImage.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("DriverLicenseTranslation"),
+			Value: "data:" + customer.DriverLicenseTranslation.FrontImage.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.DriverLicenseTranslation.FrontImage.Data),
+		})
 	}
 
 	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("UtilityBill"),
-				Value: "data:" + customer.UtilityBill.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("UtilityBill"),
+			Value: "data:" + customer.UtilityBill.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data),
+		})
 	}
 
 	if customer.Agreement != nil && customer.Agreement.Image != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("Agreement"),
-				Value: "data:" + customer.Agreement.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Agreement.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("Agreement"),
+			Value: "data:" + customer.Agreement.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Agreement.Image.Data),
+		})
 	}
 
 	if customer.Contract != nil && customer.Contract.Image != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("Contract"),
-				Value: "data:" + customer.Contract.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Contract.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("Contract"),
+			Value: "data:" + customer.Contract.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Contract.Image.Data),
+		})
 	}
 
 	if customer.Selfie != nil && customer.Selfie.Image != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("Selfie"),
-				Value: "data:" + customer.Selfie.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("Selfie"),
+			Value: "data:" + customer.Selfie.Image.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
+		})
 	}
 
 	if customer.VideoAuth != nil {
-		doc := commonPart
-		doc.PhysicalDocs = []SubDocument{
-			SubDocument{
-				Type:  mapDocType("VideoAuth"),
-				Value: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
-			},
-		}
-		docs.Documents = append(docs.Documents, doc)
+		docs = append(docs, SubDocument{
+			Type:  mapDocType("VideoAuth"),
+			Value: "data:" + customer.VideoAuth.ContentType + ";base64," + base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
+		})
 	}
 
 	return
