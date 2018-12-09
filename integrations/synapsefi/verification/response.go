@@ -11,7 +11,8 @@ const (
 	docStatusValid   = "SUBMITTED|VALID"
 	docStatusInvalid = "SUBMITTED|INVALID"
 
-	notReady = "UNVERIFIED"
+	permLocked   = "LOCKED"
+	permNotReady = "UNVERIFIED"
 )
 
 // Response represents the API response on KYC related requests.
@@ -40,7 +41,7 @@ type ResponseSubDocument struct {
 
 // ToKYCResult processes the response and generates the verification result.
 func (r Response) ToKYCResult() (result common.KYCResult, err error) {
-	if r.Permission != notReady {
+	if r.Permission != permNotReady && r.Permission != permLocked {
 		result.Status = common.Approved
 		return
 	}
@@ -51,10 +52,10 @@ func (r Response) ToKYCResult() (result common.KYCResult, err error) {
 	}
 
 	reasons := []string{}
-	denied := false
+	denied := r.Permission == permLocked
 
 	for _, doc := range r.Documents {
-		if doc.PermissionScope != notReady {
+		if doc.PermissionScope != permNotReady {
 			continue
 		}
 
