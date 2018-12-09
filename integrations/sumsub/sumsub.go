@@ -16,7 +16,7 @@ import (
 type SumSub struct {
 	applicants   applicants.Applicants
 	documents    documents.Documents
-	verification verification.Verificator
+	verification verification.Verification
 }
 
 // New constructs new verification service object.
@@ -40,10 +40,18 @@ func New(config Config) SumSub {
 // CheckCustomer implements CustomerChecker interface for Sum&Substance KYC provider.
 func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
-		err = errors.New("No customer supplied")
+		err = errors.New("no customer supplied")
 		return
 	}
 
+	// Process customer documents. At least one document has to be provided for verification.
+	mappedDocuments := documents.MapCommonCustomerDocuments(*customer)
+	if len(mappedDocuments) == 0 {
+		err = errors.New("at least one document has to be provided for verification")
+		return
+	}
+
+	// Create an applicant.
 	applicantResponse, err := service.applicants.CreateApplicant(
 		customer.Email,
 		applicants.MapCommonCustomerToApplicant(*customer),
@@ -60,27 +68,31 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 		return
 	}
 
-	mappedDocuments := documents.MapCommonCustomerDocuments(*customer)
-	if mappedDocuments != nil {
-		for _, document := range mappedDocuments {
-			_, errorCode, err1 := service.documents.UploadDocument(applicantResponse.ID, document)
-
-			if err1 != nil {
-				if errorCode != nil {
-					res.ErrorCode = fmt.Sprintf("%d", *errorCode)
-				}
-				err = errors.Wrapf(
-					err1,
-					"Unable to upload document with filename: %s, type: %s, side: %s",
-					document.File.Filename,
-					document.Metadata.DocumentType,
-					document.Metadata.DocumentSubType,
-				)
-				return
+	// Upload applicant's documents.
+	for _, document := range mappedDocuments {
+		_, errorCode, err1 := service.documents.UploadDocument(applicantResponse.ID, document)
+		if err1 != nil {
+			if errorCode != nil {
+				res.ErrorCode = fmt.Sprintf("%d", *errorCode)
 			}
+			err = errors.Wrapf(
+				err1,
+				"Unable to upload document with filename: %s, type: %s, side: %s",
+				document.File.Filename,
+				document.Metadata.DocumentType,
+				document.Metadata.DocumentSubType,
+			)
+			return
 		}
 	}
 
+	// Request applicant check.
+	if err = service.verification.RequestApplicantCheck(applicantResponse.ID); err != nil {
+		err = fmt.Errorf("during requesting applicant check: %s", err)
+		return
+	}
+
+	// Save status polling data.
 	res.Status = common.Unclear
 	res.StatusCheck = &common.KYCStatusCheck{
 		Provider:    common.SumSub,
