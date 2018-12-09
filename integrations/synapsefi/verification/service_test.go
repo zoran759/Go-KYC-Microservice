@@ -402,6 +402,7 @@ func Test_service_AddPhysicalDocs(t *testing.T) {
 	})
 	userID := "594e0fa2838454002ea317a0"
 	userOAuth := "someoauth"
+	docsID := "2a4a5957a3a62aaac1a0dd0edcae96ea2cdee688ec6337b20745eed8869e3ac8"
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -490,7 +491,7 @@ func Test_service_AddPhysicalDocs(t *testing.T) {
 		},
 	)
 
-	code, err := service.AddPhysicalDocs(userID, userOAuth, PhysicalDocs{})
+	code, err := service.AddPhysicalDocs(userID, userOAuth, docsID, []SubDocument{})
 	if assert.NoError(t, err) {
 		assert.Nil(t, code)
 	}
@@ -504,6 +505,7 @@ func Test_service_AddPhysicalDocsError(t *testing.T) {
 	})
 	userID := "594e0fa2838454002ea317a0"
 	userOAuth := "someoauth"
+	docsID := "2a4a5957a3a62aaac1a0dd0edcae96ea2cdee688ec6337b20745eed8869e3ac8"
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -518,7 +520,7 @@ func Test_service_AddPhysicalDocsError(t *testing.T) {
 		},
 	)
 
-	code, err := service.AddPhysicalDocs(userID, userOAuth, PhysicalDocs{})
+	code, err := service.AddPhysicalDocs(userID, userOAuth, docsID, []SubDocument{})
 	assert.Error(t, err)
 	assert.Nil(t, code)
 
@@ -531,7 +533,7 @@ func Test_service_AddPhysicalDocsError(t *testing.T) {
 		},
 	)
 
-	code, err = service.AddPhysicalDocs(userID, userOAuth, PhysicalDocs{})
+	code, err = service.AddPhysicalDocs(userID, userOAuth, docsID, []SubDocument{})
 	assert.Error(t, err)
 	assert.Nil(t, code)
 }

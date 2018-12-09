@@ -251,49 +251,34 @@ func TestMapCustomerToPhysicalDocs(t *testing.T) {
 
 	assert := assert.New(t)
 
-	assert.Equal("LegalName", docs.Documents[0].OwnerName)
-	assert.Equal("Email", docs.Documents[0].Email)
-	assert.Equal("Phone", docs.Documents[0].PhoneNumber)
-	assert.Equal("127.0.0.1", docs.Documents[0].IPAddress)
-	assert.Equal("M", docs.Documents[0].EntityType)
-	assert.Equal("Not Known", docs.Documents[0].EntityScope)
-	assert.Equal(2, docs.Documents[0].DayOfBirth)
-	assert.Equal(1, docs.Documents[0].MonthOfBirth)
-	assert.Equal(1967, docs.Documents[0].YearOfBirth)
-	assert.Equal("BuildingNumber1 Street1", docs.Documents[0].AddressStreet)
-	assert.Equal("Town1", docs.Documents[0].AddressCity)
-	assert.Equal("SPC1", docs.Documents[0].AddressSubdivision)
-	assert.Equal("PostCode1", docs.Documents[0].AddressPostalCode)
-	assert.Equal("Country1", docs.Documents[0].AddressCountryCode)
-
-	if assert.Len(docs.Documents, 5) {
-		assert.Equal("GOVT_ID_INT", docs.Documents[0].PhysicalDocs[0].Type)
+	if assert.Len(docs, 5) {
+		assert.Equal("GOVT_ID_INT", docs[0].Type)
 		assert.Equal(
 			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data),
-			docs.Documents[0].PhysicalDocs[0].Value,
+			docs[0].Value,
 		)
 
-		assert.Equal("GOVT_ID_INT", docs.Documents[1].PhysicalDocs[0].Type)
+		assert.Equal("GOVT_ID_INT", docs[1].Type)
 		assert.Equal(
 			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
-			docs.Documents[1].PhysicalDocs[0].Value,
+			docs[1].Value,
 		)
 
-		assert.Equal("PROOF_OF_ADDRESS", docs.Documents[2].PhysicalDocs[0].Type)
+		assert.Equal("PROOF_OF_ADDRESS", docs[2].Type)
 		assert.Equal(
 			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.Passport.Image.Data),
-			docs.Documents[2].PhysicalDocs[0].Value,
+			docs[2].Value,
 		)
 
-		assert.Equal("SELFIE", docs.Documents[3].PhysicalDocs[0].Type)
+		assert.Equal("SELFIE", docs[3].Type)
 		assert.Equal(
 			"data:ContentType;base64,"+base64.StdEncoding.EncodeToString(customer.Selfie.Image.Data),
-			docs.Documents[3].PhysicalDocs[0].Value,
+			docs[3].Value,
 		)
 
-		assert.Equal("VIDEO_AUTHORIZATION", docs.Documents[4].PhysicalDocs[0].Type)
+		assert.Equal("VIDEO_AUTHORIZATION", docs[4].Type)
 		assert.Equal("data:video/mp4;base64,"+base64.StdEncoding.EncodeToString(customer.VideoAuth.Data),
-			docs.Documents[4].PhysicalDocs[0].Value)
+			docs[4].Value)
 	}
 }
 
