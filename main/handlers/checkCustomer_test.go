@@ -460,7 +460,11 @@ func TestCheckCustomer(t *testing.T) {
 	// Testing Sum&Substance.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.SumSub,
-		UserData: &common.UserData{},
+		UserData: &common.UserData{
+			IDCard: &common.IDCard{
+				Number: "xyz",
+			},
+		},
 	})
 
 	assert.Nil(t, err)
@@ -472,6 +476,18 @@ func TestCheckCustomer(t *testing.T) {
 		http.MethodPost,
 		fmt.Sprintf("%s/resources/applicants?key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusOK, sumsubResponse),
+	)
+
+	httpmock.RegisterResponder(
+		http.MethodPost,
+		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/info/idDoc?key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
+		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
+	)
+
+	httpmock.RegisterResponder(
+		http.MethodPost,
+		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending?reason=docs_sent&key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
+		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
 	)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))

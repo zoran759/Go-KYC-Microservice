@@ -115,7 +115,11 @@ func TestSumSub_CheckCustomerYellow(t *testing.T) {
 		},
 	}
 
-	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	result, err := sumsubService.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number: "xyz",
+		},
+	})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
@@ -166,7 +170,11 @@ func TestSumSub_CheckCustomerRed(t *testing.T) {
 		},
 	}
 
-	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	result, err := sumsubService.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number: "xyz",
+		},
+	})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
@@ -217,7 +225,11 @@ func TestSumSub_CheckCustomerError(t *testing.T) {
 		},
 	}
 
-	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	result, err := sumsubService.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number: "xyz",
+		},
+	})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)
@@ -267,7 +279,11 @@ func TestSumSub_CheckCustomerIgnored(t *testing.T) {
 		},
 	}
 
-	result, err := sumsubService.CheckCustomer(&common.UserData{})
+	result, err := sumsubService.CheckCustomer(&common.UserData{
+		IDCard: &common.IDCard{
+			Number: "xyz",
+		},
+	})
 	if assert.NoError(t, err) && assert.Nil(t, result.Details) {
 		assert.Equal(t, common.Unclear, result.Status)
 		assert.NotNil(t, result.StatusCheck)

@@ -15,7 +15,7 @@ func TestMapCustomerToUser(t *testing.T) {
 
 	customer := &common.UserData{
 		FirstName:            "FirstName",
-		PaternalLastName:     "PaternalLastName",
+		MaternalLastName:     "MaternalLastName",
 		LastName:             "LastName",
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",
@@ -156,7 +156,7 @@ func TestMapCustomerToPhysicalDocs(t *testing.T) {
 
 	customer := &common.UserData{
 		FirstName:            "FirstName",
-		PaternalLastName:     "PaternalLastName",
+		MaternalLastName:     "MaternalLastName",
 		LastName:             "LastName",
 		MiddleName:           "MiddleName",
 		LegalName:            "LegalName",

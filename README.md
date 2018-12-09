@@ -43,16 +43,16 @@ The models for requests and responses are provided.
 | **Provider**    | _**[KYCProvider](common/enum.go#L36)**_ | The identificator for the KYC provider name                                            |
 | **ReferenceID** | _**string**_                            | The identificator of the verification submission. Its value is specific for a provider |
 
-### **[API response](common/rest.go#L18) fields description**
+### **[API response](common/rest.go#L23) fields description**
 
 | **Name**   | **Type**     | **Description**                                                             |
 | ---------- | ------------ | --------------------------------------------------------------------------- |
-| **Result** | _***[KYCResult](#commonkycresult-fields-description)**_ | A result of the KYC verification |
+| **Result** | _***[Result](#commonresult-fields-description)**_ | A result of the KYC verification       |
 | **Error**  | _**string**_ | A text of an error message if the error has occured during the verification |
 
-If a **KYC provider** doesn't support the instant result response then check and use the [**KYCResult.StatusPolling**](#statuspolling-fields-description) field for the info required for the KYC verification status check requests.
+If a **KYC provider** doesn't support the instant result response then check and use the [**Result.StatusCheck**](#kycstatuscheck-fields-description) field for the info required for the KYC verification status check requests.
 
-### **[API Error response](common/rest.go#L24) fields description**
+### **[API Error response](common/rest.go#L18) fields description**
 
 | **Name**  | **Type**     | **Description**    |
 | --------- | ------------ | ------------------ |
@@ -100,12 +100,13 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 | **Name**                     | **Type**                           | **Description**                                                       |
 | ---------------------------- | ---------------------------------- | --------------------------------------------------------------------- |
-| **FirstName**                | _**string**_                       | _Required_. First name of the customer, for ex. "John"                |
-| **PaternalLastName**         | _**string**_                       | Paternal last name of the customer                                    |
-| **LastName**                 | _**string**_                       | _Required_. Last name of the customer, for ex. "Doe"                  |
-| **MiddleName**               | _**string**_                       | Middle name of the customer, for ex. "Benedikt"                       |
+| **FirstName**                | _**string**_                       | _Required_. First name (FN) of the customer, for ex. "John"           |
+| **LastName**                 | _**string**_                       | _Required_. Last name (LN) of the customer, for ex. "Doe"             |
+| **MaternalLastName**         | _**string**_                       | Maternal (second) last name (MatN) of the customer                    |
+| **MiddleName**               | _**string**_                       | Middle name (MidN) of the customer, for ex. "Benedikt"                |
+| **FullName**                 | _**string**_                       | Full name as found on identification documents (if it isn't composed as FN+MidN+LN+MatN) |
 | **LegalName**                | _**string**_                       | Legal name of the customer, for ex. "Astrid Lindgren"                 |
-| **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer, for ex. russian "Иван" be IVAN       |
+| **LatinISO1Name**            | _**string**_                       | Latin ISO1 name of the customer, for ex. russian "Иван Сидоров" be "IVAN SIDOROV" |
 | **AccountName**              | _**string**_                       | Account name for the customer, for ex. "john_doe"                     |
 | **Email**                    | _**string**_                       | Email of the customer                                                 |
 | **IPaddress**                | _**string**_                       | Customer’s IP address                                                 |
@@ -115,16 +116,21 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
 | **CountryAlpha2**            | _**string**_                       | Country of the customer in ISO 3166-1 alpha-2 format, for ex. "DE"    |
-| **Nationality**              | _**string**_                       | Citizenship of the customer. ISO 3166-1 alpha-2 format, for ex. "TH" |
+| **Nationality**              | _**string**_                       | Citizenship of the customer. ISO 3166-1 alpha-2 format, for ex. "TH"  |
 | **Phone**                    | _**string**_                       | Primary phone of the customer. It isn't the mobile phone!             |
 | **MobilePhone**              | _**string**_                       | Mobile phone of the customer                                          |
+| **BankAccountNumber**        | _**string**_                       | Chinese bank account number                                           |
+| **VehicleRegistrationPlate** | _**string**_                       | New Zealand vehicle registration plate                                |
 | **CurrentAddress**           | [_**Address**_](#address-fields-description) | Current address of the customer                             |
 | **SupplementalAddresses**    | _**[]Address**_                    | List of supplemental addresses of the customer                        |
 | **Location**                 | _***[Location](#location-fields-description)**_ | Geopositional data of the customer                       |
 | **Business**                 | _***[Business](#business-fields-description)**_ | The business which the customer is linked to or is one of the owners |
-| **Passport**                 | _***[Passport](#passport-fields-description)**_               | Passport of the customer                   |
-| **IDCard**                   | _***[IDCard](#idcard-fields-description)**_                   | Id card of the customer, for ex. US SSN    |
-| **SNILS**                    | _***[SNILS](#snils-fields-description)**_                     | SNILS (Russian insurance number of individual ledger account) of the customer |
+| **Passport**                 | _***[Passport](#passport-fields-description)**_ | Passport of the customer                                 |
+| **IDCard**                   | _***[IDCard](#idcard-fields-description)**_     | National ID Number (Malaysia NRIC Number, Swedish PIN, etc...)       |
+| **SNILS**                    | _***[SNILS](#snils-fields-description)**_       | SNILS (Russian insurance number of individual ledger account) of the customer |
+| **HealthID**                 | _***[HealthID](#healthid-fields-description)**_               | National Health Service Identification     |
+| **SocialServiceID**          | _***[SocialServiceID](#socialserviceid-fields-description)**_ | National Social Service Identification (Social Security Number, Social Insurance Number, National Insurance Number) |
+| **TaxID**                    | _***[TaxID](#taxid-fields-description)**_                     | National Taxpayer Personal Identification Number       |
 | **DriverLicense**            | _***[DriverLicense](#driverlicense-fields-description)**_     | Driver license of the customer             |
 | **DriverLicenseTranslation** | _***[DriverLicenseTranslation](#driverlicensetranslation-fields-description)**_ | Driver license translation of the customer (translation of the driving license required in the target country) |
 | **CreditCard**               | _***[CreditCard](#creditcard-fields-description)**_           | Banking credit card of the customer        |
@@ -200,11 +206,34 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate** | _**Time**_          | Issued date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the SNILS                  |
 
+### **[HealthID](common/model.go#L331) fields description**
+
+| **Name**          | **Type**            | **Description**                               |
+| ----------------- | ------------------- | --------------------------------------------- |
+| **Number**        | _**string**_        | Number of the document                        |
+| **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
+
+### **[SocialServiceID](common/model.go#L337) fields description**
+
+| **Name**          | **Type**            | **Description**                               |
+| ----------------- | ------------------- | --------------------------------------------- |
+| **Number**        | _**string**_        | Number of the document                        |
+| **IssuedDate**    | _**Time**_          | Issued date                                   |
+| **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
+
+### **[TaxID](common/model.go#L345) fields description**
+
+| **Name**          | **Type**            | **Description**                               |
+| ----------------- | ------------------- | --------------------------------------------- |
+| **Number**        | _**string**_        | Number of the document                        |
+| **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
+
 ### **[DriverLicense](common/model.go#L232) fields description**
 
 | **Name**          | **Type**            | **Description**                                         |
 | ----------------- | ------------------- | ------------------------------------------------------- |
 | **Number**        | _**string**_        | Driver license number                                   |
+| **Version**       | _**string**_        | New Zealand driver license version number (this number changes each time a new card is issued) |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "DE"      |
 | **State**         | _**string**_        | Abbreviated name of the state or province, for ex. "KY" |
 | **IssuedDate**    | _**Time**_          | Issued date                                             |
@@ -349,7 +378,7 @@ The verification response consist of two elements: a result and an error if occu
 | **Error**    | Verification has failed. Probably, some error has occurred. Returned error value must be non-nil and **`common.Result.ErrorCode`** may contain error code value |
 | **Approved** | Successful verification with approved result. The details maybe non-nil and contain additional info about the verification     |
 | **Denied**   | Successful verification with rejected result. The details should be non-nil and contain additional info about the verification |
-| **Unclear**  | Needs subsequent status polling or the verification completed with an indefinite result. That might mean that some additional info is required. The details should be non-nil and contain additional info. If status polling is required then **`common.KYCResult.StatusCheck`** must be non-nil |
+| **Unclear**  | Needs subsequent status polling or the verification completed with an indefinite result. That might mean that some additional info is required. The details should be non-nil and contain additional info. If status polling is required then **`common.Result.StatusCheck`** must be non-nil |
 
 ### **[Details](common/rest.go#L37) fields description**
 
@@ -366,7 +395,7 @@ The verification response consist of two elements: a result and an error if occu
 | **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality                                                    |
 | **Unknown**  | The provider doesn't support **`Finality`** feature                                                                         |
 
-### **[KYCStatusCheck](common/model.go#L193) fields description**
+### **[KYCStatusCheck](common/model.go#L200) fields description**
 
 | **Name**        | **Type**                                | **Description**                             |
 | --------------- | --------------------------------------- | ------------------------------------------- |
@@ -420,7 +449,7 @@ For instructions on integration of a specific KYC provider, please, refer this l
 
 According to the [API Reference](https://developers.sumsub.com) all fields of [**UserData**](#userdata-fields-description) are applicable except the following:
 
-* PaternalLastName
+* MaternalLastName
 * LatinISO1Name
 * AccountName
 * IPaddress
@@ -454,30 +483,33 @@ All fields in the Reference are marked as optional but at least first name and l
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**          | **Type**           | **Required** | **Comment** |
-| ----------------- | ------------------ | :----------: | ----------- |
-| FirstName         | _string_           |              |             |
-| PaternalLastName  | _string_           |              |             |
-| LastName          | _string_           |              |             |
-| MiddleName        | _string_           |              |             |
-| LatinISO1Name     | _string_           |              |             |
-| Email             | _string_           |              |             |
-| Gender            | _Gender_           |              |             |
-| DateOfBirth       | _Time_             |              |             |
-| **CountryAlpha2** | _string_           | **Yes**      |             |
-| Phone             | _string_           |              |             |
-| MobilePhone       | _string_           |              |             |
-| CurrentAddress    | _Address_          |              |             |
-| Business          | _*Business_        |              |             |
-| Passport          | _*Passport_        |              |             |
-| IDCard            | _*IDCard_          |              |             |
-| DriverLicense     | _*DriverLicense_   |              |             |
-| ResidencePermit   | _*ResidencePermit_ |              |             |
-| Selfie            | _*Selfie_          |              |             |
+| **Name**                 | **Type**           | **Required** | **Comment** |
+| ------------------------ | ------------------ | :----------: | ----------- |
+| FirstName                | _string_           |              |             |
+| MaternalLastName         | _string_           |              |             |
+| LastName                 | _string_           |              |             |
+| MiddleName               | _string_           |              |             |
+| LatinISO1Name            | _string_           |              |             |
+| Email                    | _string_           |              |             |
+| Gender                   | _Gender_           |              |             |
+| DateOfBirth              | _Time_             |              |             |
+| **CountryAlpha2**        | _string_           | **Yes**      |             |
+| Phone                    | _string_           |              |             |
+| MobilePhone              | _string_           |              |             |
+| BankAccountNumber        | _string_           |              |             |
+| VehicleRegistrationPlate | _string_           |              |             |
+| CurrentAddress           | _Address_          |              |             |
+| Business                 | _*Business_        |              |             |
+| Passport                 | _*Passport_        |              |             |
+| IDCard                   | _*IDCard_          |              |             |
+| HealthID                 | _*HealthID_        |              |             |
+| SocialServiceID          | _*SocialServiceID_ |              |             |
+| TaxID                    | _*TaxID_           |              |             |
+| DriverLicense            | _*DriverLicense_   |              |             |
+| ResidencePermit          | _*ResidencePermit_ |              |             |
+| Selfie                   | _*Selfie_          |              |             |
 
-> **DOCUMENTS NOTE:** Include image file(s) for a document used in the verification.
-
-It's unclear from the [API Reference](https://developer.trulioo.com/v1.0/reference) what fields are mandatory so, it's better to provide as much info as possible.
+> **DOCUMENTS NOTE:** Include image file(s) for a document used in the verification (some documents haven't physical form only a number, for ex. UK NI and NHS Numbers).
 
 ### **Shufti Pro**
 
@@ -590,7 +622,55 @@ KYC providers may require various set of `common.UserData` fields depending on t
 
 ### **Trulioo covered countries**
 
-* International
+These are the countries that supported since last check.
+
+| **Country code** | **Country Name**                                     |
+| :--------------: | ---------------------------------------------------- |
+| AE               | United Arab Emirates                                 |
+| AR               | Argentina                                            |
+| AT               | Austria                                              |
+| AU               | Australia                                            |
+| BE               | Belgium                                              |
+| BR               | Brazil                                               |
+| CA               | Canada                                               |
+| CH               | Switzerland                                          |
+| CL               | Chile                                                |
+| CN               | China                                                |
+| CO               | Colombia                                             |
+| CR               | Costa Rica                                           |
+| DE               | Germany                                              |
+| DK               | Denmark                                              |
+| EC               | Ecuador                                              |
+| EG               | Egypt                                                |
+| ES               | Spain                                                |
+| FR               | France                                               |
+| GB               | United Kingdom of Great Britain and Northern Ireland |
+| HK               | Hong Kong                                            |
+| IE               | Ireland                                              |
+| IN               | India                                                |
+| IT               | Italy                                                |
+| JP               | Japan                                                |
+| KR               | Republic of Korea                                    |
+| KW               | Kuwait                                               |
+| LB               | Lebanon                                              |
+| MX               | Mexico                                               |
+| MY               | Malaysia                                             |
+| NL               | Netherlands                                          |
+| NZ               | New Zealand                                          |
+| OM               | Oman                                                 |
+| PE               | Peru                                                 |
+| PT               | Portugal                                             |
+| RO               | Romania                                              |
+| RU               | Russian Federation                                   |
+| SA               | Saudi Arabia                                         |
+| SE               | Sweden                                               |
+| SG               | Singapore                                            |
+| SV               | El Salvador                                          |
+| TH               | Thailand                                             |
+| UA               | Ukraine                                              |
+| US               | United States of America                             |
+| ZA               | South Africa                                         |
+
 * API provides the group of methods for retrieving the lists of:
   * Consents
   * Supported countries
@@ -598,6 +678,90 @@ KYC providers may require various set of `common.UserData` fields depending on t
   * Document Types available for a country
   * Test Entities configured for a country
   * Datasource groups configured for a country
+
+[**UserData**](#userdata-fields-description) applicable fields for all supported countries:
+
+| **Name**           | **Type**             | **Required** | **Countries for which the field is required** |
+| -----------------  | -------------------- | :----------: | --------------------------------------------- |
+| **FirstName**      | **_string_**         |              | AE, AR, AU, BR, CA, CL, CN, CO, CR, DE, DK, EC, EG, ES, FR, GB, HK, IE, IT, JP, KW, LB, MX, MY, NL, NZ, OM, PE, RU, SA, SE, SG, SV, TH, UA, US, ZA |
+| **LastName**       | **_string_**         |              | AE, AR, AT, AU, BE, BR, CA, CH, CL, CN, CO, CR, DE, DK, EC, EG, ES, FR, GB, HK, IE, IN, IT, JP, KW, LB, MX, MY, NL, NZ, OM, PE, PE, PT, RO, RU, SA, SE, SG, SV, TH, UA, US, ZA |
+| MaternalLastName   | _string_             |              |                                               |
+| **MiddleName**     | _string_             |              | RU                                            |
+| LatinISO1Name      | _string_             |              |                                               |
+| Email              | _string_             |              |                                               |
+| **Gender**         | _Gender_             |              | GB, MX, MY                                    |
+| **DateOfBirth**    | **_Time_**           |              | AE, AU, CR, DE, DK, EG, FR, GB, IT, KR, KW, LB, MX, MY, NL, NZ, OM, RU, SA, SE, SV, ZA |
+| **CountryAlpha2**  | **_string_**         | **Yes**      |                                               |
+| **Phone**          | **_string_**         |              | CR                                            |
+| MobilePhone        | _string_             |              |                                               |
+| **CurrentAddress** | **_Address_**        |              | AR AU BE CA CH CR DE DK ES FR GB IE IT JP MX NL NZ PE PT SE US ZA |
+| Business           | _*Business_          |              |                                               |
+| **Passport**       | **_*Passport_**      |              | AE, AR, AT, AU, BE, BR, CA, CH, CL, CN, CO, CR, DE, DK, EC, EG, ES, FR, GB, HK, IE, IT, JP, KR, KW, LB, MX, MY, NL, NZ, OM, PE, PT, RU, SA, SE, SG, SV, TH, UA, US, ZA |
+| IDCard             | _*IDCard_            |              | AE, AR, BR, CN, CO, CR, DK, EC, EG, FR, HK, KR, KW, LB, MX, MY, NL, OM, RO, SA, SE, SG, SV, TH, ZA |
+| SocialServiceID    | _*SocialServiceID_   |              | CA, GB, IE, IT, UA                            |
+| TaxID              | _*TaxID_             |              |                                               |
+| **DriverLicense**  | **_*DriverLicense_** |              | GB, KR, NZ, US                                |
+| ResidencePermit    | _*ResidencePermit_   |              |                                               |
+| Selfie             | _*Selfie_            |              |                                               |
+
+[**UserData**](#userdata-fields-description) required fields for the specific countries:
+
+| **Name**                 | **Type**    | **Countries for which the field is required** |
+| ------------------------ | ----------- | --------------------------------------------- |
+| MaternalLastName         | _string_    | CO, MX, PE                                    |
+| FullName                 | _string_    | MY, SG                                        |
+| CountryOfBirthAlpha2     | _string_    | MY                                            |
+| StateOfBirth             | _string_    | MX, MY                                        |
+| BankAccountNumber        | _string_    | CN                                            |
+| VehicleRegistrationPlate | _string_    | NZ                                            |
+| HealthID                 | _*HealthID_ | GB                                            |
+
+[**Address**](#address-fields-description) required fields for the specific countries:
+
+| **Name**          | **Type** | **Countries for which the field is required**                          |
+| ----------------- | -------- | ---------------------------------------------------------------------- |
+| County            | _string_ | IE                                                                     |
+| Town              | _string_ | CA, CH, CR, DE, IE, JP, NZ, PT, SE, US, ZA                             |
+| Suburb            | _string_ | JP, ZA                                                                 |
+| Street            | _string_ | AU, CA, CH, DE, DK, ES, FR, GB, IE, MX, NZ, PT, US                     |
+| BuildingNumber    | _string_ | AU, CA, DE, ES, JP, MX, NL, US                                         |
+| PostCode          | _string_ | AR, AU, BE, CA, CH, DE, ES, FR, GB, IT, JP, MX, NL, NZ, PE, PT, US, ZA |
+| StateProvinceCode | _string_ | CA, CR, JP, US                                                         |
+
+[**Passport**](#passport-fields-description) required fields for the specific countries:
+
+| **Name**      | **Type**        | **Countries for which the field is required**                                                                                                                      |
+| ------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Number        | _string_        | AU, RU                                                                                                                                                             |
+| Mrz1          | _string_        | AE, AR, AT, AU, BE, BR, CA, CH, CL, CN, CO, CR, DE, DK, EC, EG, ES, FR, GB, HK, IE, IT, JP, KR, KW, LB, MX, MY, NL, NZ, OM, PE, PT, SA, SE, SG, SV, TH, UA, US, ZA |
+| Mrz2          | _string_        | AE, AR, AT, AU, BE, BR, CA, CH, CL, CN, CO, CR, DE, DK, EC, EG, ES, FR, GB, HK, IE, IT, JP, KR, KW, LB, MX, MY, NL, NZ, OM, PE, PT, SA, SE, SG, SV, TH, UA, US, ZA |
+| IssuedDate    | _Time_          | RU                                                                                                                                                                 |
+
+[**IDCard**](#idcard-fields-description) required fields for the specific countries:
+
+| **Name** | **Type** | **Countries for which the field is required**                                                                  |
+| -------- | -------- | -------------------------------------------------------------------------------------------------------------- |
+| Number   | _string_ | AE, AR, BR, CA, CN, CO, CR, DK, EC, EG, FR, HK, IE, IT, KW, LB, MX, MY, NL, OM, RO, SA, SE, SG, SV, TH, UA, ZA |
+
+[**HealthID**](#healthid-fields-description) required fields for the specific countries:
+
+| **Name** | **Type** | **Countries for which the field is required** |
+| -------- | -------- | --------------------------------------------- |
+| Number   | _string_ | GB                                            |
+
+[**SocialServiceID**](#socialserviceid-fields-description) required fields for the specific countries:
+
+| **Name** | **Type** | **Countries for which the field is required** |
+| -------- | -------- | --------------------------------------------- |
+| Number   | _string_ | CA, GB, IE, IT, UA                            |
+
+[**DriverLicense**](#driverlicense-fields-description) required fields for the specific countries:
+
+| **Name** | **Type** | **Countries for which the field is required** |
+| -------- | -------- | --------------------------------------------- |
+| Number   | _string_ | GB, KR, NZ, US                                |
+| Version  | _string_ | NZ                                            |
+| State    | _string_ | US                                            |
 
 ### **Shufti Pro covered countries**
 

@@ -173,7 +173,7 @@ var _ = Describe("Request", func() {
 
 			customer := &common.UserData{
 				FirstName:            "Jonh",
-				PaternalLastName:     "Jones",
+				MaternalLastName:     "Jones",
 				LastName:             "Doe",
 				MiddleName:           "Lee",
 				LegalName:            "John Doe",

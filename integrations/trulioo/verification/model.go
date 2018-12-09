@@ -89,7 +89,11 @@ type Passport struct {
 
 // DriverLicence represents the model for the driver licence of the customer.
 type DriverLicence struct {
-	Number string `json:"Number,omitempty"`
+	Number        string `json:"Number,omitempty"`
+	State         string `json:"State,omitempty"`
+	YearOfExpiry  int    `json:"YearOfExpiry,omitempty"`
+	MonthOfExpiry int    `json:"MonthOfExpiry,omitempty"`
+	DayOfExpiry   int    `json:"DayOfExpiry,omitempty"`
 }
 
 // Document represents the model for the given document data of the customer.
@@ -120,16 +124,8 @@ type NationalID struct {
 
 // CountrySpecific represents the model for country specific data fields.
 type CountrySpecific struct {
-	PassportNumber           string `json:"PassportNumber,omitempty"`
-	PassportMRZLine1         string `json:"PassportMRZLine1,omitempty"`
-	PassportMRZLine2         string `json:"PassportMRZLine2,omitempty"`
-	PassportYearOfExpiry     string `json:"PassportYearOfExpiry,omitempty"`
-	PassportMonthOfExpiry    string `json:"PassportMonthOfExpiry,omitempty"`
-	PassportDayOfExpiry      string `json:"PassportDayOfExpiry,omitempty"`
 	PassportCountry          string `json:"PassportCountry,omitempty"`
-	DriverLicenceNumber      string `json:"DriverLicenceNumber,omitempty"`
 	DriverLicenceVerNumber   string `json:"DriverLicenceVersionNumber,omitempty"`
-	DriverLicenceState       string `json:"DriverLicenceState,omitempty"`
 	HouseExtension           string `json:"HouseExtension,omitempty"`
 	CityOfBirth              string `json:"CityOfBirth,omitempty"`
 	StateOfBirth             string `json:"StateOfBirth,omitempty"`
@@ -212,4 +208,8 @@ func (errors Errors) Error() string {
 	}
 
 	return err
+}
+
+func (err Error) String() string {
+	return err.Code + " " + err.Message
 }
