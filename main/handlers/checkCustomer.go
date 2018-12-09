@@ -137,11 +137,9 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 		})
 	case common.SynapseFI:
 		service = synapsefi.New(synapsefi.Config{
-			Connection: synapsefi.Connection{
-				Host:         cfg["Host"],
-				ClientID:     cfg["ClientID"],
-				ClientSecret: cfg["ClientSecret"],
-			},
+			Host:         cfg["Host"],
+			ClientID:     cfg["ClientID"],
+			ClientSecret: cfg["ClientSecret"],
 		})
 	case common.Trulioo:
 		service = trulioo.New(trulioo.Config{
