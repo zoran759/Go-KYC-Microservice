@@ -198,7 +198,7 @@ func TestToKYCResult(t *testing.T) {
 		assert.Nil(result.StatusCheck)
 	}
 
-	// Full coverage (more than one doc with valid status in the response).
+	// Full coverage (one more doc with valid status in the response).
 	r = &Response{
 		ID: "test_id",
 		Documents: []ResponseDocument{
