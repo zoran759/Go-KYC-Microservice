@@ -12,6 +12,7 @@ import (
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/jumio"
 	"modulus/kyc/integrations/sumsub"
+	"modulus/kyc/integrations/synapsefi"
 	"modulus/kyc/main/config"
 )
 
@@ -116,6 +117,12 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 		service = sumsub.New(sumsub.Config{
 			Host:   cfg["Host"],
 			APIKey: cfg["APIKey"],
+		})
+	case common.SynapseFI:
+		service = synapsefi.New(synapsefi.Config{
+			Host:         cfg["Host"],
+			ClientID:     cfg["ClientID"],
+			ClientSecret: cfg["ClientSecret"],
 		})
 	default:
 		err = &serviceError{
