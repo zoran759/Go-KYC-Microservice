@@ -1,88 +1,186 @@
 package thomsonreuters
 
 import (
-	"bytes"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"fmt"
-	"log"
-	"strings"
-	"time"
+	"encoding/json"
+	"errors"
+	stdhttp "net/http"
 
 	"modulus/kyc/http"
+	"modulus/kyc/integrations/thomsonreuters/model"
 )
 
-const (
-	content = "application/json"
+// getRootGroups retrieves all the top-level groups with their immediate descendants.
+func (s service) getRootGroups() (groups model.Groups, code *int, err error) {
+	path := "groups"
 
-	mGET  httpMethod = "get "
-	mHEAD httpMethod = "head "
-	mPOST httpMethod = "post "
-)
+	headers := s.createHeaders(mGET, path, nil)
 
-type httpMethod string
-
-// createHeaders creates HTTP headers required to perform request.
-func (s service) createHeaders(method httpMethod, endpoint string, payload []byte) http.Headers {
-	date := time.Now().Format(time.RFC3339)
-
-	dataToSign := bytes.Buffer{}
-
-	dataToSign.WriteString("(request-target): ")
-	dataToSign.WriteString(string(method))
-	dataToSign.WriteString(s.path)
-	dataToSign.WriteString(endpoint)
-	dataToSign.WriteByte('\n')
-	dataToSign.WriteString("host: ")
-	dataToSign.WriteString(s.host)
-	dataToSign.WriteByte('\n')
-	dataToSign.WriteString("date: ")
-	dataToSign.WriteString(date)
-
-	if method == mPOST {
-		dataToSign.WriteByte('\n')
-		dataToSign.WriteString("content-type: ")
-		dataToSign.WriteString(content)
-		dataToSign.WriteByte('\n')
-		dataToSign.WriteString("content-length: ")
-		dataToSign.WriteString(fmt.Sprintf("%d", len(payload)))
-		dataToSign.WriteByte('\n')
-		dataToSign.Write(payload)
+	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	if err != nil {
+		return
 	}
 
-	// TODO: remove after debug.
-	log.Println("Data to sign:\n", dataToSign.String())
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
 
-	mac := hmac.New(sha256.New, []byte(s.secret))
-	signature := base64.StdEncoding.EncodeToString(mac.Sum(dataToSign.Bytes()))
-
-	aheader := strings.Builder{}
-	aheader.WriteString(`Signature keyId="`)
-	aheader.WriteString(s.key)
-	aheader.WriteString(`",algorithm="hmac-sha256",headers="(request-target) host date`)
-
-	if method == mPOST {
-		aheader.WriteString(" content-type content-length")
+		return
 	}
 
-	aheader.WriteString(`",signature="`)
-	aheader.WriteString(signature)
-	aheader.WriteByte('"')
+	err = json.Unmarshal(resp, &groups)
 
-	headers := http.Headers{
-		"Date":          date,
-		"Authorization": aheader.String(),
+	return
+}
+
+// getGroup retrieves a specified group including its immediate descendants.
+func (s service) getGroup(groupID string) (group model.Group, code *int, err error) {
+	path := "groups/" + groupID
+
+	headers := s.createHeaders(mGET, path, nil)
+
+	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	if err != nil {
+		return
 	}
 
-	if method == mPOST {
-		headers["Content-Type"] = content
-		headers["Content-Length"] = fmt.Sprintf("%d", len(payload))
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
+
+		return
 	}
 
-	// TODO: remove after debug.
-	log.Println("Signature:", signature)
-	log.Println("Authorization header:", aheader.String())
+	err = json.Unmarshal(resp, &group)
 
-	return headers
+	return
+
+}
+
+// getCaseTemplate retrieves the CaseTemplate for the given Group.
+func (s service) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplateResponse, code *int, err error) {
+	path := "groups/" + groupID + "/caseTemplate"
+
+	headers := s.createHeaders(mGET, path, nil)
+
+	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	if err != nil {
+		return
+	}
+
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
+
+		return
+	}
+
+	err = json.Unmarshal(resp, &caseTemplate)
+
+	return
+}
+
+// getProviders retrieves a list of all available providers and their sources.
+func (s service) getProviders() (providers model.ProviderDetails, code *int, err error) {
+	path := "reference/providers"
+
+	headers := s.createHeaders(mGET, path, nil)
+
+	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	if err != nil {
+		return
+	}
+
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
+
+		return
+	}
+
+	err = json.Unmarshal(resp, &providers)
+
+	return
+}
+
+// getResolutionToolkits retrieves the ResolutionToolkits for the given Group for all enabled provider types,
+// used to construct a valid resolution request(s) on the results for a Case belonging to the given Group groupId
+func (s service) getResolutionToolkits(groupID string) (resToolkits model.ResolutionToolkits, code *int, err error) {
+	path := "groups/" + groupID + "/resolutionToolkits"
+
+	headers := s.createHeaders(mGET, path, nil)
+
+	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	if err != nil {
+		return
+	}
+
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
+
+		return
+	}
+
+	err = json.Unmarshal(resp, &resToolkits)
+
+	return
+}
+
+// getActiveUsers retrieves a list of active users (customers) in the Thomson Reuters API client’s account.
+func (s service) getActiveUsers() (users model.Users, code *int, err error) {
+	path := "users"
+
+	headers := s.createHeaders(mGET, path, nil)
+
+	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	if err != nil {
+		return
+	}
+
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
+
+		return
+	}
+
+	err = json.Unmarshal(resp, &users)
+
+	return
 }
