@@ -21,7 +21,7 @@ type service struct {
 }
 
 // New constructs a new service object.
-func New(c Config) ThomsonReuters {
+func New(c Config) common.CustomerChecker {
 	u, err := url.Parse(c.Host)
 	if err != nil {
 		log.Println("During constructing new Thomson Reuters service:", err)
