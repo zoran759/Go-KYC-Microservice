@@ -1,11 +1,14 @@
 package thomsonreuters
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"net/url"
 	"strings"
 
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/thomsonreuters/model"
 )
 
 // service represents the service.
@@ -41,10 +44,43 @@ func New(c Config) ThomsonReuters {
 // CheckCustomer implements CustomerChecker interface for Thomson Reuters.
 func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	// TODO: implement this.
+	gID, code, err := s.getGroupID()
+	if err != nil {
+		if code != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *code)
+		}
+		return
+	}
+
+	_ = gID
 
 	return
 }
 
 func (s service) id() string {
 	return "Thomson Reuters"
+}
+
+// getGroupID returns group id.
+func (s service) getGroupID() (groupID string, code *int, err error) {
+	groups, code, err := s.getRootGroups()
+	if err != nil {
+		return
+	}
+
+	// Obtain id of the first active root group.
+	for _, g := range groups {
+		if g.Status != model.ActiveStatus {
+			continue
+		}
+
+		groupID = g.ID
+		break
+	}
+
+	if len(groupID) == 0 {
+		err = errors.New("the verification prerequisites error: no active root group")
+	}
+
+	return
 }
