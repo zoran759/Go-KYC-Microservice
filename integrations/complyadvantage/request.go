@@ -1,5 +1,11 @@
 package complyadvantage
 
+import (
+	"time"
+
+	"modulus/kyc/common"
+)
+
 // Filters represents filters within the search to narrow down the results.
 type Filters struct {
 	Types          []string `json:"types,omitempty"`
@@ -21,3 +27,17 @@ type Request struct {
 }
 
 // Note that search_profile and types are mutually exclusive, and only one of these two options should be provided.
+
+// newRequest constructs new Request object from the customer data.
+func newRequest(customer *common.UserData) Request {
+	r := Request{
+		SearchTerm: customer.Fullname(),
+		Fuzziness:  0.3,
+	}
+
+	if !time.Time(customer.DateOfBirth).IsZero() {
+		r.Filters.BirthYear = time.Time(customer.DateOfBirth).Year()
+	}
+
+	return r
+}

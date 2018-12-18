@@ -1,12 +1,12 @@
 package complyadvantage
 
+import "modulus/kyc/common"
+
 // Response represents a repsonse from the ComplyAdvantage API.
 type Response struct {
-	Code    int               `json:"code"`
-	Status  string            `json:"status"`
-	Message string            `json:"message"`
-	Errors  map[string]string `json:"errors"`
-	Content *Content          `json:"content"`
+	Code    int      `json:"code"`
+	Status  string   `json:"status"`
+	Content *Content `json:"content"`
 }
 
 // Content represents a response content if search succeed.
@@ -131,4 +131,11 @@ type SourceNote struct {
 type MatchTypesDetails struct {
 	Type       string              `json:"type"`
 	MatchTypes map[string][]string `json:"match_types"`
+}
+
+// toResult processes the response and generates the verification result.
+func (r Response) toResult() (result common.KYCResult, err error) {
+	// TODO: implement this.
+
+	return
 }
