@@ -1,6 +1,13 @@
 package complyadvantage
 
-import "modulus/kyc/common"
+import (
+	"encoding/json"
+	"fmt"
+	stdhttp "net/http"
+
+	"modulus/kyc/common"
+	"modulus/kyc/http"
+)
 
 // service represents the service.
 type service struct {
@@ -18,7 +25,50 @@ func New(c Config) common.CustomerChecker {
 
 // CheckCustomer implements CustomerChecker interface for the ComplyAdvantage.
 func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
-	// TODO: implememnt this.
+	r := newRequest(customer)
+	resp, status, err := s.performSearch(r)
+	if err != nil {
+		if status != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *status)
+		}
+		return
+	}
+
+	result, err = resp.toResult()
+
+	return
+}
+
+// performSearch performs a search request to the ComplyAdvantage API.
+func (s service) performSearch(r Request) (response *Response, status *int, err error) {
+	body, err := json.Marshal(r)
+	if err != nil {
+		return
+	}
+
+	headers := http.Headers{
+		"Authorization": "Token " + s.key,
+	}
+
+	code, resp, err := http.Post(s.host+"/searches", headers, body)
+	if err != nil {
+		return
+	}
+
+	if code != stdhttp.StatusOK {
+		status = &code
+
+		eresp := &ErrorResponse{}
+		err = json.Unmarshal(resp, eresp)
+		if err != nil {
+			return
+		}
+
+		err = eresp
+		return
+	}
+
+	err = json.Unmarshal(resp, response)
 
 	return
 }
