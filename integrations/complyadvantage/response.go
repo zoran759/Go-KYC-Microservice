@@ -1,6 +1,11 @@
 package complyadvantage
 
-import "modulus/kyc/common"
+import (
+	"fmt"
+	"strings"
+
+	"modulus/kyc/common"
+)
 
 // Response represents a repsonse from the ComplyAdvantage API.
 type Response struct {
@@ -44,7 +49,7 @@ type ResponseFilters struct {
 	RemoveDeceased int      `json:"remove_deceased"`
 	Types          []string `json:"types"`
 	ExactMatch     bool     `json:"exact_match"`
-	Fuzziness      int      `json:"fuzziness"`
+	Fuzziness      float32  `json:"fuzziness"`
 }
 
 // Person represents a person related to the search.
@@ -135,7 +140,29 @@ type MatchTypesDetails struct {
 
 // toResult processes the response and generates the verification result.
 func (r Response) toResult() (result common.KYCResult, err error) {
-	// TODO: implement this.
+	if r.Content.Data.TotalHits == 0 {
+		result.Status = common.Approved
+		return
+	}
+
+	reasons := []string{fmt.Sprintf("Search ID: %d", r.Content.Data.ID)}
+
+	for _, h := range r.Content.Data.Hits {
+		if h.Doc.EntityType != "person" {
+			continue
+		}
+
+		reasons = append(reasons, "[Name: "+h.Doc.Name+"] Match types: "+strings.Join(h.MatchTypes, "|"))
+	}
+
+	if len(reasons) == 1 {
+		reasons = append(reasons, "Possible false positive. Please, inspect case details on the ComplyAdvantage site.")
+	}
+
+	result.Status = common.Denied
+	result.Details = &common.KYCDetails{
+		Reasons: reasons,
+	}
 
 	return
 }
