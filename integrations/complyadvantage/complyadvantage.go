@@ -11,21 +11,23 @@ import (
 
 // service represents the service.
 type service struct {
-	host string
-	key  string
+	host      string
+	key       string
+	fuzziness float32
 }
 
 // New returns a new verification service object.
 func New(c Config) common.CustomerChecker {
 	return service{
-		host: c.Host,
-		key:  c.APIkey,
+		host:      c.Host,
+		key:       c.APIkey,
+		fuzziness: c.Fuzziness,
 	}
 }
 
 // CheckCustomer implements CustomerChecker interface for the ComplyAdvantage.
 func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
-	r := newRequest(customer)
+	r := s.newRequest(customer)
 	resp, status, err := s.performSearch(r)
 	if err != nil {
 		if status != nil {
