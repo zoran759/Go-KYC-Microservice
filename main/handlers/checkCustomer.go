@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/complyadvantage"
 	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/idology"
@@ -96,6 +97,11 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 	}
 
 	switch provider {
+	case common.ComplyAdvantage:
+		service = complyadvantage.New(complyadvantage.Config{
+			Host:   cfg["Host"],
+			APIkey: cfg["APIkey"],
+		})
 	case common.IdentityMind:
 		service = identitymind.New(identitymind.Config{
 			Host:     cfg["Host"],

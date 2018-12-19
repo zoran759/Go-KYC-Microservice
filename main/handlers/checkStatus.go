@@ -95,7 +95,7 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 	}
 
 	switch provider {
-	case common.IDology, common.ShuftiPro, common.Trulioo:
+	case common.ComplyAdvantage, common.IDology, common.ShuftiPro, common.Trulioo:
 		err = &serviceError{
 			status:  http.StatusUnprocessableEntity,
 			message: fmt.Sprintf("%s doesn't support status polling", provider),

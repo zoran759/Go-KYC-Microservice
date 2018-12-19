@@ -47,6 +47,7 @@ func (s service) performSearch(r Request) (response *Response, status *int, err 
 	}
 
 	headers := http.Headers{
+		"Content-Type":  "application/json; charset=utf-8",
 		"Authorization": "Token " + s.key,
 	}
 
@@ -67,6 +68,8 @@ func (s service) performSearch(r Request) (response *Response, status *int, err 
 		err = eresp
 		return
 	}
+
+	response = &Response{}
 
 	err = json.Unmarshal(resp, response)
 
