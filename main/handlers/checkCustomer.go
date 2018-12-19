@@ -98,9 +98,18 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 
 	switch provider {
 	case common.ComplyAdvantage:
+		fuzziness, err1 := strconv.ParseFloat(cfg["Fuzziness"], 32)
+		if err1 != nil {
+			err = &serviceError{
+				status:  http.StatusInternalServerError,
+				message: fmt.Sprintf("%s config error: %s", provider, err1),
+			}
+			return
+		}
 		service = complyadvantage.New(complyadvantage.Config{
-			Host:   cfg["Host"],
-			APIkey: cfg["APIkey"],
+			Host:      cfg["Host"],
+			APIkey:    cfg["APIkey"],
+			Fuzziness: float32(fuzziness),
 		})
 	case common.IdentityMind:
 		service = identitymind.New(identitymind.Config{

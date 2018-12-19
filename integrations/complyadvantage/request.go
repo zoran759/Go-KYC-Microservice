@@ -29,10 +29,10 @@ type Request struct {
 // Note that search_profile and types are mutually exclusive, and only one of these two options should be provided.
 
 // newRequest constructs new Request object from the customer data.
-func newRequest(customer *common.UserData) Request {
+func (s service) newRequest(customer *common.UserData) Request {
 	r := Request{
 		SearchTerm: customer.Fullname(),
-		Fuzziness:  0.3,
+		Fuzziness:  s.fuzziness,
 	}
 
 	if !time.Time(customer.DateOfBirth).IsZero() {
