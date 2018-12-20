@@ -35,23 +35,25 @@ type KYCProvider string
 
 // Possible values of KYCProvider.
 const (
-	Example      KYCProvider = "Example"
-	IdentityMind KYCProvider = "IdentityMind"
-	IDology      KYCProvider = "IDology"
-	Jumio        KYCProvider = "Jumio"
-	ShuftiPro    KYCProvider = "ShuftiPro"
-	SumSub       KYCProvider = "Sum&Substance"
-	SynapseFI    KYCProvider = "SynapseFI"
-	Trulioo      KYCProvider = "Trulioo"
+	Example         KYCProvider = "Example"
+	ComplyAdvantage KYCProvider = "ComplyAdvantage"
+	IdentityMind    KYCProvider = "IdentityMind"
+	IDology         KYCProvider = "IDology"
+	Jumio           KYCProvider = "Jumio"
+	ShuftiPro       KYCProvider = "ShuftiPro"
+	SumSub          KYCProvider = "Sum&Substance"
+	SynapseFI       KYCProvider = "SynapseFI"
+	Trulioo         KYCProvider = "Trulioo"
 )
 
 // KYCProviders enumerates the implemented KYC providers.
 var KYCProviders = map[KYCProvider]bool{
-	IdentityMind: true,
-	IDology:      true,
-	Jumio:        true,
-	ShuftiPro:    true,
-	SumSub:       true,
-	SynapseFI:    true,
-	Trulioo:      true,
+	ComplyAdvantage: true,
+	IdentityMind:    true,
+	IDology:         true,
+	Jumio:           true,
+	ShuftiPro:       true,
+	SumSub:          true,
+	SynapseFI:       true,
+	Trulioo:         true,
 }

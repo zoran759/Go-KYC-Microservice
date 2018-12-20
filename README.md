@@ -14,6 +14,8 @@
   * **[Shufti Pro](#shufti-pro)**
   * **[IdentityMind](#identitymind)**
   * **[Jumio](#jumio)**
+  * **[SynapseFI](#synapsefi)**
+  * **[ComplyAdvantage](#complyadvantage)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
 ## **REST API**
@@ -596,6 +598,18 @@ All fields in the Reference are marked as optional but at least first name and l
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
+#### **ComplyAdvantage**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**      | **Type**     | **Required** | **Comment**                                            |
+| ------------- | ------------ | :----------: | ------------------------------------------------------ |
+| **FirstName** | _**string**_ | **(*)**      | __*__ Either provide first and last names or full name |
+| **LastName**  | _**string**_ | **(*)**      |                                                        |
+| MiddleName    | _string_     |              |                                                        |
+| **FullName**  | _**string**_ | **(*)**      | __*__ Either provide this or first and last names      |
+| DateOfBirth   | _Time_       |              | Recommend for better results                           |
+
 ### **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
@@ -769,6 +783,11 @@ These are the countries that supported since last check.
 * No fields variations found in the docs
 
 #### **SemperFI covered countries**
+
+* International (no list of supported countries)
+* No fields variations found in the docs
+
+#### **ComplyAdvantage covered countries**
 
 * International (no list of supported countries)
 * No fields variations found in the docs

@@ -1,0 +1,10 @@
+{
+    "Provider": "ComplyAdvantage",
+    "UserData": {
+        "FirstName": "Abby",
+        "LastName": "Walker",
+        "MiddleName": "Allison",
+        "FullName": "Abby Allison Walker",
+        "DateOfBirth": "1985-06-17T00:00:00.000Z"
+    }
+}
