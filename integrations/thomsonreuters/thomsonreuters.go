@@ -52,13 +52,26 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	_ = gID
+	template, code, err := s.getCaseTemplate(gID)
+	if err != nil {
+		if code != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *code)
+		}
+		return
+	}
+
+	toolkits, code, err := s.getResolutionToolkits(gID)
+	if err != nil {
+		if code != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *code)
+		}
+		return
+	}
+
+	_ = template
+	_ = toolkits
 
 	return
-}
-
-func (s service) id() string {
-	return "Thomson Reuters"
 }
 
 // getGroupID returns group id.

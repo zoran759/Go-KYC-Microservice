@@ -1,55 +1,32 @@
 package model
 
-// List of FieldValueType values.
+// List of CaseEntityType values.
 const (
-	Country FieldValueType = "COUNTRY"
-	Gender  FieldValueType = "GENDER"
-	Text    FieldValueType = "TEXT"
-	Date    FieldValueType = "DATE"
+	IndividualCET   CaseEntityType = "INDIVIDUAL"
+	OrganisationCET CaseEntityType = "ORGANISATION"
+	VesselCET       CaseEntityType = "VESSEL"
+	UnspecifiedCET  CaseEntityType = "UNSPECIFIED"
 )
-
-// List of GroupScreeningType values.
-const (
-	CaseManagementAudit GroupScreeningType = "CASE_MANAGEMENT_AUDIT"
-	ZeroFootprint       GroupScreeningType = "ZERO_FOOTPRINT"
-)
-
-// List of ProviderType values.
-const (
-	WatchList       ProviderType = "WATCHLIST"
-	PassportCheck   ProviderType = "PASSPORT_CHECK"
-	ClientWatchList ProviderType = "CLIENT_WATCHLIST"
-)
-
-// FieldValueType represents enumerated value formats for a field.
-type FieldValueType string
-
-// GroupScreeningType represents the group screening type enumeration.
-type GroupScreeningType string
-
-// ProviderType represents the provider type enumeration.
-type ProviderType string
-
-// FieldDefinition represents Secondary or Custom Field metadata describing the rules
-// for populating the corresponding Field data when creating or updating a Case.
-type FieldDefinition struct {
-	TypeID         string         `json:"typeId"`
-	Label          string         `json:"label"`
-	FieldRequired  bool           `json:"fieldRequired"`
-	FieldValueType FieldValueType `json:"fieldValueType"`
-	RegExp         string         `json:"regExp"`
-}
-
-// SecondaryFieldsByEntity represents the wrapper which contains secondary fields grouped by CaseEntityType.
-type SecondaryFieldsByEntity struct {
-	SecondaryFieldsByEntity map[string][]FieldDefinition `json:"secondaryFieldsByEntity"`
-}
 
 // CaseTemplateResponse represents the Case template, containing metadata required by the client to construct a valid Case.
 type CaseTemplateResponse struct {
-	GroupScreeningType        GroupScreeningType                 `json:"groupScreeningType"`
 	GroupID                   string                             `json:"groupId"`
+	GroupScreeningType        GroupScreeningType                 `json:"groupScreeningType"`
+	MandatoryProviderTypes    []ProviderType                     `json:"mandatoryProviderTypes"`
 	CustomFields              []FieldDefinition                  `json:"customFields"`
 	SecondaryFieldsByProvider map[string]SecondaryFieldsByEntity `json:"secondaryFieldsByProvider"`
-	MandatoryProviderTypes    []ProviderType                     `json:"mandatoryProviderTypes"`
 }
+
+// NewCase defines Case data that can be sent when creating a new Case.
+type NewCase struct {
+	GroupID         string         `json:"groupId"`
+	ID              string         `json:"caseId,omitempty"`
+	EntityType      CaseEntityType `json:"entityType"`
+	Name            string         `json:"name"`
+	ProviderTypes   []ProviderType `json:"providerTypes"`
+	CustomFields    []Field        `json:"customFields,omitempty"`
+	SecondaryFields []Field        `json:"secondaryFields,omitempty"`
+}
+
+// CaseEntityType represents the case entity type enumeration.
+type CaseEntityType string
