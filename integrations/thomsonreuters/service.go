@@ -3,11 +3,45 @@ package thomsonreuters
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	stdhttp "net/http"
+	"net/url"
+	"strings"
 
+	"modulus/kyc/common"
 	"modulus/kyc/http"
 	"modulus/kyc/integrations/thomsonreuters/model"
 )
+
+// service represents the service.
+type service struct {
+	scheme string
+	host   string
+	path   string
+	key    string
+	secret string
+}
+
+// New constructs a new service object.
+func New(c Config) common.CustomerChecker {
+	u, err := url.Parse(c.Host)
+	if err != nil {
+		log.Println("During constructing new Thomson Reuters service:", err)
+		return service{}
+	}
+
+	if !strings.HasSuffix(u.Path, "/") {
+		u.Path = u.Path + "/"
+	}
+
+	return service{
+		scheme: u.Scheme,
+		host:   u.Host,
+		path:   u.Path,
+		key:    c.APIkey,
+		secret: c.APIsecret,
+	}
+}
 
 // getRootGroups retrieves all the top-level groups with their immediate descendants.
 func (s service) getRootGroups() (groups model.Groups, code *int, err error) {
@@ -181,6 +215,41 @@ func (s service) getActiveUsers() (users model.Users, code *int, err error) {
 	}
 
 	err = json.Unmarshal(resp, &users)
+
+	return
+}
+
+// performSynchronousScreening performs a synchronous screening for a given case.
+// The returned result collection contains the regular case result details plus identity documents and important events.
+func (s service) performSynchronousScreening(newcase model.NewCase) (rescol model.ScreeningResultCollection, code *int, err error) {
+	path := "cases/screeningRequest"
+
+	payload, err := json.Marshal(newcase)
+	if err != nil {
+		return
+	}
+
+	headers := s.createHeaders(mPOST, path, payload)
+
+	status, resp, err := http.Post(s.scheme+s.host+s.path+path, headers, payload)
+	if err != nil {
+		return
+	}
+
+	if status != stdhttp.StatusOK {
+		code = &status
+		errs := model.Errors{}
+		err = json.Unmarshal(resp, errs)
+		if err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = errs
+
+		return
+	}
+
+	err = json.Unmarshal(resp, &rescol)
 
 	return
 }

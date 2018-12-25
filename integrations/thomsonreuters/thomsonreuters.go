@@ -3,47 +3,13 @@ package thomsonreuters
 import (
 	"errors"
 	"fmt"
-	"log"
-	"net/url"
-	"strings"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/thomsonreuters/model"
 )
 
-// service represents the service.
-type service struct {
-	scheme string
-	host   string
-	path   string
-	key    string
-	secret string
-}
-
-// New constructs a new service object.
-func New(c Config) common.CustomerChecker {
-	u, err := url.Parse(c.Host)
-	if err != nil {
-		log.Println("During constructing new Thomson Reuters service:", err)
-		return service{}
-	}
-
-	if !strings.HasSuffix(u.Path, "/") {
-		u.Path = u.Path + "/"
-	}
-
-	return service{
-		scheme: u.Scheme,
-		host:   u.Host,
-		path:   u.Path,
-		key:    c.APIkey,
-		secret: c.APIsecret,
-	}
-}
-
 // CheckCustomer implements CustomerChecker interface for Thomson Reuters.
 func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
-	// TODO: implement this.
 	gID, code, err := s.getGroupID()
 	if err != nil {
 		if code != nil {
@@ -68,8 +34,17 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	_ = template
-	_ = toolkits
+	newcase := createNewCase(template, customer)
+
+	src, code, err := s.performSynchronousScreening(newcase)
+	if err != nil {
+		if code != nil {
+			result.ErrorCode = fmt.Sprintf("%d", *code)
+		}
+		return
+	}
+
+	result, err = toResult(toolkits, src)
 
 	return
 }
@@ -94,6 +69,20 @@ func (s service) getGroupID() (groupID string, code *int, err error) {
 	if len(groupID) == 0 {
 		err = errors.New("the verification prerequisites error: no active root group")
 	}
+
+	return
+}
+
+// createNewCase constructs a new case for a synchronous screening.
+func createNewCase(template model.CaseTemplateResponse, customer *common.UserData) (newcase model.NewCase) {
+	// TODO: implement this.
+
+	return
+}
+
+// toResult processes the screening result collection and generates the verification result.
+func toResult(toolkits model.ResolutionToolkits, src model.ScreeningResultCollection) (result common.KYCResult, err error) {
+	// TODO: implement this.
 
 	return
 }
