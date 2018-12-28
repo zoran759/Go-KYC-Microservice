@@ -55,7 +55,7 @@ func (s service) createHeaders(method httpMethod, endpoint string, payload []byt
 	}
 
 	// TODO: remove after debug.
-	log.Println("Data to sign:\n", dataToSign.String())
+	log.Print("Data to sign:\n\n", dataToSign.String(), "\n\n")
 
 	mac := hmac.New(sha256.New, []byte(s.secret))
 	signature := base64.StdEncoding.EncodeToString(mac.Sum(dataToSign.Bytes()))
