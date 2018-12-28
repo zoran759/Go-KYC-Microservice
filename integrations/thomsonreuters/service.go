@@ -29,6 +29,10 @@ func New(c Config) common.CustomerChecker {
 		log.Println("During constructing new Thomson Reuters service:", err)
 		return service{}
 	}
+	if len(u.Scheme) == 0 || len(u.Host) == 0 {
+		log.Println("During constructing new Thomson Reuters service: malformed Host format")
+		return service{}
+	}
 
 	if !strings.HasSuffix(u.Path, "/") {
 		u.Path = u.Path + "/"
@@ -161,7 +165,7 @@ func (s service) getProviders() (providers model.ProviderDetails, code *int, err
 }
 
 // getResolutionToolkits retrieves the ResolutionToolkits for the given Group for all enabled provider types,
-// used to construct a valid resolution request(s) on the results for a Case belonging to the given Group groupId
+// used to construct a valid resolution request(s) on the results for a Case belonging to the given Group groupId.
 func (s service) getResolutionToolkits(groupID string) (resToolkits model.ResolutionToolkits, code *int, err error) {
 	path := "groups/" + groupID + "/resolutionToolkits"
 
