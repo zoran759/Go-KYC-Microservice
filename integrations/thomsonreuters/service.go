@@ -53,7 +53,7 @@ func (s service) getRootGroups() (groups model.Groups, code *int, err error) {
 
 	headers := s.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -82,7 +82,7 @@ func (s service) getGroup(groupID string) (group model.Group, code *int, err err
 
 	headers := s.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -112,7 +112,7 @@ func (s service) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplat
 
 	headers := s.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -141,7 +141,7 @@ func (s service) getProviders() (providers model.ProviderDetails, code *int, err
 
 	headers := s.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -171,7 +171,7 @@ func (s service) getResolutionToolkits(groupID string) (resToolkits model.Resolu
 
 	headers := s.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -200,7 +200,7 @@ func (s service) getActiveUsers() (users model.Users, code *int, err error) {
 
 	headers := s.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+s.host+s.path+path, headers)
+	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -235,7 +235,7 @@ func (s service) performSynchronousScreening(newcase model.NewCase) (rescol mode
 
 	headers := s.createHeaders(mPOST, path, payload)
 
-	status, resp, err := http.Post(s.scheme+s.host+s.path+path, headers, payload)
+	status, resp, err := http.Post(s.scheme+"://"+s.host+s.path+path, headers, payload)
 	if err != nil {
 		return
 	}
