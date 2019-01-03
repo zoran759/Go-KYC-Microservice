@@ -3,10 +3,11 @@ package verification
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNewService(t *testing.T) {
@@ -55,7 +56,7 @@ func Test_service_Verify(t *testing.T) {
 		},
 	)
 
-	response, err := testService.Verify(Request{})
+	response, err := testService.Verify(OldRequest{})
 	if assert.NoError(t, err) && assert.NotNil(t, response) {
 		assert.Equal(t, reference, response.Reference)
 		assert.Equal(t, "SP1", response.StatusCode)
@@ -89,7 +90,7 @@ func Test_service_Verify_Error(t *testing.T) {
 		},
 	)
 
-	response, err := testService.Verify(Request{})
+	response, err := testService.Verify(OldRequest{})
 	assert.Error(t, err)
 	assert.Nil(t, response)
 
@@ -102,7 +103,7 @@ func Test_service_Verify_Error(t *testing.T) {
 		},
 	)
 
-	response, err = testService.Verify(Request{})
+	response, err = testService.Verify(OldRequest{})
 	assert.Error(t, err)
 	assert.Nil(t, response)
 }

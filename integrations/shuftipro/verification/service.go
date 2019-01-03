@@ -11,6 +11,8 @@ import (
 	"modulus/kyc/http"
 )
 
+const content = "application/json"
+
 type service struct {
 	config Config
 }
@@ -22,7 +24,7 @@ func NewService(config Config) Verification {
 	}
 }
 
-func (service service) Verify(request Request) (*Response, error) {
+func (service service) Verify(request OldRequest) (*Response, error) {
 	servicesBytes, err := json.Marshal(request.VerificationServices)
 	if err != nil {
 		return nil, err

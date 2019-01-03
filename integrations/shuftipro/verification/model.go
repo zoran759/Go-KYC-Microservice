@@ -1,7 +1,7 @@
 package verification
 
-// Request represents the verification request.
-type Request struct {
+// OldRequest represents the verification request.
+type OldRequest struct {
 	Email                string
 	PhoneNumber          string
 	Country              string
