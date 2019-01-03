@@ -3,57 +3,19 @@ package thomsonreuters
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	stdhttp "net/http"
-	"net/url"
-	"strings"
 
-	"modulus/kyc/common"
 	"modulus/kyc/http"
 	"modulus/kyc/integrations/thomsonreuters/model"
 )
 
-// service represents the service.
-type service struct {
-	scheme string
-	host   string
-	path   string
-	key    string
-	secret string
-}
-
-// New constructs a new service object.
-func New(c Config) common.CustomerChecker {
-	u, err := url.Parse(c.Host)
-	if err != nil {
-		log.Println("During constructing new Thomson Reuters service:", err)
-		return service{}
-	}
-	if len(u.Scheme) == 0 || len(u.Host) == 0 {
-		log.Println("During constructing new Thomson Reuters service: malformed Host format")
-		return service{}
-	}
-
-	if !strings.HasSuffix(u.Path, "/") {
-		u.Path = u.Path + "/"
-	}
-
-	return service{
-		scheme: u.Scheme,
-		host:   u.Host,
-		path:   u.Path,
-		key:    c.APIkey,
-		secret: c.APIsecret,
-	}
-}
-
 // getRootGroups retrieves all the top-level groups with their immediate descendants.
-func (s service) getRootGroups() (groups model.Groups, code *int, err error) {
+func (tomson ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err error) {
 	path := "groups"
 
-	headers := s.createHeaders(mGET, path, nil)
+	headers := tomson.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
+	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -77,12 +39,12 @@ func (s service) getRootGroups() (groups model.Groups, code *int, err error) {
 }
 
 // getGroup retrieves a specified group including its immediate descendants.
-func (s service) getGroup(groupID string) (group model.Group, code *int, err error) {
+func (tomson ThomsonReuters) getGroup(groupID string) (group model.Group, code *int, err error) {
 	path := "groups/" + groupID
 
-	headers := s.createHeaders(mGET, path, nil)
+	headers := tomson.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
+	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -107,12 +69,12 @@ func (s service) getGroup(groupID string) (group model.Group, code *int, err err
 }
 
 // getCaseTemplate retrieves the CaseTemplate for the given Group.
-func (s service) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplateResponse, code *int, err error) {
+func (tomson ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplateResponse, code *int, err error) {
 	path := "groups/" + groupID + "/caseTemplate"
 
-	headers := s.createHeaders(mGET, path, nil)
+	headers := tomson.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
+	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -136,12 +98,12 @@ func (s service) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplat
 }
 
 // getProviders retrieves a list of all available providers and their sources.
-func (s service) getProviders() (providers model.ProviderDetails, code *int, err error) {
+func (tomson ThomsonReuters) getProviders() (providers model.ProviderDetails, code *int, err error) {
 	path := "reference/providers"
 
-	headers := s.createHeaders(mGET, path, nil)
+	headers := tomson.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
+	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -165,13 +127,13 @@ func (s service) getProviders() (providers model.ProviderDetails, code *int, err
 }
 
 // getResolutionToolkits retrieves the ResolutionToolkits for the given Group for all enabled provider types,
-// used to construct a valid resolution request(s) on the results for a Case belonging to the given Group groupId.
-func (s service) getResolutionToolkits(groupID string) (resToolkits model.ResolutionToolkits, code *int, err error) {
+// used to construct a valid resolution request(tomson) on the results for a Case belonging to the given Group groupId.
+func (tomson ThomsonReuters) getResolutionToolkits(groupID string) (resToolkits model.ResolutionToolkits, code *int, err error) {
 	path := "groups/" + groupID + "/resolutionToolkits"
 
-	headers := s.createHeaders(mGET, path, nil)
+	headers := tomson.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
+	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -195,12 +157,12 @@ func (s service) getResolutionToolkits(groupID string) (resToolkits model.Resolu
 }
 
 // getActiveUsers retrieves a list of active users (customers) in the Thomson Reuters API client’s account.
-func (s service) getActiveUsers() (users model.Users, code *int, err error) {
+func (tomson ThomsonReuters) getActiveUsers() (users model.Users, code *int, err error) {
 	path := "users"
 
-	headers := s.createHeaders(mGET, path, nil)
+	headers := tomson.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(s.scheme+"://"+s.host+s.path+path, headers)
+	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -225,7 +187,7 @@ func (s service) getActiveUsers() (users model.Users, code *int, err error) {
 
 // performSynchronousScreening performs a synchronous screening for a given case.
 // The returned result collection contains the regular case result details plus identity documents and important events.
-func (s service) performSynchronousScreening(newcase model.NewCase) (rescol model.ScreeningResultCollection, code *int, err error) {
+func (tomson ThomsonReuters) performSynchronousScreening(newcase model.NewCase) (rescol model.ScreeningResultCollection, code *int, err error) {
 	path := "cases/screeningRequest"
 
 	payload, err := json.Marshal(newcase)
@@ -233,9 +195,9 @@ func (s service) performSynchronousScreening(newcase model.NewCase) (rescol mode
 		return
 	}
 
-	headers := s.createHeaders(mPOST, path, payload)
+	headers := tomson.createHeaders(mPOST, path, payload)
 
-	status, resp, err := http.Post(s.scheme+"://"+s.host+s.path+path, headers, payload)
+	status, resp, err := http.Post(tomson.scheme+"://"+tomson.host+tomson.path+path, headers, payload)
 	if err != nil {
 		return
 	}

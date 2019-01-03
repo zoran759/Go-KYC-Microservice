@@ -6,62 +6,26 @@ import (
 
 	"modulus/kyc/integrations/thomsonreuters/model"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: missing valid credentials.
-var s = service{
+var tomson = ThomsonReuters{
 	scheme: "https",
 	host:   "rms-world-check-one-api-pilot.thomsonreuters.com",
 	path:   "/v1/",
-	key:    "key",
-	secret: "secret",
-}
-
-func TestNew(t *testing.T) {
-	assert := assert.New(t)
-
-	// Test URL parsing error.
-	svc := New(Config{
-		Host:      "::",
-		APIkey:    "key",
-		APIsecret: "secret",
-	})
-	s := svc.(service)
-
-	assert.Empty(s)
-
-	// Test malformed Host.
-	svc = New(Config{
-		Host:      "host",
-		APIkey:    "key",
-		APIsecret: "secret",
-	})
-	s = svc.(service)
-
-	assert.Empty(s)
-
-	// Test valid config.
-	svc = New(Config{
-		Host:      "https://rms-world-check-one-api-pilot.thomsonreuters.com/v1",
-		APIkey:    "key",
-		APIsecret: "secret",
-	})
-	s = svc.(service)
-
-	assert.NotEmpty(s)
-	assert.Equal("https", s.scheme)
-	assert.Equal("rms-world-check-one-api-pilot.thomsonreuters.com", s.host)
-	assert.Equal("/v1/", s.path)
-	assert.Equal("key", s.key)
-	assert.Equal("secret", s.secret)
+	key:    "c7863652-3d05-4f02-8bf7-40ebb70fe17b",
+	secret: "KXT8Pkj5n0Ttm4OSfD31x3Au4zf+2QqSbZIXBFoWq1oi7eGWh0k0dkqSdXmSmy15QcWyob7S/ENIdviedBCLRA==",
 }
 
 func TestGetRootGroups(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	groups, status, err := s.getRootGroups()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	groups, status, err := tomson.getRootGroups()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -72,7 +36,10 @@ func TestGetGroup(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	groups, status, err := s.getRootGroups()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	groups, status, err := tomson.getRootGroups()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -89,7 +56,7 @@ func TestGetGroup(t *testing.T) {
 
 	assert.NotEmpty(gID)
 
-	group, status, err := s.getGroup(gID)
+	group, status, err := tomson.getGroup(gID)
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -100,7 +67,10 @@ func TestGetCaseTemplate(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	groups, status, err := s.getRootGroups()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	groups, status, err := tomson.getRootGroups()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -118,7 +88,7 @@ func TestGetCaseTemplate(t *testing.T) {
 
 	assert.NotEmpty(gID)
 
-	ctr, status, err := s.getCaseTemplate(gID)
+	ctr, status, err := tomson.getCaseTemplate(gID)
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -129,7 +99,10 @@ func TestGetProviders(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	provs, status, err := s.getProviders()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	provs, status, err := tomson.getProviders()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -140,7 +113,10 @@ func TestGetResolutionToolkits(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	groups, status, err := s.getRootGroups()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	groups, status, err := tomson.getRootGroups()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -158,7 +134,7 @@ func TestGetResolutionToolkits(t *testing.T) {
 
 	assert.NotEmpty(gID)
 
-	rtks, status, err := s.getResolutionToolkits(gID)
+	rtks, status, err := tomson.getResolutionToolkits(gID)
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -169,7 +145,10 @@ func TestGetActiveUsers(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	users, status, err := s.getActiveUsers()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	users, status, err := tomson.getActiveUsers()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -180,7 +159,10 @@ func TestPerformSynchronousScreening(t *testing.T) {
 	// TODO: implement this.
 	assert := assert.New(t)
 
-	groups, status, err := s.getRootGroups()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	groups, status, err := tomson.getRootGroups()
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)
@@ -202,7 +184,7 @@ func TestPerformSynchronousScreening(t *testing.T) {
 		GroupID: gID,
 	}
 
-	src, status, err := s.performSynchronousScreening(newcase)
+	src, status, err := tomson.performSynchronousScreening(newcase)
 
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, *status)

@@ -24,18 +24,18 @@ const (
 type httpMethod string
 
 // createHeaders creates HTTP headers required to perform request.
-func (s service) createHeaders(method httpMethod, endpoint string, payload []byte) http.Headers {
+func (tomson ThomsonReuters) createHeaders(method httpMethod, endpoint string, payload []byte) http.Headers {
 	date := time.Now().Format(time.RFC3339)
 
 	dataToSign := bytes.Buffer{}
 
 	dataToSign.WriteString("(request-target): ")
 	dataToSign.WriteString(string(method))
-	dataToSign.WriteString(s.path)
+	dataToSign.WriteString(tomson.path)
 	dataToSign.WriteString(endpoint)
 	dataToSign.WriteByte('\n')
 	dataToSign.WriteString("host: ")
-	dataToSign.WriteString(s.host)
+	dataToSign.WriteString(tomson.host)
 	dataToSign.WriteByte('\n')
 	dataToSign.WriteString("date: ")
 	dataToSign.WriteString(date)
@@ -57,12 +57,12 @@ func (s service) createHeaders(method httpMethod, endpoint string, payload []byt
 	// TODO: remove after debug.
 	log.Print("Data to sign:\n\n", dataToSign.String(), "\n\n")
 
-	mac := hmac.New(sha256.New, []byte(s.secret))
+	mac := hmac.New(sha256.New, []byte(tomson.secret))
 	signature := base64.StdEncoding.EncodeToString(mac.Sum(dataToSign.Bytes()))
 
 	aheader := strings.Builder{}
 	aheader.WriteString(`Signature keyId="`)
-	aheader.WriteString(s.key)
+	aheader.WriteString(tomson.key)
 	aheader.WriteString(`",algorithm="hmac-sha256",headers="(request-target) host date`)
 
 	if method == mPOST {
