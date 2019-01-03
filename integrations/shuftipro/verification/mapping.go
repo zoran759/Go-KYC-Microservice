@@ -7,9 +7,9 @@ import (
 )
 
 // MapCustomerToVerificationRequest maps the values of common data to the service specific values.
-func MapCustomerToVerificationRequest(customer common.UserData) Request {
+func MapCustomerToVerificationRequest(customer common.UserData) OldRequest {
 
-	request := Request{
+	request := OldRequest{
 		Email:       customer.Email,
 		PhoneNumber: customer.Phone,
 		Country:     customer.CountryAlpha2,

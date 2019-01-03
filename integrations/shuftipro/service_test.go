@@ -22,7 +22,7 @@ func TestNew(t *testing.T) {
 func TestShuftiPro_CheckCustomer(t *testing.T) {
 	service := ShuftiPro{
 		verification: verification.Mock{
-			VerifyFn: func(request verification.Request) (*verification.Response, error) {
+			VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
 				return &verification.Response{
 					StatusCode: "SP0",
 					Message:    "Not verified",
@@ -38,7 +38,7 @@ func TestShuftiPro_CheckCustomer(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(request verification.Request) (*verification.Response, error) {
+		VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
 			return &verification.Response{
 				StatusCode: "SP1",
 				Message:    "Verified",
@@ -56,7 +56,7 @@ func TestShuftiPro_CheckCustomer(t *testing.T) {
 func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 	service := ShuftiPro{
 		verification: verification.Mock{
-			VerifyFn: func(request verification.Request) (*verification.Response, error) {
+			VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
 				return &verification.Response{
 					StatusCode: "SP22",
 					Message:    "Invalid checksum value.",
@@ -73,7 +73,7 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(request verification.Request) (*verification.Response, error) {
+		VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
 			return &verification.Response{
 				StatusCode: "SP2",
 			}, nil
@@ -88,7 +88,7 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(request verification.Request) (*verification.Response, error) {
+		VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
 			return nil, errors.New("test_error")
 		},
 	}
