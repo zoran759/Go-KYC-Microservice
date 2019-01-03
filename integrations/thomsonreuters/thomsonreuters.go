@@ -1,16 +1,51 @@
 package thomsonreuters
 
 import (
-	"errors"
 	"fmt"
+	"log"
+	"net/url"
+	"strings"
 
 	"modulus/kyc/common"
-	"modulus/kyc/integrations/thomsonreuters/model"
 )
 
+// ThomsonReuters represents the Thomson Reuters API client.
+type ThomsonReuters struct {
+	scheme string
+	host   string
+	path   string
+	key    string
+	secret string
+}
+
+// New constructs a new ThomsonReuters client.
+func New(c Config) ThomsonReuters {
+	u, err := url.Parse(c.Host)
+	if err != nil {
+		log.Println("During constructing new Thomson Reuters client:", err)
+		return ThomsonReuters{}
+	}
+	if len(u.Scheme) == 0 || len(u.Host) == 0 {
+		log.Println("During constructing new Thomson Reuters client: malformed Host format")
+		return ThomsonReuters{}
+	}
+
+	if !strings.HasSuffix(u.Path, "/") {
+		u.Path = u.Path + "/"
+	}
+
+	return ThomsonReuters{
+		scheme: u.Scheme,
+		host:   u.Host,
+		path:   u.Path,
+		key:    c.APIkey,
+		secret: c.APIsecret,
+	}
+}
+
 // CheckCustomer implements CustomerChecker interface for Thomson Reuters.
-func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
-	gID, code, err := s.getGroupID()
+func (tomson ThomsonReuters) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
+	gID, code, err := tomson.getGroupID()
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -18,7 +53,7 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	template, code, err := s.getCaseTemplate(gID)
+	template, code, err := tomson.getCaseTemplate(gID)
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -26,7 +61,7 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	toolkits, code, err := s.getResolutionToolkits(gID)
+	toolkits, code, err := tomson.getResolutionToolkits(gID)
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -34,9 +69,9 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 		return
 	}
 
-	newcase := createNewCase(template, customer)
+	newcase := newCase(template, customer)
 
-	src, code, err := s.performSynchronousScreening(newcase)
+	src, code, err := tomson.performSynchronousScreening(newcase)
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -45,44 +80,6 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 	}
 
 	result, err = toResult(toolkits, src)
-
-	return
-}
-
-// getGroupID returns group id.
-func (s service) getGroupID() (groupID string, code *int, err error) {
-	groups, code, err := s.getRootGroups()
-	if err != nil {
-		return
-	}
-
-	// Obtain id of the first active root group.
-	for _, g := range groups {
-		if g.Status != model.ActiveStatus {
-			continue
-		}
-
-		groupID = g.ID
-		break
-	}
-
-	if len(groupID) == 0 {
-		err = errors.New("the verification prerequisites error: no active root group")
-	}
-
-	return
-}
-
-// createNewCase constructs a new case for a synchronous screening.
-func createNewCase(template model.CaseTemplateResponse, customer *common.UserData) (newcase model.NewCase) {
-	// TODO: implement this.
-
-	return
-}
-
-// toResult processes the screening result collection and generates the verification result.
-func toResult(toolkits model.ResolutionToolkits, src model.ScreeningResultCollection) (result common.KYCResult, err error) {
-	// TODO: implement this.
 
 	return
 }

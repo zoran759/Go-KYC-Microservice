@@ -4,80 +4,59 @@ import (
 	"testing"
 
 	"modulus/kyc/common"
-	"modulus/kyc/integrations/thomsonreuters/model"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	// Test URL parsing error.
+	tomson := New(Config{
+		Host:      "::",
+		APIkey:    "key",
+		APIsecret: "secret",
+	})
+
+	assert.Empty(tomson)
+
+	// Test malformed Host.
+	tomson = New(Config{
+		Host:      "host",
+		APIkey:    "key",
+		APIsecret: "secret",
+	})
+
+	assert.Empty(tomson)
+
+	// Test valid config.
+	tomson = New(Config{
+		Host:      "https://rms-world-check-one-api-pilot.thomsonreuters.com/v1",
+		APIkey:    "key",
+		APIsecret: "secret",
+	})
+
+	assert.NotEmpty(tomson)
+	assert.Equal("https", tomson.scheme)
+	assert.Equal("rms-world-check-one-api-pilot.thomsonreuters.com", tomson.host)
+	assert.Equal("/v1/", tomson.path)
+	assert.Equal("key", tomson.key)
+	assert.Equal("secret", tomson.secret)
+}
 
 func TestCheckCustomer(t *testing.T) {
 	assert := assert.New(t)
 
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
 	customer := &common.UserData{}
 
-	res, err := s.CheckCustomer(customer)
+	res, err := tomson.CheckCustomer(customer)
 
 	assert.NoError(err)
 	assert.Equal(common.Approved, res.Status)
-	assert.Nil(res.Details)
-	assert.Empty(res.ErrorCode)
-	assert.Nil(res.StatusCheck)
-}
-
-func TestCreateNewCase(t *testing.T) {
-	// TODO: implement this.
-	assert := assert.New(t)
-
-	template := model.CaseTemplateResponse{}
-	customer := &common.UserData{}
-
-	newcase := createNewCase(template, customer)
-
-	assert.Equal(template.GroupID, newcase.GroupID)
-}
-
-func TestToResultApproved(t *testing.T) {
-	// TODO: implement this.
-	assert := assert.New(t)
-
-	toolkits := model.ResolutionToolkits{}
-	src := model.ScreeningResultCollection{}
-
-	res, err := toResult(toolkits, src)
-
-	assert.NoError(err)
-	assert.Equal(common.Approved, res.Status)
-	assert.Nil(res.Details)
-	assert.Empty(res.ErrorCode)
-	assert.Nil(res.StatusCheck)
-}
-
-func TestToResultDenied(t *testing.T) {
-	// TODO: implement this.
-	assert := assert.New(t)
-
-	toolkits := model.ResolutionToolkits{}
-	src := model.ScreeningResultCollection{}
-
-	res, err := toResult(toolkits, src)
-
-	assert.NoError(err)
-	assert.Equal(common.Denied, res.Status)
-	assert.Nil(res.Details)
-	assert.Empty(res.ErrorCode)
-	assert.Nil(res.StatusCheck)
-}
-
-func TestToResultError(t *testing.T) {
-	// TODO: implement this.
-	assert := assert.New(t)
-
-	toolkits := model.ResolutionToolkits{}
-	src := model.ScreeningResultCollection{}
-
-	res, err := toResult(toolkits, src)
-
-	assert.NoError(err)
-	assert.Equal(common.Error, res.Status)
 	assert.Nil(res.Details)
 	assert.Empty(res.ErrorCode)
 	assert.Nil(res.StatusCheck)
