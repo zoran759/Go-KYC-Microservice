@@ -3,6 +3,7 @@ package thomsonreuters
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	stdhttp "net/http"
 
 	"modulus/kyc/http"
@@ -10,12 +11,12 @@ import (
 )
 
 // getRootGroups retrieves all the top-level groups with their immediate descendants.
-func (tomson ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err error) {
+func (tr ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err error) {
 	path := "groups"
 
-	headers := tomson.createHeaders(mGET, path, nil)
+	headers := tr.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
+	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -39,12 +40,12 @@ func (tomson ThomsonReuters) getRootGroups() (groups model.Groups, code *int, er
 }
 
 // getGroup retrieves a specified group including its immediate descendants.
-func (tomson ThomsonReuters) getGroup(groupID string) (group model.Group, code *int, err error) {
+func (tr ThomsonReuters) getGroup(groupID string) (group model.Group, code *int, err error) {
 	path := "groups/" + groupID
 
-	headers := tomson.createHeaders(mGET, path, nil)
+	headers := tr.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
+	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -65,16 +66,15 @@ func (tomson ThomsonReuters) getGroup(groupID string) (group model.Group, code *
 	err = json.Unmarshal(resp, &group)
 
 	return
-
 }
 
 // getCaseTemplate retrieves the CaseTemplate for the given Group.
-func (tomson ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplateResponse, code *int, err error) {
+func (tr ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model.CaseTemplateResponse, code *int, err error) {
 	path := "groups/" + groupID + "/caseTemplate"
 
-	headers := tomson.createHeaders(mGET, path, nil)
+	headers := tr.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
+	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -97,13 +97,16 @@ func (tomson ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model
 	return
 }
 
+/*
+This method will likely return a significant amount of data (more than 1 Mb), well, I guess we ain't gonna need it.
+
 // getProviders retrieves a list of all available providers and their sources.
-func (tomson ThomsonReuters) getProviders() (providers model.ProviderDetails, code *int, err error) {
+func (tr ThomsonReuters) getProviders() (providers model.ProviderDetails, code *int, err error) {
 	path := "reference/providers"
 
-	headers := tomson.createHeaders(mGET, path, nil)
+	headers := tr.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
+	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -125,15 +128,16 @@ func (tomson ThomsonReuters) getProviders() (providers model.ProviderDetails, co
 
 	return
 }
+*/
 
 // getResolutionToolkits retrieves the ResolutionToolkits for the given Group for all enabled provider types,
-// used to construct a valid resolution request(tomson) on the results for a Case belonging to the given Group groupId.
-func (tomson ThomsonReuters) getResolutionToolkits(groupID string) (resToolkits model.ResolutionToolkits, code *int, err error) {
+// used to construct a valid resolution request(tr) on the results for a Case belonging to the given Group groupId.
+func (tr ThomsonReuters) getResolutionToolkits(groupID string) (resToolkits model.ResolutionToolkits, code *int, err error) {
 	path := "groups/" + groupID + "/resolutionToolkits"
 
-	headers := tomson.createHeaders(mGET, path, nil)
+	headers := tr.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
+	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -156,13 +160,16 @@ func (tomson ThomsonReuters) getResolutionToolkits(groupID string) (resToolkits 
 	return
 }
 
+/*
+Currently, we don't use this.
+
 // getActiveUsers retrieves a list of active users (customers) in the Thomson Reuters API client’s account.
-func (tomson ThomsonReuters) getActiveUsers() (users model.Users, code *int, err error) {
+func (tr ThomsonReuters) getActiveUsers() (users model.Users, code *int, err error) {
 	path := "users"
 
-	headers := tomson.createHeaders(mGET, path, nil)
+	headers := tr.createHeaders(mGET, path, nil)
 
-	status, resp, err := http.Get(tomson.scheme+"://"+tomson.host+tomson.path+path, headers)
+	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
 		return
 	}
@@ -184,10 +191,11 @@ func (tomson ThomsonReuters) getActiveUsers() (users model.Users, code *int, err
 
 	return
 }
+*/
 
 // performSynchronousScreening performs a synchronous screening for a given case.
 // The returned result collection contains the regular case result details plus identity documents and important events.
-func (tomson ThomsonReuters) performSynchronousScreening(newcase model.NewCase) (rescol model.ScreeningResultCollection, code *int, err error) {
+func (tr ThomsonReuters) performSynchronousScreening(newcase model.NewCase) (rescol model.ScreeningResultCollection, code *int, err error) {
 	path := "cases/screeningRequest"
 
 	payload, err := json.Marshal(newcase)
@@ -195,12 +203,13 @@ func (tomson ThomsonReuters) performSynchronousScreening(newcase model.NewCase) 
 		return
 	}
 
-	headers := tomson.createHeaders(mPOST, path, payload)
+	headers := tr.createHeaders(mPOST, path, payload)
 
-	status, resp, err := http.Post(tomson.scheme+"://"+tomson.host+tomson.path+path, headers, payload)
+	status, resp, err := http.Post(tr.scheme+"://"+tr.host+tr.path+path, headers, payload)
 	if err != nil {
 		return
 	}
+	ioutil.WriteFile("resp_screeningRequest.json", resp, 0644)
 
 	if status != stdhttp.StatusOK {
 		code = &status

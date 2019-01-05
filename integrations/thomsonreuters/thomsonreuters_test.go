@@ -13,36 +13,36 @@ func TestNew(t *testing.T) {
 	assert := assert.New(t)
 
 	// Test URL parsing error.
-	tomson := New(Config{
+	tr := New(Config{
 		Host:      "::",
 		APIkey:    "key",
 		APIsecret: "secret",
 	})
 
-	assert.Empty(tomson)
+	assert.Empty(tr)
 
 	// Test malformed Host.
-	tomson = New(Config{
+	tr = New(Config{
 		Host:      "host",
 		APIkey:    "key",
 		APIsecret: "secret",
 	})
 
-	assert.Empty(tomson)
+	assert.Empty(tr)
 
 	// Test valid config.
-	tomson = New(Config{
+	tr = New(Config{
 		Host:      "https://rms-world-check-one-api-pilot.thomsonreuters.com/v1",
 		APIkey:    "key",
 		APIsecret: "secret",
 	})
 
-	assert.NotEmpty(tomson)
-	assert.Equal("https", tomson.scheme)
-	assert.Equal("rms-world-check-one-api-pilot.thomsonreuters.com", tomson.host)
-	assert.Equal("/v1/", tomson.path)
-	assert.Equal("key", tomson.key)
-	assert.Equal("secret", tomson.secret)
+	assert.NotEmpty(tr)
+	assert.Equal("https", tr.scheme)
+	assert.Equal("rms-world-check-one-api-pilot.thomsonreuters.com", tr.host)
+	assert.Equal("/v1/", tr.path)
+	assert.Equal("key", tr.key)
+	assert.Equal("secret", tr.secret)
 }
 
 func TestCheckCustomer(t *testing.T) {
@@ -53,7 +53,7 @@ func TestCheckCustomer(t *testing.T) {
 
 	customer := &common.UserData{}
 
-	res, err := tomson.CheckCustomer(customer)
+	res, err := tr.CheckCustomer(customer)
 
 	assert.NoError(err)
 	assert.Equal(common.Approved, res.Status)

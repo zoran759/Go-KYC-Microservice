@@ -12,7 +12,7 @@ import (
 )
 
 func TestCreateHeaders(t *testing.T) {
-	tomson := New(Config{
+	tr := New(Config{
 		Host:      "https://rms-world-check-one-api-pilot.thomsonreuters.com/v1/",
 		APIkey:    "key",
 		APIsecret: "secret",
@@ -21,7 +21,7 @@ func TestCreateHeaders(t *testing.T) {
 	endpoint := "groups"
 
 	// Test with GET and no payload.
-	headers := tomson.createHeaders(mGET, endpoint, nil)
+	headers := tr.createHeaders(mGET, endpoint, nil)
 
 	assert := assert.New(t)
 
@@ -29,15 +29,16 @@ func TestCreateHeaders(t *testing.T) {
 	assert.Contains(headers, "Date")
 	assert.Contains(headers, "Authorization")
 
-	date, err := time.Parse(time.RFC3339, headers["Date"])
+	date, err := time.Parse(time.RFC1123, headers["Date"])
 
 	assert.NoError(err)
 	assert.NotZero(date)
 
-	dataToSign := "(request-target): " + string(mGET) + tomson.path + endpoint + "\nhost: " + tomson.host + "\ndate: " + headers["Date"]
-	mac := hmac.New(sha256.New, []byte(tomson.secret))
-	signature := base64.StdEncoding.EncodeToString(mac.Sum([]byte(dataToSign)))
-	aheader := `Signature keyId="` + tomson.key + `",algorithm="hmac-sha256",headers="(request-target) host date",signature="` + signature + `"`
+	dataToSign := "(request-target): " + string(mGET) + tr.path + endpoint + "\nhost: " + tr.host + "\ndate: " + headers["Date"]
+	mac := hmac.New(sha256.New, []byte(tr.secret))
+	mac.Write([]byte(dataToSign))
+	signature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	aheader := `Signature keyId="` + tr.key + `",algorithm="hmac-sha256",headers="(request-target) host date",signature="` + signature + `"`
 
 	assert.Equal(aheader, headers["Authorization"])
 
@@ -45,7 +46,7 @@ func TestCreateHeaders(t *testing.T) {
 	endpoint = "cases/screeningRequest"
 	payload := []byte(`{"name": "John Doe", "providerTypes": ["WATCHLIST"]}`)
 
-	headers = tomson.createHeaders(mPOST, endpoint, payload)
+	headers = tr.createHeaders(mPOST, endpoint, payload)
 
 	assert.Len(headers, 4)
 	assert.Contains(headers, "Date")
@@ -53,14 +54,16 @@ func TestCreateHeaders(t *testing.T) {
 	assert.Contains(headers, "Content-Type")
 	assert.Contains(headers, "Content-Length")
 
-	date, err = time.Parse(time.RFC3339, headers["Date"])
+	date, err = time.Parse(time.RFC1123, headers["Date"])
 
 	assert.NoError(err)
 	assert.NotZero(date)
 
-	dataToSign = "(request-target): " + string(mPOST) + tomson.path + endpoint + "\nhost: " + tomson.host + "\ndate: " + headers["Date"] + "\ncontent-type: " + content + "\ncontent-length: " + fmt.Sprintf("%d\n", len(payload)) + string(payload)
-	signature = base64.StdEncoding.EncodeToString(mac.Sum([]byte(dataToSign)))
-	aheader = `Signature keyId="` + tomson.key + `",algorithm="hmac-sha256",headers="(request-target) host date content-type content-length",signature="` + signature + `"`
+	dataToSign = "(request-target): " + string(mPOST) + tr.path + endpoint + "\nhost: " + tr.host + "\ndate: " + headers["Date"] + "\ncontent-type: " + content + "\ncontent-length: " + fmt.Sprintf("%d\n", len(payload)) + string(payload)
+	mac.Reset()
+	mac.Write([]byte(dataToSign))
+	signature = base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	aheader = `Signature keyId="` + tr.key + `",algorithm="hmac-sha256",headers="(request-target) host date content-type content-length",signature="` + signature + `"`
 
 	assert.Equal(aheader, headers["Authorization"])
 	assert.Equal(content, headers["Content-Type"])
