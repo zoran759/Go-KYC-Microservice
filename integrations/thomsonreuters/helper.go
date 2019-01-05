@@ -6,8 +6,15 @@ import (
 )
 
 // getGroupID returns group id.
-func (tomson ThomsonReuters) getGroupID() (groupID string, code *int, err error) {
-	groups, code, err := tomson.getRootGroups()
+func (tr ThomsonReuters) getGroupID() (groupID string, code *int, err error) {
+	/*
+	 * It's hard to determine what group we require for verification because
+	 * there's no "standard" classification of groups by a usage purpose or anything else.
+	 * Currently, we will use the first *active* top or root group.
+	 * As I see, the solution for this problem is to introduce other select criteria
+	 * related on some attribute's unique value or their combination (group name, id, etc).
+	 */
+	groups, code, err := tr.getRootGroups()
 	if err != nil {
 		return
 	}

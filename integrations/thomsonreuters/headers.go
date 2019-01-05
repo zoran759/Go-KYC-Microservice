@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -24,18 +23,18 @@ const (
 type httpMethod string
 
 // createHeaders creates HTTP headers required to perform request.
-func (tomson ThomsonReuters) createHeaders(method httpMethod, endpoint string, payload []byte) http.Headers {
-	date := time.Now().Format(time.RFC3339)
+func (tr ThomsonReuters) createHeaders(method httpMethod, endpoint string, payload []byte) http.Headers {
+	date := strings.Replace(time.Now().UTC().Format(time.RFC1123), "UTC", "GMT", 1)
 
 	dataToSign := bytes.Buffer{}
 
 	dataToSign.WriteString("(request-target): ")
 	dataToSign.WriteString(string(method))
-	dataToSign.WriteString(tomson.path)
+	dataToSign.WriteString(tr.path)
 	dataToSign.WriteString(endpoint)
 	dataToSign.WriteByte('\n')
 	dataToSign.WriteString("host: ")
-	dataToSign.WriteString(tomson.host)
+	dataToSign.WriteString(tr.host)
 	dataToSign.WriteByte('\n')
 	dataToSign.WriteString("date: ")
 	dataToSign.WriteString(date)
@@ -54,15 +53,13 @@ func (tomson ThomsonReuters) createHeaders(method httpMethod, endpoint string, p
 		}
 	}
 
-	// TODO: remove after debug.
-	log.Print("Data to sign:\n\n", dataToSign.String(), "\n\n")
-
-	mac := hmac.New(sha256.New, []byte(tomson.secret))
-	signature := base64.StdEncoding.EncodeToString(mac.Sum(dataToSign.Bytes()))
+	mac := hmac.New(sha256.New, []byte(tr.secret))
+	mac.Write(dataToSign.Bytes())
+	signature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
 
 	aheader := strings.Builder{}
 	aheader.WriteString(`Signature keyId="`)
-	aheader.WriteString(tomson.key)
+	aheader.WriteString(tr.key)
 	aheader.WriteString(`",algorithm="hmac-sha256",headers="(request-target) host date`)
 
 	if method == mPOST {
@@ -82,10 +79,6 @@ func (tomson ThomsonReuters) createHeaders(method httpMethod, endpoint string, p
 		headers["Content-Type"] = content
 		headers["Content-Length"] = fmt.Sprintf("%d", len(payload))
 	}
-
-	// TODO: remove after debug.
-	log.Println("Signature:", signature)
-	log.Println("Authorization header:", aheader.String())
 
 	return headers
 }

@@ -8,6 +8,13 @@ const (
 	DateFVT    FieldValueType = "DATE"
 )
 
+// List of GENDER field value type values.
+const (
+	Male    = "MALE"
+	Female  = "FEMALE"
+	Unknown = "UNKNOWN"
+)
+
 // FieldValueType represents enumerated value formats for a field.
 type FieldValueType string
 
