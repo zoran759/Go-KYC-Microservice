@@ -1,5 +1,7 @@
 package model
 
+import "modulus/kyc/common"
+
 // List of FieldValueType values.
 const (
 	CountryFVT FieldValueType = "COUNTRY"
@@ -38,4 +40,15 @@ type Field struct {
 	TypeID        string `json:"typeId"`
 	Value         string `json:"value,omitempty"`
 	DateTimeValue string `json:"dateTimeValue,omitempty"`
+}
+
+// Gender converts customer's gender to the API acceptable value.
+func Gender(gender common.Gender) string {
+	switch gender {
+	case common.Male:
+		return Male
+	case common.Female:
+		return Female
+	}
+	return Unknown
 }

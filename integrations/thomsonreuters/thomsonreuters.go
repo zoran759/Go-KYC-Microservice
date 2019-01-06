@@ -1,6 +1,7 @@
 package thomsonreuters
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -45,6 +46,11 @@ func New(c Config) ThomsonReuters {
 
 // CheckCustomer implements CustomerChecker interface for Thomson Reuters.
 func (tomson ThomsonReuters) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
+	if customer == nil {
+		err = errors.New("customer data is nil")
+		return
+	}
+
 	gID, code, err := tomson.getGroupID()
 	if err != nil {
 		if code != nil {
