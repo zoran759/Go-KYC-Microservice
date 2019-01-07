@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/complyadvantage"
 	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/idology"
@@ -97,6 +98,20 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 	}
 
 	switch provider {
+	case common.ComplyAdvantage:
+		fuzziness, err1 := strconv.ParseFloat(cfg["Fuzziness"], 32)
+		if err1 != nil {
+			err = &serviceError{
+				status:  http.StatusInternalServerError,
+				message: fmt.Sprintf("%s config error: %s", provider, err1),
+			}
+			return
+		}
+		service = complyadvantage.New(complyadvantage.Config{
+			Host:      cfg["Host"],
+			APIkey:    cfg["APIkey"],
+			Fuzziness: float32(fuzziness),
+		})
 	case common.IdentityMind:
 		service = identitymind.New(identitymind.Config{
 			Host:     cfg["Host"],
@@ -138,11 +153,9 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 		})
 	case common.SynapseFI:
 		service = synapsefi.New(synapsefi.Config{
-			Connection: synapsefi.Connection{
-				Host:         cfg["Host"],
-				ClientID:     cfg["ClientID"],
-				ClientSecret: cfg["ClientSecret"],
-			},
+			Host:         cfg["Host"],
+			ClientID:     cfg["ClientID"],
+			ClientSecret: cfg["ClientSecret"],
 		})
 	case common.ThomsonReuters:
 		service = thomsonreuters.New(thomsonreuters.Config{

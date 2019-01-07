@@ -16,6 +16,7 @@
   * **[Jumio](#jumio)**
   * **[SynapseFI](#synapsefi)**
   * **[Thomson Reuters](#thomson-reuters)**
+  * **[ComplyAdvantage](#complyadvantage)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
 ## **REST API**
@@ -146,8 +147,9 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Selfie**                   | _***[Selfie](#selfie-fields-description)**_                   | Selfie image of the customer               |
 | **Avatar**                   | _***[Avatar](#avatar-fields-description)**_                   | A profile image aka avatar of the customer |
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
+| **VideoAuth**                | _***[VideoAuth](#videoauth-fields-description)**_             | Short authorization video of the customer (up to 5 seconds)    |
 
-### **[Address](common/model.go#L50) fields description**
+### **[Address](common/address.go#L5) fields description**
 
 | **Name**              | **Type**     | **Description**                                         |
 | --------------------- | ------------ | ------------------------------------------------------- |
@@ -168,7 +170,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **StartDate**         | _**Time**_   | When the customer settled at this address               |
 | **EndDate**           | _**Time**_   | When the customer moved out from this address           |
 
-### **[Business](common/model.go#L164) fields description**
+### **[Business](common/model.go#L63) fields description**
 
 | **Name**                      | **Type**     | **Description**                                |
 | ----------------------------- | ------------ | ---------------------------------------------- |
@@ -177,7 +179,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IncorporationDate**         | _**Time**_   | Incorporation date of the Enterprise           |
 | **IncorporationJurisdiction** | _**string**_ | Incorporation jurisdiction of the Enterprise   |
 
-### **[Passport](common/model.go#L205) fields description**
+### **[Passport](common/model.go#L104) fields description**
 
 | **Name**          | **Type**                                                | **Description**                                         |
 | ----------------- | ------------------------------------------------------- | ------------------------------------------------------- |
@@ -190,7 +192,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil**    | _**Time**_                                              | Valid until date                                        |
 | **Image**         | _***[DocumentFile](#documentfile-fields-description)**_ | Scan or photo of the passport                           |
 
-### **[IDCard](common/model.go#L217) fields description**
+### **[IDCard](common/model.go#L116) fields description**
 
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
@@ -199,7 +201,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate**    | _**Time**_          | Issued date                                        |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the card                          |
 
-### **[SNILS](common/model.go#L225) fields description**
+### **[SNILS](common/model.go#L124) fields description**
 
 | **Name**       | **Type**            | **Description**                             |
 | -------------- | ------------------- | ------------------------------------------- |
@@ -207,14 +209,14 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate** | _**Time**_          | Issued date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the SNILS                  |
 
-### **[HealthID](common/model.go#L331) fields description**
+### **[HealthID](common/model.go#L223) fields description**
 
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
 | **Number**        | _**string**_        | Number of the document                        |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
-### **[SocialServiceID](common/model.go#L337) fields description**
+### **[SocialServiceID](common/model.go#L229) fields description**
 
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
@@ -222,14 +224,14 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **IssuedDate**    | _**Time**_          | Issued date                                   |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
-### **[TaxID](common/model.go#L345) fields description**
+### **[TaxID](common/model.go#L237) fields description**
 
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
 | **Number**        | _**string**_        | Number of the document                        |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
-### **[DriverLicense](common/model.go#L232) fields description**
+### **[DriverLicense](common/model.go#L131) fields description**
 
 | **Name**          | **Type**            | **Description**                                         |
 | ----------------- | ------------------- | ------------------------------------------------------- |
@@ -242,7 +244,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **FrontImage**    | _***DocumentFile**_ | Scan or photo of the front side of the driver license   |
 | **BackImage**     | _***DocumentFile**_ | Scan or photo of the back side of the driver license    |
 
-### **[DriverLicenseTranslation](common/model.go#L243) fields description**
+### **[DriverLicenseTranslation](common/model.go#L143) fields description**
 
 | **Name**          | **Type**            | **Description**                                                   |
 | ----------------- | ------------------- | ----------------------------------------------------------------- |
@@ -254,7 +256,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **FrontImage**    | _***DocumentFile**_ | Scan or photo of the front side of the driver license translation |
 | **BackImage**     | _***DocumentFile**_ | Scan or photo of the back side of the driver license translation  |
 
-### **[CreditCard](common/model.go#L254) fields description**
+### **[CreditCard](common/model.go#L154) fields description**
 
 | **Name**       | **Type**            | **Description**                                   |
 | -------------- | ------------------- | ------------------------------------------------- |
@@ -262,7 +264,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil** | _**Time**_          | Valid until date                                  |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the face side of the credit card |
 
-### **[DebitCard](common/model.go#L261) fields description**
+### **[DebitCard](common/model.go#L161) fields description**
 
 | **Name**       | **Type**            | **Description**                                  |
 | -------------- | ------------------- | ------------------------------------------------ |
@@ -270,14 +272,14 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil** | _**Time**_          | Valid until date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the face side of the debit card |
 
-### **[UtilityBill](common/model.go#L268) fields description**
+### **[UtilityBill](common/model.go#L168) fields description**
 
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "ID" |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the utility bill                  |
 
-### **[ResidencePermit](common/model.go#L274) fields description**
+### **[ResidencePermit](common/model.go#L174) fields description**
 
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
@@ -286,44 +288,44 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil**    | _**Time**_          | Valid until date                                   |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the residence permit              |
 
-### **[Agreement](common/model.go#L282) fields description**
+### **[Agreement](common/model.go#L182) fields description**
 
 | **Name**  | **Type**            | **Description**                |
 | --------- | ------------------- | ------------------------------ |
 | **Image** | _***DocumentFile**_ | Scan or photo of the agreement |
 
-### **[EmploymentCertificate](common/model.go#L292) fields description**
+### **[EmploymentCertificate](common/model.go#L192) fields description**
 
 | **Name**       | **Type**            | **Description**                             |
 | -------------- | ------------------- | ------------------------------------------- |
 | **IssuedDate** | _**Time**_          | Issued date                                 |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the employment certificate |
 
-### **[Contract](common/model.go#L287) fields description**
+### **[Contract](common/model.go#L187) fields description**
 
 | **Name**  | **Type**            | **Description**               |
 | --------- | ------------------- | ----------------------------- |
 | **Image** | _***DocumentFile**_ | Scan or photo of the contract |
 
-### **[DocumentPhoto](common/model.go#L308) fields description**
+### **[DocumentPhoto](common/model.go#L208) fields description**
 
 | **Name**  | **Type**            | **Description**                            |
 | --------- | ------------------- | ------------------------------------------ |
 | **Image** | _***DocumentFile**_ | Scan or photo of the photo from a document |
 
-### **[Selfie](common/model.go#L298) fields description**
+### **[Selfie](common/model.go#L198) fields description**
 
 | **Name**  | **Type**            | **Description** |
 | --------- | ------------------- | --------------- |
 | **Image** | _***DocumentFile**_ | Selfie image    |
 
-### **[Avatar](common/model.go#L303) fields description**
+### **[Avatar](common/model.go#L203) fields description**
 
 | **Name**  | **Type**            | **Description**          |
 | --------- | ------------------- | ------------------------ |
 | **Image** | _***DocumentFile**_ | Profile image aka avatar |
 
-### **[Other](common/model.go#L313) fields description**
+### **[Other](common/model.go#L213) fields description**
 
 | **Name**          | **Type**            | **Description**                                         |
 | ----------------- | ------------------- | ------------------------------------------------------- |
@@ -334,7 +336,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ValidUntil**    | _**Time**_          | Valid until date                                        |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                           |
 
-### **[DocumentFile](common/model.go#L172) fields description**
+### **[DocumentFile](common/model.go#L71) fields description**
 
 | **Name**        | **Type**     | **Description**                                               |
 | --------------- | ------------ | ------------------------------------------------------------- |
@@ -342,7 +344,15 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **ContentType** | _**string**_ | MIME type of the content, for ex. "image/jpeg"                |
 | **Data**        | _**[]byte**_ | Raw content of the document image file                        |
 
-### **[Location](common/model.go#L158) fields description**
+### **[VideoAuth](common/model.go#L243) fields description**
+
+| **Name**        | **Type**     | **Description**                                  |
+| --------------- | ------------ | ------------------------------------------------ |
+| **Filename**    | _**string**_ | Name of the video file, for ex. "auth_video.mp4" |
+| **ContentType** | _**string**_ | MIME type of the content, for ex. "video/mp4"    |
+| **Data**        | _**[]byte**_ | Raw content of the video file                    |
+
+### **[Location](common/model.go#L57) fields description**
 
 | **Name**      | **Type**     | **Description**                             |
 | ------------- | ------------ | ------------------------------------------- |
@@ -388,7 +398,7 @@ The verification response consist of two elements: a result and an error if occu
 | **NonFinal** | A reject that can be fixed, e.g. by uploading an image of better quality                                                    |
 | **Unknown**  | The provider doesn't support **`Finality`** feature                                                                         |
 
-### **[KYCStatusCheck](common/model.go#L200) fields description**
+### **[KYCStatusCheck](common/model.go#L92) fields description**
 
 | **Name**        | **Type**                                | **Description**                             |
 | --------------- | --------------------------------------- | ------------------------------------------- |
@@ -578,23 +588,24 @@ All fields in the Reference are marked as optional but at least first name and l
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**             | **Type**         | **FileType**        | **Required**       | **Comment**                                                       |
-| -------------------- | ---------------- |---------------------| :----------------: | ----------------------------------------------------------------- |
-| **FirstName**        | _string_         |                     | **Yes**            |                                                                   |
-| **LastName**         | _string_         |                     | **Yes**            |                                                                   |
-| MiddleName           | _string_         |                     |                    |                                                                   |
-| Gender               | _Gender_         |                     |                    |                                                                   |
-| **Email**            | _string_         |                     | **Yes**            |                                                                   |
-| **DateOfBirth**      | _Time_           |                     | **Yes**            | Required for documents only                                       |
-| **CountryAlpha2**    | _string_         |                     | **Yes**            |                                                                   |
-| **Phone**            | _string_         |                     | **(**)**           | (**)Anyone of documents marked with double asterisk               |
-| **Mobile phone**     | _string_         |                     | **(**)**           |                                                                   |
-| **CurrentAddress**   | _Address_        |                     | **Yes**            | Required for documents only                                       |
-| **Passport**(*)      | _*Passport_      | .png/.jpg/.jpeg     | **(*)**            | (*)Anyone of documents marked with asterisk                       |
-| **IDCard**(*)        | _*IDCard_        | .png/.jpg/.jpeg     | **(*)**            |                                                                   |
-| **DriverLicense**(*) | _*DriverLicense_ | .png/.jpg/.jpeg     | **(*)**            |                                                                   |
-| UtilityBill          | _*UtilityBill_   | .png/.jpg/.jpeg/.pdf|                    |                                                                   |
-| **Selfie**           | _*Selfie_        | .png/.jpg/.jpeg     | **Yes**            |                                                                   |
+| **Name**             | **Type**         | **FileType**         | **Required** | **Comment**                                         |
+| -------------------- | ---------------- | -------------------- | :----------: | --------------------------------------------------- |
+| **FirstName**        | _string_         |                      | **Yes**      |                                                     |
+| **LastName**         | _string_         |                      | **Yes**      |                                                     |
+| MiddleName           | _string_         |                      |              |                                                     |
+| Gender               | _Gender_         |                      |              |                                                     |
+| **Email**            | _string_         |                      | **Yes**      |                                                     |
+| **DateOfBirth**      | _Time_           |                      | **Yes**      | Required for documents only                         |
+| **CountryAlpha2**    | _string_         |                      | **Yes**      |                                                     |
+| **Phone**            | _string_         |                      | **(**)**     | (**)Anyone of documents marked with double asterisk |
+| **Mobile phone**     | _string_         |                      | **(**)**     |                                                     |
+| **CurrentAddress**   | _Address_        |                      | **Yes**      | Required for documents only                         |
+| **Passport**(*)      | _*Passport_      | .png/.jpg/.jpeg      | **(*)**      | (*)Anyone of documents marked with asterisk         |
+| **IDCard**(*)        | _*IDCard_        | .png/.jpg/.jpeg      | **(*)**      |                                                     |
+| **DriverLicense**(*) | _*DriverLicense_ | .png/.jpg/.jpeg      | **(*)**      |                                                     |
+| UtilityBill          | _*UtilityBill_   | .png/.jpg/.jpeg/.pdf |              |                                                     |
+| **Selfie**           | _*Selfie_        | .png/.jpg/.jpeg      | **Yes**      | Deprecated in favor of video authorization          |
+| **VideoAuth**        | _*VideoAuth_     | .mov/.mp4/.webm      | **Yes**      | 5 second authorization video of the customer. Requires document with customer photo (passport, etc.) |
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
@@ -602,19 +613,31 @@ All fields in the Reference are marked as optional but at least first name and l
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**             | **Type** | **Required**        | **Comment**                                                           |
-| -------------------- | -------- | :-----------------: | --------------------------------------------------------------------- |
-| **FirstName**        | _string_ | __*__ (see comment) | __*__ Either use first name and last name or full name                |
-| **LastName**         | _string_ | __*__ (see comment) | if the order of the names is different from western usual composition |
-| MiddleName           | _string_ |                     | or those names are difficult to represent separately                  |
-| **FullName**         | _string_ | __*__ (see comment) |                                                                       |
-| Gender               | _Gender_ |                     |                                                                       |
-| DateOfBirth          | _Time_   |                     |                                                                       |
-| CountryOfBirthAlpha2 | _string_ |                     |                                                                       |
-| CountryAlpha2        | _string_ |                     |                                                                       |
-| Nationality          | _string_ |                     |                                                                       |
+| **Name**             | **Type**     | **Required**        | **Comment**                                                           |
+| -------------------- | ------------ | :-----------------: | --------------------------------------------------------------------- |
+| **FirstName**        | _**string**_ | __*__ (see comment) | __*__ Either use first name and last name or full name                |
+| **LastName**         | _**string**_ | __*__ (see comment) | if the order of the names is different from western usual composition |
+| MiddleName           | _string_     |                     | or those names are difficult to represent separately                  |
+| **FullName**         | _**string**_ | __*__ (see comment) |                                                                       |
+| Gender               | _Gender_     |                     |                                                                       |
+| DateOfBirth          | _Time_       |                     |                                                                       |
+| CountryOfBirthAlpha2 | _string_     |                     |                                                                       |
+| CountryAlpha2        | _string_     |                     |                                                                       |
+| Nationality          | _string_     |                     |                                                                       |
 
 > **NOTE:** For better result, please, fill as much fields as possible.
+
+### **ComplyAdvantage**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**      | **Type**     | **Required** | **Comment**                                            |
+| ------------- | ------------ | :----------: | ------------------------------------------------------ |
+| **FirstName** | _**string**_ | **(*)**      | __*__ Either provide first and last names or full name |
+| **LastName**  | _**string**_ | **(*)**      |                                                        |
+| MiddleName    | _string_     |              |                                                        |
+| **FullName**  | _**string**_ | **(*)**      | __*__ Either provide this or first and last names      |
+| DateOfBirth   | _Time_       |              | Recommend for better results                           |
 
 ### **The countries supported by KYC providers and the fields variability**
 
@@ -789,6 +812,11 @@ These are the countries that supported since last check.
 * No fields variations found in the docs
 
 ### **SynapseFI covered countries**
+
+* International (no list of supported countries)
+* No fields variations found in the docs
+
+### **ComplyAdvantage covered countries**
 
 * International (no list of supported countries)
 * No fields variations found in the docs
