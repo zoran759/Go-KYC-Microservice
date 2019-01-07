@@ -3,7 +3,6 @@ package thomsonreuters
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	stdhttp "net/http"
 
 	"modulus/kyc/http"
@@ -24,7 +23,7 @@ func (tr ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err er
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return
@@ -53,7 +52,7 @@ func (tr ThomsonReuters) getGroup(groupID string) (group model.Group, code *int,
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return
@@ -82,7 +81,7 @@ func (tr ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model.Cas
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return
@@ -114,7 +113,7 @@ func (tr ThomsonReuters) getProviders() (providers model.ProviderDetails, code *
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return
@@ -129,6 +128,9 @@ func (tr ThomsonReuters) getProviders() (providers model.ProviderDetails, code *
 	return
 }
 */
+
+/*
+Currently, we don't use this.
 
 // getResolutionToolkits retrieves the ResolutionToolkits for the given Group for all enabled provider types,
 // used to construct a valid resolution request(tr) on the results for a Case belonging to the given Group groupId.
@@ -145,7 +147,7 @@ func (tr ThomsonReuters) getResolutionToolkits(groupID string) (resToolkits mode
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return
@@ -159,6 +161,7 @@ func (tr ThomsonReuters) getResolutionToolkits(groupID string) (resToolkits mode
 
 	return
 }
+*/
 
 /*
 Currently, we don't use this.
@@ -177,7 +180,7 @@ func (tr ThomsonReuters) getActiveUsers() (users model.Users, code *int, err err
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return
@@ -209,12 +212,11 @@ func (tr ThomsonReuters) performSynchronousScreening(newcase model.NewCase) (res
 	if err != nil {
 		return
 	}
-	ioutil.WriteFile("resp_screeningRequest.json", resp, 0644)
 
 	if status != stdhttp.StatusOK {
 		code = &status
 		errs := model.Errors{}
-		err = json.Unmarshal(resp, errs)
+		err = json.Unmarshal(resp, &errs)
 		if err != nil {
 			err = errors.New("http error")
 			return

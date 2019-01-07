@@ -7,7 +7,7 @@ import (
 	"modulus/kyc/integrations/thomsonreuters/model"
 )
 
-// newCase constructs a new case for a synchronous screening.
+// newCase constructs a new case for the synchronous screening.
 func newCase(template model.CaseTemplateResponse, customer *common.UserData) (newcase model.NewCase) {
 	secfields, ok := template.SecondaryFieldsByProvider["watchlist"]
 	if !ok {
@@ -69,8 +69,38 @@ func newCase(template model.CaseTemplateResponse, customer *common.UserData) (ne
 }
 
 // toResult processes the screening result collection and generates the verification result.
-func toResult(toolkits model.ResolutionToolkits, src model.ScreeningResultCollection) (result common.KYCResult, err error) {
-	// TODO: implement this.
+// We will use exact matching as denied result of verification.
+func toResult(src model.ScreeningResultCollection) (result common.KYCResult, err error) {
+	for _, r := range src.Results {
+		if r.MatchStrength == model.Exact {
+			if !matchesExactly(r.SecondaryFieldResults) {
+				continue
+			}
+
+			result.Status = common.Denied
+			reasons := []string{
+				"Case ID: " + src.CaseID,
+				"Matched Term: " + r.MatchedTerm,
+				"Category: " + r.Category,
+			}
+			result.Details = &common.KYCDetails{
+				Reasons: reasons,
+			}
+			return
+		}
+	}
+
+	result.Status = common.Approved
 
 	return
+}
+
+// matchesExactly checks if all secondary field results match the case.
+func matchesExactly(secondaryFieldResults []model.SecondaryFieldResult) bool {
+	for _, r := range secondaryFieldResults {
+		if r.FieldResult == model.NotMatched {
+			return false
+		}
+	}
+	return true
 }
