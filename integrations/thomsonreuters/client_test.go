@@ -457,7 +457,7 @@ var resolutionToolkitsResponse = `
     }
 }`
 
-var syncScreeningResponse = `
+var syncScreeningResponseDenied = `
 {
     "caseId": "24da33ec-9ad9-463c-9ef7-9e0dce1bfcbb",
     "results": [
@@ -1026,6 +1026,281 @@ var syncScreeningResponse = `
     ]
 }`
 
+var syncScreeningResponseApproved = `
+{
+    "caseId": "32737c50-0058-4f28-a0fa-01776aba71e4",
+    "results": [
+        {
+            "resultId": "0a3687cf-673a-1553-9a06-c6dc00d5378b",
+            "referenceId": "e_tr_wci_1229873",
+            "matchStrength": "EXACT",
+            "matchedTerm": "САРБАШ,Сергей Васильевич",
+            "submittedTerm": "Сергей Васильевич Сарбаш",
+            "matchedNameType": "NATIVE_AKA",
+            "secondaryFieldResults": [
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "MALE",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "MALE",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "MALE",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": null,
+                        "dateTimeValue": "1967-06-12"
+                    },
+                    "typeId": null,
+                    "submittedValue": null,
+                    "submittedDateTimeValue": "1975-09-21",
+                    "matchedValue": null,
+                    "matchedDateTimeValue": "1967-06-12",
+                    "fieldResult": "NOT_MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "RUS",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "RUS",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": null,
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": null,
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "UNKNOWN"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "RUS",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "RUS",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "RUS",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "RUS",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "MATCHED"
+                }
+            ],
+            "sources": [
+                "b_trwc_PEP N"
+            ],
+            "categories": [
+                "PEP"
+            ],
+            "creationDate": "2019-01-04T23:03:29.980Z",
+            "modificationDate": "2019-01-04T23:03:29.980Z",
+            "primaryName": "Sergey SARBASH",
+            "events": [
+                {
+                    "day": 12,
+                    "month": 6,
+                    "year": 1967,
+                    "address": null,
+                    "fullDate": "1967-06-12",
+                    "allegedAddresses": [],
+                    "type": "BIRTH"
+                }
+            ],
+            "countryLinks": [
+                {
+                    "countryText": "RUSSIAN FEDERATION",
+                    "country": {
+                        "code": "RUS",
+                        "name": "RUSSIAN FEDERATION"
+                    },
+                    "type": "NATIONALITY"
+                },
+                {
+                    "countryText": "RUSSIAN FEDERATION",
+                    "country": {
+                        "code": "RUS",
+                        "name": "RUSSIAN FEDERATION"
+                    },
+                    "type": "LOCATION"
+                }
+            ],
+            "identityDocuments": [],
+            "category": "LEGAL",
+            "providerType": "WATCHLIST",
+            "gender": "MALE"
+        },
+        {
+            "resultId": "0a3687cf-673a-1553-9a06-c6dc00d538b1",
+            "referenceId": "e_tr_wci_1512563",
+            "matchStrength": "STRONG",
+            "matchedTerm": "МІШУСТІН,Сергій Васильович",
+            "submittedTerm": "Сергей Васильевич Сарбаш",
+            "matchedNameType": "NATIVE_AKA",
+            "secondaryFieldResults": [
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "MALE",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "MALE",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "MALE",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": null,
+                        "dateTimeValue": "1946-08-29"
+                    },
+                    "typeId": null,
+                    "submittedValue": null,
+                    "submittedDateTimeValue": "1975-09-21",
+                    "matchedValue": null,
+                    "matchedDateTimeValue": "1946-08-29",
+                    "fieldResult": "NOT_MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "GAB",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "GAB",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "NOT_MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": null,
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": null,
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "UNKNOWN"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "UKR",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "UKR",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "NOT_MATCHED"
+                },
+                {
+                    "field": {
+                        "typeId": null,
+                        "value": "UKR",
+                        "dateTimeValue": null
+                    },
+                    "typeId": null,
+                    "submittedValue": "RUS",
+                    "submittedDateTimeValue": null,
+                    "matchedValue": "UKR",
+                    "matchedDateTimeValue": null,
+                    "fieldResult": "NOT_MATCHED"
+                }
+            ],
+            "sources": [
+                "b_trwc_PEP N"
+            ],
+            "categories": [
+                "PEP"
+            ],
+            "creationDate": "2019-01-04T23:03:29.980Z",
+            "modificationDate": "2019-01-04T23:03:29.980Z",
+            "primaryName": "Serhiy MISHUSTIN",
+            "events": [
+                {
+                    "day": 29,
+                    "month": 8,
+                    "year": 1946,
+                    "address": null,
+                    "fullDate": "1946-08-29",
+                    "allegedAddresses": [],
+                    "type": "BIRTH"
+                }
+            ],
+            "countryLinks": [
+                {
+                    "countryText": "UKRAINE",
+                    "country": {
+                        "code": "UKR",
+                        "name": "UKRAINE"
+                    },
+                    "type": "NATIONALITY"
+                },
+                {
+                    "countryText": "CONGO DEM. REP.",
+                    "country": {
+                        "code": "COD",
+                        "name": "CONGO, THE DEMOCRATIC REPUBLIC OF THE"
+                    },
+                    "type": "LOCATION"
+                },
+                {
+                    "countryText": "GABON",
+                    "country": {
+                        "code": "GAB",
+                        "name": "GABON"
+                    },
+                    "type": "LOCATION"
+                }
+            ],
+            "identityDocuments": [],
+            "category": "DIPLOMAT",
+            "providerType": "WATCHLIST",
+            "gender": "MALE"
+        }
+    ]
+}`
+
 func TestGetRootGroups(t *testing.T) {
 	assert := assert.New(t)
 
@@ -1153,68 +1428,6 @@ func TestGetCaseTemplate(t *testing.T) {
 	assert.Len(passportCheck.SecondaryFieldsByEntity["individual"], 9)
 }
 
-func TestGetResolutionToolkits(t *testing.T) {
-	assert := assert.New(t)
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	httpmock.RegisterResponder(http.MethodGet, tr.scheme+"://"+tr.host+tr.path+"groups", httpmock.NewStringResponder(http.StatusOK, groupsResponse))
-	httpmock.RegisterResponder(http.MethodGet, tr.scheme+"://"+tr.host+tr.path+"groups/0a3687d0-65b4-1cc3-9975-f20b0000066f/resolutionToolkits", httpmock.NewStringResponder(http.StatusOK, resolutionToolkitsResponse))
-
-	groups, status, err := tr.getRootGroups()
-
-	assert.NoError(err)
-	assert.Nil(status)
-	assert.NotEmpty(groups)
-
-	gID := ""
-	for _, g := range groups {
-		if g.Status != model.ActiveStatus {
-			continue
-		}
-
-		gID = g.ID
-		break
-	}
-
-	assert.NotEmpty(gID)
-
-	rtks, status, err := tr.getResolutionToolkits(gID)
-
-	// FIXME: perhaps, can add more checks.
-
-	assert.NoError(err)
-	assert.Nil(status)
-
-	assert.Contains(rtks, string(model.WatchList))
-	assert.Contains(rtks, string(model.ClientWatchList))
-
-	watchlist := rtks[string(model.WatchList)]
-
-	assert.Equal(gID, watchlist.GroupID)
-	assert.Len(watchlist.ResolutionFields.Reasons, 4)
-	assert.Len(watchlist.ResolutionFields.Risks, 4)
-	assert.Len(watchlist.ResolutionFields.Statuses, 4)
-
-	assert.Contains(watchlist.ResolutionRules, watchlist.ResolutionFields.Statuses[0].ID)
-	assert.Contains(watchlist.ResolutionRules, watchlist.ResolutionFields.Statuses[1].ID)
-	assert.Contains(watchlist.ResolutionRules, watchlist.ResolutionFields.Statuses[2].ID)
-	assert.Contains(watchlist.ResolutionRules, watchlist.ResolutionFields.Statuses[3].ID)
-
-	clientWatchlist := rtks[string(model.ClientWatchList)]
-
-	assert.Equal(gID, clientWatchlist.GroupID)
-	assert.Len(clientWatchlist.ResolutionFields.Reasons, 4)
-	assert.Empty(clientWatchlist.ResolutionFields.Risks)
-	assert.Len(clientWatchlist.ResolutionFields.Statuses, 4)
-
-	assert.Contains(clientWatchlist.ResolutionRules, "DEFAULT_STATUS_POSITIVE")
-	assert.Contains(clientWatchlist.ResolutionRules, "DEFAULT_STATUS_POSSIBLE")
-	assert.Contains(clientWatchlist.ResolutionRules, "DEFAULT_STATUS_FALSE")
-	assert.Contains(clientWatchlist.ResolutionRules, "DEFAULT_STATUS_UNSPECIFIED")
-}
-
 func TestPerformSynchronousScreening(t *testing.T) {
 	assert := assert.New(t)
 
@@ -1222,7 +1435,7 @@ func TestPerformSynchronousScreening(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, tr.scheme+"://"+tr.host+tr.path+"groups", httpmock.NewStringResponder(http.StatusOK, groupsResponse))
-	httpmock.RegisterResponder(http.MethodPost, tr.scheme+"://"+tr.host+tr.path+"cases/screeningRequest", httpmock.NewStringResponder(http.StatusOK, syncScreeningResponse))
+	httpmock.RegisterResponder(http.MethodPost, tr.scheme+"://"+tr.host+tr.path+"cases/screeningRequest", httpmock.NewStringResponder(http.StatusOK, syncScreeningResponseDenied))
 
 	groups, status, err := tr.getRootGroups()
 

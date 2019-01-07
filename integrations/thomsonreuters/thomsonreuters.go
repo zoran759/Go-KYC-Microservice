@@ -45,13 +45,13 @@ func New(c Config) ThomsonReuters {
 }
 
 // CheckCustomer implements CustomerChecker interface for Thomson Reuters.
-func (tomson ThomsonReuters) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
+func (tr ThomsonReuters) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("customer data is nil")
 		return
 	}
 
-	gID, code, err := tomson.getGroupID()
+	gID, code, err := tr.getGroupID()
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -59,15 +59,7 @@ func (tomson ThomsonReuters) CheckCustomer(customer *common.UserData) (result co
 		return
 	}
 
-	template, code, err := tomson.getCaseTemplate(gID)
-	if err != nil {
-		if code != nil {
-			result.ErrorCode = fmt.Sprintf("%d", *code)
-		}
-		return
-	}
-
-	toolkits, code, err := tomson.getResolutionToolkits(gID)
+	template, code, err := tr.getCaseTemplate(gID)
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -77,7 +69,7 @@ func (tomson ThomsonReuters) CheckCustomer(customer *common.UserData) (result co
 
 	newcase := newCase(template, customer)
 
-	src, code, err := tomson.performSynchronousScreening(newcase)
+	src, code, err := tr.performSynchronousScreening(newcase)
 	if err != nil {
 		if code != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *code)
@@ -85,7 +77,7 @@ func (tomson ThomsonReuters) CheckCustomer(customer *common.UserData) (result co
 		return
 	}
 
-	result, err = toResult(toolkits, src)
+	result, err = toResult(src)
 
 	return
 }

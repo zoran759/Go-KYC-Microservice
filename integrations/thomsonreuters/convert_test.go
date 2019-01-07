@@ -51,13 +51,74 @@ func TestNewCase(t *testing.T) {
 }
 
 func TestToResultApproved(t *testing.T) {
-	// TODO: implement this.
 	assert := assert.New(t)
 
-	toolkits := model.ResolutionToolkits{}
-	src := model.ScreeningResultCollection{}
+	src := model.ScreeningResultCollection{
+		CaseID: "32737c50-0058-4f28-a0fa-01776aba71e4",
+		Results: []model.WatchlistScreeningResult{
+			model.WatchlistScreeningResult{
+				ResultID:        "0a3687cf-673a-1553-9a06-c6dc00d5378b",
+				SubmittedTerm:   "Сергей Васильевич Сарбаш",
+				MatchedTerm:     "САРБАШ,Сергей Васильевич",
+				MatchedNameType: model.NativeAka,
+				MatchStrength:   model.Exact,
+				PrimaryName:     "Sergey SARBASH",
+				Gender:          model.Male,
+				ProviderType:    model.WatchList,
+				Category:        "LEGAL",
+				SecondaryFieldResults: []model.SecondaryFieldResult{
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "MALE",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "MALE",
+						SubmittedValue: "MALE",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							DateTimeValue: "1967-06-12",
+						},
+						FieldResult:            model.NotMatched,
+						MatchedDateTimeValue:   "1967-06-12",
+						SubmittedDateTimeValue: "1975-09-21",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						FieldResult:    model.UnknownFR,
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+				},
+				CreationDate:     "2019-01-04T23:03:29.980Z",
+				ModificationDate: "2019-01-04T23:03:29.980Z",
+			},
+		},
+	}
 
-	res, err := toResult(toolkits, src)
+	res, err := toResult(src)
 
 	assert.NoError(err)
 	assert.Equal(common.Approved, res.Status)
@@ -67,33 +128,134 @@ func TestToResultApproved(t *testing.T) {
 }
 
 func TestToResultDenied(t *testing.T) {
-	// TODO: implement this.
 	assert := assert.New(t)
 
-	toolkits := model.ResolutionToolkits{}
-	src := model.ScreeningResultCollection{}
+	src := model.ScreeningResultCollection{
+		CaseID: "24da33ec-9ad9-463c-9ef7-9e0dce1bfcbb",
+		Results: []model.WatchlistScreeningResult{
+			model.WatchlistScreeningResult{
+				ResultID:        "0a3687d0-673a-15cf-9a06-ae7c00d3929c",
+				SubmittedTerm:   "Сергей Владимирович Железняк",
+				MatchedTerm:     "Сергей Владимирович Железняк",
+				MatchedNameType: model.NativeAka,
+				MatchStrength:   model.Exact,
+				PrimaryName:     "Sergei Vladimirovich ZHELEZNYAK",
+				Gender:          model.Male,
+				ProviderType:    model.WatchList,
+				Category:        "POLITICAL INDIVIDUAL",
+				SecondaryFieldResults: []model.SecondaryFieldResult{
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "MALE",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "MALE",
+						SubmittedValue: "MALE",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							DateTimeValue: "1970-07-30",
+						},
+						FieldResult:            model.Matched,
+						MatchedDateTimeValue:   "1970-07-30",
+						SubmittedDateTimeValue: "1970-07-30",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						FieldResult:    model.UnknownFR,
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+				},
+				CreationDate:     "2019-01-04T21:17:00.013Z",
+				ModificationDate: "2019-01-04T21:17:00.013Z",
+			},
+			model.WatchlistScreeningResult{
+				ResultID:        "0a3687d0-673a-15cf-9a06-ae7c00d3923a",
+				SubmittedTerm:   "Сергей Владимирович Железняк",
+				MatchedTerm:     "Sergey ZHELEZNYAK",
+				MatchedNameType: model.Primary,
+				MatchStrength:   model.Strong,
+				PrimaryName:     "Sergey ZHELEZNYAK",
+				Gender:          model.Male,
+				ProviderType:    model.WatchList,
+				Category:        "CRIME - FINANCIAL",
+				SecondaryFieldResults: []model.SecondaryFieldResult{
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "MALE",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "MALE",
+						SubmittedValue: "MALE",
+					},
+					model.SecondaryFieldResult{
+						FieldResult:            model.UnknownFR,
+						SubmittedDateTimeValue: "1970-07-30",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						FieldResult:    model.UnknownFR,
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						FieldResult:    model.UnknownFR,
+						SubmittedValue: "RUS",
+					},
+					model.SecondaryFieldResult{
+						Field: model.Field{
+							Value: "RUS",
+						},
+						FieldResult:    model.Matched,
+						MatchedValue:   "RUS",
+						SubmittedValue: "RUS",
+					},
+				},
+				CreationDate:     "2019-01-04T21:17:00.013Z",
+				ModificationDate: "2019-01-04T21:17:00.013Z",
+			},
+		},
+	}
 
-	res, err := toResult(toolkits, src)
+	res, err := toResult(src)
 
 	assert.NoError(err)
 	assert.Equal(common.Denied, res.Status)
-	assert.Nil(res.Details)
-	assert.Empty(res.ErrorCode)
-	assert.Nil(res.StatusCheck)
-}
-
-func TestToResultError(t *testing.T) {
-	// TODO: implement this.
-	assert := assert.New(t)
-
-	toolkits := model.ResolutionToolkits{}
-	src := model.ScreeningResultCollection{}
-
-	res, err := toResult(toolkits, src)
-
-	assert.NoError(err)
-	assert.Equal(common.Error, res.Status)
-	assert.Nil(res.Details)
+	assert.NotNil(res.Details)
+	assert.Equal(common.Unknown, res.Details.Finality)
+	assert.Len(res.Details.Reasons, 3)
+	assert.Equal("Case ID: 24da33ec-9ad9-463c-9ef7-9e0dce1bfcbb", res.Details.Reasons[0])
+	assert.Equal("Matched Term: Сергей Владимирович Железняк", res.Details.Reasons[1])
+	assert.Equal("Category: POLITICAL INDIVIDUAL", res.Details.Reasons[2])
 	assert.Empty(res.ErrorCode)
 	assert.Nil(res.StatusCheck)
 }

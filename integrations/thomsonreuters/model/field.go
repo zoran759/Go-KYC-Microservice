@@ -12,9 +12,9 @@ const (
 
 // List of GENDER field value type values.
 const (
-	Male    = "MALE"
-	Female  = "FEMALE"
-	Unknown = "UNKNOWN"
+	Male              = "MALE"
+	Female            = "FEMALE"
+	UnspecifiedGender = "UNSPECIFIED"
 )
 
 // FieldValueType represents enumerated value formats for a field.
@@ -50,5 +50,5 @@ func Gender(gender common.Gender) string {
 	case common.Female:
 		return Female
 	}
-	return Unknown
+	return UnspecifiedGender
 }
