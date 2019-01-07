@@ -12,6 +12,7 @@ import (
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/jumio"
 	"modulus/kyc/integrations/sumsub"
+	"modulus/kyc/integrations/synapsefi"
 	"modulus/kyc/main/config"
 )
 
@@ -95,7 +96,7 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 	}
 
 	switch provider {
-	case common.IDology, common.ShuftiPro, common.ThomsonReuters, common.Trulioo:
+	case common.ComplyAdvantage, common.IDology, common.ShuftiPro, common.ThomsonReuters, common.Trulioo:
 		err = &serviceError{
 			status:  http.StatusUnprocessableEntity,
 			message: fmt.Sprintf("%s doesn't support status polling", provider),
@@ -116,6 +117,12 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 		service = sumsub.New(sumsub.Config{
 			Host:   cfg["Host"],
 			APIKey: cfg["APIKey"],
+		})
+	case common.SynapseFI:
+		service = synapsefi.New(synapsefi.Config{
+			Host:         cfg["Host"],
+			ClientID:     cfg["ClientID"],
+			ClientSecret: cfg["ClientSecret"],
 		})
 	default:
 		err = &serviceError{

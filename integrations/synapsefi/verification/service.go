@@ -2,164 +2,174 @@ package verification
 
 import (
 	"encoding/json"
+	stdhttp "net/http"
+
 	"modulus/kyc/http"
-	"log"
+
+	"github.com/google/uuid"
 )
 
 const (
-	EndpointUsers = "users"
-	EndpointOauth = "oauth"
-	AppLanguage = "en"
+	endpointUsers = "users"
+	endpointOAuth = "oauth"
+	appLanguage   = "en"
 )
 
 type service struct {
 	config Config
 }
 
+// NewService constructs the new verification service object.
 func NewService(config Config) Verification {
+	config.fingerprint = config.calcFingerprint()
+
 	return service{
 		config: config,
 	}
 }
 
 // TODO: resend on fail, process errors, PROCESS RESPONSE PERMISSIONS!!!
-func (service service) CreateUser(request CreateUserRequest) (*UserResponse, error) {
-	requestBytes, err := json.Marshal(request)
+func (service service) CreateUser(user User) (resp *Response, code *string, err error) {
+	body, err := json.Marshal(user)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	headers := service.composeHeaders(true, "")
-	host := service.config.Host + EndpointUsers
+	endpoint := service.config.Host + endpointUsers
 
-	log.Printf("Request user: %+v\n\nHeaders: %+v\n\nHost: %+v\n\n", request.Logins, headers, host)
-
-	responseStatus, responseBytes, err := http.Post(host, headers, requestBytes)
-
+	status, response, err := http.Post(endpoint, headers, body)
 	if err != nil {
-		return nil, err
+		return
+	}
+	if status != stdhttp.StatusOK {
+		code, err = MapErrorResponse(response)
+		return
 	}
 
-	if (responseStatus != 200) {
-		err, _ := MapResponseError(responseBytes)
-		return nil, err
+	resp = &Response{}
+
+	if err = json.Unmarshal(response, resp); err != nil {
+		resp = nil
 	}
 
-	response := &UserResponse{}
-
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		log.Printf("Error decoding SynapseFi response: %v", err)
-		log.Printf("Response: %q", response)
-		return nil, err
-	}
-
-	return response, nil
+	return
 }
 
-func (service service) AddDocument(userID string, userOAuth string, request CreateDocumentsRequest) (*UserResponse, error) {
-	requestBytes, err := json.Marshal(request)
+func (service service) AddPhysicalDocs(userID, rtoken, docsID string, docs []SubDocument) (code *string, err error) {
+	key, err := service.getOAuthKey(userID, rtoken)
 	if err != nil {
-		return nil, err
-	}
-	log.Println("Adding documents...");
-
-	headers := service.composeHeaders(false, userOAuth)
-	host := service.config.Host + EndpointUsers + "/" + userID
-
-	log.Printf("Request: %+v\n\nHeaders: %+v\n\nHost: %+v\n\n", request, headers, host)
-
-	responseStatus, responseBytes, err := http.Request("PATCH", host, headers, requestBytes)
-
-	if err != nil {
-		return nil, err
+		return
 	}
 
-	if (responseStatus != 200) {
-		err, _ := MapResponseError(responseBytes)
-		return nil, err
+	headers := service.composeHeaders(false, key)
+	endpoint := service.config.Host + endpointUsers + "/" + userID
+
+	physdocs := PhysicalDocs{
+		Documents: []Document{
+			Document{
+				ID: docsID,
+				PhysicalDocs: []SubDocument{
+					SubDocument{},
+				},
+			},
+		},
+	}
+	for _, doc := range docs {
+		physdocs.Documents[0].PhysicalDocs[0] = doc
+		body, err1 := json.Marshal(physdocs)
+		if err1 != nil {
+			return nil, err1
+		}
+
+		status, response, err1 := http.Patch(endpoint, headers, body)
+		if err1 != nil {
+			return nil, err1
+		}
+		if status != stdhttp.StatusOK {
+			code, err = MapErrorResponse(response)
+			return
+		}
 	}
 
-
-	response := &UserResponse{}
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		log.Printf("Error decoding SynapseFi response: %v", err)
-		log.Printf("Response: %q", response)
-		return nil, err
-	}
-
-	return response, nil
+	return
 }
 
-func (service service) GetUser(userID string) (*UserResponse, error) {
-
+func (service service) GetUser(userID string) (resp *Response, code *string, err error) {
 	headers := service.composeHeaders(true, "")
-	_, responseBytes, err := http.Get(
-		service.config.Host + EndpointUsers + "/" +userID,
-		headers,
-	)
+	endpoint := service.config.Host + endpointUsers + "/" + userID
+
+	status, response, err := http.Get(endpoint, headers)
 	if err != nil {
-		return nil, err
+		return
+	}
+	if status != stdhttp.StatusOK {
+		code, err = MapErrorResponse(response)
+		return
 	}
 
-	response := new(UserResponse)
+	resp = &Response{}
 
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		return nil, err
+	if err = json.Unmarshal(response, resp); err != nil {
+		resp = nil
 	}
 
-	return response, nil
+	return
 }
 
-func (service service) GetOauthKey(userID string, request CreateOauthRequest) (*OauthResponse, error) {
-	requestBytes, err := json.Marshal(request)
-	if err != nil {
-		return nil, err
+func (service service) getOAuthKey(userID, rtoken string) (key string, err error) {
+	req := OAuthRequest{
+		RefreshToken: rtoken,
 	}
 
-	log.Println("Get OAuth key...");
+	body, err := json.Marshal(req)
+	if err != nil {
+		return
+	}
 
 	headers := service.composeHeaders(false, "")
-	host := service.config.Host + EndpointOauth + "/" + userID
+	endpoint := service.config.Host + endpointOAuth + "/" + userID
 
-	log.Printf("Request: %+v\n\nHeaders: %+v\n\nHost: %+v\n\n", request, headers, host)
-
-	responseStatus, responseBytes, err := http.Post(host, headers, requestBytes)
-
+	status, resp, err := http.Post(endpoint, headers, body)
 	if err != nil {
-		return nil, err
+		return
+	}
+	if status != stdhttp.StatusOK {
+		_, err = MapErrorResponse(resp)
+		return
 	}
 
-	if (responseStatus != 200) {
-		err, _ := MapResponseError(responseBytes)
-		return nil, err
+	response := &OAuthResponse{}
+	if err = json.Unmarshal(resp, response); err != nil {
+		return
 	}
 
-	response := &OauthResponse{}
-	if err := json.Unmarshal(responseBytes, response); err != nil {
-		log.Printf("Error decoding SynapseFi response: %v", err)
-		log.Printf("Response: %q", response)
-		return nil, err
-	}
+	key = response.OAuthKey
 
-	return response, nil
+	return
 }
 
-func (service service) composeHeaders(isIdempodent bool, oauthKey string) http.Headers {
-	headers := http.Headers{}
+func (service service) composeHeaders(useIdempotency bool, oauthKey string) http.Headers {
+	headers := http.Headers{
+		// required
+		"X-SP-GATEWAY": service.config.ClientID + "|" + service.config.ClientSecret,
+		// required
+		"X-SP-USER": oauthKey + "|" + service.config.fingerprint,
+		// required
+		"X-SP-USER-IP": "127.0.0.1",
+		// required
+		"Content-Type": "application/json",
+	}
 
-	// required
-	headers["X-SP-GATEWAY"] = service.config.ClientID + "|" + service.config.ClientSecret
-	// required
-	headers["X-SP-USER"] = oauthKey + "|e83cf6ddcf778e37bfe3d48fc78a6502062fc"
-	// required
-	headers["X-SP-USER-IP"] = "127.0.0.1"
-	// required
-	headers["Content-Type"] = "application/json"
-
-	if isIdempodent {
+	if useIdempotency {
 		// optional
-		headers["X-SP-IDEMPOTENCY-KEY"] = generateIdempodencyKey()
+		headers["X-SP-IDEMPOTENCY-KEY"] = newIdempotencyKey()
 	}
 
 	return headers
+}
+
+// newIdempotencyKey returns new idempotency key.
+func newIdempotencyKey() string {
+	return uuid.New().String()
 }
