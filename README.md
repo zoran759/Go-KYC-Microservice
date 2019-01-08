@@ -15,6 +15,7 @@
   * **[IdentityMind](#identitymind)**
   * **[Jumio](#jumio)**
   * **[SynapseFI](#synapsefi)**
+  * **[Thomson Reuters](#thomson-reuters)**
   * **[ComplyAdvantage](#complyadvantage)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
 
@@ -583,7 +584,7 @@ All fields in the Reference are marked as optional but at least first name and l
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
-#### **SynapseFI**
+### **SynapseFI**
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
@@ -608,7 +609,25 @@ All fields in the Reference are marked as optional but at least first name and l
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
-#### **ComplyAdvantage**
+### **Thomson Reuters**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**             | **Type**     | **Required**        | **Comment**                                                           |
+| -------------------- | ------------ | :-----------------: | --------------------------------------------------------------------- |
+| **FirstName**        | _**string**_ | __*__ (see comment) | __*__ Either use first name and last name or full name                |
+| **LastName**         | _**string**_ | __*__ (see comment) | if the order of the names is different from western usual composition |
+| MiddleName           | _string_     |                     | or those names are difficult to represent separately                  |
+| **FullName**         | _**string**_ | __*__ (see comment) |                                                                       |
+| Gender               | _Gender_     |                     |                                                                       |
+| DateOfBirth          | _Time_       |                     |                                                                       |
+| CountryOfBirthAlpha2 | _string_     |                     |                                                                       |
+| CountryAlpha2        | _string_     |                     |                                                                       |
+| Nationality          | _string_     |                     |                                                                       |
+
+> **NOTE:** For better result, please, fill as much fields as possible.
+
+### **ComplyAdvantage**
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
@@ -792,12 +811,17 @@ These are the countries that supported since last check.
 * International
 * No fields variations found in the docs
 
-#### **SynapseFI covered countries**
+### **SynapseFI covered countries**
 
 * International (no list of supported countries)
 * No fields variations found in the docs
 
-#### **ComplyAdvantage covered countries**
+### **ComplyAdvantage covered countries**
 
 * International (no list of supported countries)
+* No fields variations found in the docs
+
+### **Thomson Reuters covered countries**
+
+* International
 * No fields variations found in the docs
