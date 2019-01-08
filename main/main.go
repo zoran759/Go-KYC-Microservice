@@ -1,19 +1,30 @@
 package main
 
 import (
+	"modulus/common/licensing-client"
+	"modulus/kyc/main/config"
+	"modulus/kyc/main/handlers"
+
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-
-	"modulus/kyc/main/config"
-	"modulus/kyc/main/handlers"
 )
+
+// For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
+var DevEnv = "true"
 
 var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
 
 func main() {
+
+	// Validate license in production environment.
+	// Do os.Exit if failed.
+	if DevEnv == "false" {
+		client.ValidateLicenseOrFail()
+	}
+
 	flag.Parse()
 
 	if err := config.FromFile(*configFile); err != nil {
