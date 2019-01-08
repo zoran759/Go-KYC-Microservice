@@ -1,0 +1,14 @@
+{
+    "Provider": "ThomsonReuters",
+    "UserData": {
+        "FirstName": "Abby",
+        "LastName": "Walker",
+        "MiddleName": "Allison",
+        "FullName": "Abby Allison Walker",
+        "Gender": 2,
+        "DateOfBirth": "1985-06-17T00:00:00.000Z",
+        "CountryOfBirthAlpha2": "CA",
+        "CountryAlpha2": "US",
+        "Nationality": "AU"
+    }
+}

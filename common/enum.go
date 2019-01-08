@@ -43,6 +43,7 @@ const (
 	ShuftiPro       KYCProvider = "ShuftiPro"
 	SumSub          KYCProvider = "Sum&Substance"
 	SynapseFI       KYCProvider = "SynapseFI"
+	ThomsonReuters  KYCProvider = "ThomsonReuters"
 	Trulioo         KYCProvider = "Trulioo"
 )
 
@@ -55,5 +56,6 @@ var KYCProviders = map[KYCProvider]bool{
 	ShuftiPro:       true,
 	SumSub:          true,
 	SynapseFI:       true,
+	ThomsonReuters:  true,
 	Trulioo:         true,
 }

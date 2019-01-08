@@ -17,6 +17,7 @@ import (
 	"modulus/kyc/integrations/shuftipro"
 	"modulus/kyc/integrations/sumsub"
 	"modulus/kyc/integrations/synapsefi"
+	"modulus/kyc/integrations/thomsonreuters"
 	"modulus/kyc/integrations/trulioo"
 	"modulus/kyc/main/config"
 )
@@ -155,6 +156,12 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 			Host:         cfg["Host"],
 			ClientID:     cfg["ClientID"],
 			ClientSecret: cfg["ClientSecret"],
+		})
+	case common.ThomsonReuters:
+		service = thomsonreuters.New(thomsonreuters.Config{
+			Host:      cfg["Host"],
+			APIkey:    cfg["APIkey"],
+			APIsecret: cfg["APIsecret"],
 		})
 	case common.Trulioo:
 		service = trulioo.New(trulioo.Config{
