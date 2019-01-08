@@ -1,30 +1,28 @@
 package main
 
 import (
-	"modulus-project-troon/common/licensing-client"
+	"modulus/common/licensing-client"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
-// Indicates if it is Development Environment.
-// The flag value is set to "false" upon compilation time.
+// For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
 var DevEnv = "true"
 
 var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
 
 func main() {
 
-	// Validate license in production environment
+	// Validate license in production environment.
+	// Do os.Exit if failed.
 	if DevEnv == "false" {
-		validateLicense()
+		client.ValidateLicenseOrFail()
 	}
 
 	flag.Parse()
@@ -58,27 +56,4 @@ func createHandlers() {
 	})
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
-}
-
-// Validates a license against modulus servers
-func validateLicense() {
-
-	// Read license key
-	licenseData, err := ioutil.ReadFile("LicenseKey.txt")
-	if err != nil {
-		log.Fatalln("Error upon reading of license file:", err)
-	}
-	licenseKey := strings.TrimSpace(string(licenseData))
-
-	// Validate the license
-	log.Println("Validating the license: ", licenseKey)
-	res, err := client.ValidateLicense(licenseKey)
-	if err != nil {
-		log.Fatalln("Error upon license validation:", err)
-	}
-	if res == nil || !res.Pass {
-		log.Fatalln("License validation has failed.")
-	} else {
-		log.Println("The license is validated.")
-	}
 }
