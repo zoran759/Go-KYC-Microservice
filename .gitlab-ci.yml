@@ -9,6 +9,7 @@ test:
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
+  - git clone https://gitlab.com/lambospeed/licensing-client.git $GOPATH/src/modulus/common/licensing-client
   - go get -d -v ./...
   - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/... github.com/stretchr/testify gopkg.in/jarcoal/httpmock.v1
   - cd $GOPATH/src/modulus/$CI_PROJECT_NAME
@@ -22,6 +23,7 @@ build:
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
+  - git clone https://gitlab.com/lambospeed/licensing-client.git $GOPATH/src/modulus/common/licensing-client
   - go get -d -v ./...
   - cd main
   - go build -o kyc
