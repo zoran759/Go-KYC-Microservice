@@ -31,13 +31,17 @@ type kind int
 // parseConfig reads string by string from the input and parses it
 // into valid Config or returns an error if occured.
 func parseConfig(r io.Reader) (Config, error) {
+	if r == nil {
+		return nil, errors.New("the config source is nil")
+	}
+
 	scanner := bufio.NewScanner(r)
 
 	cfg := Config{}
 	opts := Options{}
-	count := 0
-	s := ""
 	name := ""
+	s := ""
+	count := 0
 	for scanner.Scan() {
 		count++
 		s = strings.TrimSpace(scanner.Text())

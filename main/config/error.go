@@ -13,7 +13,7 @@ type ErrMissingOption struct {
 
 // Error implements error interface for ErrMissingOption.
 func (e ErrMissingOption) Error() string {
-	return fmt.Sprintf("%s configuration error: missing or empty option %q", e.provider, e.option)
+	return fmt.Sprintf("%s configuration error: missing or empty option '%s'", e.provider, e.option)
 }
 
 // ParseError represents a config parser error.
@@ -25,5 +25,5 @@ type ParseError struct {
 
 // Error implements error interface for ParseError.
 func (p ParseError) Error() string {
-	return fmt.Sprintf("parsing failed on Line %d '%s': %s", p.strnum, p.content, p.err)
+	return fmt.Sprintf("parsing failed at line %d '%s': %s", p.strnum, p.content, p.err)
 }
