@@ -242,7 +242,7 @@ func TestVerifyTrulioo(t *testing.T) {
 }
 
 func TestFromFile(t *testing.T) {
-	err := FromFile("../kyc.cfg")
+	err := FromFile("../kyc_dev.cfg")
 
 	assert.Nil(t, err)
 
