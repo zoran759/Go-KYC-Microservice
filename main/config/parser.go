@@ -48,6 +48,10 @@ func parseConfig(r io.Reader) (Config, error) {
 		case iscomment:
 			continue
 		case isname:
+			if len(name) > 0 {
+				cfg[common.KYCProvider(name)] = opts
+				opts = Options{}
+			}
 			name = s[1 : len(s)-1]
 			if err := validateName(name); err != nil {
 				err := ParseError{
@@ -57,15 +61,19 @@ func parseConfig(r io.Reader) (Config, error) {
 				}
 				return nil, err
 			}
-			if len(name) > 0 {
-				cfg[common.KYCProvider(name)] = opts
-				opts = Options{}
-			}
 		case isopt:
+			if len(name) == 0 {
+				err := ParseError{
+					strnum:  count,
+					content: scanner.Text(),
+					err:     "standalone option string",
+				}
+				return nil, err
+			}
 			i := bytes.IndexByte([]byte(s), sep)
 			key := s[:i]
 			val := ""
-			if i != len(s)-1 {
+			if i < len(s)-1 {
 				val = s[i+1:]
 			}
 			opts[key] = val
@@ -86,6 +94,15 @@ func parseConfig(r io.Reader) (Config, error) {
 		}
 		return nil, err
 	}
+	if len(name) == 0 {
+		err := ParseError{
+			strnum:  count,
+			content: scanner.Text(),
+			err:     "config is empty",
+		}
+		return nil, err
+	}
+	cfg[common.KYCProvider(name)] = opts
 
 	return cfg, nil
 }
@@ -108,15 +125,15 @@ func kindOf(s string) kind {
 }
 
 // validateName validates KYC provider name from a config.
-func validateName(name string) error {
+func validateName(name string) (err error) {
 	if len(name) == 0 {
-		err := errors.New("missing KYC provider name in the config")
+		err = errors.New("missing KYC provider name in the config")
 		return err
 	}
 	if !common.KYCProviders[common.KYCProvider(name)] {
-		err := errors.New("unknown KYC provider name in the config")
+		err = errors.New("unknown KYC provider name in the config")
 		return err
 	}
 
-	return nil
+	return
 }
