@@ -32,7 +32,7 @@ build:
     - main/kyc
     expire_in: 1 day
 
-docker:
+.docker:
   only:
   - master
   stage: docker
