@@ -12,6 +12,7 @@ import (
 	"os"
 )
 
+// DevEnv is the flag to manage prod/dev builds.
 // For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
 var DevEnv = "true"
 
@@ -28,7 +29,7 @@ func main() {
 	flag.Parse()
 
 	if err := config.FromFile(*configFile); err != nil {
-		log.Fatalln("Loading configuration:", err)
+		log.Fatalf("Loading configuration from file %s: %s\n", *configFile, err)
 	}
 
 	createHandlers()
