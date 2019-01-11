@@ -16,6 +16,7 @@ const (
 	devCfgFile  = "kyc_dev.cfg"
 )
 
+// DevEnv is the flag to manage prod/dev builds.
 // For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
 var DevEnv = "true"
 
@@ -33,7 +34,7 @@ func main() {
 		cfgFile = devCfgFile
 	}
 	if err := config.FromFile(cfgFile); err != nil {
-		log.Fatalln("Loading configuration:", err)
+		log.Fatalf("Loading configuration from %s: %s\n", cfgFile, err)
 	}
 
 	createHandlers()
