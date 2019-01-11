@@ -5,17 +5,19 @@ import (
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 )
 
+const (
+	prodCfgFile = "kyc.cfg"
+	devCfgFile  = "kyc_dev.cfg"
+)
+
 // For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
 var DevEnv = "true"
-
-var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
 
 func main() {
 
@@ -25,9 +27,12 @@ func main() {
 		client.ValidateLicenseOrFail()
 	}
 
-	flag.Parse()
-
-	if err := config.FromFile(*configFile); err != nil {
+	// Load config from the file.
+	cfgFile := prodCfgFile
+	if DevEnv == "true" {
+		cfgFile = devCfgFile
+	}
+	if err := config.FromFile(cfgFile); err != nil {
 		log.Fatalln("Loading configuration:", err)
 	}
 
