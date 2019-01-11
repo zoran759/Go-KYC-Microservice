@@ -1,7 +1,6 @@
 stages:
   - test
   - build
-  - docker
 
 test:
   stage: test
@@ -32,16 +31,24 @@ build:
     - main/kyc
     expire_in: 1 day
 
-.docker:
-  only:
-  - master
-  stage: docker
-  image: docker
-  services:
-  - docker:dind
+build:prod:windows:
+  stage: build
+  image: golang:alpine
+  before_script:
+    - apk add --no-cache git
   script:
-  - mv Dockerfile main/
-  - cd main
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-  - docker build -t registry.gitlab.com/lambospeed/kyc .
-  - docker push registry.gitlab.com/lambospeed/kyc
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
+    - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
+    - git clone https://gitlab.com/lambospeed/licensing-client.git $GOPATH/src/modulus/common/licensing-client
+    - go get -d -v ./...
+    - cd main
+    - env GOOS=windows GOARCH=amd64 go build -ldflags "-X main.DevEnv=false" -o kyc.exe -v
+    - cp kyc.exe ../
+    - cp kyc.cfg ../
+  when: manual
+  artifacts:
+    name: "kyc-prod-win"
+    paths:
+      - kyc.exe
+      - kyc.cfg
+    expire_in: 1 day
