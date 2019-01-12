@@ -16,7 +16,6 @@
 * **[Integration interface](#integration-interface)**
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
-* **[Specific KYC providers](#specific-kyc-providers)**
 * **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
   * **[IDology](#idology)**
   * **[Sum&Substance](#sum&substance)**
@@ -494,20 +493,6 @@ The verification response consist of two elements: a result and an error if occu
 | **Provider**    | _**[KYCProvider](common/enum.go#L36)**_ | An identificator for the KYC provider name  |
 | **ReferenceID** | _**string**_                            | An identificator that references to this verification submission. It mention in docs as applicantId/mtid/jumioIdScanReference/etc. Its value is specific for a provider |
 | **LastCheck**   | _**time.Time**_                         | Last time a verification status was checked |
-
-## **Specific KYC providers**
-
-KYC providers have different configuration options and that was implemented as a specific config for each one of them. But mostly they are identical.
-
-For instructions on integration of a specific KYC provider, please, refer this list:
-
-* [**IDology**](integrations/idology/README.md)
-* [**Sum&Substance**](integrations/sumsub/README.md)
-* [**Trulioo**](integrations/trulioo/README.md)
-* [**Shufti Pro**](integrations/shuftipro/README.md)
-* [**IdentityMind**](integrations/identitymind/README.md)
-* [**Jumio**](integrations/jumio/README.md)
-* [**SynapseFI**](integrations/synapsefi/README.md)
 
 ## **Applicable fields grouped per provider**
 
