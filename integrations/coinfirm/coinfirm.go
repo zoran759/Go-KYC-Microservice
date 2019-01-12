@@ -11,8 +11,8 @@ type Coinfirm struct {
 	email    string
 	password string
 	company  string
-	headers  http.Headers
 	token    string
+	headers  http.Headers
 }
 
 // New constructs a new Coinfirm API client instance.
@@ -32,6 +32,13 @@ func New(c Config) *Coinfirm {
 
 // CheckCustomer implements CustomerChecker interface for the Coinfirm.
 func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
+	// TODO: implement this.
+
+	return
+}
+
+// CheckStatus implements StatusChecker interface for the Coinfirm.
+func (c *Coinfirm) CheckStatus(pID string) (res common.KYCResult, err error) {
 	// TODO: implement this.
 
 	return
