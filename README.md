@@ -2,6 +2,16 @@
 
 ## **Table of contents**
 
+* **[KYC providers configuration options](#kyc-providers-configuration-options)**
+  * **[ComplyAdvantage](#complyadvantage-configuration-options)**
+  * **[IdentityMind](#identitymind-configuration-options)**
+  * **[IDology](#idology-configuration-options)**
+  * **[Jumio](#jumio-configuration-options)**
+  * **[Shufti Pro](#shufti-pro-configuration-options)**
+  * **[Sum&Substance](#sum&substance-configuration-options)**
+  * **[SynapseFI](#synapsefi-configuration-options)**
+  * **[Thomson Reuters](#thomson-reuters-configuration-options)**
+  * **[Trulioo](#trulioo-configuration-options)**
 * **[REST API](#rest-api)**
 * **[Integration interface](#integration-interface)**
 * **[KYC request](#kyc-request)**
@@ -18,6 +28,85 @@
   * **[Thomson Reuters](#thomson-reuters)**
   * **[ComplyAdvantage](#complyadvantage)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
+
+## **KYC providers configuration options**
+
+Current implementation of the service allows configuration for the supported KYC providers through the configuration file **[kyc.cfg](main/kyc.cfg)**. We provide the sample file without credentials. It includes all providers supported by the service. Feel free to modify it to suit your needs.
+
+Below are the options required for each provider.
+
+### ComplyAdvantage configuration options
+
+| **Name**  | **Description**                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------------ |
+| Host      | ComplyAdvantage API url without trailing slash                                                               |
+| APIkey    | ComplyAdvantage API key which can be generated within ComplyAdvantage web platform                           |
+| Fuzziness | Determines how closely the returned results must match the supplied name. Float value in range [0.0 ... 1.0] |
+
+### IdentityMind configuration options
+
+| **Name** | **Description**                                                               |
+| -------- | ----------------------------------------------------------------------------- |
+| Host     | IdentityMind API url without trailing slash                                   |
+| Username | IdentityMind API username that is supplied during registration in the service |
+| Password | IdentityMind API key that is supplied during registration in the service      |
+
+### IDology configuration options
+
+| **Name**         | **Description**                                                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Host             | IDology API url without trailing slash                                                                                    |
+| Username         | IDology API username supplied by the service                                                                              |
+| Password         | IDology API password supplied by the service                                                                              |
+| UseSummaryResult | If Summary Results are enabled in the Enterprise Configuration, this must be set to true. Boolean value `true` or `false` |
+
+### Jumio configuration options
+
+| **Name** | **Description**                         |
+| -------- | --------------------------------------- |
+| BaseURL  | Jumio API url without trailing slash    |
+| Token    | Jumio API token supplied by the service |
+| Secret   | Jumio API secret supplied by the service. You can view and manage your API token and secret in the Customer Portal under Settings > API credentials |
+
+### Shufti Pro configuration options
+
+| **Name**    | **Description**                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| Host        | Shufti Pro API url without trailing slash                                                              |
+| ClientID    | Shufti Pro Client ID supplied by the service                                                           |
+| SecretKey   | Shufti Pro Secret Key supplied by the service                                                          |
+| RedirectURL | The url to redirect your customer after the verification process completes. Currently, leave it intact |
+
+### Sum&Substance configuration options
+
+| **Name** | **Description**                               |
+| -------- | --------------------------------------------- |
+| Host     | Sum&Substance API url without trailing slash  |
+| APIKey   | Sum&Substance API key supplied by the service |
+
+### SynapseFI configuration options
+
+| **Name**     | **Description**                                  |
+| ------------ | ------------------------------------------------ |
+| Host         | Synapse FI API url **with** trailing slash       |
+| ClientID     | Synapse FI client id supplied by the service     |
+| ClientSecret | Synapse FI client secret supplied by the service |
+
+### Thomson Reuters configuration options
+
+| **Name**  | **Description**                                                                                                |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| Host      | Thomson Reuters World-Check One API (WC1 API) url **with** trailing slash                                      |
+| APIkey    | WC1 API key generated by WC1 and made available to WC1 administrators via the user administration interface    |
+| APIsecret | WC1 API secret generated by WC1 and made available to WC1 administrators via the user administration interface |
+
+### Trulioo configuration options
+
+| **Name**     | **Description**                                                        |
+| ------------ | ---------------------------------------------------------------------- |
+| Host         | Trulioo GlobalGateway Normalized API (NAPI) url without trailing slash |
+| NAPILogin    | The NAPI username supplied by the service                              |
+| NAPIPassword | The NAPI password supplied by the service                              |
 
 ## **REST API**
 
