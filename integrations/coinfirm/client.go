@@ -96,7 +96,7 @@ func (c *Coinfirm) sendParticipantDetails(pID string, details model.ParticipantD
 }
 
 // sendDocFile sends a document file to the API to add it to KYC process.
-func (c *Coinfirm) sendDocFile(pID string, docfile model.File) (status *int, err error) {
+func (c *Coinfirm) sendDocFile(pID string, docfile *model.File) (status *int, err error) {
 	body, err := json.Marshal(docfile)
 	if err != nil {
 		return

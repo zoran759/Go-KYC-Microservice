@@ -1,5 +1,8 @@
 package model
 
+// DateFormat is the date representation form appropriate for the API.
+const DateFormat = "2006-01-02"
+
 // NewParticipant represents a new participant without data.
 // A new participant creation has to be requested first then send details if succeed.
 type NewParticipant struct {
@@ -18,9 +21,10 @@ type NewParticipantResponse struct {
 type ParticipantDetails struct {
 	UserIP        string   `json:"user_ip,omitempty"`
 	Type          string   `json:"type"`
-	Pep           bool     `json:"pep"`
+	Pep           bool     `json:"pep,omitempty"`
 	FirstName     string   `json:"first_name"`
-	LastName      string   `json:"middle_name"`
+	LastName      string   `json:"last_name"`
+	MiddleName    string   `json:"middle_name,omitempty"`
 	Email         string   `json:"email"`
 	Nationality   string   `json:"nationality"`
 	IDNumber      string   `json:"id_number"`

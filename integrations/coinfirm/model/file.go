@@ -1,7 +1,5 @@
 package model
 
-import "strings"
-
 // List of FileType values.
 const (
 	FileID       FileType = "file_id"
@@ -25,21 +23,20 @@ type File struct {
 
 // acceptedExt holds all accepted file extensions.
 var acceptedExt = map[string]bool{
-	"jpg": true,
-	"png": true,
-	"pdf": true,
+	"jpg":  true,
+	"jpeg": true,
+	"png":  true,
+	"gif":  true,
+	"bmp":  true,
+	"svg":  true,
+	"psd":  true,
+	"tif":  true,
+	"tiff": true,
+	"webp": true,
+	"pdf":  true,
 }
 
 // IsAcceptedFileExt tests the file extension for acceptance by the API.
 func IsAcceptedFileExt(ext string) bool {
 	return acceptedExt[ext]
-}
-
-// NormalizeFileExt normalizes the file extension.
-func NormalizeFileExt(ext string) string {
-	ext = strings.ToLower(ext)
-	if ext == "jpeg" {
-		ext = "jpg"
-	}
-	return ext
 }
