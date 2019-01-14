@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/coinfirm"
 	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
 	"modulus/kyc/integrations/jumio"
@@ -101,6 +102,13 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 			status:  http.StatusUnprocessableEntity,
 			message: fmt.Sprintf("%s doesn't support status polling", provider),
 		}
+	case common.Coinfirm:
+		service = coinfirm.New(coinfirm.Config{
+			Host:     cfg["Host"],
+			Email:    cfg["Email"],
+			Password: cfg["Password"],
+			Company:  cfg["Company"],
+		})
 	case common.IdentityMind:
 		service = identitymind.New(identitymind.Config{
 			Host:     cfg["Host"],

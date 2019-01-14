@@ -6,6 +6,19 @@ import "modulus/kyc/common"
 func validate(config Config) (err error) {
 	for provider, options := range config {
 		switch provider {
+		case common.Coinfirm:
+			if len(options["Host"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Host"}
+			}
+			if len(options["Email"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Email"}
+			}
+			if len(options["Password"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Password"}
+			}
+			if len(options["Company"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "Company"}
+			}
 		case common.ComplyAdvantage:
 			if len(options["Host"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "Host"}
