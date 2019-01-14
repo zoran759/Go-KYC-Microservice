@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"modulus/kyc/common"
+	"modulus/kyc/integrations/coinfirm"
 	"modulus/kyc/integrations/complyadvantage"
 	"modulus/kyc/integrations/example"
 	"modulus/kyc/integrations/identitymind"
@@ -98,6 +99,13 @@ func createCustomerChecker(provider common.KYCProvider) (service common.Customer
 	}
 
 	switch provider {
+	case common.Coinfirm:
+		service = coinfirm.New(coinfirm.Config{
+			Host:     cfg["Host"],
+			Email:    cfg["Email"],
+			Password: cfg["Password"],
+			Company:  cfg["Company"],
+		})
 	case common.ComplyAdvantage:
 		fuzziness, err1 := strconv.ParseFloat(cfg["Fuzziness"], 32)
 		if err1 != nil {
