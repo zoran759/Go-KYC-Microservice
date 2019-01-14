@@ -1,23 +1,40 @@
 package main
 
 import (
-	"flag"
+	"modulus/common/licensing-client"
+	"modulus/kyc/main/config"
+	"modulus/kyc/main/handlers"
+
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-
-	"modulus/kyc/main/config"
-	"modulus/kyc/main/handlers"
 )
 
-var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
+const (
+	prodCfgFile = "kyc.cfg"
+	devCfgFile  = "kyc_dev.cfg"
+)
+
+// DevEnv is the flag to manage prod/dev builds.
+// For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
+var DevEnv = "true"
 
 func main() {
-	flag.Parse()
 
-	if err := config.FromFile(*configFile); err != nil {
-		log.Fatalln("Loading configuration:", err)
+	// Validate license in production environment.
+	// Do os.Exit if failed.
+	if DevEnv == "false" {
+		client.ValidateLicenseOrFail()
+	}
+
+	// Load config from the file.
+	cfgFile := prodCfgFile
+	if DevEnv == "true" {
+		cfgFile = devCfgFile
+	}
+	if err := config.FromFile(cfgFile); err != nil {
+		log.Fatalf("Loading configuration from %s: %s\n", cfgFile, err)
 	}
 
 	createHandlers()
