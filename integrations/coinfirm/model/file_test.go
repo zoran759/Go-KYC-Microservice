@@ -11,103 +11,104 @@ import (
 func TestIsAcceptedFileExt(t *testing.T) {
 	assert := assert.New(t)
 
-	ext := "doc"
+	ext := "jpg"
 	isAccepted := model.IsAcceptedFileExt(ext)
 
-	assert.False(isAccepted)
-
-	ext = "psd"
-	isAccepted = model.IsAcceptedFileExt(ext)
-
-	assert.False(isAccepted)
-
-	ext = "TIF"
-	isAccepted = model.IsAcceptedFileExt(ext)
-
-	assert.False(isAccepted)
-
-	ext = model.NormalizeFileExt(ext)
-	isAccepted = model.IsAcceptedFileExt(ext)
-
-	assert.False(isAccepted)
+	assert.True(isAccepted)
 
 	ext = "jpeg"
 	isAccepted = model.IsAcceptedFileExt(ext)
 
+	assert.True(isAccepted)
+
+	ext = "png"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "gif"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "bmp"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "svg"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "psd"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "tif"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "tiff"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "webp"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	ext = "pdf"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
+	assert.True(isAccepted)
+
+	// Unknown extensions should fail.
+
+	ext = "docx"
+	isAccepted = model.IsAcceptedFileExt(ext)
+
 	assert.False(isAccepted)
 
-	ext = model.NormalizeFileExt(ext)
-	isAccepted = model.IsAcceptedFileExt(ext)
-
-	assert.True(isAccepted)
-
-	ext = "JPEG"
+	ext = "pptx"
 	isAccepted = model.IsAcceptedFileExt(ext)
 
 	assert.False(isAccepted)
 
-	ext = model.NormalizeFileExt(ext)
-	isAccepted = model.IsAcceptedFileExt(ext)
-
-	assert.True(isAccepted)
-
-	ext = "jpg"
-	isAccepted = model.IsAcceptedFileExt(ext)
-
-	assert.True(isAccepted)
-
-	ext = "PNG"
+	ext = "cdr"
 	isAccepted = model.IsAcceptedFileExt(ext)
 
 	assert.False(isAccepted)
 
-	ext = model.NormalizeFileExt(ext)
-	isAccepted = model.IsAcceptedFileExt(ext)
+	// Uppercase or mixed case extensions should fail.
 
-	assert.True(isAccepted)
-
-	ext = "Pdf"
+	ext = "JPG"
 	isAccepted = model.IsAcceptedFileExt(ext)
 
 	assert.False(isAccepted)
 
-	ext = model.NormalizeFileExt(ext)
+	ext = "JpeG"
 	isAccepted = model.IsAcceptedFileExt(ext)
 
-	assert.True(isAccepted)
-}
+	assert.False(isAccepted)
 
-func TestNormalizeFileExt(t *testing.T) {
-	assert := assert.New(t)
+	ext = "Png"
+	isAccepted = model.IsAcceptedFileExt(ext)
 
-	ext := "doc"
-	next := model.NormalizeFileExt(ext)
+	assert.False(isAccepted)
 
-	assert.Equal(ext, next)
+	// Non-normalized extensions should fail.
 
-	ext2 := "Doc"
-	next = model.NormalizeFileExt(ext2)
+	ext = ".jpeg"
+	isAccepted = model.IsAcceptedFileExt(ext)
 
-	assert.Equal(ext, next)
+	assert.False(isAccepted)
 
-	ext2 = "DOC"
-	next = model.NormalizeFileExt(ext2)
+	ext = ".png"
+	isAccepted = model.IsAcceptedFileExt(ext)
 
-	assert.Equal(ext, next)
-
-	ext = "jpg"
-	ext2 = "jpeg"
-	next = model.NormalizeFileExt(ext2)
-
-	assert.Equal(ext, next)
-
-	ext2 = "JPEG"
-	next = model.NormalizeFileExt(ext2)
-
-	assert.Equal(ext, next)
-
-	ext2 = "JPeg"
-	next = model.NormalizeFileExt(ext2)
-
-	assert.Equal(ext, next)
+	assert.False(isAccepted)
 }
