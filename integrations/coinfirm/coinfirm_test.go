@@ -3,6 +3,7 @@ package coinfirm
 import (
 	"testing"
 
+	"modulus/kyc/common"
 	"modulus/kyc/http"
 
 	"github.com/stretchr/testify/assert"
@@ -28,4 +29,17 @@ func TestNew(t *testing.T) {
 	})
 
 	assert.Equal(t, c, *tc)
+}
+
+func TestCheckCustomerNil(t *testing.T) {
+	assert := assert.New(t)
+
+	res, err := c.CheckCustomer(nil)
+
+	assert.Error(err)
+	assert.Equal("customer is absent or no data received", err.Error())
+	assert.Equal(common.Error, res.Status)
+	assert.Nil(res.Details)
+	assert.Empty(res.ErrorCode)
+	assert.Nil(res.StatusCheck)
 }
