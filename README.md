@@ -3,6 +3,7 @@
 ## **Table of contents**
 
 * **[KYC providers configuration options](#kyc-providers-configuration-options)**
+  * **[Coinfirm](#coinfirm-configuration-options)**
   * **[ComplyAdvantage](#complyadvantage-configuration-options)**
   * **[IdentityMind](#identitymind-configuration-options)**
   * **[IDology](#idology-configuration-options)**
@@ -17,22 +18,42 @@
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
 * **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
-  * **[IDology](#idology)**
-  * **[Sum&Substance](#sum&substance)**
-  * **[Trulioo](#trulioo)**
-  * **[Shufti Pro](#shufti-pro)**
+  * **[Coinfirm](#coinfirm)**
+  * **[ComplyAdvantage](#complyadvantage)**
   * **[IdentityMind](#identitymind)**
+  * **[IDology](#idology)**
   * **[Jumio](#jumio)**
+  * **[Shufti Pro](#shufti-pro)**
+  * **[Sum&Substance](#sum&substance)**
   * **[SynapseFI](#synapsefi)**
   * **[Thomson Reuters](#thomson-reuters)**
-  * **[ComplyAdvantage](#complyadvantage)**
+  * **[Trulioo](#trulioo)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
+  * **[Coinfirm](#coinfirm-covered-countries)**
+  * **[ComplyAdvantage](#complyadvantage-covered-countries)**
+  * **[IdentityMind](#identitymind-covered-countries)**
+  * **[IDology](#idology-covered-countries)**
+  * **[Jumio](#jumio-covered-countries)**
+  * **[Shufti Pro](#shufti-pro-covered-countries)**
+  * **[Sum&Substance](#sum&substance-covered-countries)**
+  * **[SynapseFI](#synapsefi-covered-countries)**
+  * **[Thomson Reuters](#thomson-reuters-covered-countries)**
+  * **[Trulioo](#trulioo-covered-countries)**
 
 ## **KYC providers configuration options**
 
 Current implementation of the service allows configuration for the supported KYC providers through the configuration file **[kyc.cfg](main/kyc.cfg)**. We provide the sample file without credentials. It includes all providers supported by the service. Feel free to modify it to suit your needs.
 
 Below are the options required for each provider.
+
+### **Coinfirm configuration options**
+
+| **Name** | **Description**                            |
+| -------- | ------------------------------------------ |
+| Host     | Coinfirm API url without trailing slash    |
+| Email    | Email of the Coinfirm user                 |
+| Password | Password of the Coinfirm user              |
+| Company  | Name of the project registered in Coinfirm |
 
 ### **ComplyAdvantage configuration options**
 
@@ -713,6 +734,40 @@ All fields in the Reference are marked as optional but at least first name and l
 | **FullName**  | _**string**_ | **(*)**      | __*__ Either provide this or first and last names      |
 | DateOfBirth   | _Time_       |              | Recommend for better results                           |
 
+### **Coinfirm**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**                     | **Type**         | **Required**        | **Comment**                                |
+| ---------------------------- | ---------------- | :-----------------: | ------------------------------------------ |
+| **FirstName**                | _string_         | **Yes**             |                                            |
+| **LastName**                 | _string_         | **Yes**             |                                            |
+| MiddleName                   | _string_         |                     |                                            |
+| **Email**                    | _string_         | **Yes**             |                                            |
+| IPaddress                    | _string_         |                     |                                            |
+| **DateOfBirth**              | _Time_           | **Yes**             |                                            |
+| **CountryAlpha2**            | _string_         | **Yes**             |                                            |
+| **Nationality**              | _string_         | **Yes**             |                                            |
+| Phone                        | _string_         |                     |                                            |
+| MobilePhone                  | _string_         |                     |                                            |
+| **CurrentAddress**           | _Address_        | **Yes**             |                                            |
+| **Passport**                 | _*Passport_      | __*__ (see comment) | __*__ Provide anyone of required documents |
+| **IDCard**                   | _*IDCard_        | __*__ (see comment) |                                            |
+| **SNILS**                    | _*SNILS_         | __*__ (see comment) |                                            |
+| **DriverLicense**            | _*DriverLicense_ | __*__ (see comment) |                                            |
+| **DriverLicenseTranslation** | _*DriverLicenseTranslation_ | __*__ (see comment)  |                                |
+| UtilityBill                  | _*UtilityBill_   |                     |                                            |
+
+> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
+
+[**Address**](#address-fields-description) mandatory fields:
+
+| **Name**              | **Type** |
+| --------------------- | -------- |
+| **Town**              | _string_ |
+| **Street**            | _string_ |
+| **PostCode**          | _string_ |
+
 ### **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
@@ -896,6 +951,11 @@ These are the countries that supported since last check.
 * No fields variations found in the docs
 
 ### **Thomson Reuters covered countries**
+
+* International
+* No fields variations found in the docs
+
+### **Coinfirm covered countries**
 
 * International
 * No fields variations found in the docs
