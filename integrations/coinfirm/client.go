@@ -43,8 +43,8 @@ func (c *Coinfirm) newAuthToken() (token model.AuthResponse, status *int, err er
 }
 
 // newParticipant requests the API to add new participant without data.
-func (c *Coinfirm) newParticipant(newParticipant model.NewParticipant) (participant model.NewParticipantResponse, status *int, err error) {
-	body, err := json.Marshal(newParticipant)
+func (c *Coinfirm) newParticipant(nParticipant model.NewParticipant) (participant model.NewParticipantResponse, status *int, err error) {
+	body, err := json.Marshal(nParticipant)
 	if err != nil {
 		return
 	}
