@@ -124,7 +124,6 @@ func prepareCustomerDocument(customer *common.UserData) (docnum string, docfile 
 				Extension:  ext,
 				DataBase64: base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data),
 			}
-			return
 		}
 	}
 
@@ -135,6 +134,7 @@ func prepareCustomerDocument(customer *common.UserData) (docnum string, docfile 
 func toResult(pID string, status model.StatusResponse) (res common.KYCResult, err error) {
 	switch status.CurrentStatus {
 	case model.New, model.InProgress:
+		res.Status = common.Unclear
 		res.StatusCheck = &common.KYCStatusCheck{
 			Provider:    common.Coinfirm,
 			ReferenceID: pID,
@@ -188,7 +188,10 @@ func extFromContentType(contentType string) (ext string) {
 	if err != nil {
 		return
 	}
-	ext = exts[0][1:]
+
+	if len(exts) > 0 {
+		ext = exts[0][1:]
+	}
 
 	return
 }
