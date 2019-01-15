@@ -16,7 +16,6 @@ type Coinfirm struct {
 	email    string
 	password string
 	company  string
-	token    string
 	headers  http.Headers
 }
 
