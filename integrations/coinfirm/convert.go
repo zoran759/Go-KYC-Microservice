@@ -118,7 +118,6 @@ func prepareCustomerDocument(customer *common.UserData) (docnum string, docfile 
 		filetype := commonDocTypeToFileType(utilityBill)
 		ext := extFromContentType(customer.UtilityBill.Image.ContentType)
 		if len(ext) > 0 && model.IsAcceptedFileExt(ext) && len(filetype) > 0 {
-			docnum = customer.UtilityBill.Number
 			docfile = &model.File{
 				Type:       filetype,
 				Extension:  ext,

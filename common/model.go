@@ -167,7 +167,6 @@ type DebitCard struct {
 
 // UtilityBill represents the utility bill.
 type UtilityBill struct {
-	Number        string
 	CountryAlpha2 string
 	Image         *DocumentFile
 }
