@@ -56,7 +56,7 @@ func TestPrepareCustomerData(t *testing.T) {
 	details, docfile := prepareCustomerData(customer)
 
 	assert.Equal(customer.IPaddress, details.UserIP)
-	assert.Equal("individual", details.Type)
+	assert.Equal(model.Individual, details.Type)
 	assert.Equal(customer.FirstName, details.FirstName)
 	assert.Equal(customer.LastName, details.LastName)
 	assert.Equal(customer.MiddleName, details.MiddleName)

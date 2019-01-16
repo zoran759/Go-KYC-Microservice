@@ -3,6 +3,9 @@ package model
 // DateFormat is the date representation form appropriate for the API.
 const DateFormat = "2006-01-02"
 
+// Individual is a value of participantType.
+const Individual participantType = "individual"
+
 // NewParticipant represents a new participant without data.
 // A new participant creation has to be requested first then send details if succeed.
 type NewParticipant struct {
@@ -19,26 +22,29 @@ type NewParticipantResponse struct {
 // ParticipantDetails represents an individual participant data.
 // They have to be send after successful creation of the new participant.
 type ParticipantDetails struct {
-	UserIP        string   `json:"user_ip,omitempty"`
-	Type          string   `json:"type"`
-	Pep           bool     `json:"pep,omitempty"`
-	FirstName     string   `json:"first_name"`
-	LastName      string   `json:"last_name"`
-	MiddleName    string   `json:"middle_name,omitempty"`
-	Email         string   `json:"email"`
-	Nationality   string   `json:"nationality"`
-	IDNumber      string   `json:"id_number"`
-	Phone         string   `json:"phone"`
-	PhoneVerified bool     `json:"phone_verified"`
-	Country       string   `json:"country"`
-	Postcode      string   `json:"postcode"`
-	City          string   `json:"city,omitempty"`
-	Street        string   `json:"street,omitempty"`
-	BirthDate     string   `json:"bdate"`
-	FileFundsText string   `json:"fileFundsText,omitempty"`
-	Sow           *Sow     `json:"sow,omitempty"`
-	Custom        []string `json:"custom,omitempty"`
+	UserIP        string          `json:"user_ip,omitempty"`
+	Type          participantType `json:"type"`
+	Pep           bool            `json:"pep,omitempty"`
+	FirstName     string          `json:"first_name"`
+	LastName      string          `json:"last_name"`
+	MiddleName    string          `json:"middle_name,omitempty"`
+	Email         string          `json:"email"`
+	Nationality   string          `json:"nationality"`
+	IDNumber      string          `json:"id_number"`
+	Phone         string          `json:"phone"`
+	PhoneVerified bool            `json:"phone_verified"`
+	Country       string          `json:"country"`
+	Postcode      string          `json:"postcode"`
+	City          string          `json:"city,omitempty"`
+	Street        string          `json:"street,omitempty"`
+	BirthDate     string          `json:"bdate"`
+	FileFundsText string          `json:"fileFundsText,omitempty"`
+	Sow           *Sow            `json:"sow,omitempty"`
+	Custom        []string        `json:"custom,omitempty"`
 }
+
+// participantType represents participant types.
+type participantType string
 
 // Sow represents sow.
 type Sow struct {
