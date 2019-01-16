@@ -217,7 +217,7 @@ func TestPrepareCustomerDocument(t *testing.T) {
 
 	docnum, docfile = prepareCustomerDocument(customer)
 
-	assert.Equal(customer.UtilityBill.Number, docnum)
+	assert.Empty(docnum)
 	assert.NotNil(docfile)
 	assert.Equal(model.FileAddress, docfile.Type)
 	assert.Equal("png", docfile.Extension)
