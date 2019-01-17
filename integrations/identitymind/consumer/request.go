@@ -210,7 +210,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.Selfie != nil && customer.Selfie.Image != nil {
-		face, e := toBase64(customer.Selfie.Image.Data)
+		face, e := toBase64(customer.Selfie.Image)
 		if e != nil {
 			err = fmt.Errorf("during encoding selfi image data: %s", e)
 			return
@@ -219,7 +219,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.Passport != nil && customer.Passport.Image != nil {
-		r.ScanData, err = toBase64(customer.Passport.Image.Data)
+		r.ScanData, err = toBase64(customer.Passport.Image)
 		if err != nil {
 			err = fmt.Errorf("during encoding passport image: %s", err)
 			return
@@ -231,13 +231,13 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.DriverLicense != nil && customer.DriverLicense.FrontImage != nil {
-		r.ScanData, err = toBase64(customer.DriverLicense.FrontImage.Data)
+		r.ScanData, err = toBase64(customer.DriverLicense.FrontImage)
 		if err != nil {
 			err = fmt.Errorf("during encoding driver licence front image: %s", err)
 			return
 		}
 		if customer.DriverLicense.BackImage != nil {
-			r.BacksideImageData, err = toBase64(customer.DriverLicense.BackImage.Data)
+			r.BacksideImageData, err = toBase64(customer.DriverLicense.BackImage)
 			if err != nil {
 				err = fmt.Errorf("during encoding driver licence back image: %s", err)
 				return
@@ -250,7 +250,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.IDCard != nil && customer.IDCard.Image != nil {
-		r.ScanData, err = toBase64(customer.IDCard.Image.Data)
+		r.ScanData, err = toBase64(customer.IDCard.Image)
 		if err != nil {
 			err = fmt.Errorf("during encoding id card image: %s", err)
 			return
@@ -262,7 +262,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.SNILS != nil && customer.SNILS.Image != nil {
-		r.ScanData, err = toBase64(customer.SNILS.Image.Data)
+		r.ScanData, err = toBase64(customer.SNILS.Image)
 		if err != nil {
 			err = fmt.Errorf("during encoding SNILS image: %s", err)
 			return
@@ -274,7 +274,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.ResidencePermit != nil && customer.ResidencePermit.Image != nil {
-		r.ScanData, err = toBase64(customer.ResidencePermit.Image.Data)
+		r.ScanData, err = toBase64(customer.ResidencePermit.Image)
 		if err != nil {
 			err = fmt.Errorf("during encoding residence permit image: %s", err)
 			return
@@ -286,7 +286,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 	}
 
 	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
-		r.ScanData, err = toBase64(customer.UtilityBill.Image.Data)
+		r.ScanData, err = toBase64(customer.UtilityBill.Image)
 		if err != nil {
 			err = fmt.Errorf("during encoding utility bill image: %s", err)
 			return
@@ -306,17 +306,17 @@ func (r *KYCRequestData) createRequestBody() (body []byte, err error) {
 }
 
 // toBase64 returns base64-encoded representation of the data.
-func toBase64(src []byte) (dst string, err error) {
-	if len(src) == 0 {
+func toBase64(src *common.DocumentFile) (dst string, err error) {
+	if len(src.Data) == 0 {
 		return
 	}
 
-	if base64.StdEncoding.EncodedLen(len(src)) > maxImageDataLength {
+	if base64.StdEncoding.EncodedLen(len(src.Data)) > maxImageDataLength {
 		err = errors.New("too large image file")
 		return
 	}
 
-	dst = base64.StdEncoding.EncodeToString(src)
+	dst = src.ContentType + ";base64," + base64.StdEncoding.EncodeToString(src.Data)
 
 	return
 }
