@@ -1,7 +1,7 @@
 package main
 
 import (
-	"modulus/common/licensing-client"
+	client "modulus/common/licensing-client"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
@@ -62,4 +62,5 @@ func createHandlers() {
 	})
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
+	http.HandleFunc("/Provider", handlers.IsProviderImplemented)
 }

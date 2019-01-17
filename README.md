@@ -132,12 +132,13 @@ Below are the options required for each provider.
 
 The KYC service provides REST API to interact with other components of the application. The data payload of requests should be JSON encoded. The API responds with JSON payload as well.
 
-| **Route**          |  **Description**                                                    |
-| ------------------ | ------------------------------------------------------------------- |
-| **/**              | Answers with the welcome message in plain text format               |
-| **/Ping**          | Answers with the "Pong!" response in plain text format              |
-| **/CheckCustomer** | The endpoint to send KYC verification requests                      |
-| **/CheckStatus**   | The endpoint to send KYC verification current status check requests |
+| **Method** | **Route**        |  **Description**                                                    |
+| ---------- | ---------------- | ------------------------------------------------------------------- |
+| GET        | `/`              | Answers with the welcome message in plain text format               |
+| GET        | `/Ping`          | Answers with the "Pong!" response in plain text format              |
+| GET        | `/Provider`      | The endpoint for check whether a specified provider is implemented  |
+| POST       | `/CheckCustomer` | The endpoint to send KYC verification requests                      |
+| POST       | `/CheckStatus`   | The endpoint to send KYC verification current status check requests |
 
 The models for requests and responses are provided.
 
@@ -179,6 +180,18 @@ If a **KYC provider** doesn't support the instant result response then check and
 | **404**  | It happens when a KYC provider in the request is unknown for the API                                             |
 | **422**  | It happens when a KYC provider doesn't support requested method or it isn't implemented yet                      |
 | **500**  | It happens when something goes wrong in the server (serialization errors, KYC config's errors, etc...)           |
+
+### **Checking if a KYC provider is implemented in the API**
+
+The service accepts only one param for this kind of check - **`name`**. If the request is valid then the JSON response will be returned showing whether the specified provider is implemented:
+
+```json
+{
+    "Implemented": true
+}
+```
+
+This example represents the positive response.
 
 ## **Integration interface**
 
