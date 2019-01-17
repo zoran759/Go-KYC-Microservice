@@ -51,8 +51,8 @@ var _ = Describe("The IdentityMind service", func() {
 
 		var service = New(Config{
 			Host:     SandboxBaseURL,
-			Username: "modulusglobal",
-			Password: "64117e699462ce859d970648461a625bc6a6f3cb",
+			Username: "cointrading",
+			Password: "0c67f85b7d882326ff00ca77b5b98071c1609d2b",
 		})
 
 		It("Should return bad reputation for the customer", func() {
@@ -255,8 +255,8 @@ var _ = Describe("The IdentityMind service", func() {
 
 			service := New(Config{
 				Host:     SandboxBaseURL,
-				Username: "modulusglobal",
-				Password: "64117e699462ce859d970648461a625bc6a6f3cb",
+				Username: "cointrading",
+				Password: "0c67f85b7d882326ff00ca77b5b98071c1609d2b",
 			})
 
 			Expect(service).NotTo(BeNil())
