@@ -18,28 +18,28 @@ import (
 )
 
 var cfg = config.Config{
-	common.IdentityMind: {
+	string(common.IdentityMind): {
 		"Host":     "https://sandbox.identitymind.com/im",
 		"Username": "fakeuser",
 		"Password": "fakepassword",
 	},
-	common.IDology: {
+	string(common.IDology): {
 		"Host":             "https://web.idologylive.com/api/idiq.svc",
 		"Username":         "fakeuser",
 		"Password":         "fakepassword",
 		"UseSummaryResult": "false",
 	},
-	common.ShuftiPro: {
+	string(common.ShuftiPro): {
 		"Host":        "https://api.shuftipro.com",
 		"ClientID":    "fakeID",
 		"SecretKey":   "fakeKey",
 		"RedirectURL": "https://api.shuftipro.com",
 	},
-	common.SumSub: {
+	string(common.SumSub): {
 		"Host":   "https://test-api.sumsub.com",
 		"APIKey": "fakeKey",
 	},
-	common.Trulioo: {
+	string(common.Trulioo): {
 		"Host":         "https://api.globaldatacompany.com",
 		"NAPILogin":    "fakelogin",
 		"NAPIPassword": "fakepassword",
@@ -73,8 +73,8 @@ var errorResponse = []byte(`
 }`)
 
 func init() {
-	if config.KYC == nil {
-		config.KYC = cfg
+	if config.Cfg == nil {
+		config.Cfg = cfg
 	}
 }
 
@@ -85,14 +85,14 @@ func (r FailedReader) Read(p []byte) (n int, err error) {
 }
 
 func TestCheckStatus(t *testing.T) {
-	cfg := config.KYC[common.SumSub]
+	cfg := config.Cfg[string(common.SumSub)]
 
 	assert.NotNil(t, cfg)
 
 	referenceID := "testID"
 
 	request, err := json.Marshal(&common.CheckStatusRequest{
-		Provider:   common.SumSub,
+		Provider:    common.SumSub,
 		ReferenceID: referenceID,
 	})
 
@@ -239,7 +239,7 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing nonexistent KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   "Nonexistent Provider",
+		Provider:    "Nonexistent Provider",
 		ReferenceID: referenceID,
 	})
 
@@ -265,7 +265,7 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   "Fake Provider",
+		Provider:    "Fake Provider",
 		ReferenceID: referenceID,
 	})
 
@@ -295,7 +295,7 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing KYC provider that doesn't support status polling.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   common.IDology,
+		Provider:    common.IDology,
 		ReferenceID: referenceID,
 	})
 
@@ -321,14 +321,14 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   "Fake Provider",
+		Provider:    "Fake Provider",
 		ReferenceID: referenceID,
 	})
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, request)
 
-	config.KYC["Fake Provider"] = map[string]string{"test": "test"}
+	config.Cfg["Fake Provider"] = map[string]string{"test": "test"}
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
@@ -349,7 +349,7 @@ func TestCheckStatus(t *testing.T) {
 
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   common.SumSub,
+		Provider:    common.SumSub,
 		ReferenceID: referenceID,
 	})
 
@@ -382,12 +382,12 @@ func TestCheckStatus(t *testing.T) {
 	assert.Equal(t, "Access denied", resp.Error)
 
 	// Testing IdentityMind.
-	cfg = config.KYC[common.IdentityMind]
+	cfg = config.Cfg[string(common.IdentityMind)]
 
 	assert.NotNil(t, cfg)
 
 	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:   common.IdentityMind,
+		Provider:    common.IdentityMind,
 		ReferenceID: referenceID,
 	})
 

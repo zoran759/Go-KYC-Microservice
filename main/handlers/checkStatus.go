@@ -86,7 +86,7 @@ func createStatusChecker(provider common.KYCProvider) (service common.StatusChec
 		return
 	}
 
-	cfg, ok := config.KYC[provider]
+	cfg, ok := config.Cfg[string(provider)]
 	if !ok {
 		err = &serviceError{
 			status:  http.StatusInternalServerError,

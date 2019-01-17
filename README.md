@@ -2,6 +2,7 @@
 
 ## **Table of contents**
 
+* **[KYC service configuration](#kyc-service-configuration)**
 * **[KYC providers configuration options](#kyc-providers-configuration-options)**
   * **[Coinfirm](#coinfirm-configuration-options)**
   * **[ComplyAdvantage](#complyadvantage-configuration-options)**
@@ -39,6 +40,18 @@
   * **[SynapseFI](#synapsefi-covered-countries)**
   * **[Thomson Reuters](#thomson-reuters-covered-countries)**
   * **[Trulioo](#trulioo-covered-countries)**
+
+## **KYC service configuration**
+
+The service supports the following command line options:
+
+* `help` - prints info about supported command-line options and exits.
+* `config` - specifies the file to use for configuration.
+* `port` - specifies the port for the service to listen for incoming requests. The default port is 8080.
+
+Also, the service supports the following options in the configuration file:
+
+* `Port` - has the same meaning as the command-line **`port`** option. It must be placed under the **`Config`** section of the configuration file.
 
 ## **KYC providers configuration options**
 
