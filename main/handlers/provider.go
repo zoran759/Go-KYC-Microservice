@@ -3,8 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"modulus/kyc/common"
 	"net/http"
+	"sort"
+
+	"modulus/kyc/common"
+	"modulus/kyc/main/handlers/providers"
 )
 
 type isProviderImplementedResp struct {
@@ -19,10 +22,14 @@ func IsProviderImplemented(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
+	if len(r.Form) == 0 {
+		json.NewEncoder(w).Encode(providerList())
+		return
+	}
 
 	name := r.Form.Get("name")
 	if len(name) == 0 {
-		writeErrorResponse(w, http.StatusBadRequest, errors.New("provider name was not specified"))
+		writeErrorResponse(w, http.StatusBadRequest, errors.New("missing provider name in the request"))
 		return
 	}
 
@@ -31,4 +38,13 @@ func IsProviderImplemented(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(res)
+}
+
+// providerList forms the list of implemented providers.
+func providerList() (list providers.ProviderList) {
+	for p := range common.KYCProviders {
+		list = append(list, p)
+	}
+	sort.Sort(list)
+	return
 }

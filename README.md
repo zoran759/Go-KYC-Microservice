@@ -17,6 +17,7 @@
 * **[Integration interface](#integration-interface)**
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
+* **[Checking if a KYC provider is implemented in the API](#checking-if-a-kyc-provider-is-implemented-in-the-api)**
 * **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
   * **[Coinfirm](#coinfirm)**
   * **[ComplyAdvantage](#complyadvantage)**
@@ -183,7 +184,7 @@ If a **KYC provider** doesn't support the instant result response then check and
 
 ### **Checking if a KYC provider is implemented in the API**
 
-The service accepts only one param for this kind of check - **`name`**. If the request is valid then the JSON response will be returned showing whether the specified provider is implemented:
+The service accepts only one param for this kind of check - **`name`**. Other params are ignored. If the request is valid then the JSON response will be returned showing whether the specified provider is implemented:
 
 ```json
 {
@@ -192,6 +193,18 @@ The service accepts only one param for this kind of check - **`name`**. If the r
 ```
 
 This example represents the positive response.
+
+If the request performed without params then the sorted list of implemented KYC providers will be returned in the response:
+
+```json
+[
+    "ComplyAdvantage",
+    "IDology",
+    ...
+    "ThomsonReuters",
+    "Trulioo"
+]
+```
 
 ## **Integration interface**
 
