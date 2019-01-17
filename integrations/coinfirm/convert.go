@@ -141,9 +141,9 @@ func toResult(pID string, status model.StatusResponse) (res common.KYCResult, er
 		}
 	case model.Incomplete:
 		err = errors.New("data provided by participant is incomplete or does not meet the requirements set in KYC form")
-	case model.Low:
+	case model.Low, model.Medium:
 		res.Status = common.Approved
-	case model.Medium, model.High, model.Fail:
+	case model.High, model.Fail:
 		s := string(status.CurrentStatus)
 		if status.CurrentStatus == model.Fail {
 			s = "unacceptable"
