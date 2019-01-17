@@ -133,8 +133,8 @@ var truliooResponse = []byte(`
 }`)
 
 func init() {
-	if config.KYC == nil {
-		config.KYC = cfg
+	if config.Cfg == nil {
+		config.Cfg = cfg
 	}
 }
 
@@ -328,7 +328,7 @@ func TestCheckCustomer(t *testing.T) {
 	if !common.KYCProviders["Not Implemented Provider"] {
 		common.KYCProviders["Not Implemented Provider"] = true
 	}
-	config.KYC["Not Implemented Provider"] = map[string]string{"test": "test"}
+	config.Cfg["Not Implemented Provider"] = map[string]string{"test": "test"}
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
 	w = httptest.NewRecorder()
@@ -470,7 +470,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, request)
 
-	sumsubCfg := cfg[common.SumSub]
+	sumsubCfg := cfg[string(common.SumSub)]
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
@@ -524,7 +524,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, request)
 
-	truliooCfg := cfg[common.Trulioo]
+	truliooCfg := cfg[string(common.Trulioo)]
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
@@ -569,7 +569,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NotEmpty(t, request)
 	assert.NotEmpty(t, response)
 
-	config.KYC[common.IDology] = map[string]string{
+	config.Cfg[string(common.IDology)] = map[string]string{
 		"Host":     "https://web.idologylive.com/api/idiq.svc",
 		"Username": "fakeuser",
 		"Password": "fakepassword",

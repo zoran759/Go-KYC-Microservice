@@ -98,7 +98,7 @@ func TestParseConfig(t *testing.T) {
 	cfg, err = parseConfig(reader)
 
 	assert.Error(err)
-	assert.Equal("parsing failed at line 9 '[]': missing KYC provider name in the config", err.Error())
+	assert.Equal("parsing failed at line 9 '[]': empty section name", err.Error())
 	assert.Nil(cfg)
 
 	reader = strings.NewReader(rawConfigWithUnknownName)
