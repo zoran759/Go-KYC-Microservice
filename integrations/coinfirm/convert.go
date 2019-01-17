@@ -13,11 +13,11 @@ import (
 const (
 	unspecified commonDocType = iota
 	passport
+	driverLicense
+	driverLicenseTranslation
 	idcard
 	snils
 	utilityBill
-	driverLicense
-	driverLicenseTranslation
 )
 
 type commonDocType int
