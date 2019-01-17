@@ -288,11 +288,8 @@ func TestToResult(t *testing.T) {
 	res, err = toResult(pID, resp)
 
 	assert.NoError(err)
-	assert.Equal(common.Denied, res.Status)
-	assert.NotNil(res.Details)
-	assert.Equal(common.Unknown, res.Details.Finality)
-	assert.Len(res.Details.Reasons, 1)
-	assert.Equal("Coinfirm analysts evaluated the risk associated to participant as medium", res.Details.Reasons[0])
+	assert.Equal(common.Approved, res.Status)
+	assert.Nil(res.Details)
 	assert.Empty(res.ErrorCode)
 	assert.Nil(res.StatusCheck)
 
