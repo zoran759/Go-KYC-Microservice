@@ -2,22 +2,146 @@
 
 ## **Table of contents**
 
+* **[KYC service configuration](#kyc-service-configuration)**
+* **[KYC providers configuration options](#kyc-providers-configuration-options)**
+  * **[Coinfirm](#coinfirm-configuration-options)**
+  * **[ComplyAdvantage](#complyadvantage-configuration-options)**
+  * **[IdentityMind](#identitymind-configuration-options)**
+  * **[IDology](#idology-configuration-options)**
+  * **[Jumio](#jumio-configuration-options)**
+  * **[Shufti Pro](#shufti-pro-configuration-options)**
+  * **[Sum&Substance](#sum&substance-configuration-options)**
+  * **[SynapseFI](#synapsefi-configuration-options)**
+  * **[Thomson Reuters](#thomson-reuters-configuration-options)**
+  * **[Trulioo](#trulioo-configuration-options)**
 * **[REST API](#rest-api)**
 * **[Integration interface](#integration-interface)**
 * **[KYC request](#kyc-request)**
 * **[KYC response](#kyc-response)**
-* **[Specific KYC providers](#specific-kyc-providers)**
 * **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
-  * **[IDology](#idology)**
-  * **[Sum&Substance](#sum&substance)**
-  * **[Trulioo](#trulioo)**
-  * **[Shufti Pro](#shufti-pro)**
+  * **[Coinfirm](#coinfirm)**
+  * **[ComplyAdvantage](#complyadvantage)**
   * **[IdentityMind](#identitymind)**
+  * **[IDology](#idology)**
   * **[Jumio](#jumio)**
+  * **[Shufti Pro](#shufti-pro)**
+  * **[Sum&Substance](#sum&substance)**
   * **[SynapseFI](#synapsefi)**
   * **[Thomson Reuters](#thomson-reuters)**
-  * **[ComplyAdvantage](#complyadvantage)**
+  * **[Trulioo](#trulioo)**
 * **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
+  * **[Coinfirm](#coinfirm-covered-countries)**
+  * **[ComplyAdvantage](#complyadvantage-covered-countries)**
+  * **[IdentityMind](#identitymind-covered-countries)**
+  * **[IDology](#idology-covered-countries)**
+  * **[Jumio](#jumio-covered-countries)**
+  * **[Shufti Pro](#shufti-pro-covered-countries)**
+  * **[Sum&Substance](#sum&substance-covered-countries)**
+  * **[SynapseFI](#synapsefi-covered-countries)**
+  * **[Thomson Reuters](#thomson-reuters-covered-countries)**
+  * **[Trulioo](#trulioo-covered-countries)**
+
+## **KYC service configuration**
+
+The service supports the following command line options:
+
+* `help` - prints info about supported command-line options and exits.
+* `config` - specifies the file to use for configuration.
+* `port` - specifies the port for the service to listen for incoming requests. The default port is 8080.
+
+Also, the service supports the following options in the configuration file:
+
+* `Port` - has the same meaning as the command-line **`port`** option. It must be placed under the **`Config`** section of the configuration file.
+
+Warning! If a comman line option is specified its value overrides the configuration file value for that option.
+
+## **KYC providers configuration options**
+
+Current implementation of the service allows configuration for the supported KYC providers through the configuration file **[kyc.cfg](main/kyc.cfg)**. We provide the sample file without credentials. It includes all providers supported by the service. Feel free to modify it to suit your needs.
+
+Below are the options required for each provider.
+
+### **Coinfirm configuration options**
+
+| **Name** | **Description**                            |
+| -------- | ------------------------------------------ |
+| Host     | Coinfirm API url without trailing slash    |
+| Email    | Email of the Coinfirm user                 |
+| Password | Password of the Coinfirm user              |
+| Company  | Name of the project registered in Coinfirm |
+
+### **ComplyAdvantage configuration options**
+
+| **Name**  | **Description**                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------------ |
+| Host      | ComplyAdvantage API url without trailing slash                                                               |
+| APIkey    | ComplyAdvantage API key which can be generated within ComplyAdvantage web platform                           |
+| Fuzziness | Determines how closely the returned results must match the supplied name. Float value in range [0.0 ... 1.0] |
+
+### **IdentityMind configuration options**
+
+| **Name** | **Description**                                                               |
+| -------- | ----------------------------------------------------------------------------- |
+| Host     | IdentityMind API url without trailing slash                                   |
+| Username | IdentityMind API username that is supplied during registration in the service |
+| Password | IdentityMind API key that is supplied during registration in the service      |
+
+### **IDology configuration options**
+
+| **Name**         | **Description**                                                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Host             | IDology API url without trailing slash                                                                                    |
+| Username         | IDology API username supplied by the service                                                                              |
+| Password         | IDology API password supplied by the service                                                                              |
+| UseSummaryResult | If Summary Results are enabled in the Enterprise Configuration, this must be set to true. Boolean value `true` or `false` |
+
+### **Jumio configuration options**
+
+| **Name** | **Description**                         |
+| -------- | --------------------------------------- |
+| BaseURL  | Jumio API url without trailing slash    |
+| Token    | Jumio API token supplied by the service |
+| Secret   | Jumio API secret supplied by the service. You can view and manage your API token and secret in the Customer Portal under Settings > API credentials |
+
+### **Shufti Pro configuration options**
+
+| **Name**    | **Description**                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| Host        | Shufti Pro API url without trailing slash                                                              |
+| ClientID    | Shufti Pro Client ID supplied by the service                                                           |
+| SecretKey   | Shufti Pro Secret Key supplied by the service                                                          |
+| RedirectURL | The url to redirect your customer after the verification process completes. Currently, leave it intact |
+
+### **Sum&Substance configuration options**
+
+| **Name** | **Description**                               |
+| -------- | --------------------------------------------- |
+| Host     | Sum&Substance API url without trailing slash  |
+| APIKey   | Sum&Substance API key supplied by the service |
+
+### **SynapseFI configuration options**
+
+| **Name**     | **Description**                                  |
+| ------------ | ------------------------------------------------ |
+| Host         | Synapse FI API url **with** trailing slash       |
+| ClientID     | Synapse FI client id supplied by the service     |
+| ClientSecret | Synapse FI client secret supplied by the service |
+
+### **Thomson Reuters configuration options**
+
+| **Name**  | **Description**                                                                                                |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| Host      | Thomson Reuters World-Check One API (WC1 API) url **with** trailing slash                                      |
+| APIkey    | WC1 API key generated by WC1 and made available to WC1 administrators via the user administration interface    |
+| APIsecret | WC1 API secret generated by WC1 and made available to WC1 administrators via the user administration interface |
+
+### **Trulioo configuration options**
+
+| **Name**     | **Description**                                                        |
+| ------------ | ---------------------------------------------------------------------- |
+| Host         | Trulioo GlobalGateway Normalized API (NAPI) url without trailing slash |
+| NAPILogin    | The NAPI username supplied by the service                              |
+| NAPIPassword | The NAPI password supplied by the service                              |
 
 ## **REST API**
 
@@ -406,20 +530,6 @@ The verification response consist of two elements: a result and an error if occu
 | **ReferenceID** | _**string**_                            | An identificator that references to this verification submission. It mention in docs as applicantId/mtid/jumioIdScanReference/etc. Its value is specific for a provider |
 | **LastCheck**   | _**time.Time**_                         | Last time a verification status was checked |
 
-## **Specific KYC providers**
-
-KYC providers have different configuration options and that was implemented as a specific config for each one of them. But mostly they are identical.
-
-For instructions on integration of a specific KYC provider, please, refer this list:
-
-* [**IDology**](integrations/idology/README.md)
-* [**Sum&Substance**](integrations/sumsub/README.md)
-* [**Trulioo**](integrations/trulioo/README.md)
-* [**Shufti Pro**](integrations/shuftipro/README.md)
-* [**IdentityMind**](integrations/identitymind/README.md)
-* [**Jumio**](integrations/jumio/README.md)
-* [**SynapseFI**](integrations/synapsefi/README.md)
-
 ## **Applicable fields grouped per provider**
 
 [**common.UserData**](#userdata-fields-description) provides a wide range of possible data that might require the verification. However, not every KYC provider will surely use all available fields of the model. Therefore, to ease the process of integration for administrators, here you'll find the grouping of applicable fields per provider.
@@ -639,6 +749,40 @@ All fields in the Reference are marked as optional but at least first name and l
 | **FullName**  | _**string**_ | **(*)**      | __*__ Either provide this or first and last names      |
 | DateOfBirth   | _Time_       |              | Recommend for better results                           |
 
+### **Coinfirm**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**                     | **Type**         | **Required**        | **Comment**                                |
+| ---------------------------- | ---------------- | :-----------------: | ------------------------------------------ |
+| **FirstName**                | _string_         | **Yes**             |                                            |
+| **LastName**                 | _string_         | **Yes**             |                                            |
+| MiddleName                   | _string_         |                     |                                            |
+| **Email**                    | _string_         | **Yes**             |                                            |
+| IPaddress                    | _string_         |                     |                                            |
+| **DateOfBirth**              | _Time_           | **Yes**             |                                            |
+| **CountryAlpha2**            | _string_         | **Yes**             |                                            |
+| **Nationality**              | _string_         | **Yes**             |                                            |
+| Phone                        | _string_         |                     |                                            |
+| MobilePhone                  | _string_         |                     |                                            |
+| **CurrentAddress**           | _Address_        | **Yes**             |                                            |
+| **Passport**                 | _*Passport_      | __*__ (see comment) | __*__ Provide anyone of required documents |
+| **IDCard**                   | _*IDCard_        | __*__ (see comment) |                                            |
+| **SNILS**                    | _*SNILS_         | __*__ (see comment) |                                            |
+| **DriverLicense**            | _*DriverLicense_ | __*__ (see comment) |                                            |
+| **DriverLicenseTranslation** | _*DriverLicenseTranslation_ | __*__ (see comment)  |                                |
+| UtilityBill                  | _*UtilityBill_   |                     |                                            |
+
+> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
+
+[**Address**](#address-fields-description) mandatory fields:
+
+| **Name**              | **Type** |
+| --------------------- | -------- |
+| **Town**              | _string_ |
+| **Street**            | _string_ |
+| **PostCode**          | _string_ |
+
 ### **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
@@ -822,6 +966,11 @@ These are the countries that supported since last check.
 * No fields variations found in the docs
 
 ### **Thomson Reuters covered countries**
+
+* International
+* No fields variations found in the docs
+
+### **Coinfirm covered countries**
 
 * International
 * No fields variations found in the docs

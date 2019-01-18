@@ -10,28 +10,28 @@ import (
 )
 
 var validConfig = Config{
-	common.IdentityMind: Options{
+	string(common.IdentityMind): Options{
 		"Host":     "host",
 		"Username": "fakeuser",
 		"Password": "fakepassword",
 	},
-	common.IDology: Options{
+	string(common.IDology): Options{
 		"Host":             "host",
 		"Username":         "fakeuser",
 		"Password":         "fakepassword",
 		"UseSummaryResult": "false",
 	},
-	common.ShuftiPro: Options{
+	string(common.ShuftiPro): Options{
 		"Host":        "host",
 		"ClientID":    "fakeid",
 		"SecretKey":   "fakekey",
 		"RedirectURL": "host",
 	},
-	common.SumSub: Options{
+	string(common.SumSub): Options{
 		"Host":   "host",
 		"APIKey": "fakekey",
 	},
-	common.Trulioo: Options{
+	string(common.Trulioo): Options{
 		"Host":         "host",
 		"NAPILogin":    "fakelogin",
 		"NAPIPassword": "fakepassword",
@@ -48,7 +48,7 @@ func TestVerifyComplyAdvantage(t *testing.T) {
 	assert := assert.New(t)
 
 	config := Config{
-		common.ComplyAdvantage: Options{
+		string(common.ComplyAdvantage): Options{
 			"APIkey":    "key",
 			"Fuzziness": "0",
 		},
@@ -61,7 +61,7 @@ func TestVerifyComplyAdvantage(t *testing.T) {
 	assert.Equal(`ComplyAdvantage configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.ComplyAdvantage: Options{
+		string(common.ComplyAdvantage): Options{
 			"Host":      "host",
 			"Fuzziness": "0",
 		},
@@ -72,7 +72,7 @@ func TestVerifyComplyAdvantage(t *testing.T) {
 	assert.Equal(`ComplyAdvantage configuration error: missing or empty option 'APIkey'`, err.Error())
 
 	config = Config{
-		common.ComplyAdvantage: Options{
+		string(common.ComplyAdvantage): Options{
 			"Host":   "host",
 			"APIkey": "key",
 		},
@@ -85,7 +85,7 @@ func TestVerifyComplyAdvantage(t *testing.T) {
 
 func TestVerifyIdentityMind(t *testing.T) {
 	config := Config{
-		common.IdentityMind: Options{
+		string(common.IdentityMind): Options{
 			"Username": "fakeuser",
 			"Password": "fakepassword",
 		},
@@ -97,7 +97,7 @@ func TestVerifyIdentityMind(t *testing.T) {
 	assert.Equal(t, `IdentityMind configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.IdentityMind: Options{
+		string(common.IdentityMind): Options{
 			"Host":     "host",
 			"Password": "fakepassword",
 		},
@@ -108,7 +108,7 @@ func TestVerifyIdentityMind(t *testing.T) {
 	assert.Equal(t, `IdentityMind configuration error: missing or empty option 'Username'`, err.Error())
 
 	config = Config{
-		common.IdentityMind: Options{
+		string(common.IdentityMind): Options{
 			"Host":     "host",
 			"Username": "fakeuser",
 		},
@@ -121,7 +121,7 @@ func TestVerifyIdentityMind(t *testing.T) {
 
 func TestVerifyIDology(t *testing.T) {
 	config := Config{
-		common.IDology: Options{
+		string(common.IDology): Options{
 			"Username":         "fakeuser",
 			"Password":         "fakepassword",
 			"UseSummaryResult": "false",
@@ -134,7 +134,7 @@ func TestVerifyIDology(t *testing.T) {
 	assert.Equal(t, `IDology configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.IDology: Options{
+		string(common.IDology): Options{
 			"Host":             "host",
 			"Password":         "fakepassword",
 			"UseSummaryResult": "false",
@@ -146,7 +146,7 @@ func TestVerifyIDology(t *testing.T) {
 	assert.Equal(t, `IDology configuration error: missing or empty option 'Username'`, err.Error())
 
 	config = Config{
-		common.IDology: Options{
+		string(common.IDology): Options{
 			"Host":             "host",
 			"Username":         "fakeuser",
 			"UseSummaryResult": "false",
@@ -158,7 +158,7 @@ func TestVerifyIDology(t *testing.T) {
 	assert.Equal(t, `IDology configuration error: missing or empty option 'Password'`, err.Error())
 
 	config = Config{
-		common.IDology: Options{
+		string(common.IDology): Options{
 			"Host":     "host",
 			"Username": "fakeuser",
 			"Password": "fakepassword",
@@ -174,7 +174,7 @@ func TestVerifyJumio(t *testing.T) {
 	assert := assert.New(t)
 
 	config := Config{
-		common.Jumio: Options{
+		string(common.Jumio): Options{
 			"Token":  "token",
 			"Secret": "secret",
 		},
@@ -186,7 +186,7 @@ func TestVerifyJumio(t *testing.T) {
 	assert.Equal(`Jumio configuration error: missing or empty option 'BaseURL'`, err.Error())
 
 	config = Config{
-		common.Jumio: Options{
+		string(common.Jumio): Options{
 			"BaseURL": "base_url",
 			"Secret":  "secret",
 		},
@@ -197,7 +197,7 @@ func TestVerifyJumio(t *testing.T) {
 	assert.Equal(`Jumio configuration error: missing or empty option 'Token'`, err.Error())
 
 	config = Config{
-		common.Jumio: Options{
+		string(common.Jumio): Options{
 			"BaseURL": "base_url",
 			"Token":   "token",
 		},
@@ -210,7 +210,7 @@ func TestVerifyJumio(t *testing.T) {
 
 func TestVerifyShuftiPro(t *testing.T) {
 	config := Config{
-		common.ShuftiPro: Options{
+		string(common.ShuftiPro): Options{
 			"ClientID":    "fakeid",
 			"SecretKey":   "fakekey",
 			"RedirectURL": "host",
@@ -223,7 +223,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.ShuftiPro: Options{
+		string(common.ShuftiPro): Options{
 			"Host":        "host",
 			"SecretKey":   "fakekey",
 			"RedirectURL": "host",
@@ -235,7 +235,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'ClientID'`, err.Error())
 
 	config = Config{
-		common.ShuftiPro: Options{
+		string(common.ShuftiPro): Options{
 			"Host":        "host",
 			"ClientID":    "fakeid",
 			"RedirectURL": "host",
@@ -247,7 +247,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'SecretKey'`, err.Error())
 
 	config = Config{
-		common.ShuftiPro: Options{
+		string(common.ShuftiPro): Options{
 			"Host":      "host",
 			"ClientID":  "fakeid",
 			"SecretKey": "fakekey",
@@ -261,7 +261,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 
 func TestVerifySumSub(t *testing.T) {
 	config := Config{
-		common.SumSub: Options{
+		string(common.SumSub): Options{
 			"APIKey": "fakekey",
 		},
 	}
@@ -272,7 +272,7 @@ func TestVerifySumSub(t *testing.T) {
 	assert.Equal(t, `Sum&Substance configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.SumSub: Options{
+		string(common.SumSub): Options{
 			"Host": "host",
 		},
 	}
@@ -286,7 +286,7 @@ func TestVerifySynapseFI(t *testing.T) {
 	assert := assert.New(t)
 
 	config := Config{
-		common.SynapseFI: Options{
+		string(common.SynapseFI): Options{
 			"ClientID":     "clientID",
 			"ClientSecret": "secret",
 		},
@@ -298,7 +298,7 @@ func TestVerifySynapseFI(t *testing.T) {
 	assert.Equal(`SynapseFI configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.SynapseFI: Options{
+		string(common.SynapseFI): Options{
 			"Host":         "host",
 			"ClientSecret": "secret",
 		},
@@ -309,7 +309,7 @@ func TestVerifySynapseFI(t *testing.T) {
 	assert.Equal(`SynapseFI configuration error: missing or empty option 'ClientID'`, err.Error())
 
 	config = Config{
-		common.SynapseFI: Options{
+		string(common.SynapseFI): Options{
 			"Host":     "host",
 			"ClientID": "clientID",
 		},
@@ -324,7 +324,7 @@ func TestVerifyThomsonReuters(t *testing.T) {
 	assert := assert.New(t)
 
 	config := Config{
-		common.ThomsonReuters: Options{
+		string(common.ThomsonReuters): Options{
 			"APIkey":    "key",
 			"APIsecret": "secret",
 		},
@@ -336,7 +336,7 @@ func TestVerifyThomsonReuters(t *testing.T) {
 	assert.Equal(`ThomsonReuters configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.ThomsonReuters: Options{
+		string(common.ThomsonReuters): Options{
 			"Host":      "host",
 			"APIsecret": "secret",
 		},
@@ -347,7 +347,7 @@ func TestVerifyThomsonReuters(t *testing.T) {
 	assert.Equal(`ThomsonReuters configuration error: missing or empty option 'APIkey'`, err.Error())
 
 	config = Config{
-		common.ThomsonReuters: Options{
+		string(common.ThomsonReuters): Options{
 			"Host":   "host",
 			"APIkey": "key",
 		},
@@ -360,7 +360,7 @@ func TestVerifyThomsonReuters(t *testing.T) {
 
 func TestVerifyTrulioo(t *testing.T) {
 	config := Config{
-		common.Trulioo: Options{
+		string(common.Trulioo): Options{
 			"NAPILogin":    "fakelogin",
 			"NAPIPassword": "fakepassword",
 		},
@@ -372,7 +372,7 @@ func TestVerifyTrulioo(t *testing.T) {
 	assert.Equal(t, `Trulioo configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
-		common.Trulioo: Options{
+		string(common.Trulioo): Options{
 			"Host":         "host",
 			"NAPIPassword": "fakepassword",
 		},
@@ -383,7 +383,7 @@ func TestVerifyTrulioo(t *testing.T) {
 	assert.Equal(t, `Trulioo configuration error: missing or empty option 'NAPILogin'`, err.Error())
 
 	config = Config{
-		common.Trulioo: Options{
+		string(common.Trulioo): Options{
 			"Host":      "host",
 			"NAPILogin": "fakelogin",
 		},

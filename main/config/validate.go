@@ -5,7 +5,7 @@ import "modulus/kyc/common"
 // validate ensures the config correctness for all KYC providers containing in the given config.
 func validate(config Config) (err error) {
 	for provider, options := range config {
-		switch provider {
+		switch common.KYCProvider(provider) {
 		case common.Coinfirm:
 			if len(options["Host"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "Host"}

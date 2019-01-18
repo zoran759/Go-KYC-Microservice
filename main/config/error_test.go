@@ -3,14 +3,12 @@ package config
 import (
 	"testing"
 
-	"modulus/kyc/common"
-
 	"github.com/stretchr/testify/assert"
 )
 
 func TestErrMissingOption(t *testing.T) {
 	err := ErrMissingOption{
-		provider: common.KYCProvider("Foobar"),
+		provider: "Foobar",
 		option:   "Barbaz",
 	}
 
