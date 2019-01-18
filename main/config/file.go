@@ -22,12 +22,12 @@ func FromFile(filename string) (err error) {
 		return
 	}
 
-	KYC, err = parseConfig(file)
+	Cfg, err = parseConfig(file)
 	if err != nil {
 		return
 	}
 
-	err = validate(KYC)
+	err = validate(Cfg)
 
 	return
 }

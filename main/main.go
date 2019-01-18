@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
 	"net/http"
-	"os"
 
 	client "modulus/common/licensing-client"
 	"modulus/kyc/main/config"
@@ -20,6 +19,11 @@ const (
 // For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
 var DevEnv = "true"
 
+var (
+	cfgFile = flag.String("config", "", "Load the service configuration from the file specified")
+	port    = flag.String("port", "", "Listen on the port specified")
+)
+
 func main() {
 
 	// Validate license in production environment.
@@ -28,26 +32,35 @@ func main() {
 		client.ValidateLicenseOrFail()
 	}
 
+	flag.Parse()
+
 	// Load config from the file.
-	cfgFile := prodCfgFile
-	if DevEnv == "true" {
-		cfgFile = devCfgFile
+	// If the command line flag is set its value will be used as the config file name otherwise
+	// a predefined file name will be used depending on the value of DevEnv variable.
+	if len(*cfgFile) == 0 {
+		switch DevEnv {
+		case "true":
+			*cfgFile = devCfgFile
+		default:
+			*cfgFile = prodCfgFile
+		}
 	}
-	if err := config.FromFile(cfgFile); err != nil {
-		log.Fatalf("Loading configuration from %s: %s\n", cfgFile, err)
+	if err := config.FromFile(*cfgFile); err != nil {
+		log.Fatalf("Loading configuration from %s: %s\n", *cfgFile, err)
 	}
 
 	createHandlers()
 
-	var port string
-
-	if port = os.Getenv("KYC_PORT"); len(port) == 0 {
-		port = "8080"
+	// Set the listening port for the service.
+	// If the command line flag is set its value will be used for the listening port
+	// otherwise the option from the service config will be used.
+	if len(*port) == 0 {
+		*port = config.Cfg.ServicePort()
 	}
 
-	log.Printf("Listen on :%v", port)
+	log.Printf("Listen on :%v", *port)
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
+	if err := http.ListenAndServe(":"+*port, nil); err != nil {
 		log.Fatalln("ListenAndServe:", err)
 	}
 }

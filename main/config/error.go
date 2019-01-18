@@ -2,12 +2,11 @@ package config
 
 import (
 	"fmt"
-	"modulus/kyc/common"
 )
 
 // ErrMissingOption defines an error of the missing config option.
 type ErrMissingOption struct {
-	provider common.KYCProvider
+	provider string
 	option   string
 }
 
