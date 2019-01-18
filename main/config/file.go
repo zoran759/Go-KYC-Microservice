@@ -22,7 +22,7 @@ func FromFile(filename string) (err error) {
 		return
 	}
 
-	KYC, err := parseConfig(file)
+	KYC, err = parseConfig(file)
 	if err != nil {
 		return
 	}

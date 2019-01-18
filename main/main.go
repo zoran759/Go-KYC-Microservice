@@ -1,14 +1,14 @@
 package main
 
 import (
-	"modulus/common/licensing-client"
-	"modulus/kyc/main/config"
-	"modulus/kyc/main/handlers"
-
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	client "modulus/common/licensing-client"
+	"modulus/kyc/main/config"
+	"modulus/kyc/main/handlers"
 )
 
 const (

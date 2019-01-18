@@ -25,7 +25,7 @@ var (
 	malformedResp        = `the fake response to test unexpected answer`
 	error400Resp         = `{"error":"Invalid email or password"}`
 	newParticipantResp   = `{"uuid": "33611d6d-2826-4c3e-a777-3f0397e283fc"}`
-	statusInprogressResp = `{"current_status": "in progress","ico_owner_status": "accepted"}`
+	statusInprogressResp = `{"current_status": "inprogress","ico_owner_status": "accepted"}`
 	statusLowResp        = `{"current_status": "low","ico_owner_status": "accepted"}`
 )
 
