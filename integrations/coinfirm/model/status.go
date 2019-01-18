@@ -7,7 +7,7 @@ const (
 	// Participant provided filled KYC form and can be evaluated.
 	New Status = "new"
 	// The KYC form which was submitted by participant is under evaluation by Coinfirm analysts.
-	InProgress Status = "in progress"
+	InProgress Status = "inprogress"
 	// Data provided by participant is incomplete or does not meet the requirements set in KYC form (e.g. expired proof of residency).
 	// Participant is supposed submit corrected KYC following the email notification.
 	Incomplete Status = "incomplete"
