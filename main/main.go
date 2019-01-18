@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
+	"log"
+	"net/http"
+
 	client "modulus/common/licensing-client"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
-
-	"log"
-	"net/http"
 )
 
 const (
@@ -75,4 +75,5 @@ func createHandlers() {
 	})
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
+	http.HandleFunc("/Provider", handlers.IsProviderImplemented)
 }
