@@ -1,10 +1,11 @@
 package config_test
 
 import (
-	"modulus/kyc/main/config"
+	"io/ioutil"
 	"os"
 	"testing"
-	"time"
+
+	"modulus/kyc/main/config"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,24 +16,28 @@ func TestFromFile(t *testing.T) {
 	err := config.FromFile("../kyc_dev.cfg")
 
 	assert.NoError(err)
+	assert.NotEmpty(config.Cfg)
 
 	err = config.FromFile("fake")
 
 	assert.Error(err)
 	assert.Equal("open fake: no such file or directory", err.Error())
 
-	name := os.TempDir() + string(os.PathSeparator) + "tmp" + time.Now().Format("20060102150405")
-	file, err := os.Create(name)
-
+	tmpfile, err := ioutil.TempFile("", "kyc")
 	assert.NoError(err)
 
-	file.Close()
-	err = config.FromFile(name)
+	defer os.Remove(tmpfile.Name())
+
+	err = tmpfile.Close()
+	assert.NoError(err)
+
+	err = config.FromFile(tmpfile.Name())
 
 	assert.Error(err)
-	assert.Equal("empty "+name, err.Error())
+	assert.Equal("empty "+tmpfile.Name(), err.Error())
 
 	err = config.FromFile("file_test.go")
 
 	assert.Error(err)
+	assert.Equal("parsing failed at line 1 'package config_test': not proper config string", err.Error())
 }

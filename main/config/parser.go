@@ -5,8 +5,9 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"modulus/kyc/common"
 	"strings"
+
+	"modulus/kyc/common"
 )
 
 // These are config keywords.
@@ -52,7 +53,8 @@ func parseConfig(r io.Reader) (Config, error) {
 		case iscomment:
 			continue
 		case isname:
-			if len(name) > 0 {
+			// We will omit empty sections because it doesn't make sense to keep them.
+			if len(name) > 0 && len(opts) > 0 {
 				cfg[name] = opts
 				opts = Options{}
 			}
