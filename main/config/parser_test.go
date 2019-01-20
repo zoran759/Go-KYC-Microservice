@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"modulus/kyc/common"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -92,6 +94,10 @@ func TestParseConfig(t *testing.T) {
 
 	assert.NoError(err)
 	assert.NotNil(cfg)
+	_, ok := cfg[string(common.ComplyAdvantage)]
+	assert.True(ok)
+	_, ok = cfg[string(common.ComplyAdvantage)]["Host"]
+	assert.True(ok)
 
 	reader = strings.NewReader(rawConfigWithEmptyName)
 
