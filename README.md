@@ -54,6 +54,8 @@ Also, the service supports the following options in the configuration file:
 
 * `Port` - has the same meaning as the command-line **`port`** option. It must be placed under the **`Config`** section of the configuration file.
 
+Warning! If a comman line option is specified its value overrides the configuration file value for that option.
+
 ## **KYC providers configuration options**
 
 Current implementation of the service allows configuration for the supported KYC providers through the configuration file **[kyc.cfg](main/kyc.cfg)**. We provide the sample file without credentials. It includes all providers supported by the service. Feel free to modify it to suit your needs.
