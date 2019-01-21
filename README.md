@@ -1,8 +1,8 @@
 # KYC Package
 
-## **Table of contents**
-
 * **[KYC service configuration](#kyc-service-configuration)**
+  * **[Command line options](#command-line-options)**
+  * **[Configuration file options](#configuration-file-options)**
 * **[KYC providers configuration options](#kyc-providers-configuration-options)**
   * **[Coinfirm](#coinfirm-configuration-options)**
   * **[ComplyAdvantage](#complyadvantage-configuration-options)**
@@ -15,46 +15,36 @@
   * **[Thomson Reuters](#thomson-reuters-configuration-options)**
   * **[Trulioo](#trulioo-configuration-options)**
 * **[REST API](#rest-api)**
-* **[Integration interface](#integration-interface)**
-* **[KYC request](#kyc-request)**
-* **[KYC response](#kyc-response)**
-* **[Checking if a KYC provider is implemented in the API](#checking-if-a-kyc-provider-is-implemented-in-the-api)**
-* **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
-  * **[Coinfirm](#coinfirm)**
-  * **[ComplyAdvantage](#complyadvantage)**
-  * **[IdentityMind](#identitymind)**
-  * **[IDology](#idology)**
-  * **[Jumio](#jumio)**
-  * **[Shufti Pro](#shufti-pro)**
-  * **[Sum&Substance](#sum&substance)**
-  * **[SynapseFI](#synapsefi)**
-  * **[Thomson Reuters](#thomson-reuters)**
-  * **[Trulioo](#trulioo)**
-* **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
-  * **[Coinfirm](#coinfirm-covered-countries)**
-  * **[ComplyAdvantage](#complyadvantage-covered-countries)**
-  * **[IdentityMind](#identitymind-covered-countries)**
-  * **[IDology](#idology-covered-countries)**
-  * **[Jumio](#jumio-covered-countries)**
-  * **[Shufti Pro](#shufti-pro-covered-countries)**
-  * **[Sum&Substance](#sum&substance-covered-countries)**
-  * **[SynapseFI](#synapsefi-covered-countries)**
-  * **[Thomson Reuters](#thomson-reuters-covered-countries)**
-  * **[Trulioo](#trulioo-covered-countries)**
+  * **[Endpoints](#endpoints)**
+  * **[Customer verification request](#checkcustomer-request-fields-description)**
+  * **[Customer verification status request](#checkstatus-request-fields-description)**
+  * **[API response](#api-response-fields-description)**
+  * **[API Error response](#api-error-response-fields-description)**
+  * **[HTTP response codes](#http-response-codes)**
+  * **[Checking if a KYC provider is implemented in the API](#checking-if-a-kyc-provider-is-implemented-in-the-api)**
+* **[Developers section](#developers-section)**
 
 ## **KYC service configuration**
 
+### **Command line options**
+
 The service supports the following command line options:
 
-* `help` - prints info about supported command-line options and exits.
-* `config` - specifies the file to use for configuration.
-* `port` - specifies the port for the service to listen for incoming requests. The default port is 8080.
+| **Name** | **Description**                                                                              |
+| -------- | -------------------------------------------------------------------------------------------- |
+| `help`   | Prints info about supported command-line options and exits.                                  |
+| `config` | Specifies the file to use for configuration.                                                 |
+| `port`   | Specifies the port for the service to listen for incoming requests. The default port is 8080 |
 
-Also, the service supports the following options in the configuration file:
+### **Configuration file options**
 
-* `Port` - has the same meaning as the command-line **`port`** option. It must be placed under the **`Config`** section of the configuration file.
+All options must be placed under the **`Config`** section of the configuration file. The service supports the following options in the configuration file:
 
-Warning! If a comman line option is specified its value overrides the configuration file value for that option.
+| **Name** | **Description**                                            |
+| -------- | ---------------------------------------------------------- |
+| `Port`   | Has the same meaning as the command-line **`port`** option |
+
+> **WARNING!** If a command line option is specified its value overrides the configuration file value for that option.
 
 ## **KYC providers configuration options**
 
@@ -146,15 +136,19 @@ Below are the options required for each provider.
 
 ## **REST API**
 
-The KYC service provides REST API to interact with other components of the application. The data payload of requests should be JSON encoded. The API responds with JSON payload as well.
+The KYC service exposes REST API for interaction. The data payload of requests should be JSON encoded. The API responds with JSON-encoded payload as well.
 
-| **Method** | **Route**        |  **Description**                                                    |
-| ---------- | ---------------- | ------------------------------------------------------------------- |
-| GET        | `/`              | Answers with the welcome message in plain text format               |
-| GET        | `/Ping`          | Answers with the "Pong!" response in plain text format              |
-| GET        | `/Provider`      | The endpoint for check whether a specified provider is implemented  |
-| POST       | `/CheckCustomer` | The endpoint to send KYC verification requests                      |
-| POST       | `/CheckStatus`   | The endpoint to send KYC verification current status check requests |
+### **Endpoints**
+
+Our API makes available the following Endpoints:
+
+| **Method** | **Route**        |  **Description**                                       |
+| ---------- | ---------------- | ------------------------------------------------------ |
+| GET        | `/`              | Answers with the welcome message in plain text format  |
+| GET        | `/Ping`          | Answers with the "Pong!" response in plain text format |
+| GET        | `/Provider`      | Check whether a specified provider is implemented      |
+| POST       | `/CheckCustomer` | Send KYC verification requests                         |
+| POST       | `/CheckStatus`   | Send KYC verification current status check requests    |
 
 The models for requests and responses are provided.
 
@@ -221,6 +215,36 @@ If the request performed without params then the sorted list of implemented KYC 
 ]
 ```
 
+## **DEVELOPERS SECTION**
+
+---
+
+* **[Integration interface](#integration-interface)**
+* **[KYC request](#kyc-request)**
+* **[KYC response](#kyc-response)**
+* **[Applicable fields grouped per provider](#applicable-fields-grouped-per-provider)**
+  * **[Coinfirm](#coinfirm)**
+  * **[ComplyAdvantage](#complyadvantage)**
+  * **[IdentityMind](#identitymind)**
+  * **[IDology](#idology)**
+  * **[Jumio](#jumio)**
+  * **[Shufti Pro](#shufti-pro)**
+  * **[Sum&Substance](#sum&substance)**
+  * **[SynapseFI](#synapsefi)**
+  * **[Thomson Reuters](#thomson-reuters)**
+  * **[Trulioo](#trulioo)**
+* **[The countries supported by KYC providers and the fields variability](#the-countries-supported-by-kyc-providers-and-the-fields-variability)**
+  * **[Coinfirm](#coinfirm-covered-countries)**
+  * **[ComplyAdvantage](#complyadvantage-covered-countries)**
+  * **[IdentityMind](#identitymind-covered-countries)**
+  * **[IDology](#idology-covered-countries)**
+  * **[Jumio](#jumio-covered-countries)**
+  * **[Shufti Pro](#shufti-pro-covered-countries)**
+  * **[Sum&Substance](#sum&substance-covered-countries)**
+  * **[SynapseFI](#synapsefi-covered-countries)**
+  * **[Thomson Reuters](#thomson-reuters-covered-countries)**
+  * **[Trulioo](#trulioo-covered-countries)**
+
 ## **Integration interface**
 
 All KYC providers implement [**common.CustomerChecker**](common/contract.go#L3) interface for the verification process:
@@ -235,7 +259,7 @@ Some KYC providers might require to poll the customer verification status to che
 
 ```go
 type StatusChecker interface {
-    CheckStatus(string) (KYCResult, error)
+    CheckStatus(referenceID string) (KYCResult, error)
 }
 ```
 
@@ -560,6 +584,81 @@ The verification response consist of two elements: a result and an error if occu
 
 [**common.UserData**](#userdata-fields-description) provides a wide range of possible data that might require the verification. However, not every KYC provider will surely use all available fields of the model. Therefore, to ease the process of integration for administrators, here you'll find the grouping of applicable fields per provider.
 
+### **Coinfirm**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**                     | **Type**         | **Required**        | **Comment**                                |
+| ---------------------------- | ---------------- | :-----------------: | ------------------------------------------ |
+| **FirstName**                | _string_         | **Yes**             |                                            |
+| **LastName**                 | _string_         | **Yes**             |                                            |
+| MiddleName                   | _string_         |                     |                                            |
+| **Email**                    | _string_         | **Yes**             |                                            |
+| IPaddress                    | _string_         |                     |                                            |
+| **DateOfBirth**              | _Time_           | **Yes**             |                                            |
+| **CountryAlpha2**            | _string_         | **Yes**             |                                            |
+| **Nationality**              | _string_         | **Yes**             |                                            |
+| Phone                        | _string_         |                     |                                            |
+| MobilePhone                  | _string_         |                     |                                            |
+| **CurrentAddress**           | _Address_        | **Yes**             |                                            |
+| **Passport**                 | _*Passport_      | __*__ (see comment) | __*__ Provide anyone of required documents |
+| **IDCard**                   | _*IDCard_        | __*__ (see comment) |                                            |
+| **SNILS**                    | _*SNILS_         | __*__ (see comment) |                                            |
+| **DriverLicense**            | _*DriverLicense_ | __*__ (see comment) |                                            |
+| **DriverLicenseTranslation** | _*DriverLicenseTranslation_ | __*__ (see comment)  |                                |
+| UtilityBill                  | _*UtilityBill_   |                     |                                            |
+
+> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
+
+[**Address**](#address-fields-description) mandatory fields:
+
+| **Name**              | **Type** |
+| --------------------- | -------- |
+| **Town**              | _string_ |
+| **Street**            | _string_ |
+| **PostCode**          | _string_ |
+
+### **ComplyAdvantage**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**      | **Type**     | **Required** | **Comment**                                            |
+| ------------- | ------------ | :----------: | ------------------------------------------------------ |
+| **FirstName** | _**string**_ | **(*)**      | __*__ Either provide first and last names or full name |
+| **LastName**  | _**string**_ | **(*)**      |                                                        |
+| MiddleName    | _string_     |              |                                                        |
+| **FullName**  | _**string**_ | **(*)**      | __*__ Either provide this or first and last names      |
+| DateOfBirth   | _Time_       |              | Recommend for better results                           |
+
+### **IdentityMind**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**              | **Type**           | **Required**       | **Comment**                                  |
+| --------------------- | ------------------ | :----------------: | -------------------------------------------- |
+| FirstName             | _string_           |                    |                                              |
+| LastName              | _string_           |                    |                                              |
+| MiddleName            | _string_           |                    |                                              |
+| **AccountName**       | _string_           | **Yes**            |                                              |
+| Email                 | _string_           |                    |                                              |
+| IPaddress             | _string_           |                    |                                              |
+| Gender                | _Gender_           |                    |                                              |
+| DateOfBirth           | _Time_             |                    |                                              |
+| CountryAlpha2         | _string_           |                    |                                              |
+| Phone                 | _string_           |                    |                                              |
+| MobilePhone           | _string_           |                    |                                              |
+| CurrentAddress        | _Address_          |                    |                                              |
+| Location              | _*Location_        |                    |                                              |
+| Passport              | _*Passport_        |                    |                                              |
+| IDCard                | _*IDCard_          |                    |                                              |
+| SNILS                 | _*SNILS_           |                    |                                              |
+| DriverLicense         | _*DriverLicense_   |                    |                                              |
+| UtilityBill           | _*UtilityBill_     |                    |                                              |
+| ResidencePermit       | _*ResidencePermit_ |                    |                                              |
+| Selfie(*)             | _*Selfie_          | **See comment(*)** | (*)Provide it if using Document Verification |
+
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
+
 ### **IDology**
 
 [**UserData**](#userdata-fields-description) applicable fields:
@@ -583,6 +682,47 @@ The verification response consist of two elements: a result and an error if occu
 | **Town**              | _string_ |
 | **StateProvinceCode** | _string_ |
 | **PostCode**          | _string_ |
+
+### **Jumio**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**             | **Type**         | **Required**       | **Comment**                                 |
+| -------------------- | ---------------- | :----------------: | ------------------------------------------- |
+| FirstName            | _string_         |                    |                                             |
+| LastName             | _string_         |                    |                                             |
+| DateOfBirth          | _Time_           |                    |                                             |
+| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk |
+| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                             |
+| **SNILS**(*)         | _*SNILS_         | **(*)**            |                                             |
+| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                             |
+| **Selfie**           | _*Selfie_        | **See comment(*)** | (*)Mandatory if Face match enabled          |
+
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
+
+### **Shufti Pro**
+
+[**UserData**](#userdata-fields-description) applicable fields:
+
+| **Name**             | **Type**         | **Required**       | **Comment**                                                       |
+| -------------------- | ---------------- | :----------------: | ----------------------------------------------------------------- |
+| **FirstName**        | _string_         | **Yes**            |                                                                   |
+| **LastName**         | _string_         | **Yes**            |                                                                   |
+| MiddleName           | _string_         |                    |                                                                   |
+| Email                | _string_         |                    |                                                                   |
+| DateOfBirth          | _Time_           |                    |                                                                   |
+| **CountryAlpha2**    | _string_         | **Yes**            |                                                                   |
+| **Phone**            | _string_         | **Yes**            | Customer’s phone number with country code. Example: +440000000000 |
+| CurrentAddress       | _Address_        |                    |                                                                   |
+| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk                       |
+| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                                                   |
+| SNILS                | _*SNILS_         |                    |                                                                   |
+| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                                                   |
+| **CreditCard**(*)    | _*CreditCard_    | **(*)**            |                                                                   |
+| UtilityBill          | _*UtilityBill_   |                    |                                                                   |
+| **Selfie**           | _*Selfie_        | **Yes**            |                                                                   |
+
+> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
 ### **Sum&Substance**
 
@@ -617,108 +757,6 @@ Sum&Substance requires at least one document to be present to start the verifica
 | **Other**                    | _*Other_                    |
 
 All fields in the Reference are marked as optional but at least first name and last name should be provided in addition to a doc.
-
-### **Trulioo**
-
-[**UserData**](#userdata-fields-description) applicable fields:
-
-| **Name**                 | **Type**           | **Required** | **Comment** |
-| ------------------------ | ------------------ | :----------: | ----------- |
-| FirstName                | _string_           |              |             |
-| MaternalLastName         | _string_           |              |             |
-| LastName                 | _string_           |              |             |
-| MiddleName               | _string_           |              |             |
-| LatinISO1Name            | _string_           |              |             |
-| Email                    | _string_           |              |             |
-| Gender                   | _Gender_           |              |             |
-| DateOfBirth              | _Time_             |              |             |
-| **CountryAlpha2**        | _string_           | **Yes**      |             |
-| Phone                    | _string_           |              |             |
-| MobilePhone              | _string_           |              |             |
-| BankAccountNumber        | _string_           |              |             |
-| VehicleRegistrationPlate | _string_           |              |             |
-| CurrentAddress           | _Address_          |              |             |
-| Business                 | _*Business_        |              |             |
-| Passport                 | _*Passport_        |              |             |
-| IDCard                   | _*IDCard_          |              |             |
-| HealthID                 | _*HealthID_        |              |             |
-| SocialServiceID          | _*SocialServiceID_ |              |             |
-| TaxID                    | _*TaxID_           |              |             |
-| DriverLicense            | _*DriverLicense_   |              |             |
-| ResidencePermit          | _*ResidencePermit_ |              |             |
-| Selfie                   | _*Selfie_          |              |             |
-
-> **DOCUMENTS NOTE:** Include image file(s) for a document used in the verification (some documents haven't physical form only a number, for ex. UK NI and NHS Numbers).
-
-### **Shufti Pro**
-
-[**UserData**](#userdata-fields-description) applicable fields:
-
-| **Name**             | **Type**         | **Required**       | **Comment**                                                       |
-| -------------------- | ---------------- | :----------------: | ----------------------------------------------------------------- |
-| **FirstName**        | _string_         | **Yes**            |                                                                   |
-| **LastName**         | _string_         | **Yes**            |                                                                   |
-| MiddleName           | _string_         |                    |                                                                   |
-| Email                | _string_         |                    |                                                                   |
-| DateOfBirth          | _Time_           |                    |                                                                   |
-| **CountryAlpha2**    | _string_         | **Yes**            |                                                                   |
-| **Phone**            | _string_         | **Yes**            | Customer’s phone number with country code. Example: +440000000000 |
-| CurrentAddress       | _Address_        |                    |                                                                   |
-| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk                       |
-| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                                                   |
-| SNILS                | _*SNILS_         |                    |                                                                   |
-| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                                                   |
-| **CreditCard**(*)    | _*CreditCard_    | **(*)**            |                                                                   |
-| UtilityBill          | _*UtilityBill_   |                    |                                                                   |
-| **Selfie**           | _*Selfie_        | **Yes**            |                                                                   |
-
-> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
-
-### **IdentityMind**
-
-[**UserData**](#userdata-fields-description) applicable fields:
-
-| **Name**              | **Type**           | **Required**       | **Comment**                                  |
-| --------------------- | ------------------ | :----------------: | -------------------------------------------- |
-| FirstName             | _string_           |                    |                                              |
-| LastName              | _string_           |                    |                                              |
-| MiddleName            | _string_           |                    |                                              |
-| **AccountName**       | _string_           | **Yes**            |                                              |
-| Email                 | _string_           |                    |                                              |
-| IPaddress             | _string_           |                    |                                              |
-| Gender                | _Gender_           |                    |                                              |
-| DateOfBirth           | _Time_             |                    |                                              |
-| CountryAlpha2         | _string_           |                    |                                              |
-| Phone                 | _string_           |                    |                                              |
-| MobilePhone           | _string_           |                    |                                              |
-| CurrentAddress        | _Address_          |                    |                                              |
-| Location              | _*Location_        |                    |                                              |
-| Passport              | _*Passport_        |                    |                                              |
-| IDCard                | _*IDCard_          |                    |                                              |
-| SNILS                 | _*SNILS_           |                    |                                              |
-| DriverLicense         | _*DriverLicense_   |                    |                                              |
-| UtilityBill           | _*UtilityBill_     |                    |                                              |
-| ResidencePermit       | _*ResidencePermit_ |                    |                                              |
-| Selfie(*)             | _*Selfie_          | **See comment(*)** | (*)Provide it if using Document Verification |
-
-> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
-
-### **Jumio**
-
-[**UserData**](#userdata-fields-description) applicable fields:
-
-| **Name**             | **Type**         | **Required**       | **Comment**                                 |
-| -------------------- | ---------------- | :----------------: | ------------------------------------------- |
-| FirstName            | _string_         |                    |                                             |
-| LastName             | _string_         |                    |                                             |
-| DateOfBirth          | _Time_           |                    |                                             |
-| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk |
-| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                             |
-| **SNILS**(*)         | _*SNILS_         | **(*)**            |                                             |
-| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                             |
-| **Selfie**           | _*Selfie_        | **See comment(*)** | (*)Mandatory if Face match enabled          |
-
-> **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
 ### **SynapseFI**
 
@@ -763,62 +801,83 @@ All fields in the Reference are marked as optional but at least first name and l
 
 > **NOTE:** For better result, please, fill as much fields as possible.
 
-### **ComplyAdvantage**
+### **Trulioo**
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**      | **Type**     | **Required** | **Comment**                                            |
-| ------------- | ------------ | :----------: | ------------------------------------------------------ |
-| **FirstName** | _**string**_ | **(*)**      | __*__ Either provide first and last names or full name |
-| **LastName**  | _**string**_ | **(*)**      |                                                        |
-| MiddleName    | _string_     |              |                                                        |
-| **FullName**  | _**string**_ | **(*)**      | __*__ Either provide this or first and last names      |
-| DateOfBirth   | _Time_       |              | Recommend for better results                           |
+| **Name**                 | **Type**           | **Required** | **Comment** |
+| ------------------------ | ------------------ | :----------: | ----------- |
+| FirstName                | _string_           |              |             |
+| MaternalLastName         | _string_           |              |             |
+| LastName                 | _string_           |              |             |
+| MiddleName               | _string_           |              |             |
+| LatinISO1Name            | _string_           |              |             |
+| Email                    | _string_           |              |             |
+| Gender                   | _Gender_           |              |             |
+| DateOfBirth              | _Time_             |              |             |
+| **CountryAlpha2**        | _string_           | **Yes**      |             |
+| Phone                    | _string_           |              |             |
+| MobilePhone              | _string_           |              |             |
+| BankAccountNumber        | _string_           |              |             |
+| VehicleRegistrationPlate | _string_           |              |             |
+| CurrentAddress           | _Address_          |              |             |
+| Business                 | _*Business_        |              |             |
+| Passport                 | _*Passport_        |              |             |
+| IDCard                   | _*IDCard_          |              |             |
+| HealthID                 | _*HealthID_        |              |             |
+| SocialServiceID          | _*SocialServiceID_ |              |             |
+| TaxID                    | _*TaxID_           |              |             |
+| DriverLicense            | _*DriverLicense_   |              |             |
+| ResidencePermit          | _*ResidencePermit_ |              |             |
+| Selfie                   | _*Selfie_          |              |             |
 
-### **Coinfirm**
-
-[**UserData**](#userdata-fields-description) applicable fields:
-
-| **Name**                     | **Type**         | **Required**        | **Comment**                                |
-| ---------------------------- | ---------------- | :-----------------: | ------------------------------------------ |
-| **FirstName**                | _string_         | **Yes**             |                                            |
-| **LastName**                 | _string_         | **Yes**             |                                            |
-| MiddleName                   | _string_         |                     |                                            |
-| **Email**                    | _string_         | **Yes**             |                                            |
-| IPaddress                    | _string_         |                     |                                            |
-| **DateOfBirth**              | _Time_           | **Yes**             |                                            |
-| **CountryAlpha2**            | _string_         | **Yes**             |                                            |
-| **Nationality**              | _string_         | **Yes**             |                                            |
-| Phone                        | _string_         |                     |                                            |
-| MobilePhone                  | _string_         |                     |                                            |
-| **CurrentAddress**           | _Address_        | **Yes**             |                                            |
-| **Passport**                 | _*Passport_      | __*__ (see comment) | __*__ Provide anyone of required documents |
-| **IDCard**                   | _*IDCard_        | __*__ (see comment) |                                            |
-| **SNILS**                    | _*SNILS_         | __*__ (see comment) |                                            |
-| **DriverLicense**            | _*DriverLicense_ | __*__ (see comment) |                                            |
-| **DriverLicenseTranslation** | _*DriverLicenseTranslation_ | __*__ (see comment)  |                                |
-| UtilityBill                  | _*UtilityBill_   |                     |                                            |
-
-> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
-
-[**Address**](#address-fields-description) mandatory fields:
-
-| **Name**              | **Type** |
-| --------------------- | -------- |
-| **Town**              | _string_ |
-| **Street**            | _string_ |
-| **PostCode**          | _string_ |
+> **DOCUMENTS NOTE:** Include image file(s) for a document used in the verification (some documents haven't physical form only a number, for ex. UK NI and NHS Numbers).
 
 ### **The countries supported by KYC providers and the fields variability**
 
 KYC providers may require various set of `common.UserData` fields depending on the customer country. Also, they may service to the limited number of countries and this number of countries might configurable in a web-interface of the provider.
+
+### **Coinfirm covered countries**
+
+* International
+* No fields variations found in the docs
+
+### **ComplyAdvantage covered countries**
+
+* International (no list of supported countries)
+* No fields variations found in the docs
+
+### **IdentityMind covered countries**
+
+* International
+* No fields variations found in the docs
 
 ### **IDology covered countries**
 
 * USA and Canada
 * No fields variations found in the docs
 
+### **Jumio covered countries**
+
+* International
+* No fields variations found in the docs
+
+### **Shufti Pro covered countries**
+
+* International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
+* No fields variations found in the docs
+
 ### **Sum&Substance covered countries**
+
+* International
+* No fields variations found in the docs
+
+### **SynapseFI covered countries**
+
+* International (no list of supported countries)
+* No fields variations found in the docs
+
+### **Thomson Reuters covered countries**
 
 * International
 * No fields variations found in the docs
@@ -965,38 +1024,3 @@ These are the countries that supported since last check.
 | Number   | _string_ | GB, KR, NZ, US                                |
 | Version  | _string_ | NZ                                            |
 | State    | _string_ | US                                            |
-
-### **Shufti Pro covered countries**
-
-* International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
-* No fields variations found in the docs
-
-### **IdentityMind covered countries**
-
-* International
-* No fields variations found in the docs
-
-### **Jumio covered countries**
-
-* International
-* No fields variations found in the docs
-
-### **SynapseFI covered countries**
-
-* International (no list of supported countries)
-* No fields variations found in the docs
-
-### **ComplyAdvantage covered countries**
-
-* International (no list of supported countries)
-* No fields variations found in the docs
-
-### **Thomson Reuters covered countries**
-
-* International
-* No fields variations found in the docs
-
-### **Coinfirm covered countries**
-
-* International
-* No fields variations found in the docs
