@@ -22,7 +22,7 @@
   * **[API Error response](#api-error-response-fields-description)**
   * **[HTTP response codes](#http-response-codes)**
   * **[Checking if a KYC provider is implemented in the API](#checking-if-a-kyc-provider-is-implemented-in-the-api)**
-* **[Developers section](#developers-section)**
+* **[For developers](#for-developers)**
 
 ## **KYC service configuration**
 
@@ -215,9 +215,9 @@ If the request performed without params then the sorted list of implemented KYC 
 ]
 ```
 
-## **DEVELOPERS SECTION**
+## **FOR DEVELOPERS**
 
----
+> **This part may be of interest mainly to developers.**
 
 * **[Integration interface](#integration-interface)**
 * **[KYC request](#kyc-request)**
