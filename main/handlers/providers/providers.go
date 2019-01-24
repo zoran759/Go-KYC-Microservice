@@ -3,6 +3,7 @@ package providers
 import (
 	"fmt"
 	"strconv"
+	"sync"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/coinfirm"
@@ -18,6 +19,8 @@ import (
 	"modulus/kyc/integrations/trulioo"
 	"modulus/kyc/main/config"
 )
+
+var mutex sync.RWMutex
 
 // providers keeps keyed list of active providers.
 var providers Providers
@@ -35,6 +38,9 @@ func (p ProviderList) Less(i, j int) bool { return p[i] < p[j] }
 
 // Create makes new keyed list of active providers.
 func Create(cfg config.Config) (err error) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	providers = Providers{
 		common.Example: &example.Service{},
 	}
@@ -120,6 +126,9 @@ func Create(cfg config.Config) (err error) {
 }
 
 // Provider returns a provider by the name.
-func Provider(provider string) common.KYCPlatform {
-	return providers[common.KYCProvider(provider)]
+func Provider(provider common.KYCProvider) common.KYCPlatform {
+	mutex.RLock()
+	defer mutex.RUnlock()
+
+	return providers[provider]
 }

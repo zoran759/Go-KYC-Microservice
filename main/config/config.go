@@ -8,10 +8,6 @@ const (
 	DefaultPort = "8080"
 )
 
-// Cfg keeps active config.
-// TODO: REMOVE THIS VAR.
-var Cfg Config
-
 // Options represents the configuration options for the KYC provider.
 type Options map[string]string
 

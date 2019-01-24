@@ -12,6 +12,7 @@ import (
 	"modulus/kyc/common"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
+	"modulus/kyc/main/handlers/providers"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -73,9 +74,7 @@ var errorResponse = []byte(`
 }`)
 
 func init() {
-	if config.Cfg == nil {
-		config.Cfg = cfg
-	}
+	providers.Create(cfg)
 }
 
 type FailedReader struct{}
@@ -85,9 +84,11 @@ func (r FailedReader) Read(p []byte) (n int, err error) {
 }
 
 func TestCheckStatus(t *testing.T) {
-	cfg := config.Cfg[string(common.SumSub)]
+	assert := assert.New(t)
 
-	assert.NotNil(t, cfg)
+	c := cfg[string(common.SumSub)]
+
+	assert.NotNil(c)
 
 	referenceID := "testID"
 
@@ -96,16 +97,16 @@ func TestCheckStatus(t *testing.T) {
 		ReferenceID: referenceID,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
-	assert.NotEmpty(t, response)
+	assert.NoError(err)
+	assert.NotEmpty(request)
+	assert.NotEmpty(response)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], referenceID, cfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", c["Host"], referenceID, c["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusOK, response),
 	)
 
@@ -115,23 +116,23 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp := common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, resp.Result)
-	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.KYCStatus2Status[common.Denied], resp.Result.Status)
-	assert.NotEmpty(t, resp.Result.Details)
-	assert.Equal(t, common.KYCFinality2Finality[common.NonFinal], resp.Result.Details.Finality)
-	assert.Len(t, resp.Result.Details.Reasons, 1)
-	assert.Equal(t, "ID_INVALID", resp.Result.Details.Reasons[0])
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
+	assert.NoError(err)
+	assert.NotEmpty(resp.Result)
+	assert.Empty(resp.Error)
+	assert.Equal(common.KYCStatus2Status[common.Denied], resp.Result.Status)
+	assert.NotEmpty(resp.Result.Details)
+	assert.Equal(common.KYCFinality2Finality[common.NonFinal], resp.Result.Details.Finality)
+	assert.Len(resp.Result.Details.Reasons, 1)
+	assert.Equal("ID_INVALID", resp.Result.Details.Reasons[0])
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
 
 	// Testing reading request body failure.
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", &FailedReader{})
@@ -139,17 +140,17 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusInternalServerError, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "Read failed", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("Read failed", resp.Error)
 
 	// Testing empty request.
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", nil)
@@ -157,17 +158,17 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "empty request", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("empty request", resp.Error)
 
 	// Testing malformed request.
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader([]byte("malformed request")))
@@ -175,67 +176,67 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, `invalid character 'm' looking for beginning of value`, resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal(`invalid character 'm' looking for beginning of value`, resp.Error)
 
 	// Testing missing Provider field in the request.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		ReferenceID: referenceID,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "missing KYC provider id in the request", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("missing KYC provider id in the request", resp.Error)
 
 	// Testing missing CustomerID field in the request.
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider: common.SumSub,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "missing verification id in the request", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("missing verification id in the request", resp.Error)
 
 	// Testing nonexistent KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -243,55 +244,25 @@ func TestCheckStatus(t *testing.T) {
 		ReferenceID: referenceID,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusNotFound, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "unknown KYC provider in the request: Nonexistent Provider", resp.Error)
-
-	// Testing KYC provider without config.
-	request, err = json.Marshal(&common.CheckStatusRequest{
-		Provider:    "Fake Provider",
-		ReferenceID: referenceID,
-	})
-
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
-
-	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
-	w = httptest.NewRecorder()
-
-	if !common.KYCProviders["Fake Provider"] {
-		common.KYCProviders["Fake Provider"] = true
-	}
-
-	handlers.CheckStatus(w, req)
-
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
-
-	resp = common.KYCResponse{}
-
-	err = json.Unmarshal(w.Body.Bytes(), &resp)
-
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "missing config for Fake Provider", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("unknown KYC provider in the request: Nonexistent Provider", resp.Error)
 
 	// Testing KYC provider that doesn't support status polling.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -299,25 +270,25 @@ func TestCheckStatus(t *testing.T) {
 		ReferenceID: referenceID,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "IDology doesn't support status polling", resp.Error)
+	assert.NoError(err)
+	assert.NotNil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("IDology doesn't support status polling", resp.Error)
 
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -325,27 +296,25 @@ func TestCheckStatus(t *testing.T) {
 		ReferenceID: referenceID,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
-
-	config.Cfg["Fake Provider"] = map[string]string{"test": "test"}
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusNotFound, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "KYC provider not implemented yet: Fake Provider", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("unknown KYC provider in the request: Fake Provider", resp.Error)
 
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -355,7 +324,7 @@ func TestCheckStatus(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], referenceID, cfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", c["Host"], referenceID, c["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusForbidden, errorResponse),
 	)
 
@@ -364,43 +333,43 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
-	assert.Nil(t, resp.Result.Details)
-	assert.NotEmpty(t, resp.Result.ErrorCode)
-	assert.Equal(t, "401", resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "Access denied", resp.Error)
+	assert.NoError(err)
+	assert.NotNil(resp.Result)
+	assert.Equal(common.KYCStatus2Status[common.Error], resp.Result.Status)
+	assert.Nil(resp.Result.Details)
+	assert.NotEmpty(resp.Result.ErrorCode)
+	assert.Equal("401", resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("Access denied", resp.Error)
 
 	// Testing IdentityMind.
-	cfg = config.Cfg[string(common.IdentityMind)]
+	c = cfg[string(common.IdentityMind)]
 
-	assert.NotNil(t, cfg)
+	assert.NotNil(c)
 
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:    common.IdentityMind,
 		ReferenceID: referenceID,
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
-	assert.NotEmpty(t, response)
+	assert.NoError(err)
+	assert.NotEmpty(request)
+	assert.NotEmpty(response)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/account/consumer/v2/%s", cfg["Host"], referenceID),
+		fmt.Sprintf("%s/account/consumer/v2/%s", c["Host"], referenceID),
 		httpmock.NewBytesResponder(http.StatusOK, identitymindResponse),
 	)
 
@@ -409,20 +378,20 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, resp.Result)
-	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.KYCStatus2Status[common.Approved], resp.Result.Status)
-	assert.NotEmpty(t, resp.Result.Details)
-	assert.Equal(t, common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
-	assert.NotEmpty(t, resp.Result.Details.Reasons)
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
+	assert.NoError(err)
+	assert.NotEmpty(resp.Result)
+	assert.Empty(resp.Error)
+	assert.Equal(common.KYCStatus2Status[common.Approved], resp.Result.Status)
+	assert.NotEmpty(resp.Result.Details)
+	assert.Equal(common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
+	assert.NotEmpty(resp.Result.Details.Reasons)
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
 }

@@ -62,7 +62,7 @@ func main() {
 	// If the command line flag is set its value will be used for the listening port
 	// otherwise the option from the service config will be used.
 	if len(*port) == 0 {
-		*port = config.Cfg.ServicePort()
+		*port = cfg.ServicePort()
 	}
 
 	log.Printf("Listen on :%v", *port)
