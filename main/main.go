@@ -8,6 +8,7 @@ import (
 	client "modulus/common/licensing-client"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
+	"modulus/kyc/main/handlers/providers"
 )
 
 const (
@@ -45,8 +46,14 @@ func main() {
 			*cfgFile = prodCfgFile
 		}
 	}
-	if err := config.FromFile(*cfgFile); err != nil {
+	cfg, err := config.FromFile(*cfgFile)
+	if err != nil {
 		log.Fatalf("Loading configuration from %s: %s\n", *cfgFile, err)
+	}
+
+	err = providers.Create(cfg)
+	if err != nil {
+		log.Fatalf("Creating providers using active configuration: %s\n", err)
 	}
 
 	createHandlers()

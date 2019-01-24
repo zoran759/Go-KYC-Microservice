@@ -4,14 +4,14 @@ import (
 	"fmt"
 )
 
-// ErrMissingOption defines an error of the missing config option.
-type ErrMissingOption struct {
+// MissingOptionError defines an error of the missing config option.
+type MissingOptionError struct {
 	provider string
 	option   string
 }
 
 // Error implements error interface for ErrMissingOption.
-func (e ErrMissingOption) Error() string {
+func (e MissingOptionError) Error() string {
 	return fmt.Sprintf("%s configuration error: missing or empty option '%s'", e.provider, e.option)
 }
 

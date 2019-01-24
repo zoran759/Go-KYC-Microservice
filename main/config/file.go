@@ -6,7 +6,7 @@ import (
 )
 
 // FromFile loads the configuration from the specified file.
-func FromFile(filename string) (err error) {
+func FromFile(filename string) (cfg Config, err error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return
@@ -22,12 +22,14 @@ func FromFile(filename string) (err error) {
 		return
 	}
 
-	Cfg, err = parseConfig(file)
+	cfg, err = parseConfig(file)
 	if err != nil {
 		return
 	}
 
-	err = validate(Cfg)
+	if err = validate(cfg); err != nil {
+		cfg = nil
+	}
 
 	return
 }

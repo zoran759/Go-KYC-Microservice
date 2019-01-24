@@ -8,109 +8,109 @@ func validate(config Config) (err error) {
 		switch common.KYCProvider(provider) {
 		case common.Coinfirm:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["Email"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Email"}
+				return MissingOptionError{provider: provider, option: "Email"}
 			}
 			if len(options["Password"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Password"}
+				return MissingOptionError{provider: provider, option: "Password"}
 			}
 			if len(options["Company"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Company"}
+				return MissingOptionError{provider: provider, option: "Company"}
 			}
 		case common.ComplyAdvantage:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["APIkey"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "APIkey"}
+				return MissingOptionError{provider: provider, option: "APIkey"}
 			}
 			if len(options["Fuzziness"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Fuzziness"}
+				return MissingOptionError{provider: provider, option: "Fuzziness"}
 			}
 		case common.IdentityMind:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["Username"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Username"}
+				return MissingOptionError{provider: provider, option: "Username"}
 			}
 			if len(options["Password"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Password"}
+				return MissingOptionError{provider: provider, option: "Password"}
 			}
 		case common.IDology:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["Username"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Username"}
+				return MissingOptionError{provider: provider, option: "Username"}
 			}
 			if len(options["Password"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Password"}
+				return MissingOptionError{provider: provider, option: "Password"}
 			}
 			if len(options["UseSummaryResult"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "UseSummaryResult"}
+				return MissingOptionError{provider: provider, option: "UseSummaryResult"}
 			}
 		case common.Jumio:
 			if len(options["BaseURL"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "BaseURL"}
+				return MissingOptionError{provider: provider, option: "BaseURL"}
 			}
 			if len(options["Token"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Token"}
+				return MissingOptionError{provider: provider, option: "Token"}
 			}
 			if len(options["Secret"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Secret"}
+				return MissingOptionError{provider: provider, option: "Secret"}
 			}
 		case common.ShuftiPro:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["SecretKey"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "SecretKey"}
+				return MissingOptionError{provider: provider, option: "SecretKey"}
 			}
 			if len(options["ClientID"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "ClientID"}
+				return MissingOptionError{provider: provider, option: "ClientID"}
 			}
 			if len(options["RedirectURL"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "RedirectURL"}
+				return MissingOptionError{provider: provider, option: "RedirectURL"}
 			}
 		case common.SumSub:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["APIKey"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "APIKey"}
+				return MissingOptionError{provider: provider, option: "APIKey"}
 			}
 		case common.SynapseFI:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["ClientID"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "ClientID"}
+				return MissingOptionError{provider: provider, option: "ClientID"}
 			}
 			if len(options["ClientSecret"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "ClientSecret"}
+				return MissingOptionError{provider: provider, option: "ClientSecret"}
 			}
 		case common.ThomsonReuters:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["APIkey"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "APIkey"}
+				return MissingOptionError{provider: provider, option: "APIkey"}
 			}
 			if len(options["APIsecret"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "APIsecret"}
+				return MissingOptionError{provider: provider, option: "APIsecret"}
 			}
 		case common.Trulioo:
 			if len(options["Host"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "Host"}
+				return MissingOptionError{provider: provider, option: "Host"}
 			}
 			if len(options["NAPILogin"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "NAPILogin"}
+				return MissingOptionError{provider: provider, option: "NAPILogin"}
 			}
 			if len(options["NAPIPassword"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "NAPIPassword"}
+				return MissingOptionError{provider: provider, option: "NAPIPassword"}
 			}
 		}
 	}

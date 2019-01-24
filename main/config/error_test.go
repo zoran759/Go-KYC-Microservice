@@ -7,7 +7,7 @@ import (
 )
 
 func TestErrMissingOption(t *testing.T) {
-	err := ErrMissingOption{
+	err := MissingOptionError{
 		provider: "Foobar",
 		option:   "Barbaz",
 	}

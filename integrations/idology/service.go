@@ -1,6 +1,8 @@
 package idology
 
 import (
+	"errors"
+
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/idology/expectid"
 )
@@ -26,5 +28,12 @@ func New(config Config) *Service {
 func (s *Service) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	res, err = s.expectID.CheckCustomer(customer)
 
+	return
+}
+
+// CheckStatus implements KYCPlatform interface for the IDology.
+func (s *Service) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	res.Status = common.Error
+	err = errors.New("IDology doesn't support status polling")
 	return
 }

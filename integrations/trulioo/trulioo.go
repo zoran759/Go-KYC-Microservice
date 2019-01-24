@@ -113,3 +113,10 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 
 	return
 }
+
+// CheckStatus implements KYCPlatform interface for Trulioo.
+func (service Trulioo) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	res.Status = common.Error
+	err = errors.New("Trulioo doesn't support status polling")
+	return
+}

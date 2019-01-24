@@ -57,7 +57,7 @@ func TestVerifyComplyAdvantage(t *testing.T) {
 	err := validate(config)
 
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(`ComplyAdvantage configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -93,7 +93,7 @@ func TestVerifyIdentityMind(t *testing.T) {
 
 	err := validate(config)
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(t, reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(t, `IdentityMind configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -130,7 +130,7 @@ func TestVerifyIDology(t *testing.T) {
 
 	err := validate(config)
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(t, reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(t, `IDology configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -182,7 +182,7 @@ func TestVerifyJumio(t *testing.T) {
 
 	err := validate(config)
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(`Jumio configuration error: missing or empty option 'BaseURL'`, err.Error())
 
 	config = Config{
@@ -219,7 +219,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 
 	err := validate(config)
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(t, reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -268,7 +268,7 @@ func TestVerifySumSub(t *testing.T) {
 
 	err := validate(config)
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(t, reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(t, `Sum&Substance configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -294,7 +294,7 @@ func TestVerifySynapseFI(t *testing.T) {
 
 	err := validate(config)
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(`SynapseFI configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -332,7 +332,7 @@ func TestVerifyThomsonReuters(t *testing.T) {
 
 	err := validate(config)
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(`ThomsonReuters configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{
@@ -368,7 +368,7 @@ func TestVerifyTrulioo(t *testing.T) {
 
 	err := validate(config)
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
+	assert.Equal(t, reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
 	assert.Equal(t, `Trulioo configuration error: missing or empty option 'Host'`, err.Error())
 
 	config = Config{

@@ -51,3 +51,10 @@ func (service ShuftiPro) CheckCustomer(customer *common.UserData) (result common
 		return
 	}
 }
+
+// CheckStatus implements KYCPlatform interface for the ShuftiPro.
+func (service ShuftiPro) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	res.Status = common.Error
+	err = errors.New("ShuftiPro doesn't support status polling")
+	return
+}

@@ -13,15 +13,16 @@ import (
 func TestFromFile(t *testing.T) {
 	assert := assert.New(t)
 
-	err := config.FromFile("../kyc_dev.cfg")
+	cfg, err := config.FromFile("../kyc_dev.cfg")
 
 	assert.NoError(err)
-	assert.NotEmpty(config.Cfg)
+	assert.NotNil(cfg)
 
-	err = config.FromFile("fake")
+	cfg, err = config.FromFile("fake")
 
 	assert.Error(err)
 	assert.Equal("open fake: no such file or directory", err.Error())
+	assert.Nil(cfg)
 
 	tmpfile, err := ioutil.TempFile("", "kyc")
 	assert.NoError(err)
@@ -31,13 +32,15 @@ func TestFromFile(t *testing.T) {
 	err = tmpfile.Close()
 	assert.NoError(err)
 
-	err = config.FromFile(tmpfile.Name())
+	cfg, err = config.FromFile(tmpfile.Name())
 
 	assert.Error(err)
 	assert.Equal("empty "+tmpfile.Name(), err.Error())
+	assert.Nil(cfg)
 
-	err = config.FromFile("file_test.go")
+	cfg, err = config.FromFile("file_test.go")
 
 	assert.Error(err)
 	assert.Equal("parsing failed at line 1 'package config_test': not proper config string", err.Error())
+	assert.Nil(cfg)
 }

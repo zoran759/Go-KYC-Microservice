@@ -81,3 +81,10 @@ func (tr ThomsonReuters) CheckCustomer(customer *common.UserData) (result common
 
 	return
 }
+
+// CheckStatus implements KYCPlatform interface for Thomson Reuters.
+func (tr ThomsonReuters) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	res.Status = common.Error
+	err = errors.New("Thomson Reuters doesn't support status polling")
+	return
+}

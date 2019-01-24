@@ -562,14 +562,14 @@ func TestNew(t *testing.T) {
 	}
 
 	srv := New(cfg)
-	srv2 := service{
+	srv2 := ComplyAdvantage{
 		host: cfg.Host,
 		key:  cfg.APIkey,
 	}
 
 	assert := assert.New(t)
 
-	assert.Equal(reflect.TypeOf(service{}), reflect.TypeOf(srv))
+	assert.Equal(reflect.TypeOf(ComplyAdvantage{}), reflect.TypeOf(srv))
 	assert.Equal(common.CustomerChecker(srv2), srv)
 }
 
