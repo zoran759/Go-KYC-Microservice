@@ -29,6 +29,7 @@ build:
   artifacts:
     paths:
     - main/kyc
+    - main/kyc.cfg
     expire_in: 1 day
 
 build:prod:windows:
@@ -45,7 +46,6 @@ build:prod:windows:
     - env GOOS=windows GOARCH=amd64 go build -ldflags "-X main.DevEnv=false" -o kyc.exe -v
     - cp kyc.exe ../
     - cp kyc.cfg ../
-  when: manual
   artifacts:
     name: "kyc-prod-win"
     paths:
