@@ -26,11 +26,13 @@ build:
   - go get -d -v ./...
   - cd main
   - go build -o kyc
+  - mv kyc kyc.cfg ../
   artifacts:
     paths:
-    - main/kyc
-    - main/kyc.cfg
-    expire_in: 1 day
+    - kyc
+    - kyc.cfg
+  only:
+  - master
 
 build:prod:windows:
   stage: build
@@ -51,4 +53,5 @@ build:prod:windows:
     paths:
       - kyc.exe
       - kyc.cfg
-    expire_in: 1 day
+  only:
+  - master
