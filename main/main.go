@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	client "modulus/common/licensing-client"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 )
@@ -26,11 +25,12 @@ var (
 
 func main() {
 
+	// FIXME: temporarily turned off license check.
 	// Validate license in production environment.
 	// Do os.Exit if failed.
-	if DevEnv == "false" {
-		client.ValidateLicenseOrFail()
-	}
+	// if DevEnv == "false" {
+	// 	client.ValidateLicenseOrFail()
+	// }
 
 	flag.Parse()
 
