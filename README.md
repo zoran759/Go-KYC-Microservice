@@ -288,7 +288,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Email**                    | _**string**_                       | Email of the customer                                                 |
 | **IPaddress**                | _**string**_                       | Customer’s IP address                                                 |
 | **Gender**                   | [_**Gender**_](common/enum.go#L27) | Gender of the customer                                                |
-| **DateOfBirth**              | [_**Time**_](common/time.go#L5)    | Date of birth of the customer                                         |
+| **DateOfBirth**              | [_**Time**_](common/time.go#L5)    | Date of birth of the customer in RFC3339 format, for ex. "2006-01-02T15:04:05Z07:00" |
 | **PlaceOfBirth**             | _**string**_                       | Place of birth of the customer                                        |
 | **CountryOfBirthAlpha2**     | _**string**_                       | Country of birth of the customer in ISO 3166-1 alpha-2 format, for ex. "US" |
 | **StateOfBirth**             | _**string**_                       | State of birth of the customer, for ex. "GA"                          |
@@ -325,33 +325,33 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 ### **[Address](common/address.go#L5) fields description**
 
-| **Name**              | **Type**     | **Description**                                         |
-| --------------------- | ------------ | ------------------------------------------------------- |
-| **CountryAlpha2**     | _**string**_ | Country in ISO 3166-1 alpha-2 format, for ex. "FR"      |
-| **County**            | _**string**_ | County if applicable                                    |
-| **State**             | _**string**_ | Name of the state, for ex. "Alabama"                    |
-| **Town**              | _**string**_ | City or town name                                       |
-| **Suburb**            | _**string**_ | Suburb if applicable                                    |
-| **Street**            | _**string**_ | Street name, for ex. "PeachTree Place", "7th street"    |
-| **StreetType**        | _**string**_ | Street type, for ex. "Avenue"                           |
-| **SubStreet**         | _**string**_ | Substreet if applicable                                 |
-| **BuildingName**      | _**string**_ | Building or house name                                  |
-| **BuildingNumber**    | _**string**_ | Building or house number                                |
-| **FlatNumber**        | _**string**_ | Apartment number                                        |
-| **PostOfficeBox**     | _**string**_ | Post office box                                         |
-| **PostCode**          | _**string**_ | Zip or postal code                                      |
-| **StateProvinceCode** | _**string**_ | Abbreviated name of the state or province, for ex. "CA" |
-| **StartDate**         | _**Time**_   | When the customer settled at this address               |
-| **EndDate**           | _**Time**_   | When the customer moved out from this address           |
+| **Name**              | **Type**     | **Description**                                                  |
+| --------------------- | ------------ | ---------------------------------------------------------------- |
+| **CountryAlpha2**     | _**string**_ | Country in ISO 3166-1 alpha-2 format, for ex. "FR"               |
+| **County**            | _**string**_ | County if applicable                                             |
+| **State**             | _**string**_ | Name of the state, for ex. "Alabama"                             |
+| **Town**              | _**string**_ | City or town name                                                |
+| **Suburb**            | _**string**_ | Suburb if applicable                                             |
+| **Street**            | _**string**_ | Street name, for ex. "PeachTree Place", "7th street"             |
+| **StreetType**        | _**string**_ | Street type, for ex. "Avenue"                                    |
+| **SubStreet**         | _**string**_ | Substreet if applicable                                          |
+| **BuildingName**      | _**string**_ | Building or house name                                           |
+| **BuildingNumber**    | _**string**_ | Building or house number                                         |
+| **FlatNumber**        | _**string**_ | Apartment number                                                 |
+| **PostOfficeBox**     | _**string**_ | Post office box                                                  |
+| **PostCode**          | _**string**_ | Zip or postal code                                               |
+| **StateProvinceCode** | _**string**_ | Abbreviated name of the state or province, for ex. "CA"          |
+| **StartDate**         | _**Time**_   | When the customer settled at this address, in RFC3339 format     |
+| **EndDate**           | _**Time**_   | When the customer moved out from this address, in RFC3339 format |
 
 ### **[Business](common/model.go#L63) fields description**
 
-| **Name**                      | **Type**     | **Description**                                |
-| ----------------------------- | ------------ | ---------------------------------------------- |
-| **Name**                      | _**string**_ | Name of the Enterprise the customer relates to |
-| **RegistrationNumber**        | _**string**_ | Registration number of the Enterprise          |
-| **IncorporationDate**         | _**Time**_   | Incorporation date of the Enterprise           |
-| **IncorporationJurisdiction** | _**string**_ | Incorporation jurisdiction of the Enterprise   |
+| **Name**                      | **Type**     | **Description**                                         |
+| ----------------------------- | ------------ | ------------------------------------------------------- |
+| **Name**                      | _**string**_ | Name of the Enterprise the customer relates to          |
+| **RegistrationNumber**        | _**string**_ | Registration number of the Enterprise                   |
+| **IncorporationDate**         | _**Time**_   | Incorporation date of the Enterprise, in RFC3339 format |
+| **IncorporationJurisdiction** | _**string**_ | Incorporation jurisdiction of the Enterprise            |
 
 ### **[Passport](common/model.go#L104) fields description**
 
@@ -362,8 +362,8 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Mrz2**          | _**string**_                                            | Second line of the Machine Readable Zone (MRZ) of passport, 44 letters and digits, i.e. "99003853<1CZE1101018M1207046110101111<<<<<94" |
 | **CountryAlpha2** | _**string**_                                            | Country in ISO 3166-1 alpha-2 format, for ex. "SG"      |
 | **State**         | _**string**_                                            | Abbreviated name of the state or province, for ex. "TX" |
-| **IssuedDate**    | _**Time**_                                              | Issued date                                             |
-| **ValidUntil**    | _**Time**_                                              | Valid until date                                        |
+| **IssuedDate**    | _**Time**_                                              | Issued date, in RFC3339 format                          |
+| **ValidUntil**    | _**Time**_                                              | Valid until date, in RFC3339 format                     |
 | **Image**         | _***[DocumentFile](#documentfile-fields-description)**_ | Scan or photo of the passport                           |
 
 ### **[IDCard](common/model.go#L116) fields description**
@@ -372,7 +372,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | ----------------- | ------------------- | -------------------------------------------------- |
 | **Number**        | _**string**_        | Id card number without whitespaces and dashes      |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "CN" |
-| **IssuedDate**    | _**Time**_          | Issued date                                        |
+| **IssuedDate**    | _**Time**_          | Issued date, in RFC3339 format                     |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the card                          |
 
 ### **[SNILS](common/model.go#L124) fields description**
@@ -380,7 +380,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Name**       | **Type**            | **Description**                             |
 | -------------- | ------------------- | ------------------------------------------- |
 | **Number**     | _**string**_        | SNILS number without whitespaces and dashes |
-| **IssuedDate** | _**Time**_          | Issued date                                 |
+| **IssuedDate** | _**Time**_          | Issued date, in RFC3339 format              |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the SNILS                  |
 
 ### **[HealthID](common/model.go#L223) fields description**
@@ -395,7 +395,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Name**          | **Type**            | **Description**                               |
 | ----------------- | ------------------- | --------------------------------------------- |
 | **Number**        | _**string**_        | Number of the document                        |
-| **IssuedDate**    | _**Time**_          | Issued date                                   |
+| **IssuedDate**    | _**Time**_          | Issued date, in RFC3339 format                |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                 |
 
 ### **[TaxID](common/model.go#L237) fields description**
@@ -413,8 +413,8 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Version**       | _**string**_        | New Zealand driver license version number (this number changes each time a new card is issued) |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "DE"      |
 | **State**         | _**string**_        | Abbreviated name of the state or province, for ex. "KY" |
-| **IssuedDate**    | _**Time**_          | Issued date                                             |
-| **ValidUntil**    | _**Time**_          | Valid until date                                        |
+| **IssuedDate**    | _**Time**_          | Issued date, in RFC3339 format                          |
+| **ValidUntil**    | _**Time**_          | Valid until date, in RFC3339 format                     |
 | **FrontImage**    | _***DocumentFile**_ | Scan or photo of the front side of the driver license   |
 | **BackImage**     | _***DocumentFile**_ | Scan or photo of the back side of the driver license    |
 
@@ -425,8 +425,8 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Number**        | _**string**_        | Driver license translation number                                 |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "LV"                |
 | **State**         | _**string**_        | Abbreviated name of the state or province, for ex. "MT"           |
-| **IssuedDate**    | _**Time**_          | Issued date                                                       |
-| **ValidUntil**    | _**Time**_          | Valid until date                                                  |
+| **IssuedDate**    | _**Time**_          | Issued date, in RFC3339 format                                    |
+| **ValidUntil**    | _**Time**_          | Valid until date, in RFC3339 format                               |
 | **FrontImage**    | _***DocumentFile**_ | Scan or photo of the front side of the driver license translation |
 | **BackImage**     | _***DocumentFile**_ | Scan or photo of the back side of the driver license translation  |
 
@@ -435,7 +435,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Name**       | **Type**            | **Description**                                   |
 | -------------- | ------------------- | ------------------------------------------------- |
 | **Number**     | _**string**_        | Credit card number without whitespaces and dashes |
-| **ValidUntil** | _**Time**_          | Valid until date                                  |
+| **ValidUntil** | _**Time**_          | Valid until date, in RFC3339 format               |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the face side of the credit card |
 
 ### **[DebitCard](common/model.go#L161) fields description**
@@ -443,7 +443,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Name**       | **Type**            | **Description**                                  |
 | -------------- | ------------------- | ------------------------------------------------ |
 | **Number**     | _**string**_        | Debit card number without whitespaces and dashes |
-| **ValidUntil** | _**Time**_          | Valid until date                                 |
+| **ValidUntil** | _**Time**_          | Valid until date, in RFC3339 format              |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the face side of the debit card |
 
 ### **[UtilityBill](common/model.go#L168) fields description**
@@ -458,8 +458,8 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Name**          | **Type**            | **Description**                                    |
 | ----------------- | ------------------- | -------------------------------------------------- |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "GB" |
-| **IssuedDate**    | _**Time**_          | Issued date                                        |
-| **ValidUntil**    | _**Time**_          | Valid until date                                   |
+| **IssuedDate**    | _**Time**_          | Issued date, in RFC3339 format                     |
+| **ValidUntil**    | _**Time**_          | Valid until date, in RFC3339 format                |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the residence permit              |
 
 ### **[Agreement](common/model.go#L182) fields description**
@@ -472,7 +472,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 
 | **Name**       | **Type**            | **Description**                             |
 | -------------- | ------------------- | ------------------------------------------- |
-| **IssuedDate** | _**Time**_          | Issued date                                 |
+| **IssuedDate** | _**Time**_          | Issued date, in RFC3339 format              |
 | **Image**      | _***DocumentFile**_ | Scan or photo of the employment certificate |
 
 ### **[Contract](common/model.go#L187) fields description**
@@ -506,8 +506,8 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Number**        | _**string**_        | Document number without whitespaces and dashes          |
 | **CountryAlpha2** | _**string**_        | Country in ISO 3166-1 alpha-2 format, for ex. "ES"      |
 | **State**         | _**string**_        | Abbreviated name of the state or province, for ex. "PA" |
-| **IssuedDate**    | _**Time**_          | Issued date                                             |
-| **ValidUntil**    | _**Time**_          | Valid until date                                        |
+| **IssuedDate**    | _**Time**_          | Issued date, in RFC3339 format                          |
+| **ValidUntil**    | _**Time**_          | Valid until date, in RFC3339 format                     |
 | **Image**         | _***DocumentFile**_ | Scan or photo of the document                           |
 
 ### **[DocumentFile](common/model.go#L71) fields description**
@@ -574,11 +574,11 @@ The verification response consist of two elements: a result and an error if occu
 
 ### **[KYCStatusCheck](common/model.go#L92) fields description**
 
-| **Name**        | **Type**                                | **Description**                             |
-| --------------- | --------------------------------------- | ------------------------------------------- |
-| **Provider**    | _**[KYCProvider](common/enum.go#L36)**_ | An identificator for the KYC provider name  |
+| **Name**        | **Type**                                | **Description**                                                |
+| --------------- | --------------------------------------- | -------------------------------------------------------------- |
+| **Provider**    | _**[KYCProvider](common/enum.go#L36)**_ | An identificator for the KYC provider name                     |
 | **ReferenceID** | _**string**_                            | An identificator that references to this verification submission. It mention in docs as applicantId/mtid/jumioIdScanReference/etc. Its value is specific for a provider |
-| **LastCheck**   | _**time.Time**_                         | Last time a verification status was checked |
+| **LastCheck**   | _**time.Time**_                         | Last time a verification status was checked, in RFC3339 format |
 
 ## **Applicable fields grouped per provider**
 
