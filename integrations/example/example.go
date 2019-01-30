@@ -7,11 +7,13 @@ import (
 	"modulus/kyc/common"
 )
 
-// Service represents the example KYC provider.
-type Service struct{}
+var _ common.KYCPlatform = Example{}
 
-// CheckCustomer implements CustomerChecker interface for the example KYC provider.
-func (s *Service) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
+// Example represents the example KYC provider.
+type Example struct{}
+
+// CheckCustomer implements KYCPlatform interface for the example KYC provider.
+func (ex Example) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
 		return
@@ -41,8 +43,8 @@ func (s *Service) CheckCustomer(customer *common.UserData) (res common.KYCResult
 	return
 }
 
-// CheckStatus implements StatusChecker interface for the example KYC provider.
-func (s *Service) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+// CheckStatus implements KYCPlatform interface for the example KYC provider.
+func (ex Example) CheckStatus(referenceID string) (res common.KYCResult, err error) {
 	switch referenceID {
 	case "ada":
 		res.Status = common.Approved

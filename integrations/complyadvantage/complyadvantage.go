@@ -41,7 +41,7 @@ func (c ComplyAdvantage) CheckCustomer(customer *common.UserData) (result common
 }
 
 // performSearch performs a search request to the ComplyAdvantage API.
-func (c ComplyAdvantage) performSearch(r Request) (response *Response, status *int, err error) {
+func (c ComplyAdvantage) performSearch(r Request) (response Response, status *int, err error) {
 	body, err := json.Marshal(r)
 	if err != nil {
 		return
@@ -70,15 +70,15 @@ func (c ComplyAdvantage) performSearch(r Request) (response *Response, status *i
 		return
 	}
 
-	response = &Response{}
+	response = Response{}
 
-	err = json.Unmarshal(resp, response)
+	err = json.Unmarshal(resp, &response)
 
 	return
 }
 
 // CheckStatus implements KYCPlatform interface for the ComplyAdvantage.
 func (c ComplyAdvantage) CheckStatus(referenceID string) (res common.KYCResult, err error) {
-	err = errors.New("ComplyAdvantage doesn't support this method")
+	err = errors.New("ComplyAdvantage doesn't support a verification status check")
 	return
 }

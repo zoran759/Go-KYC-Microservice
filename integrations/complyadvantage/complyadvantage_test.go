@@ -684,5 +684,5 @@ func TestCheckStatus(t *testing.T) {
 
 	assert.Equal(common.Error, res.Status)
 	assert.Error(err)
-	assert.Equal("ComplyAdvantage doesn't support this method", err.Error())
+	assert.Equal("ComplyAdvantage doesn't support a verification status check", err.Error())
 }
