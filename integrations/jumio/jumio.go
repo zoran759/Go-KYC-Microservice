@@ -12,28 +12,22 @@ import (
 	"modulus/kyc/http"
 )
 
-// Verification represents the verification interface of Jumio performNetverify API.
-type Verification interface {
-	common.CustomerChecker
-	common.StatusChecker
-}
-
-// service defines the model for the Jumio performNetverify API.
-type service struct {
+// Jumio defines the model for the Jumio performNetverify API.
+type Jumio struct {
 	baseURL     string
 	credentials string
 }
 
 // New constructs new service object to use with the Jumio performNetverify API.
-func New(config Config) Verification {
-	return &service{
+func New(config Config) Jumio {
+	return Jumio{
 		baseURL:     config.BaseURL,
 		credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Token+":"+config.Secret)),
 	}
 }
 
 // CheckCustomer implements customer verification using the Jumio performNetverify API.
-func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
+func (j Jumio) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
 		return
@@ -45,7 +39,7 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 		return
 	}
 
-	response, errorCode, err := s.sendRequest(req)
+	response, errorCode, err := j.sendRequest(req)
 	if err != nil {
 		if errorCode != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
@@ -66,17 +60,17 @@ func (s *service) CheckCustomer(customer *common.UserData) (result common.KYCRes
 
 // sendRequest sends a vefirication request into the API.
 // It returns a response from the API or the error if occured.
-func (s *service) sendRequest(request *Request) (response *Response, errorCode *int, err error) {
+func (j Jumio) sendRequest(request *Request) (response *Response, errorCode *int, err error) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return
 	}
 
-	headers := s.headers()
+	headers := j.headers()
 	headers["Content-Type"] = contentType
 	headers["Content-Length"] = fmt.Sprintf("%d", len(body))
 
-	statusCode, resp, err := http.Post(s.baseURL+performNetverifyEndpoint, headers, body)
+	statusCode, resp, err := http.Post(j.baseURL+performNetverifyEndpoint, headers, body)
 	if err != nil {
 		return
 	}
@@ -93,13 +87,13 @@ func (s *service) sendRequest(request *Request) (response *Response, errorCode *
 }
 
 // CheckStatus implements the StatusChecker interface for Jumio.
-func (s *service) CheckStatus(referenceID string) (result common.KYCResult, err error) {
+func (j Jumio) CheckStatus(referenceID string) (result common.KYCResult, err error) {
 	if len(referenceID) == 0 {
 		err = errors.New("empty Jumio’s reference number of an existing scan")
 		return
 	}
 
-	status, errorCode, err := s.retrieveScanStatus(referenceID)
+	status, errorCode, err := j.retrieveScanStatus(referenceID)
 	if err != nil {
 		if errorCode != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *errorCode)
@@ -118,7 +112,7 @@ func (s *service) CheckStatus(referenceID string) (result common.KYCResult, err 
 		}
 	case DoneStatus, FailedStatus:
 		scanDetails := &DetailsResponse{}
-		scanDetails, errorCode, err = s.retrieveScanDetails(referenceID)
+		scanDetails, errorCode, err = j.retrieveScanDetails(referenceID)
 		if err != nil {
 			if errorCode != nil {
 				result.ErrorCode = fmt.Sprintf("%d", *errorCode)
@@ -135,8 +129,8 @@ func (s *service) CheckStatus(referenceID string) (result common.KYCResult, err 
 }
 
 // retrieveScanStatus retrieves the status of an Jumio scan.
-func (s *service) retrieveScanStatus(referenceID string) (status ScanStatus, errorCode *int, err error) {
-	statusCode, resp, err := http.Get(s.baseURL+scanStatusEndpoint+referenceID, s.headers())
+func (j Jumio) retrieveScanStatus(referenceID string) (status ScanStatus, errorCode *int, err error) {
+	statusCode, resp, err := http.Get(j.baseURL+scanStatusEndpoint+referenceID, j.headers())
 	if err != nil {
 		return
 	}
@@ -158,8 +152,8 @@ func (s *service) retrieveScanStatus(referenceID string) (status ScanStatus, err
 }
 
 // retrieveScanDetails retrieves details of an Jumio scan.
-func (s *service) retrieveScanDetails(referenceID string) (response *DetailsResponse, errorCode *int, err error) {
-	statusCode, resp, err := http.Get(fmt.Sprintf(s.baseURL+scanDetailsEndpoint, referenceID), s.headers())
+func (j Jumio) retrieveScanDetails(referenceID string) (response *DetailsResponse, errorCode *int, err error) {
+	statusCode, resp, err := http.Get(fmt.Sprintf(j.baseURL+scanDetailsEndpoint, referenceID), j.headers())
 	if err != nil {
 		return
 	}
@@ -176,10 +170,10 @@ func (s *service) retrieveScanDetails(referenceID string) (response *DetailsResp
 }
 
 // headers is a helper that constructs HTTP request headers.
-func (s *service) headers() http.Headers {
+func (j Jumio) headers() http.Headers {
 	return http.Headers{
 		"Accept":        accept,
 		"User-Agent":    userAgent,
-		"Authorization": s.credentials,
+		"Authorization": j.credentials,
 	}
 }
