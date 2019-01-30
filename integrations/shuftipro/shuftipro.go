@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var _ common.KYCPlatform = ShuftiPro{}
+
 // ShuftiPro represents the verification service.
 type ShuftiPro struct {
 	verification verification.Verification
@@ -50,4 +52,10 @@ func (service ShuftiPro) CheckCustomer(customer *common.UserData) (result common
 		err = errors.New(response.Message)
 		return
 	}
+}
+
+// CheckStatus implements KYCPlatform interface for the ShuftiPro.
+func (service ShuftiPro) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	err = errors.New("Shufti Pro doesn't support a verification status check")
+	return
 }

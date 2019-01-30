@@ -12,6 +12,8 @@ import (
 	"modulus/kyc/http"
 )
 
+var _ common.KYCPlatform = Jumio{}
+
 // Jumio defines the model for the Jumio performNetverify API.
 type Jumio struct {
 	baseURL     string
