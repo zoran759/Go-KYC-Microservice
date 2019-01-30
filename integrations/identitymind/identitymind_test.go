@@ -26,7 +26,7 @@ var _ = Describe("The IdentityMind service", func() {
 			Password: "test",
 		}
 
-		service := &Service{
+		service := IdentityMind{
 			consumer: consumer.NewClient(consumer.Config(config)),
 		}
 
@@ -36,10 +36,10 @@ var _ = Describe("The IdentityMind service", func() {
 
 		Expect(testservice).NotTo(BeNil())
 		Expect(testservice.consumer).ToNot(BeNil())
-		Expect(reflect.TypeOf(testservice)).To(Equal(reflect.TypeOf((*Service)(nil))))
+		Expect(reflect.TypeOf(testservice)).To(Equal(reflect.TypeOf(IdentityMind{})))
 
-		Expect(*testservice).To(Equal(*service))
-		Expect(*testservice.consumer).To(Equal(*service.consumer))
+		Expect(testservice).To(Equal(service))
+		Expect(testservice.consumer).To(Equal(service.consumer))
 	})
 
 	Describe("CheckCustomer Sandbox Testing", func() {
