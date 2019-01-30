@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var _ common.KYCPlatform = Trulioo{}
+
 // Trulioo defines the verification service.
 type Trulioo struct {
 	configuration configuration.Configuration
@@ -24,7 +26,7 @@ func New(config Config) Trulioo {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for Trulioo.
+// CheckCustomer implements KYCPlatform interface for Trulioo.
 func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("No customer supplied")
@@ -111,5 +113,11 @@ func (service Trulioo) CheckCustomer(customer *common.UserData) (res common.KYCR
 		res.Status = common.Unclear
 	}
 
+	return
+}
+
+// CheckStatus implements KYCPlatform interface for Trulioo.
+func (service Trulioo) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	err = errors.New("Trulioo doesn't support a verification status check")
 	return
 }
