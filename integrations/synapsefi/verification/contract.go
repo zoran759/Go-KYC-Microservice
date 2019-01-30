@@ -15,9 +15,9 @@ type Config struct {
 
 // Verification describes the verification interface.
 type Verification interface {
-	CreateUser(User) (*Response, *string, error)
-	AddPhysicalDocs(string, string, string, []SubDocument) (*string, error)
-	GetUser(string) (*Response, *string, error)
+	CreateUser(user User) (*Response, *string, error)
+	AddPhysicalDocs(userID, rtoken, docsID string, docs []SubDocument) (*string, error)
+	GetUser(userID string) (*Response, *string, error)
 }
 
 func (c Config) calcFingerprint() string {
