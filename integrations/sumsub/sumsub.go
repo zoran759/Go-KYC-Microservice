@@ -39,7 +39,7 @@ func New(config Config) SumSub {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for Sum&Substance KYC provider.
+// CheckCustomer implements KYCPlatform interface for Sum&Substance KYC provider.
 func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
@@ -105,7 +105,7 @@ func (service SumSub) CheckCustomer(customer *common.UserData) (res common.KYCRe
 	return
 }
 
-// CheckStatus implements StatusChecker interface for Sum&Substance KYC provider.
+// CheckStatus implements KYCPlatform interface for Sum&Substance KYC provider.
 func (service SumSub) CheckStatus(refID string) (res common.KYCResult, err error) {
 	status, result, err := service.verification.CheckApplicantStatus(refID)
 	if err != nil {

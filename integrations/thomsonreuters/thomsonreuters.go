@@ -10,6 +10,8 @@ import (
 	"modulus/kyc/common"
 )
 
+var _ common.KYCPlatform = ThomsonReuters{}
+
 // ThomsonReuters represents the Thomson Reuters API client.
 type ThomsonReuters struct {
 	scheme string
@@ -44,7 +46,7 @@ func New(c Config) ThomsonReuters {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for Thomson Reuters.
+// CheckCustomer implements KYCPlatform interface for Thomson Reuters.
 func (tr ThomsonReuters) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("customer data is nil")
@@ -79,5 +81,11 @@ func (tr ThomsonReuters) CheckCustomer(customer *common.UserData) (result common
 
 	result, err = toResult(src)
 
+	return
+}
+
+// CheckStatus implements KYCPlatform interface for Thomson Reuters.
+func (tr ThomsonReuters) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	err = errors.New("Thomson Reuters doesn't support a verification status check")
 	return
 }
