@@ -121,7 +121,7 @@ var _ = Describe("Client", func() {
 				Password: "fake_password",
 			}
 
-			testclient := &Client{
+			testclient := Client{
 				host:        config.Host,
 				credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Username+":"+config.Password)),
 			}
