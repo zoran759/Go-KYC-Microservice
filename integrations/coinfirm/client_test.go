@@ -2,7 +2,6 @@ package coinfirm
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -19,6 +18,8 @@ var c = New(Config{
 	Password: "CAc8@6e12e823c602bcb85224e822609",
 	Company:  "Fuzion",
 })
+
+var hdrs = headers()
 
 var (
 	tokenResp            = `{"token":"yFaReURiYkAECZsPt8dR1bzHpa2Y5kXpqsp4KunyH870OAoY577vI8mhABCj4vkK"}`
@@ -38,9 +39,9 @@ func TestNewAuthTokenSuccess(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/auth/login", httpmock.NewStringResponder(http.StatusOK, tokenResp))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/auth/login", httpmock.NewStringResponder(http.StatusOK, tokenResp))
 
-	token, status, err := c.newAuthToken()
+	token, status, err := c.newAuthToken(hdrs)
 
 	assert.NoError(err)
 	assert.Nil(status)
@@ -53,9 +54,9 @@ func TestNewAuthTokenUnexpectedResp(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/auth/login", httpmock.NewStringResponder(http.StatusOK, malformedResp))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/auth/login", httpmock.NewStringResponder(http.StatusOK, malformedResp))
 
-	token, status, err := c.newAuthToken()
+	token, status, err := c.newAuthToken(hdrs)
 
 	assert.Error(err)
 	assert.Equal("invalid character 'h' in literal true (expecting 'r')", err.Error())
@@ -69,7 +70,7 @@ func TestNewAuthTokenSendError(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	token, status, err := c.newAuthToken()
+	token, status, err := c.newAuthToken(hdrs)
 
 	assert.Error(err)
 	assert.Equal("Post https://api.coinfirm.io/v2/auth/login: no responder found", err.Error())
@@ -83,9 +84,9 @@ func TestNewAuthTokenStatus400(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/auth/login", httpmock.NewStringResponder(http.StatusBadRequest, error400Resp))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/auth/login", httpmock.NewStringResponder(http.StatusBadRequest, error400Resp))
 
-	token, status, err := c.newAuthToken()
+	token, status, err := c.newAuthToken(hdrs)
 
 	assert.Error(err)
 	assert.Equal("Invalid email or password", err.Error())
@@ -100,9 +101,9 @@ func TestNewAuthTokenStatus400UnexpectedResp(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/auth/login", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/auth/login", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
 
-	token, status, err := c.newAuthToken()
+	token, status, err := c.newAuthToken(hdrs)
 
 	assert.Error(err)
 	assert.Equal("http error", err.Error())
@@ -118,32 +119,16 @@ func TestNewAuthTokenStatus400UnexpectedResp(t *testing.T) {
 func TestNewParticipantSuccess(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	// token, status, err := c.newAuthToken()
-	// assert.NoError(err)
-	// assert.Nil(status)
-	// assert.NotEmpty(token)
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPut, c.host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusOK, newParticipantResp))
+	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusOK, newParticipantResp))
 
 	nParticipant := model.NewParticipant{
 		Email: "sarbash.s@ya.ru",
 	}
 
-	participant, status, err := c.newParticipant(nParticipant)
+	participant, status, err := c.newParticipant(hdrs, nParticipant)
 
 	assert.NoError(err)
 	assert.Nil(status)
@@ -156,7 +141,7 @@ func TestNewParticipantSendError(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	participant, status, err := c.newParticipant(model.NewParticipant{})
+	participant, status, err := c.newParticipant(hdrs, model.NewParticipant{})
 
 	assert.Error(err)
 	assert.Equal("Put https://api.coinfirm.io/v2/kyc/customers/Fuzion: no responder found", err.Error())
@@ -167,27 +152,16 @@ func TestNewParticipantSendError(t *testing.T) {
 func TestNewParticipantStatus400(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPut, c.host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
+	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
 
 	nParticipant := model.NewParticipant{
 		Email: "sarbash.s@ya.ru",
 	}
 
-	participant, status, err := c.newParticipant(nParticipant)
+	participant, status, err := c.newParticipant(hdrs, nParticipant)
 
 	assert.Error(err)
 	assert.Equal("Request body validation errors", err.Error())
@@ -199,27 +173,16 @@ func TestNewParticipantStatus400(t *testing.T) {
 func TestNewParticipantStatus400UnexpectedResp(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPut, c.host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
+	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
 
 	nParticipant := model.NewParticipant{
 		Email: "sarbash.s@ya.ru",
 	}
 
-	participant, status, err := c.newParticipant(nParticipant)
+	participant, status, err := c.newParticipant(hdrs, nParticipant)
 
 	assert.Error(err)
 	assert.Equal("http error", err.Error())
@@ -235,21 +198,10 @@ func TestNewParticipantStatus400UnexpectedResp(t *testing.T) {
 func TestSendParticipantDetailsSuccess(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPut, c.host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusCreated, nil))
+	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusCreated, nil))
 
 	participant := model.ParticipantDetails{
 		UserIP:      "192.168.0.117",
@@ -266,7 +218,7 @@ func TestSendParticipantDetailsSuccess(t *testing.T) {
 		BirthDate:   "1960-08-15",
 	}
 
-	status, err := c.sendParticipantDetails("33611d6d-2826-4c3e-a777-3f0397e283fc", participant)
+	status, err := c.sendParticipantDetails(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", participant)
 
 	assert.NoError(err)
 	assert.Nil(status)
@@ -274,21 +226,10 @@ func TestSendParticipantDetailsSuccess(t *testing.T) {
 func TestSendParticipantDetailsSendError(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	status, err := c.sendParticipantDetails("33611d6d-2826-4c3e-a777-3f0397e283fc", model.ParticipantDetails{})
+	status, err := c.sendParticipantDetails(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", model.ParticipantDetails{})
 
 	assert.Error(err)
 	assert.Equal("Put https://api.coinfirm.io/v2/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc: no responder found", err.Error())
@@ -298,21 +239,10 @@ func TestSendParticipantDetailsSendError(t *testing.T) {
 func TestSendParticipantDetailsStatus400(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPut, c.host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
+	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
 
 	participant := model.ParticipantDetails{
 		UserIP:    "192.168.0.117",
@@ -325,7 +255,7 @@ func TestSendParticipantDetailsStatus400(t *testing.T) {
 		Street:    "Gifford St",
 	}
 
-	status, err := c.sendParticipantDetails("33611d6d-2826-4c3e-a777-3f0397e283fc", participant)
+	status, err := c.sendParticipantDetails(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", participant)
 
 	assert.Error(err)
 	assert.Equal("Request body validation errors", err.Error())
@@ -336,23 +266,12 @@ func TestSendParticipantDetailsStatus400(t *testing.T) {
 func TestSendParticipantDetailsStatus400UnexpectedResp(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPut, c.host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
+	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
 
-	status, err := c.sendParticipantDetails("33611d6d-2826-4c3e-a777-3f0397e283fc", model.ParticipantDetails{})
+	status, err := c.sendParticipantDetails(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", model.ParticipantDetails{})
 
 	assert.Error(err)
 	assert.Equal("http error", err.Error())
@@ -367,21 +286,10 @@ func TestSendParticipantDetailsStatus400UnexpectedResp(t *testing.T) {
 func TestSendDocFileSuccess(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusOK, nil))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusOK, nil))
 
 	data, _ := ioutil.ReadFile("../../test_data/realId.jpg")
 
@@ -391,7 +299,7 @@ func TestSendDocFileSuccess(t *testing.T) {
 		DataBase64: base64.StdEncoding.EncodeToString(data),
 	}
 
-	status, err := c.sendDocFile("33611d6d-2826-4c3e-a777-3f0397e283fc", docfile)
+	status, err := c.sendDocFile(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", docfile)
 
 	assert.NoError(err)
 	assert.Nil(status)
@@ -400,21 +308,10 @@ func TestSendDocFileSuccess(t *testing.T) {
 func TestSendDocFileSendError(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	status, err := c.sendDocFile("33611d6d-2826-4c3e-a777-3f0397e283fc", &model.File{})
+	status, err := c.sendDocFile(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", &model.File{})
 
 	assert.Error(err)
 	assert.Equal("Post https://api.coinfirm.io/v2/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc: no responder found", err.Error())
@@ -424,23 +321,12 @@ func TestSendDocFileSendError(t *testing.T) {
 func TestSendDocFileStatus400(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
 
-	status, err := c.sendDocFile("33611d6d-2826-4c3e-a777-3f0397e283fc", &model.File{})
+	status, err := c.sendDocFile(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", &model.File{})
 
 	assert.Error(err)
 	assert.Equal("Request body validation errors", err.Error())
@@ -451,23 +337,12 @@ func TestSendDocFileStatus400(t *testing.T) {
 func TestSendDocFileStatus400UnexpectedResp(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, malformedResp))
 
-	status, err := c.sendDocFile("33611d6d-2826-4c3e-a777-3f0397e283fc", &model.File{})
+	status, err := c.sendDocFile(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", &model.File{})
 
 	assert.Error(err)
 	assert.Equal("http error", err.Error())
@@ -482,28 +357,12 @@ func TestSendDocFileStatus400UnexpectedResp(t *testing.T) {
 func TestGetParticipantCurrentStatusSuccess(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	// token, status, err := c.newAuthToken()
-	// assert.NoError(err)
-	// assert.Nil(status)
-	// assert.NotEmpty(token)
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodGet, c.host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusCreated, statusInprogressResp))
+	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusCreated, statusInprogressResp))
 
-	status, code, err := c.getParticipantCurrentStatus("33611d6d-2826-4c3e-a777-3f0397e283fc")
+	status, code, err := c.getParticipantCurrentStatus(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc")
 
 	assert.NoError(err)
 	assert.Nil(code)
@@ -514,17 +373,10 @@ func TestGetParticipantCurrentStatusSuccess(t *testing.T) {
 func TestGetParticipantCurrentStatusSendError(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	status, code, err := c.getParticipantCurrentStatus("33611d6d-2826-4c3e-a777-3f0397e283fc")
+	status, code, err := c.getParticipantCurrentStatus(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc")
 
 	assert.Error(err)
 	assert.Equal("Get https://api.coinfirm.io/v2/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc: no responder found", err.Error())
@@ -535,28 +387,12 @@ func TestGetParticipantCurrentStatusSendError(t *testing.T) {
 func TestGetParticipantCurrentStatusStatus404(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	// token, status, err := c.newAuthToken()
-	// assert.NoError(err)
-	// assert.Nil(status)
-	// assert.NotEmpty(token)
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodGet, c.host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusNotFound, `{"error":"Resource not found"}`))
+	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusNotFound, `{"error":"Resource not found"}`))
 
-	status, code, err := c.getParticipantCurrentStatus("33611d6d-2826-4c3e-a777-3f0397e283fc")
+	status, code, err := c.getParticipantCurrentStatus(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc")
 
 	assert.Error(err)
 	assert.Equal("Resource not found", err.Error())
@@ -568,23 +404,12 @@ func TestGetParticipantCurrentStatusStatus404(t *testing.T) {
 func TestGetParticipantCurrentStatusStatus404UnexpectedResp(t *testing.T) {
 	assert := assert.New(t)
 
-	c := New(Config{
-		Host:     "https://api.coinfirm.io/v2",
-		Email:    "info@fuzioncapital.com",
-		Password: "CAc8@6e12e823c602bcb85224e822609",
-		Company:  "Fuzion",
-	})
-
-	token := model.AuthResponse{}
-	_ = json.Unmarshal([]byte(tokenResp), &token)
-	c.headers["Authorization"] = "Bearer " + token.Token
-
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodGet, c.host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusNotFound, malformedResp))
+	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusNotFound, malformedResp))
 
-	status, code, err := c.getParticipantCurrentStatus("33611d6d-2826-4c3e-a777-3f0397e283fc")
+	status, code, err := c.getParticipantCurrentStatus(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc")
 
 	assert.Error(err)
 	assert.Equal("http error", err.Error())

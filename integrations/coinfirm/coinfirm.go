@@ -10,32 +10,23 @@ import (
 	"modulus/kyc/integrations/coinfirm/model"
 )
 
+var _ common.KYCPlatform = Coinfirm{}
+
 // Coinfirm represents the Coinfirm API client.
 type Coinfirm struct {
-	host     string
-	email    string
-	password string
-	company  string
-	headers  http.Headers
+	config Config
 }
 
 // New constructs a new Coinfirm API client instance.
 // It accepts Config object as the config param.
-func New(c Config) *Coinfirm {
-	return &Coinfirm{
-		host:     c.Host,
-		email:    c.Email,
-		password: c.Password,
-		company:  c.Company,
-		headers: http.Headers{
-			"Content-Type": "application/json",
-			"Accept":       "application/json",
-		},
+func New(config Config) Coinfirm {
+	return Coinfirm{
+		config: config,
 	}
 }
 
 // CheckCustomer implements CustomerChecker interface for the Coinfirm.
-func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
+func (c Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("customer is absent or no data received")
 		return
@@ -43,7 +34,9 @@ func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResul
 
 	details, docfile := prepareCustomerData(customer)
 
-	token, code, err := c.newAuthToken()
+	headers := headers()
+
+	token, code, err := c.newAuthToken(headers)
 	if err != nil {
 		if code != nil {
 			res.ErrorCode = strconv.Itoa(*code)
@@ -52,13 +45,13 @@ func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResul
 		return
 	}
 
-	c.headers["Authorization"] = "Bearer " + token.Token
+	headers["Authorization"] = "Bearer " + token.Token
 
 	newParticipant := model.NewParticipant{
 		Email: customer.Email,
 	}
 
-	participant, code, err := c.newParticipant(newParticipant)
+	participant, code, err := c.newParticipant(headers, newParticipant)
 	if err != nil {
 		if code != nil {
 			res.ErrorCode = strconv.Itoa(*code)
@@ -67,7 +60,7 @@ func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResul
 		return
 	}
 
-	code, err = c.sendParticipantDetails(participant.UUID, details)
+	code, err = c.sendParticipantDetails(headers, participant.UUID, details)
 	if err != nil {
 		if code != nil {
 			res.ErrorCode = strconv.Itoa(*code)
@@ -77,7 +70,7 @@ func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResul
 	}
 
 	if docfile != nil {
-		code, err = c.sendDocFile(participant.UUID, docfile)
+		code, err = c.sendDocFile(headers, participant.UUID, docfile)
 		if err != nil {
 			if code != nil {
 				res.ErrorCode = strconv.Itoa(*code)
@@ -87,7 +80,7 @@ func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResul
 		}
 	}
 
-	status, code, err := c.getParticipantCurrentStatus(participant.UUID)
+	status, code, err := c.getParticipantCurrentStatus(headers, participant.UUID)
 	if err != nil {
 		if code != nil {
 			res.ErrorCode = strconv.Itoa(*code)
@@ -102,8 +95,10 @@ func (c *Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResul
 }
 
 // CheckStatus implements StatusChecker interface for the Coinfirm.
-func (c *Coinfirm) CheckStatus(pID string) (res common.KYCResult, err error) {
-	token, code, err := c.newAuthToken()
+func (c Coinfirm) CheckStatus(pID string) (res common.KYCResult, err error) {
+	headers := headers()
+
+	token, code, err := c.newAuthToken(headers)
 	if err != nil {
 		if code != nil {
 			res.ErrorCode = strconv.Itoa(*code)
@@ -112,9 +107,9 @@ func (c *Coinfirm) CheckStatus(pID string) (res common.KYCResult, err error) {
 		return
 	}
 
-	c.headers["Authorization"] = "Bearer " + token.Token
+	headers["Authorization"] = "Bearer " + token.Token
 
-	status, code, err := c.getParticipantCurrentStatus(pID)
+	status, code, err := c.getParticipantCurrentStatus(headers, pID)
 	if err != nil {
 		if code != nil {
 			res.ErrorCode = strconv.Itoa(*code)
@@ -126,4 +121,12 @@ func (c *Coinfirm) CheckStatus(pID string) (res common.KYCResult, err error) {
 	res, err = toResult(pID, status)
 
 	return
+}
+
+// headers is the helper returning mandatory headers but they're requiring to complement with authorization.
+func headers() http.Headers {
+	return http.Headers{
+		"Content-Type": "application/json",
+		"Accept":       "application/json",
+	}
 }
