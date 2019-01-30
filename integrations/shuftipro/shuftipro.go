@@ -21,7 +21,7 @@ func New(config Config) ShuftiPro {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for ShuftiPro.
+// CheckCustomer implements KYCPlatform interface for ShuftiPro.
 func (service ShuftiPro) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("No customer supplied")

@@ -88,7 +88,7 @@ func (j Jumio) sendRequest(request *Request) (response *Response, errorCode *int
 	return
 }
 
-// CheckStatus implements the StatusChecker interface for Jumio.
+// CheckStatus implements the KYCPlatform interface for Jumio.
 func (j Jumio) CheckStatus(referenceID string) (result common.KYCResult, err error) {
 	if len(referenceID) == 0 {
 		err = errors.New("empty Jumio’s reference number of an existing scan")
