@@ -12,6 +12,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var _ common.KYCPlatform = SumSub{}
+
 // SumSub defines the verification service.
 type SumSub struct {
 	applicants   applicants.Applicants
