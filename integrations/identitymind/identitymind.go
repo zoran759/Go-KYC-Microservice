@@ -22,13 +22,13 @@ func New(config Config) IdentityMind {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for the service.
+// CheckCustomer implements KYCPlatform interface for the IdentityMind.
 func (i IdentityMind) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	res, err = i.consumer.CheckCustomer(customer)
 	return
 }
 
-// CheckStatus implements StatusChecker interface for the service.
+// CheckStatus implements KYCPlatform interface for the IdentityMind.
 func (i IdentityMind) CheckStatus(referenceID string) (res common.KYCResult, err error) {
 	res, err = i.consumer.CheckStatus(referenceID)
 	return

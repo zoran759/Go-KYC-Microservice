@@ -25,7 +25,7 @@ func New(config Config) Coinfirm {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for the Coinfirm.
+// CheckCustomer implements KYCPlatform interface for the Coinfirm.
 func (c Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("customer is absent or no data received")
@@ -94,7 +94,7 @@ func (c Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult
 	return
 }
 
-// CheckStatus implements StatusChecker interface for the Coinfirm.
+// CheckStatus implements KYCPlatform interface for the Coinfirm.
 func (c Coinfirm) CheckStatus(pID string) (res common.KYCResult, err error) {
 	headers := headers()
 
