@@ -10,10 +10,10 @@ import (
 )
 
 // newAuthToken requests the API for a new user token required to access nearly all endpoints.
-func (c *Coinfirm) newAuthToken() (token model.AuthResponse, status *int, err error) {
+func (c Coinfirm) newAuthToken(headers http.Headers) (token model.AuthResponse, status *int, err error) {
 	authreq := model.AuthRequest{
-		Email:    c.email,
-		Password: c.password,
+		Email:    c.config.Email,
+		Password: c.config.Password,
 	}
 
 	body, err := json.Marshal(authreq)
@@ -21,7 +21,7 @@ func (c *Coinfirm) newAuthToken() (token model.AuthResponse, status *int, err er
 		return
 	}
 
-	code, resp, err := http.Post(c.host+"/auth/login", c.headers, body)
+	code, resp, err := http.Post(c.config.Host+"/auth/login", headers, body)
 	if err != nil {
 		return
 	}
@@ -43,13 +43,13 @@ func (c *Coinfirm) newAuthToken() (token model.AuthResponse, status *int, err er
 }
 
 // newParticipant requests the API to add new participant without data.
-func (c *Coinfirm) newParticipant(nParticipant model.NewParticipant) (participant model.NewParticipantResponse, status *int, err error) {
+func (c Coinfirm) newParticipant(headers http.Headers, nParticipant model.NewParticipant) (participant model.NewParticipantResponse, status *int, err error) {
 	body, err := json.Marshal(nParticipant)
 	if err != nil {
 		return
 	}
 
-	code, resp, err := http.Request(stdhttp.MethodPut, c.host+"/kyc/customers/"+c.company, c.headers, body)
+	code, resp, err := http.Request(stdhttp.MethodPut, c.config.Host+"/kyc/customers/"+c.config.Company, headers, body)
 	if err != nil {
 		return
 	}
@@ -71,13 +71,13 @@ func (c *Coinfirm) newParticipant(nParticipant model.NewParticipant) (participan
 }
 
 // sendParticipantDetails sends individual participant data to the API.
-func (c *Coinfirm) sendParticipantDetails(pID string, details model.ParticipantDetails) (status *int, err error) {
+func (c Coinfirm) sendParticipantDetails(headers http.Headers, pID string, details model.ParticipantDetails) (status *int, err error) {
 	body, err := json.Marshal(details)
 	if err != nil {
 		return
 	}
 
-	code, resp, err := http.Request(stdhttp.MethodPut, c.host+"/kyc/forms/"+c.company+"/"+pID, c.headers, body)
+	code, resp, err := http.Request(stdhttp.MethodPut, c.config.Host+"/kyc/forms/"+c.config.Company+"/"+pID, headers, body)
 	if err != nil {
 		return
 	}
@@ -96,13 +96,13 @@ func (c *Coinfirm) sendParticipantDetails(pID string, details model.ParticipantD
 }
 
 // sendDocFile sends a document file to the API to add it to KYC process.
-func (c *Coinfirm) sendDocFile(pID string, docfile *model.File) (status *int, err error) {
+func (c Coinfirm) sendDocFile(headers http.Headers, pID string, docfile *model.File) (status *int, err error) {
 	body, err := json.Marshal(docfile)
 	if err != nil {
 		return
 	}
 
-	code, resp, err := http.Post(c.host+"/kyc/files/"+c.company+"/"+pID, c.headers, body)
+	code, resp, err := http.Post(c.config.Host+"/kyc/files/"+c.config.Company+"/"+pID, headers, body)
 	if err != nil {
 		return
 	}
@@ -121,8 +121,8 @@ func (c *Coinfirm) sendDocFile(pID string, docfile *model.File) (status *int, er
 }
 
 // getParticipantCurrentStatus requests the current participant status in KYC flow from the API.
-func (c *Coinfirm) getParticipantCurrentStatus(pID string) (status model.StatusResponse, code *int, err error) {
-	rcode, resp, err := http.Get(c.host+"/kyc/status/"+c.company+"/"+pID, c.headers)
+func (c Coinfirm) getParticipantCurrentStatus(headers http.Headers, pID string) (status model.StatusResponse, code *int, err error) {
+	rcode, resp, err := http.Get(c.config.Host+"/kyc/status/"+c.config.Company+"/"+pID, headers)
 	if err != nil {
 		return
 	}

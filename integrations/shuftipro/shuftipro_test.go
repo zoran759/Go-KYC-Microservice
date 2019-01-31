@@ -16,7 +16,21 @@ import (
 var testImageUpload = flag.Bool("use-images", false, "test document images uploading")
 
 func TestNew(t *testing.T) {
+	assert := assert.New(t)
 
+	cfg := Config{
+		Host:        "host",
+		SecretKey:   "key",
+		ClientID:    "client",
+		RedirectURL: "url",
+	}
+
+	svc := New(cfg)
+	svc2 := ShuftiPro{
+		verification: verification.NewService(verification.Config(cfg)),
+	}
+
+	assert.Equal(svc, svc2)
 }
 
 func TestShuftiPro_CheckCustomer(t *testing.T) {
@@ -181,4 +195,16 @@ func TestShuftiProImageUpload(t *testing.T) {
 		assert.Empty(result.ErrorCode)
 		assert.Nil(result.StatusCheck)
 	}
+}
+
+func TestCheckStatus(t *testing.T) {
+	assert := assert.New(t)
+
+	service := ShuftiPro{}
+
+	res, err := service.CheckStatus("")
+
+	assert.Equal(common.Error, res.Status)
+	assert.Error(err)
+	assert.Equal("Shufti Pro doesn't support a verification status check", err.Error())
 }

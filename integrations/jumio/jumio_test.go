@@ -26,7 +26,7 @@ var scanrefResponse = []byte(`
 	"jumioIdScanReference": "sample-jumio-scan-reference"
 }`)
 
-var _ = Describe("Service", func() {
+var _ = Describe("Jumio", func() {
 	Describe("New", func() {
 		Specify("should properly create service object", func() {
 			config := Config{
@@ -35,15 +35,14 @@ var _ = Describe("Service", func() {
 				Secret:  "fake_secret",
 			}
 
-			s := &service{
+			j := Jumio{
 				baseURL:     config.BaseURL,
 				credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Token+":"+config.Secret)),
 			}
 
-			cc := New(config)
-			ts := cc.(*service)
+			jj := New(config)
 
-			Expect(s).To(Equal(ts))
+			Expect(j).To(Equal(jj))
 		})
 	})
 

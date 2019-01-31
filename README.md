@@ -247,25 +247,16 @@ If the request performed without params then the sorted list of implemented KYC 
 
 ## **Integration interface**
 
-All KYC providers implement [**common.CustomerChecker**](common/contract.go#L3) interface for the verification process:
+All KYC providers implement [**common.KYCPlatform**](common/contract.go#L3) interface for the verification process:
 
 ```go
-type CustomerChecker interface {
+type KYCPlatform interface {
     CheckCustomer(customer *UserData) (KYCResult, error)
-}
-```
-
-Some KYC providers might require to poll the customer verification status to check if the process is completed. For this purpose the [**common.StatusChecker**](common/contract.go#L10) interface is provided:
-
-```go
-type StatusChecker interface {
     CheckStatus(referenceID string) (KYCResult, error)
 }
 ```
 
-Those KYC providers that are using some kind of polling mechanism implement this interface.
-
-Providers are configurable by their configs. Configuration options for each provider are described in the respective integration instructions in [Specific KYC providers](#specific-kyc-providers).
+KYC providers handle KYC process differently. Some return KYC result instantly in the response. Some require to poll the customer verification status to check if the process is completed. For this purpose the __*common.KYCResponse.Result.StatusCheck__ field is provided. If a polling is required and no error has occured then this field will be non-nil.
 
 The rest required for interaction with KYC providers is in the **`common`** package including request and response structures.
 

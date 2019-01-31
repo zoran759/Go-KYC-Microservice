@@ -13,7 +13,7 @@ import (
 // sendRequest sends a vefirication request into the API.
 // It expects an url-encoded request body as the param.
 // It returns a response from the API or the error if occured.
-func (c *Client) sendRequest(requestBody string) (resp *Response, err error) {
+func (c Client) sendRequest(requestBody string) (resp *Response, err error) {
 	headers := http.Headers{
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
@@ -31,7 +31,7 @@ func (c *Client) sendRequest(requestBody string) (resp *Response, err error) {
 
 // makeRequestBody returns url-encoded request body.
 // It expects a customer data as the param.
-func (c *Client) makeRequestBody(customer *common.UserData) string {
+func (c Client) makeRequestBody(customer *common.UserData) string {
 	// IDology recommends submitting all of the fields (even blank values)
 	// for optimal performance and full change management functionality.
 

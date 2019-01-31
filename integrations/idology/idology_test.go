@@ -46,17 +46,13 @@ var _ = Describe("The IDology KYC service", func() {
 			UseSummaryResult: true,
 		}
 
-		service := &Service{
+		service := IDology{
 			expectID: expectid.NewClient(expectid.Config(config)),
 		}
 
 		testservice := New(config)
 
-		Expect(testservice).NotTo(BeNil())
-		Expect(reflect.TypeOf(testservice)).To(Equal(reflect.TypeOf((*Service)(nil))))
-
-		Expect(testservice.expectID).ToNot(BeNil())
-
+		Expect(reflect.TypeOf(testservice)).To(Equal(reflect.TypeOf(IDology{})))
 		Expect(testservice).To(Equal(service))
 	})
 
@@ -549,6 +545,17 @@ var _ = Describe("The IDology KYC service", func() {
 				Expect(result.Details.Reasons[2]).To(Equal("Patriot Act score: 100"))
 				Expect(result.Details.Reasons[3]).To(Equal("PA DOB Match"))
 			})
+		})
+	})
+
+	Describe("using CheckStatus", func() {
+		It("should fail because IDology doesn't support this kind of check", func() {
+			service := IDology{}
+			res, err := service.CheckStatus("")
+
+			Expect(res.Status).To(Equal(common.Error))
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("IDology doesn't support a verification status check"))
 		})
 	})
 })

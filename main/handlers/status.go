@@ -72,10 +72,10 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-// createStatusChecker returns the StatusChecker object for the specified provider or an error if occurred.
-func createStatusChecker(provider common.KYCProvider) (service common.StatusChecker, err *serviceError) {
+// createStatusChecker returns the KYCPlatform object for the specified provider or an error if occurred.
+func createStatusChecker(provider common.KYCProvider) (service common.KYCPlatform, err *serviceError) {
 	if provider == common.Example {
-		service = &example.Service{}
+		service = example.Example{}
 		return
 	}
 
