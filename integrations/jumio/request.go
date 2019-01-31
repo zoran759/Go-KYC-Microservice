@@ -123,7 +123,7 @@ func (r *Request) populateDocumentFields(customer *common.UserData) (err error) 
 		r.IDType = Passport
 		r.Expiry = customer.Passport.ValidUntil.Format(dateFormat)
 		r.Number = customer.Passport.Number
-		if customer.Passport.CountryAlpha2 == "US" {
+		if customer.CountryAlpha2 == "US" {
 			r.USState = customer.Passport.State
 		}
 
@@ -156,7 +156,7 @@ func (r *Request) populateDocumentFields(customer *common.UserData) (err error) 
 		r.IDType = DrivingLicense
 		r.Expiry = customer.DriverLicense.ValidUntil.Format(dateFormat)
 		r.Number = customer.DriverLicense.Number
-		if customer.DriverLicense.CountryAlpha2 == "US" {
+		if customer.CountryAlpha2 == "US" {
 			r.USState = customer.DriverLicense.State
 		}
 

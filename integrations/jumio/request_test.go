@@ -264,12 +264,12 @@ var _ = Describe("Request", func() {
 
 		It("should success with the valid customer.Passport", func() {
 			customer := &common.UserData{
+				CountryAlpha2: "US",
 				Passport: &common.Passport{
-					Number:        "1234567890",
-					CountryAlpha2: "US",
-					State:         "WA",
-					IssuedDate:    common.Time(time.Date(2015, 05, 15, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:    common.Time(time.Date(2025, 05, 14, 0, 0, 0, 0, time.UTC)),
+					Number:     "1234567890",
+					State:      "WA",
+					IssuedDate: common.Time(time.Date(2015, 05, 15, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2025, 05, 14, 0, 0, 0, 0, time.UTC)),
 					Image: &common.DocumentFile{
 						Filename:    "passport.png",
 						ContentType: "image/png",
@@ -292,12 +292,12 @@ var _ = Describe("Request", func() {
 
 		It("should success with the valid customer.DriverLicense", func() {
 			customer := &common.UserData{
+				CountryAlpha2: "US",
 				DriverLicense: &common.DriverLicense{
-					Number:        "123456789",
-					CountryAlpha2: "US",
-					State:         "WA",
-					IssuedDate:    common.Time(time.Date(2012, 12, 22, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:    common.Time(time.Date(2022, 12, 21, 0, 0, 0, 0, time.UTC)),
+					Number:     "123456789",
+					State:      "WA",
+					IssuedDate: common.Time(time.Date(2012, 12, 22, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2022, 12, 21, 0, 0, 0, 0, time.UTC)),
 					FrontImage: &common.DocumentFile{
 						Filename:    "driver license front.jpg",
 						ContentType: "image/jpeg",
@@ -326,10 +326,10 @@ var _ = Describe("Request", func() {
 
 		It("should success with the valid customer.IDCard", func() {
 			customer := &common.UserData{
+				CountryAlpha2: "CA",
 				IDCard: &common.IDCard{
-					Number:        "0123456789",
-					CountryAlpha2: "CA",
-					IssuedDate:    common.Time(time.Date(2018, 07, 13, 0, 0, 0, 0, time.UTC)),
+					Number:     "0123456789",
+					IssuedDate: common.Time(time.Date(2018, 07, 13, 0, 0, 0, 0, time.UTC)),
 					Image: &common.DocumentFile{
 						Filename:    "id card.jpg",
 						ContentType: "image/jpeg",
@@ -350,6 +350,7 @@ var _ = Describe("Request", func() {
 
 		It("should success with the valid customer.SNILS", func() {
 			customer := &common.UserData{
+				CountryAlpha2: "RU",
 				SNILS: &common.SNILS{
 					Number:     "11112223333",
 					IssuedDate: common.Time(time.Date(2018, 03, 14, 0, 0, 0, 0, time.UTC)),
@@ -373,9 +374,10 @@ var _ = Describe("Request", func() {
 
 		It("should success with the valid user data", func() {
 			customer := &common.UserData{
-				FirstName:   "Bruce",
-				LastName:    "Wayne",
-				DateOfBirth: common.Time(time.Date(1950, 03, 17, 0, 0, 0, 0, time.UTC)),
+				FirstName:     "Bruce",
+				LastName:      "Wayne",
+				DateOfBirth:   common.Time(time.Date(1950, 03, 17, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "US",
 				Selfie: &common.Selfie{
 					Image: &common.DocumentFile{
 						Filename:    "batman.png",
@@ -384,11 +386,10 @@ var _ = Describe("Request", func() {
 					},
 				},
 				Passport: &common.Passport{
-					Number:        "1234567890",
-					CountryAlpha2: "US",
-					State:         "WA",
-					IssuedDate:    common.Time(time.Date(2010, 05, 15, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:    common.Time(time.Date(2020, 05, 14, 0, 0, 0, 0, time.UTC)),
+					Number:     "1234567890",
+					State:      "WA",
+					IssuedDate: common.Time(time.Date(2010, 05, 15, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2020, 05, 14, 0, 0, 0, 0, time.UTC)),
 					Image: &common.DocumentFile{
 						Filename:    "passport.png",
 						ContentType: "image/png",
