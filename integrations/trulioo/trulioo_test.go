@@ -826,12 +826,12 @@ func TestNZValidTestEntity(t *testing.T) {
 	})
 
 	customer := &common.UserData{
-		FirstName:     "Snow",
-		LastName:      "Huntsman",
-		MiddleName:    "White",
-		DateOfBirth:   common.Time(time.Date(1976, 3, 6, 0, 0, 0, 0, time.UTC)),
-		CountryAlpha2: "NZ",
-		Phone:         "078475332",
+		FirstName:                "Snow",
+		LastName:                 "Huntsman",
+		MiddleName:               "White",
+		DateOfBirth:              common.Time(time.Date(1976, 3, 6, 0, 0, 0, 0, time.UTC)),
+		CountryAlpha2:            "NZ",
+		Phone:                    "078475332",
 		VehicleRegistrationPlate: "ABC123",
 		CurrentAddress: common.Address{
 			Town:           "Auckland",
@@ -963,4 +963,16 @@ func TestUSValidTestEntity(t *testing.T) {
 		assert.Empty(result.ErrorCode)
 		assert.Nil(result.StatusCheck)
 	}
+}
+
+func TestCheckStatus(t *testing.T) {
+	assert := assert.New(t)
+
+	svc := Trulioo{}
+
+	res, err := svc.CheckStatus("")
+
+	assert.Equal(common.Error, res.Status)
+	assert.Error(err)
+	assert.Equal("Trulioo doesn't support a verification status check", err.Error())
 }

@@ -74,10 +74,10 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-// createCustomerChecker returns the CustomerChecker object for the specified provider or an error if occurred.
-func createCustomerChecker(provider common.KYCProvider) (service common.CustomerChecker, err *serviceError) {
+// createCustomerChecker returns the KYCPlatform object for the specified provider or an error if occurred.
+func createCustomerChecker(provider common.KYCProvider) (service common.KYCPlatform, err *serviceError) {
 	if provider == common.Example {
-		service = &example.Service{}
+		service = example.Example{}
 		return
 	}
 

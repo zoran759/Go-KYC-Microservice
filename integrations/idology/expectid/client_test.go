@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"time"
 
+	"modulus/kyc/common"
+
 	"github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"modulus/kyc/common"
 )
 
 var (
@@ -29,13 +30,12 @@ var _ = Describe("Client", func() {
 				Password: "fake_password",
 			}
 
-			testclient := &Client{
+			testclient := Client{
 				config: config,
 			}
 
 			client := NewClient(config)
 
-			Expect(client).NotTo(BeNil())
 			Expect(client).To(Equal(testclient))
 		})
 	})
