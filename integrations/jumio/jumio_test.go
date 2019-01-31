@@ -81,9 +81,10 @@ var _ = Describe("Jumio", func() {
 			})
 
 			var customer = &common.UserData{
-				FirstName:   "Bruce",
-				LastName:    "Wayne",
-				DateOfBirth: common.Time(time.Date(1950, 03, 17, 0, 0, 0, 0, time.UTC)),
+				FirstName:     "Bruce",
+				LastName:      "Wayne",
+				DateOfBirth:   common.Time(time.Date(1950, 03, 17, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "US",
 				Selfie: &common.Selfie{
 					Image: &common.DocumentFile{
 						Filename:    "batman.png",
@@ -92,11 +93,10 @@ var _ = Describe("Jumio", func() {
 					},
 				},
 				Passport: &common.Passport{
-					Number:        "1234567890",
-					CountryAlpha2: "US",
-					State:         "WA",
-					IssuedDate:    common.Time(time.Date(2010, 05, 15, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:    common.Time(time.Date(2020, 05, 14, 0, 0, 0, 0, time.UTC)),
+					Number:     "1234567890",
+					State:      "WA",
+					IssuedDate: common.Time(time.Date(2010, 05, 15, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2020, 05, 14, 0, 0, 0, 0, time.UTC)),
 					Image: &common.DocumentFile{
 						Filename:    "passport.png",
 						ContentType: "image/png",
@@ -290,15 +290,15 @@ var _ = Describe("Jumio", func() {
 			Expect(testSelfie).NotTo(BeEmpty(), "testSelfie must contain the content of the image data file 'selfie.png'")
 
 			customer := &common.UserData{
-				FirstName:   "John",
-				LastName:    "Doe",
-				DateOfBirth: common.Time(time.Date(1975, 06, 15, 0, 0, 0, 0, time.UTC)),
+				FirstName:     "John",
+				LastName:      "Doe",
+				DateOfBirth:   common.Time(time.Date(1975, 06, 15, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "US",
 				Passport: &common.Passport{
-					Number:        "0123456789",
-					CountryAlpha2: "US",
-					State:         "GA",
-					IssuedDate:    common.Time(time.Date(2015, 06, 20, 0, 0, 0, 0, time.UTC)),
-					ValidUntil:    common.Time(time.Date(2025, 06, 19, 0, 0, 0, 0, time.UTC)),
+					Number:     "0123456789",
+					State:      "GA",
+					IssuedDate: common.Time(time.Date(2015, 06, 20, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2025, 06, 19, 0, 0, 0, 0, time.UTC)),
 					Image: &common.DocumentFile{
 						Filename:    "passport.jpg",
 						ContentType: "image/jpeg",
@@ -315,9 +315,9 @@ var _ = Describe("Jumio", func() {
 			}
 
 			config := Config{
-				BaseURL: "https://netverify.com/api/netverify/v2",
-				Token:   "0afc675f-400b-421f-a3d5-19520ba2d8e7",
-				Secret:  "nZtnsNyc7mO1rtqbjT59XC5GnG6IOQS6",
+				BaseURL: "https://lon.netverify.com/api/netverify/v2",
+				Token:   "b509317a-59e5-4052-bbb7-d6a3235022f3",
+				Secret:  "RBGPMico1YWETwqLKVKsFGH0JSE7aQfI",
 			}
 
 			service := New(config)
