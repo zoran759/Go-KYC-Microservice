@@ -78,7 +78,12 @@ func (j Jumio) sendRequest(request *Request) (response *Response, errorCode *int
 	}
 	if statusCode != stdhttp.StatusOK {
 		errorCode = &statusCode
-		err = errors.New("http error")
+		e := ErrorResponse{}
+		if err = json.Unmarshal(resp, &e); err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = e
 		return
 	}
 
@@ -138,7 +143,12 @@ func (j Jumio) retrieveScanStatus(referenceID string) (status ScanStatus, errorC
 	}
 	if statusCode != stdhttp.StatusOK {
 		errorCode = &statusCode
-		err = errors.New("http error")
+		e := ErrorResponse{}
+		if err = json.Unmarshal(resp, &e); err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = e
 		return
 	}
 
@@ -161,7 +171,12 @@ func (j Jumio) retrieveScanDetails(referenceID string) (response *DetailsRespons
 	}
 	if statusCode != stdhttp.StatusOK {
 		errorCode = &statusCode
-		err = errors.New("http error")
+		e := ErrorResponse{}
+		if err = json.Unmarshal(resp, &e); err != nil {
+			err = errors.New("http error")
+			return
+		}
+		err = e
 		return
 	}
 
