@@ -31,14 +31,14 @@ type kind int
 
 // parseConfig reads string by string from the input and parses it
 // into valid Config or returns an error if occured.
-func parseConfig(r io.Reader) (Config, error) {
+func parseConfig(r io.Reader) (privconfig, error) {
 	if r == nil {
 		return nil, errors.New("the config source is nil")
 	}
 
 	scanner := bufio.NewScanner(r)
 
-	cfg := Config{}
+	cfg := privconfig{}
 	opts := Options{}
 	name := ""
 	s := ""
