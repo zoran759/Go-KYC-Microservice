@@ -15,10 +15,10 @@ func MapCommonCustomerToApplicant(customer common.UserData) ApplicantInfo {
 		Gender:         MapGender(customer.Gender),
 		DateOfBirth:    customer.DateOfBirth.Format("2006-01-02"),
 		PlaceOfBirth:   customer.PlaceOfBirth,
-		CountryOfBirth: common.CountryAlpha2ToName[customer.CountryOfBirthAlpha2],
+		CountryOfBirth: common.CountryAlpha2ToAlpha3[customer.CountryOfBirthAlpha2],
 		StateOfBirth:   customer.StateOfBirth,
 		Country:        common.CountryAlpha2ToAlpha3[customer.CountryAlpha2],
-		Nationality:    customer.Nationality,
+		Nationality:    common.CountryAlpha2ToAlpha3[customer.Nationality],
 		Phone:          customer.Phone,
 		MobilePhone:    customer.MobilePhone,
 		Addresses:      addresses,
@@ -42,14 +42,13 @@ func MapCommonAddressesToApplicantAddresses(customer common.UserData) []Address 
 		}
 
 		return addresses
-	} else {
-		if currentAddress != nil {
-			return []Address{
-				*currentAddress,
-			}
-		}
-		return nil
 	}
+
+	if currentAddress != nil {
+		return []Address{*currentAddress}
+	}
+
+	return nil
 }
 
 func MapCommonAddressToApplicantAddress(address common.Address) *Address {
@@ -57,7 +56,7 @@ func MapCommonAddressToApplicantAddress(address common.Address) *Address {
 		return nil
 	}
 	return &Address{
-		Country:        common.CountryAlpha2ToName[address.CountryAlpha2],
+		Country:        common.CountryAlpha2ToAlpha3[address.CountryAlpha2],
 		PostCode:       address.PostCode,
 		Town:           address.Town,
 		Street:         address.Street,
