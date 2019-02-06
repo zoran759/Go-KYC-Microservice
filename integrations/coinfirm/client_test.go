@@ -289,7 +289,7 @@ func TestSendDocFileSuccess(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusOK, nil))
+	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/kyc/files/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusCreated, nil))
 
 	data, _ := ioutil.ReadFile("../../test_data/realId.jpg")
 
@@ -360,7 +360,7 @@ func TestGetParticipantCurrentStatusSuccess(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusCreated, statusInprogressResp))
+	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusOK, statusInprogressResp))
 
 	status, code, err := c.getParticipantCurrentStatus(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc")
 
