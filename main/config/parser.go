@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
 	"strings"
 
 	"modulus/kyc/common"
@@ -38,6 +39,7 @@ func parseConfig(r io.Reader) (privconfig, error) {
 
 	scanner := bufio.NewScanner(r)
 
+	logprefix := "[config parser]"
 	cfg := privconfig{}
 	opts := Options{}
 	name := ""
@@ -51,30 +53,25 @@ func parseConfig(r io.Reader) (privconfig, error) {
 		}
 		switch kindOf(s) {
 		case iscomment:
+			// Comments are simply skipped.
 			continue
 		case isname:
 			// We will omit empty sections because it doesn't make sense to keep them.
-			if len(name) > 0 && len(opts) > 0 {
-				cfg[name] = opts
+			// If the section is wrong it will be skipped with all belonged options.
+			if len(opts) > 0 {
+				if validName(name) {
+					cfg[name] = opts
+				} else {
+					log.Printf("%s unknown or empty section name '%s'\n", logprefix, name)
+				}
 				opts = Options{}
 			}
 			name = s[1 : len(s)-1]
-			if err := validateName(name); err != nil {
-				err := ParseError{
-					strnum:  count,
-					content: scanner.Text(),
-					err:     err.Error(),
-				}
-				return nil, err
-			}
 		case isopt:
+			// Skip standalone options.
 			if len(name) == 0 {
-				err := ParseError{
-					strnum:  count,
-					content: scanner.Text(),
-					err:     "standalone option string",
-				}
-				return nil, err
+				log.Printf("%s missing section name for the option at line %d: '%s'\n", logprefix, count, s)
+				continue
 			}
 			i := bytes.IndexByte([]byte(s), sep)
 			key := s[:i]
@@ -84,12 +81,9 @@ func parseConfig(r io.Reader) (privconfig, error) {
 			}
 			opts[key] = val
 		case iserror:
-			err := ParseError{
-				strnum:  count,
-				content: scanner.Text(),
-				err:     "not proper config string",
-			}
-			return nil, err
+			// Skip errors, make the parser fault tolerant.
+			log.Printf("%s error at line %d: '%s'\n", logprefix, count, s)
+			continue
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -100,19 +94,21 @@ func parseConfig(r io.Reader) (privconfig, error) {
 		}
 		return nil, err
 	}
-	if len(name) == 0 {
-		err := ParseError{
-			strnum:  count,
-			content: scanner.Text(),
-			err:     "config is empty",
+	if len(opts) > 0 {
+		if validName(name) {
+			cfg[name] = opts
+		} else {
+			log.Printf("%s unknown section name '%s'\n", logprefix, name)
 		}
-		return nil, err
 	}
-	cfg[name] = opts
+	if len(cfg) == 0 {
+		return nil, errors.New("config doesn't contains a proper configuration")
+	}
 
 	return cfg, nil
 }
 
+// kindOf determines what kind is the string.
 func kindOf(s string) kind {
 	if s[0] == comment {
 		return iscomment
@@ -130,16 +126,14 @@ func kindOf(s string) kind {
 	return iserror
 }
 
-// validateName validates KYC provider name from a config.
-func validateName(name string) (err error) {
+// validName checks if the KYC provider name is valid.
+func validName(name string) bool {
 	if len(name) == 0 {
-		err = errors.New("empty section name")
-		return err
+		return false
 	}
 	if name != ServiceSection && !common.KYCProviders[common.KYCProvider(name)] {
-		err = errors.New("unknown KYC provider name in the config")
-		return err
+		return false
 	}
 
-	return
+	return true
 }
