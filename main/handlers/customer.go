@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/integrations/coinfirm"
@@ -44,6 +46,9 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
+	requestTime := time.Now().UnixNano()
+	log.Println("CheckCustomer Request time: ", requestTime)
+	ioutil.WriteFile("requests/"+fmt.Sprint(requestTime)+".json", body, 0644)
 
 	if len(req.Provider) == 0 {
 		writeErrorResponse(w, http.StatusBadRequest, errors.New("missing KYC provider id in the request"))
@@ -52,6 +57,7 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 
 	service, err1 := createCustomerChecker(req.Provider)
 	if err1 != nil {
+		log.Println("CheckCustomer Error: ", err1)
 		writeErrorResponse(w, err1.status, err1)
 		return
 	}
@@ -70,7 +76,7 @@ func CheckCustomer(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
-
+	log.Println("CheckCustomer Response: ", string(resp))
 	w.Write(resp)
 }
 

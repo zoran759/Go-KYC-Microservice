@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"modulus/kyc/common"
@@ -30,7 +31,7 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusBadRequest, errors.New("empty request"))
 		return
 	}
-
+	log.Println("CheckStatus Request: ", string(body))
 	req := common.CheckStatusRequest{}
 
 	err = json.Unmarshal(body, &req)
@@ -68,7 +69,7 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 		writeErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
-
+	log.Println("CheckCustomer Response: ", string(resp))
 	w.Write(resp)
 }
 
