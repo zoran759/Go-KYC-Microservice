@@ -107,7 +107,7 @@ func (c Coinfirm) sendDocFile(headers http.Headers, pID string, docfile *model.F
 		return
 	}
 
-	if code != stdhttp.StatusOK {
+	if code != stdhttp.StatusCreated {
 		status = &code
 		eresp := &model.ErrorResponse{}
 		if err = json.Unmarshal(resp, eresp); err != nil {
@@ -127,7 +127,7 @@ func (c Coinfirm) getParticipantCurrentStatus(headers http.Headers, pID string) 
 		return
 	}
 
-	if rcode != stdhttp.StatusCreated {
+	if rcode != stdhttp.StatusOK {
 		code = &rcode
 		eresp := &model.ErrorResponse{}
 		if err = json.Unmarshal(resp, eresp); err != nil {

@@ -49,7 +49,7 @@ func TestCheckCustomerSuccess(t *testing.T) {
 	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/auth/login", httpmock.NewStringResponder(http.StatusOK, tokenResp))
 	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/customers/Fuzion", httpmock.NewStringResponder(http.StatusOK, newParticipantResp))
 	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusCreated, nil))
-	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusCreated, statusLowResp))
+	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusOK, statusLowResp))
 
 	res, err := c.CheckCustomer(&common.UserData{})
 
@@ -67,7 +67,7 @@ func TestCheckStatusSuccess(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodPost, c.config.Host+"/auth/login", httpmock.NewStringResponder(http.StatusOK, tokenResp))
-	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusCreated, statusLowResp))
+	httpmock.RegisterResponder(http.MethodGet, c.config.Host+"/kyc/status/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusOK, statusLowResp))
 
 	res, err := c.CheckStatus("33611d6d-2826-4c3e-a777-3f0397e283fc")
 
