@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"modulus/kyc/common"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -156,8 +158,7 @@ func (r *KYCRequestData) setApplicantSSN(ssn *common.IDCard) {
 // populateFields populate the fields of the request object with input data.
 func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	if len(customer.AccountName) == 0 {
-		err = errors.New("missing required account name of the customer")
-		return
+		customer.AccountName = uuid.New().String()
 	}
 	if len(customer.AccountName) > maxAccountNameLength {
 		err = fmt.Errorf("account length %d exceeded limit of %d symbols", len(customer.AccountName), maxAccountNameLength)
