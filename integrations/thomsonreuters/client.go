@@ -2,7 +2,7 @@ package thomsonreuters
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	stdhttp "net/http"
 
 	"modulus/kyc/http"
@@ -17,6 +17,7 @@ func (tr ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err er
 
 	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
+		err = fmt.Errorf("during fetching top level groups: %s", err)
 		return
 	}
 
@@ -25,7 +26,7 @@ func (tr ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err er
 		errs := model.Errors{}
 		err = json.Unmarshal(resp, &errs)
 		if err != nil {
-			err = errors.New("http error")
+			err = fmt.Errorf("during fetching top level groups: http error %d", status)
 			return
 		}
 		err = errs
@@ -46,6 +47,7 @@ func (tr ThomsonReuters) getGroup(groupID string) (group model.Group, code *int,
 
 	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
+		err = fmt.Errorf("during fetching the group with id %s: %s", groupID, err)
 		return
 	}
 
@@ -54,7 +56,7 @@ func (tr ThomsonReuters) getGroup(groupID string) (group model.Group, code *int,
 		errs := model.Errors{}
 		err = json.Unmarshal(resp, &errs)
 		if err != nil {
-			err = errors.New("http error")
+			err = fmt.Errorf("during fetching the group with id %s: http error %d", groupID, status)
 			return
 		}
 		err = errs
@@ -75,6 +77,7 @@ func (tr ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model.Cas
 
 	status, resp, err := http.Get(tr.scheme+"://"+tr.host+tr.path+path, headers)
 	if err != nil {
+		err = fmt.Errorf("during fetching a case template for the group with id %s: %s", groupID, err)
 		return
 	}
 
@@ -83,7 +86,7 @@ func (tr ThomsonReuters) getCaseTemplate(groupID string) (caseTemplate model.Cas
 		errs := model.Errors{}
 		err = json.Unmarshal(resp, &errs)
 		if err != nil {
-			err = errors.New("http error")
+			err = fmt.Errorf("during fetching a case template for the group with id %s: http error %d", groupID, status)
 			return
 		}
 		err = errs
@@ -210,6 +213,7 @@ func (tr ThomsonReuters) performSynchronousScreening(newcase model.NewCase) (res
 
 	status, resp, err := http.Post(tr.scheme+"://"+tr.host+tr.path+path, headers, payload)
 	if err != nil {
+		err = fmt.Errorf("during performing synchronous screening: %s", err)
 		return
 	}
 
@@ -218,7 +222,7 @@ func (tr ThomsonReuters) performSynchronousScreening(newcase model.NewCase) (res
 		errs := model.Errors{}
 		err = json.Unmarshal(resp, &errs)
 		if err != nil {
-			err = errors.New("http error")
+			err = fmt.Errorf("during performing synchronous screening: http error %d", status)
 			return
 		}
 		err = errs
