@@ -52,6 +52,7 @@ type UserData struct {
 	Avatar                   *Avatar
 	Other                    *Other
 	VideoAuth                *VideoAuth
+	Document                 *Document
 }
 
 // Location defines the model for the geopositional data.
