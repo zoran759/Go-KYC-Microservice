@@ -219,6 +219,26 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 		r.FaceImages = append(r.FaceImages, face)
 	}
 
+	if customer.Document != nil {
+		r.ScanData, err = toBase64(customer.Document.Image)
+		if err != nil {
+			err = fmt.Errorf("during encoding document image: %s", err)
+			return
+		}
+		switch customer.Document.Type {
+		case common.IDCardType:
+			r.ApplicantSSN = customer.Document.CountryAlpha2 + ":" + customer.Document.Number
+			if len(customer.Document.Number) > 4 {
+				r.ApplicantSSNLast4 = customer.Document.Number[len(customer.Document.Number)-4:]
+			}
+			r.DocumentType = GovernmentIssuedIDCard
+		case common.PassportType:
+			r.DocumentType = Passport
+		}
+		r.DocumentCountry = customer.Document.CountryAlpha2
+		return
+	}
+
 	if customer.Passport != nil && customer.Passport.Image != nil {
 		r.ScanData, err = toBase64(customer.Passport.Image)
 		if err != nil {
