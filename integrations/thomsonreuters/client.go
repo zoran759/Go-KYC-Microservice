@@ -25,7 +25,7 @@ func (tr ThomsonReuters) getRootGroups() (groups model.Groups, code *int, err er
 		code = &status
 		errs := model.Errors{}
 		err = json.Unmarshal(resp, &errs)
-		if err != nil {
+		if err != nil || len(errs) == 0 {
 			err = fmt.Errorf("during fetching top level groups: http error %d", status)
 			return
 		}
