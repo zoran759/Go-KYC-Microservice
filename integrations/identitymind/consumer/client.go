@@ -87,6 +87,9 @@ func (c Client) sendRequest(body []byte) (response *ApplicationResponseData, err
 
 	response = &ApplicationResponseData{}
 	err = json.Unmarshal(resp, response)
+	if len(response.ErrorMessage) > 0 {
+		err = errors.New(response.ErrorMessage)
+	}
 
 	return
 }
