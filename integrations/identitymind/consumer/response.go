@@ -13,8 +13,8 @@ type ApplicationResponseData struct {
 	CurrentUserReputation EDNAPolicyResult `json:"user"`
 	// The previous reputation of the User, that is, the reputation of the user the last time that it was evaluated.
 	PreviousUserReputation EDNAPolicyResult `json:"upr"`
-	// FIXME: do we really need this?
-	// ednaScoreCard:	ExternalizedTransactionScorecard{...}
+	// The score card for the current transaction.
+	EdnaScoreCard ExternalizedTransactionScorecard `json:"ednaScoreCard"`
 	// The name of the fraud rule that fired.
 	FraudRuleName string `json:"frn"`
 	// Result of fraud evaluation.
@@ -22,7 +22,7 @@ type ApplicationResponseData struct {
 	// The description of the fraud rule that fired.
 	FraudRuleDescription string `json:"frd"`
 	// Result of automated review evaluation.
-	ARPResult AutomatedReviewPolicyResult `json:"arpr"`
+	ARPResult ReviewResult `json:"arpr"`
 	// The description, if any, of the automated review rule that fired.
 	ARPDescription string `json:"arpd"`
 	// The id, if any, of the automated review rule that fired.
@@ -52,6 +52,70 @@ type ApplicationResponseData struct {
 	TxID string `json:"tid"`
 	// In the case of error the error message.
 	ErrorMessage string `json:"error_message"`
+}
+
+// ExternalizedTransactionScorecard represents the score card for the current transaction.
+type ExternalizedTransactionScorecard struct {
+	// The test results for this transaction.
+	ScoreCard []ConditionResult `json:"sc"`
+	// The evaluated test results for this transaction.
+	EvaluatedTestResults []ConditionResult            `json:"etr"`
+	AutomatedResult      AutomatedReviewEngineResult  `json:"ar"`
+	EvaluationResult     ExternalizedEvaluationResult `json:"er"`
+}
+
+// ConditionResult represents the result of the evaluation of a condition in a rule or security test.
+type ConditionResult struct {
+	// The id of security test or the key of the transaction data to which the condition applied.
+	Test string `json:"test"`
+	// Whether the condition fired or not.
+	Fired bool `json:"fired"`
+	// Textual result of the condition.
+	Details string `json:"details"`
+	// Indicates that the result is waiting for an asynchronous response from the customer and/or a third party service.
+	WaitingForData bool `json:"waitingForData"`
+	// The time in milliseconds UTC at which the result was created. Is only present in the result of Consumer and Merchant KYC.
+	Timestamp int64 `json:"ts"`
+	// The stage during which this result was created. Is only present in the result of Consumer and Merchant KYC.
+	Stage string `json:"stage"`
+}
+
+// AutomatedReviewEngineResult represents the result of the automated review policy for this transaction.
+type AutomatedReviewEngineResult struct {
+	// Result of rule.
+	Result ReviewResult `json:"result"`
+	// The unique rule identifier.
+	RuleID string `json:"ruleId"`
+	// The rule name.
+	RuleName string `json:"ruleName"`
+	// The rule description.
+	RuleDescription string `json:"ruleDescription"`
+}
+
+// ExternalizedEvaluationResult represents the result of the fraud policy evaluation for this transaction.
+type ExternalizedEvaluationResult struct {
+	// If multiple rules fired during evaluation then this is complete set of rules that fired. Otherwise it is absent.
+	FiredRules []Rule `json:"firedRules"`
+	// A rule that fired for the current transaction.
+	ReportedRule Rule `json:"reportedRule"`
+	// The name of the profile used for evaluation.
+	Profile string `json:"profile"`
+}
+
+// Rule represents a rule that fired for the current transaction.
+type Rule struct {
+	// The rule description.
+	Description string `json:"description"`
+	// The unique rule identifier.
+	RuleID int `json:"ruleId"`
+	// Result of rule.
+	ResultCode FraudPolicyResult `json:"resultCode"`
+	// Details of the evaluation of this rule for the current transaction.
+	Details string `json:"details"`
+	// The results of the individual assertions of the rule.
+	TestResults []ConditionResult `json:"testResults"`
+	// The rule name.
+	Name string `json:"name"`
 }
 
 // DocumentVerification is the part of ApplicationResponseData.
