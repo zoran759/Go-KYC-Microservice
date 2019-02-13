@@ -2,7 +2,6 @@ package consumer
 
 import (
 	"fmt"
-	"time"
 
 	"modulus/kyc/common"
 )
@@ -128,12 +127,15 @@ type DocumentVerification struct {
 func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
 	case UnderReview:
-		result.Status = common.Unclear
-		result.StatusCheck = &common.KYCStatusCheck{
-			Provider:    common.IdentityMind,
-			ReferenceID: r.KYCTxID,
-			LastCheck:   time.Now(),
+		result.Status = common.Denied
+		reasons := []string{}
+		reasons = append(reasons, "Some of checks triggered 'MANUAL REVIEW' status")
+		reasons = append(reasons, "Profile: "+r.EdnaScoreCard.EvaluationResult.Profile)
+		reasons = append(reasons, fmt.Sprintf("Rule: id %d | %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.RuleID, r.EdnaScoreCard.EvaluationResult.ReportedRule.Description))
+		for _, tr := range r.EdnaScoreCard.EvaluationResult.ReportedRule.TestResults {
+			reasons = append(reasons, fmt.Sprintf("Test: '%s' | %s", tr.Test, tr.Details))
 		}
+		result.Details = &common.KYCDetails{Reasons: reasons}
 		return
 	case Accepted:
 		result.Status = common.Approved
