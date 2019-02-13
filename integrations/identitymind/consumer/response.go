@@ -133,6 +133,9 @@ func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error
 		reasons = append(reasons, "Profile: "+r.EdnaScoreCard.EvaluationResult.Profile)
 		reasons = append(reasons, fmt.Sprintf("Rule: id %d | %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.RuleID, r.EdnaScoreCard.EvaluationResult.ReportedRule.Description))
 		for _, tr := range r.EdnaScoreCard.EvaluationResult.ReportedRule.TestResults {
+			if !tr.Fired {
+				continue
+			}
 			reasons = append(reasons, fmt.Sprintf("Test: '%s' | %s", tr.Test, tr.Details))
 		}
 		result.Details = &common.KYCDetails{Reasons: reasons}
