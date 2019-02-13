@@ -3,7 +3,6 @@ package consumer
 import (
 	"encoding/base64"
 	"net/http"
-	"time"
 
 	"modulus/kyc/common"
 
@@ -15,29 +14,210 @@ import (
 var underReviewResponse = `
 {
     "ednaScoreCard": {
-        "er": {
-            "reportedRule": {
-                "description": "Fallthrough for transaction with an unknown entity. No other rules triggered.",
-                "details": "Fallthrough for transaction with an unknown entity. No other rules triggered.",
-                "name": "Unknown Fallthrough",
-                "resultCode": "ACCEPT",
-                "ruleId": 1002,
-                "testResults": []
+        "sc": [],
+        "etr": [
+            {
+                "test": "ed:23",
+                "fired": false,
+                "details": "Associated Devices: 0",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:37",
+                "fired": false,
+                "details": "ed:37(false) = true",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:59",
+                "fired": false,
+                "details": "The MAN count is 1",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:36",
+                "fired": false,
+                "details": "ed:36(false) = true",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:25",
+                "fired": false,
+                "details": "Associated Billing Addresses: 0",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ss:0",
+                "details": "false",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "mm:0",
+                "details": "false",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "dv:1",
+                "fired": true,
+                "details": "[Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "dv:1",
+                "details": "false",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "au:1",
+                "details": "false",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "dv:0",
+                "fired": true,
+                "details": "[Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "dv:0",
+                "details": "false",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:32",
+                "fired": false,
+                "details": "ed:32(false) = true",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:503",
+                "fired": false,
+                "details": "1 hour account account creation velocity = 1.  ",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:514",
+                "fired": false,
+                "details": "ed:514(0) > 5",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:513",
+                "fired": false,
+                "details": "28 day account account creation velocity = 1.  ",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:504",
+                "fired": false,
+                "details": "ed:504(0) > 2",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ra:0",
+                "details": "false",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:509",
+                "fired": false,
+                "details": "ed:509(0) > 3",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:508",
+                "fired": false,
+                "details": "24 hour account account creation velocity = 1.  ",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:2",
+                "fired": false,
+                "details": "No transaction parameter on watchlist",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:1",
+                "fired": false,
+                "details": "ed:1(false) = true",
+                "ts": 1549976042000,
+                "stage": "1"
+            },
+            {
+                "test": "ed:19",
+                "fired": false,
+                "details": "User Account reputation is Bad or Blacklisted",
+                "ts": 1549976042000,
+                "stage": "1"
             }
+        ],
+        "ar": {
+            "result": "DISABLED"
         },
-        "sc": []
+        "er": {
+            "profile": "DEFAULT",
+            "reportedRule": {
+                "description": "ID document validation",
+                "resultCode": "MANUAL_REVIEW",
+                "details": "[Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'; [Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'",
+                "ruleId": 30060,
+                "testResults": [
+                    {
+                        "test": "dv:1",
+                        "fired": true,
+                        "details": "[Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'",
+                        "condition": {
+                            "left": "dv:1",
+                            "right": false,
+                            "operator": "eq",
+                            "type": "info"
+                        },
+                        "ts": 1549976042000,
+                        "stage": "1"
+                    },
+                    {
+                        "test": "dv:0",
+                        "fired": true,
+                        "details": "[Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'",
+                        "condition": {
+                            "left": "dv:0",
+                            "right": false,
+                            "operator": "eq",
+                            "type": "info"
+                        },
+                        "ts": 1549976042000,
+                        "stage": "1"
+                    }
+                ],
+                "name": "Document Validation"
+            }
+        }
     },
-    "erd": "Unknown User",
-    "frd": "Fallthrough for transaction with an unknown entity. No other rules triggered.",
-    "frn": "Unknown Fallthrough",
-    "frp": "ACCEPT",
-    "mtid": "26860023",
-    "rcd": "1002,101,202,111,131,50005,150",
-    "res": "ACCEPT",
+    "mtid": "86c5468b323346378083d571a5dc480a",
     "state": "R",
-    "tid": "26860023",
-    "upr": "UNKNOWN",
-    "user": "UNKNOWN"
+    "tid": "86c5468b323346378083d571a5dc480a",
+    "rcd": ""
 }`
 
 var acceptedResponse = `
@@ -112,6 +292,22 @@ var malformedResponse = `
     "user": "Unknown"
 }`
 
+// "state" value intentionally changed to unknown value.
+var unknownStateResponse = `
+{
+	"erd": "Fraudster",
+    "frd": ".",
+    "frn": "Fraud Attempt",
+    "frp": "DENY",
+    "mtid": "26860023",
+    "rcd": "1002,101,202,111,131,50005,150",
+    "res": "DENY",
+    "state": "U",
+    "tid": "26860023",
+    "upr": "UNKNOWN",
+    "user": "Unknown"
+}`
+
 var _ = Describe("Client", func() {
 	Describe("NewClient", func() {
 		It("should construct proper client instance", func() {
@@ -177,7 +373,7 @@ var _ = Describe("Client", func() {
 		It("should fail with missing httpmock responder", func() {
 			Expect(client).ToNot(BeNil())
 
-			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
+			result, err := client.CheckCustomer(&common.UserData{})
 
 			Expect(result.Status).To(Equal(common.Error))
 			Expect(result.Details).To(BeNil())
@@ -188,26 +384,15 @@ var _ = Describe("Client", func() {
 		It("should fail with fake error response", func() {
 			Expect(client).ToNot(BeNil())
 
-			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, underReviewResponse))
-			httpmock.RegisterResponder(http.MethodGet, client.host+stateRetrievalEndpoint+"26860023", httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
+			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, `{"error_message":"failed"}`))
 
-			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
-
-			Expect(result.StatusCheck).NotTo(BeNil())
-			Expect(result.StatusCheck.Provider).To(Equal(common.IdentityMind))
-			Expect(result.StatusCheck.ReferenceID).To(Equal("26860023"))
-			Expect(time.Time(result.StatusCheck.LastCheck)).NotTo(BeZero())
-
-			Expect(result.Status).To(Equal(common.Unclear))
-			Expect(result.Details).To(BeNil())
-			Expect(err).NotTo(HaveOccurred())
-
-			result, err = client.CheckStatus(result.StatusCheck.ReferenceID)
+			result, err := client.CheckCustomer(&common.UserData{})
 
 			Expect(result.Status).To(Equal(common.Error))
 			Expect(result.Details).To(BeNil())
+			Expect(result.StatusCheck).To(BeNil())
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("failed"))
+			Expect(err.Error()).To(Equal("during sending request: failed"))
 		})
 
 		It("should success with approved status", func() {
@@ -215,7 +400,7 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, acceptedResponse))
 
-			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
+			result, err := client.CheckCustomer(&common.UserData{})
 
 			Expect(result.Status).To(Equal(common.Approved))
 			Expect(result.Details).NotTo(BeNil())
@@ -233,7 +418,7 @@ var _ = Describe("Client", func() {
 
 			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, rejectedResponse))
 
-			result, err := client.CheckCustomer(&common.UserData{AccountName: "john_doe"})
+			result, err := client.CheckCustomer(&common.UserData{})
 
 			Expect(result.Status).To(Equal(common.Denied))
 			Expect(result.Details).NotTo(BeNil())
@@ -243,6 +428,45 @@ var _ = Describe("Client", func() {
 			Expect(result.Details.Reasons[1]).To(Equal("Fraud policy evaluation result: DENY"))
 			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Fraudster"))
 			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: DENY"))
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should fail with unknown status", func() {
+			Expect(client).ToNot(BeNil())
+
+			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, unknownStateResponse))
+
+			result, err := client.CheckCustomer(&common.UserData{})
+
+			Expect(result.Status).To(Equal(common.Error))
+			Expect(result.Details).NotTo(BeNil())
+			Expect(result.Details.Finality).To(Equal(common.Unknown))
+			Expect(result.Details.Reasons).To(HaveLen(4))
+			Expect(result.Details.Reasons[0]).To(Equal("Customer reputation: Unknown"))
+			Expect(result.Details.Reasons[1]).To(Equal("Fraud policy evaluation result: DENY"))
+			Expect(result.Details.Reasons[2]).To(Equal("Customer reputation reason: Fraudster"))
+			Expect(result.Details.Reasons[3]).To(Equal("Combined fraud and automated review evaluations result: DENY"))
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("unknown state of the verification from the API: U"))
+		})
+
+		It("should success with 'under review' status", func() {
+			Expect(client).ToNot(BeNil())
+
+			httpmock.RegisterResponder(http.MethodPost, client.host+consumerEndpoint, httpmock.NewStringResponder(http.StatusOK, underReviewResponse))
+
+			result, err := client.CheckCustomer(&common.UserData{})
+
+			Expect(result.Status).To(Equal(common.Denied))
+			Expect(result.Details).NotTo(BeNil())
+			Expect(result.Details.Finality).To(Equal(common.Unknown))
+			Expect(result.Details.Reasons).To(HaveLen(5))
+			Expect(result.Details.Reasons[0]).To(Equal("Some of checks triggered 'MANUAL REVIEW' status"))
+			Expect(result.Details.Reasons[1]).To(Equal("Profile: DEFAULT"))
+			Expect(result.Details.Reasons[2]).To(Equal("Rule: id 30060 | ID document validation"))
+			Expect(result.Details.Reasons[3]).To(Equal("Test: 'dv:1' | [Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'"))
+			Expect(result.Details.Reasons[4]).To(Equal("Test: 'dv:0' | [Fired] No remaining queries for this third party service. Please increase limit in the Admin tab of the UI. Select the Merchant Preferences section and 'Third Party Overview'"))
+			Expect(result.StatusCheck).To(BeNil())
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
