@@ -1,14 +1,13 @@
 package consumer
 
 import (
+	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 
 	"modulus/kyc/common"
-
-	"github.com/google/uuid"
 )
 
 const (
@@ -158,7 +157,10 @@ func (r *KYCRequestData) setApplicantSSN(ssn *common.IDCard) {
 // populateFields populate the fields of the request object with input data.
 func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	if len(customer.AccountName) == 0 {
-		customer.AccountName = uuid.New().String()
+		// customer.AccountName must be unique for every unique customer.
+		// So we will use a hash for the data combination nearly unique for any man.
+		hstring := customer.FirstName + customer.LastName + customer.DateOfBirth.Format("2006.01.02")
+		customer.AccountName = fmt.Sprintf("%x", md5.Sum([]byte(hstring)))
 	}
 	if len(customer.AccountName) > maxAccountNameLength {
 		err = fmt.Errorf("account length %d exceeded limit of %d symbols", len(customer.AccountName), maxAccountNameLength)
