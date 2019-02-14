@@ -57,19 +57,19 @@ const (
 	Deny         FraudPolicyResult = "DENY"
 )
 
-// AutomatedReviewPolicyResult defines the result of the automated review evaluation.
-type AutomatedReviewPolicyResult string
+// ReviewResult defines the result of the automated review evaluation.
+type ReviewResult string
 
-// Possible values of AutomatedReviewPolicyResult.
+// Possible values of ReviewResult.
 const (
-	ARPError         AutomatedReviewPolicyResult = "ERROR"
-	ARPNoPolicy      AutomatedReviewPolicyResult = "NO_POLICY"
-	ARPDisabled      AutomatedReviewPolicyResult = "DISABLED"
-	ARPFiltered      AutomatedReviewPolicyResult = "FILTERED"
-	ARPPending       AutomatedReviewPolicyResult = "PENDING"
-	ARPFail          AutomatedReviewPolicyResult = "FAIL"
-	ARPIndeterminate AutomatedReviewPolicyResult = "INDETERMINATE"
-	ARPSuccess       AutomatedReviewPolicyResult = "SUCCESS"
+	ErrorRR         ReviewResult = "ERROR"
+	NoPolicyRR      ReviewResult = "NO_POLICY"
+	DisabledRR      ReviewResult = "DISABLED"
+	FilteredRR      ReviewResult = "FILTERED"
+	PendingRR       ReviewResult = "PENDING"
+	FailRR          ReviewResult = "FAIL"
+	IndeterminateRR ReviewResult = "INDETERMINATE"
+	SuccessRR       ReviewResult = "SUCCESS"
 )
 
 // KYCState defines the current state of the KYC.
