@@ -17,6 +17,7 @@ type UserData struct {
 	AccountName              string
 	Email                    string
 	IPaddress                string
+	Website                  string
 	Gender                   Gender
 	DateOfBirth              Time
 	PlaceOfBirth             string
