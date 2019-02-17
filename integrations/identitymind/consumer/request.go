@@ -183,7 +183,7 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	r.BillingMiddleName = customer.MiddleName
 	r.BillingLastName = customer.LastName
 	r.BillingStreet = billingStreet
-	r.BillingCountryAlpha2 = customer.CountryAlpha2
+	r.BillingCountryAlpha2 = customer.CurrentAddress.CountryAlpha2
 	r.BillingPostalCode = customer.CurrentAddress.PostCode
 	r.BillingCity = customer.CurrentAddress.Town
 	r.BillingState = customer.CurrentAddress.State
@@ -221,7 +221,7 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 		r.FaceImages = append(r.FaceImages, face)
 	}
 
-	if customer.Document != nil {
+	if customer.Document != nil && customer.Document.Image != nil {
 		r.ScanData, err = toBase64(customer.Document.Image)
 		if err != nil {
 			err = fmt.Errorf("during encoding document image: %s", err)
@@ -324,7 +324,6 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 // createRequestBody creates request body from the object data.
 func (r *KYCRequestData) createRequestBody() (body []byte, err error) {
 	body, err = json.Marshal(r)
-
 	return
 }
 
