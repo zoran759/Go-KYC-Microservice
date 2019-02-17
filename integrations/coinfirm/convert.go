@@ -25,7 +25,7 @@ type commonDocType int
 // prepareCustomerData prepares customer data for KYC process.
 func prepareCustomerData(customer *common.UserData) (details model.ParticipantDetails, docfile *model.File) {
 	details.UserIP = customer.IPaddress
-	details.Type = "individual"
+	details.Type = model.Individual
 	details.FirstName = customer.FirstName
 	details.LastName = customer.LastName
 	details.MiddleName = customer.MiddleName
