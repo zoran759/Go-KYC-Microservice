@@ -1,0 +1,8 @@
+2019/02/18 22:37:49 Listen on :8080
+2019/02/18 22:39:17 CheckCustomer Request time:  1550518757400671327
+2019/02/18 22:39:22 CheckCustomer Response:  {"Result":{"Status":"Unclear","Details":null,"ErrorCode":"","StatusCheck":{"Provider":"IdentityMind","ReferenceID":"fee46a8ded454aabb06da1b8cc18050f","LastCheck":"2019-02-18T22:39:22.348439093+03:00"}},"Error":""}
+2019/02/18 22:39:57 CheckStatus Request:  {
+	"Provider": "IdentityMind",
+    "ReferenceID": "fee46a8ded454aabb06da1b8cc18050f"
+}
+2019/02/18 22:39:57 CheckCustomer Response:  {"Result":{"Status":"Approved","Details":null,"ErrorCode":"","StatusCheck":null},"Error":""}
