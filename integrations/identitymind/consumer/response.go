@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"fmt"
+	"time"
 
 	"modulus/kyc/common"
 )
@@ -126,46 +127,56 @@ type DocumentVerification struct {
 // toResult processes the response and generates the verification result.
 func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
-	case UnderReview:
-		result.Status = common.Denied
-		reasons := []string{}
-		reasons = append(reasons, "Some of checks triggered 'MANUAL REVIEW' status")
-		reasons = append(reasons, "Profile: "+r.EdnaScoreCard.EvaluationResult.Profile)
-		reasons = append(reasons, fmt.Sprintf("Rule: id %d | %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.RuleID, r.EdnaScoreCard.EvaluationResult.ReportedRule.Description))
-		for _, tr := range r.EdnaScoreCard.EvaluationResult.ReportedRule.TestResults {
-			if !tr.Fired {
-				continue
-			}
-			reasons = append(reasons, fmt.Sprintf("Test: '%s' | %s", tr.Test, tr.Details))
-		}
-		result.Details = &common.KYCDetails{Reasons: reasons}
-		return
 	case Accepted:
 		result.Status = common.Approved
+		return
 	case Rejected:
+		result.Status = common.Denied
+	case UnderReview:
+		if r.EdnaScoreCard.EvaluationResult.ReportedRule.ResultCode == Accept {
+			result.Status = common.Unclear
+			result.StatusCheck = &common.KYCStatusCheck{
+				Provider:    common.IdentityMind,
+				ReferenceID: r.KYCTxID,
+				LastCheck:   time.Now(),
+			}
+			return
+		}
 		result.Status = common.Denied
 	default:
 		err = fmt.Errorf("unknown state of the verification from the API: %s", r.State)
+		return
 	}
 
-	details := &common.KYCDetails{}
+	reasons := []string{}
 
+	if r.EdnaScoreCard.EvaluationResult.ReportedRule.ResultCode == ManualReview {
+		reasons = append(reasons, "MANUAL REVIEW REQUIRED")
+	}
 	if len(r.CurrentUserReputation) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Customer reputation: %s", r.CurrentUserReputation))
-	}
-	if len(r.FraudPolicyResult) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Fraud policy evaluation result: %s", r.FraudPolicyResult))
+		reasons = append(reasons, fmt.Sprintf("Customer reputation: %s", r.CurrentUserReputation))
 	}
 	if len(r.ReputationReasonDescription) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Customer reputation reason: %s", r.ReputationReasonDescription))
+		reasons = append(reasons, fmt.Sprintf("Reputation reason: %s", r.ReputationReasonDescription))
+	}
+	if len(r.FraudPolicyResult) > 0 {
+		reasons = append(reasons, fmt.Sprintf("Fraud policy evaluation result: %s", r.FraudPolicyResult))
 	}
 	if len(r.Result) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Combined fraud and automated review evaluations result: %s", r.Result))
+		reasons = append(reasons, fmt.Sprintf("Combined fraud and automated review evaluations result: %s", r.Result))
 	}
 
-	if len(details.Reasons) > 0 {
-		result.Details = details
+	reasons = append(reasons, fmt.Sprintf("Triggered status: %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.ResultCode))
+	reasons = append(reasons, "Profile: "+r.EdnaScoreCard.EvaluationResult.Profile)
+	reasons = append(reasons, fmt.Sprintf("Rule: id %d | %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.RuleID, r.EdnaScoreCard.EvaluationResult.ReportedRule.Description))
+	for _, tr := range r.EdnaScoreCard.EvaluationResult.ReportedRule.TestResults {
+		if !tr.Fired {
+			continue
+		}
+		reasons = append(reasons, fmt.Sprintf("Test: '%s' | %s", tr.Test, tr.Details))
 	}
+
+	result.Details = &common.KYCDetails{Reasons: reasons}
 
 	return
 }
