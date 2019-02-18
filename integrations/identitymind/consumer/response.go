@@ -175,7 +175,6 @@ func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error
 		}
 		reasons = append(reasons, fmt.Sprintf("Test: '%s' | %s", tr.Test, tr.Details))
 	}
-	reasons = append(reasons, "Application id: "+r.KYCTxID)
 
 	result.Details = &common.KYCDetails{Reasons: reasons}
 
