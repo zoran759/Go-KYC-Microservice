@@ -139,14 +139,16 @@ func init() {
 }
 
 func TestCheckCustomer(t *testing.T) {
+	assert := assert.New(t)
+
 	request, err := json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.IDology,
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
-	assert.NotEmpty(t, response)
+	assert.NoError(err)
+	assert.NotEmpty(request)
+	assert.NotEmpty(response)
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -163,23 +165,23 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp := common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, resp.Result)
-	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.KYCStatus2Status[common.Denied], resp.Result.Status)
-	assert.NotEmpty(t, resp.Result.Details)
-	assert.Equal(t, common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
-	assert.Len(t, resp.Result.Details.Reasons, 1)
-	assert.Equal(t, "COPPA Alert", resp.Result.Details.Reasons[0])
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
+	assert.NoError(err)
+	assert.NotEmpty(resp.Result)
+	assert.Empty(resp.Error)
+	assert.Equal(common.KYCStatus2Status[common.Denied], resp.Result.Status)
+	assert.NotEmpty(resp.Result.Details)
+	assert.Equal(common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
+	assert.Len(resp.Result.Details.Reasons, 1)
+	assert.Equal("COPPA Alert", resp.Result.Details.Reasons[0])
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
 
 	// Testing reading request body failure.
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", &FailedReader{})
@@ -187,17 +189,17 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusInternalServerError, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "Read failed", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("Read failed", resp.Error)
 
 	// Testing empty request.
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", nil)
@@ -205,17 +207,17 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "empty request", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("empty request", resp.Error)
 
 	// Testing malformed request.
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader([]byte("malformed request")))
@@ -223,42 +225,42 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, `invalid character 'm' looking for beginning of value`, resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal(`invalid character 'm' looking for beginning of value`, resp.Error)
 
 	// Testing missing Provider field in the request.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "missing KYC provider id in the request", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("missing KYC provider id in the request", resp.Error)
 
 	// Testing nonexistent KYC provider.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -266,25 +268,25 @@ func TestCheckCustomer(t *testing.T) {
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusNotFound, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "unknown KYC provider in the request: Nonexistent Provider", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("unknown KYC provider in the request: Nonexistent Provider", resp.Error)
 
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -292,8 +294,8 @@ func TestCheckCustomer(t *testing.T) {
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	if !common.KYCProviders["Provider Without Config"] {
 		common.KYCProviders["Provider Without Config"] = true
@@ -304,17 +306,17 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusInternalServerError, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "missing config for Provider Without Config", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("missing config for Provider Without Config", resp.Error)
 
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -322,8 +324,8 @@ func TestCheckCustomer(t *testing.T) {
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	if !common.KYCProviders["Not Implemented Provider"] {
 		common.KYCProviders["Not Implemented Provider"] = true
@@ -335,17 +337,17 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusUnprocessableEntity, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "KYC provider not implemented yet: Not Implemented Provider", resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("KYC provider not implemented yet: Not Implemented Provider", resp.Error)
 
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -353,8 +355,8 @@ func TestCheckCustomer(t *testing.T) {
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
@@ -367,21 +369,21 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
-	assert.Nil(t, resp.Result.Details)
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "during verification: Invalid username and password", resp.Error)
+	assert.NoError(err)
+	assert.NotNil(resp.Result)
+	assert.Equal(common.KYCStatus2Status[common.Error], resp.Result.Status)
+	assert.Nil(resp.Result.Details)
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("during verification: Invalid username and password", resp.Error)
 
 	// Testing IdentityMind.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -391,8 +393,8 @@ func TestCheckCustomer(t *testing.T) {
 		},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
@@ -405,22 +407,20 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.KYCStatus2Status[common.Approved], resp.Result.Status)
-	assert.NotNil(t, resp.Result.Details)
-	assert.Equal(t, common.KYCFinality2Finality[common.Unknown], resp.Result.Details.Finality)
-	assert.NotEmpty(t, resp.Result.Details.Reasons)
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
-	assert.Empty(t, resp.Error)
+	assert.NoError(err)
+	assert.NotNil(resp.Result)
+	assert.Equal(common.KYCStatus2Status[common.Approved], resp.Result.Status)
+	assert.Nil(resp.Result.Details)
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
+	assert.Empty(resp.Error)
 
 	// Testing ShuftiPro.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -428,8 +428,8 @@ func TestCheckCustomer(t *testing.T) {
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
@@ -442,20 +442,20 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.KYCStatus2Status[common.Approved], resp.Result.Status)
-	assert.Nil(t, resp.Result.Details)
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
-	assert.Empty(t, resp.Error)
+	assert.NoError(err)
+	assert.NotNil(resp.Result)
+	assert.Equal(common.KYCStatus2Status[common.Approved], resp.Result.Status)
+	assert.Nil(resp.Result.Details)
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
+	assert.Empty(resp.Error)
 
 	// Testing Sum&Substance.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -467,8 +467,8 @@ func TestCheckCustomer(t *testing.T) {
 		},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	sumsubCfg := cfg[string(common.SumSub)]
 
@@ -495,22 +495,22 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, resp.Result)
-	assert.Empty(t, resp.Error)
-	assert.Equal(t, common.KYCStatus2Status[common.Unclear], resp.Result.Status)
-	assert.Nil(t, resp.Result.Details)
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.NotNil(t, resp.Result.StatusCheck)
-	assert.Equal(t, common.SumSub, resp.Result.StatusCheck.Provider)
-	assert.Equal(t, "596eb3c93a0eb985b8ade34d", resp.Result.StatusCheck.ReferenceID)
+	assert.NoError(err)
+	assert.NotEmpty(resp.Result)
+	assert.Empty(resp.Error)
+	assert.Equal(common.KYCStatus2Status[common.Unclear], resp.Result.Status)
+	assert.Nil(resp.Result.Details)
+	assert.Empty(resp.Result.ErrorCode)
+	assert.NotNil(resp.Result.StatusCheck)
+	assert.Equal(common.SumSub, resp.Result.StatusCheck.Provider)
+	assert.Equal("596eb3c93a0eb985b8ade34d", resp.Result.StatusCheck.ReferenceID)
 	assert.NotZero(t, time.Time(resp.Result.StatusCheck.LastCheck))
 
 	// Testing Trulioo.
@@ -521,8 +521,8 @@ func TestCheckCustomer(t *testing.T) {
 		},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
+	assert.NoError(err)
+	assert.NotEmpty(request)
 
 	truliooCfg := cfg[string(common.Trulioo)]
 
@@ -543,21 +543,21 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, resp.Result)
-	assert.Equal(t, common.KYCStatus2Status[common.Error], resp.Result.Status)
-	assert.Nil(t, resp.Result.Details)
-	assert.Empty(t, resp.Result.ErrorCode)
-	assert.Nil(t, resp.Result.StatusCheck)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, "Test error;", resp.Error)
+	assert.NoError(err)
+	assert.NotNil(resp.Result)
+	assert.Equal(common.KYCStatus2Status[common.Error], resp.Result.Status)
+	assert.Nil(resp.Result.Details)
+	assert.Empty(resp.Result.ErrorCode)
+	assert.Nil(resp.Result.StatusCheck)
+	assert.NotEmpty(resp.Error)
+	assert.Equal("Test error;", resp.Error)
 
 	// Testing IDology config error.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -565,9 +565,9 @@ func TestCheckCustomer(t *testing.T) {
 		UserData: &common.UserData{},
 	})
 
-	assert.Nil(t, err)
-	assert.NotEmpty(t, request)
-	assert.NotEmpty(t, response)
+	assert.NoError(err)
+	assert.NotEmpty(request)
+	assert.NotEmpty(response)
 
 	config.Cfg[string(common.IDology)] = map[string]string{
 		"Host":     "https://web.idologylive.com/api/idiq.svc",
@@ -580,15 +580,15 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(http.StatusInternalServerError, w.Code)
+	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
 
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
-	assert.Nil(t, err)
-	assert.Nil(t, resp.Result)
-	assert.NotEmpty(t, resp.Error)
-	assert.Equal(t, `IDology config error: strconv.ParseBool: parsing "": invalid syntax`, resp.Error)
+	assert.NoError(err)
+	assert.Nil(resp.Result)
+	assert.NotEmpty(resp.Error)
+	assert.Equal(`IDology config error: strconv.ParseBool: parsing "": invalid syntax`, resp.Error)
 }
