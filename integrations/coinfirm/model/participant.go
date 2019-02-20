@@ -37,7 +37,7 @@ type ParticipantDetails struct {
 	IDNumber      string          `json:"id_number,omitempty"`
 	Phone         string          `json:"phone,omitempty"`
 	PhoneVerified bool            `json:"phone_verified,omitempty"`
-	Country       string          `json:"country,omitempty"`
+	CountryAlpha3 string          `json:"country,omitempty"`
 	Postcode      string          `json:"postcode,omitempty"`
 	City          string          `json:"city,omitempty"`
 	Street        string          `json:"street,omitempty"`

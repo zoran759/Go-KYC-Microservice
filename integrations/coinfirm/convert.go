@@ -18,6 +18,8 @@ const (
 	idcard
 	snils
 	utilityBill
+	companyBoard
+	companyRegistration
 )
 
 type commonDocType int
@@ -36,7 +38,7 @@ func prepareCustomerData(customer *common.UserData) (details model.ParticipantDe
 	} else {
 		details.Phone = customer.MobilePhone
 	}
-	details.Country = common.CountryAlpha2ToAlpha3[customer.CountryAlpha2]
+	details.CountryAlpha3 = common.CountryAlpha2ToAlpha3[customer.CountryAlpha2]
 	details.Postcode = customer.CurrentAddress.PostCode
 	details.City = customer.CurrentAddress.Town
 	details.Street = customer.CurrentAddress.Street
