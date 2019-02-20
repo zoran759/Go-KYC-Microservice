@@ -17,7 +17,6 @@ type UserData struct {
 	AccountName              string
 	Email                    string
 	IPaddress                string
-	Website                  string
 	Gender                   Gender
 	DateOfBirth              Time
 	PlaceOfBirth             string
@@ -54,6 +53,11 @@ type UserData struct {
 	Other                    *Other
 	VideoAuth                *VideoAuth
 	Document                 *Document
+	// Company type fields.
+	IsCompany           bool
+	Website             string
+	CompanyBoard        *CompanyBoard
+	CompanyRegistration *CompanyRegistration
 }
 
 // Location defines the model for the geopositional data.
@@ -244,6 +248,13 @@ type TaxID struct {
 
 // VideoAuth represents authorization video of the customer.
 type VideoAuth DocumentFile
+
+// CompanyBoard represents a certified document containing a list of members of company’s board of directors
+// (e.g. an extract from company register or an officially certified document).
+type CompanyBoard DocumentFile
+
+// CompanyRegistration represents a certificate of company registration.
+type CompanyRegistration DocumentFile
 
 // Fullname builds and returns full name of the customer.
 func (u *UserData) Fullname() string {

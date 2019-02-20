@@ -63,7 +63,7 @@ func TestPrepareCustomerData(t *testing.T) {
 	assert.Equal(customer.Email, details.Email)
 	assert.Equal(common.CountryAlpha2ToAlpha3[customer.Nationality], details.Nationality)
 	assert.Equal(customer.Phone, details.Phone)
-	assert.Equal(common.CountryAlpha2ToAlpha3[customer.CountryAlpha2], details.Country)
+	assert.Equal(common.CountryAlpha2ToAlpha3[customer.CountryAlpha2], details.CountryAlpha3)
 	assert.Equal(customer.CurrentAddress.PostCode, details.Postcode)
 	assert.Equal(customer.CurrentAddress.Town, details.City)
 	assert.Equal(customer.CurrentAddress.Street, details.Street)
