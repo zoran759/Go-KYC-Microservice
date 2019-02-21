@@ -204,18 +204,18 @@ func TestSendParticipantDetailsSuccess(t *testing.T) {
 	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewBytesResponder(http.StatusCreated, nil))
 
 	participant := model.ParticipantDetails{
-		UserIP:      "192.168.0.117",
-		Type:        model.Individual,
-		FirstName:   "John",
-		LastName:    "Doe",
-		Email:       "john.doe@mail.com",
-		Nationality: "US",
-		IDNumber:    "987654321",
-		Country:     "US",
-		Postcode:    "15212",
-		City:        "Pittsburgh",
-		Street:      "Gifford St",
-		BirthDate:   "1960-08-15",
+		UserIP:        "192.168.0.117",
+		Type:          model.Individual,
+		FirstName:     "John",
+		LastName:      "Doe",
+		Email:         "john.doe@mail.com",
+		Nationality:   "US",
+		IDNumber:      "987654321",
+		CountryAlpha3: "US",
+		Postcode:      "15212",
+		City:          "Pittsburgh",
+		Street:        "Gifford St",
+		BirthDate:     "1960-08-15",
 	}
 
 	status, err := c.sendParticipantDetails(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", participant)
@@ -245,14 +245,14 @@ func TestSendParticipantDetailsStatus400(t *testing.T) {
 	httpmock.RegisterResponder(http.MethodPut, c.config.Host+"/kyc/forms/Fuzion/33611d6d-2826-4c3e-a777-3f0397e283fc", httpmock.NewStringResponder(http.StatusBadRequest, `{"error":"Request body validation errors"}`))
 
 	participant := model.ParticipantDetails{
-		UserIP:    "192.168.0.117",
-		Type:      model.Individual,
-		FirstName: "John",
-		LastName:  "Doe",
-		Country:   "US",
-		Postcode:  "15212",
-		City:      "Pittsburgh",
-		Street:    "Gifford St",
+		UserIP:        "192.168.0.117",
+		Type:          model.Individual,
+		FirstName:     "John",
+		LastName:      "Doe",
+		CountryAlpha3: "US",
+		Postcode:      "15212",
+		City:          "Pittsburgh",
+		Street:        "Gifford St",
 	}
 
 	status, err := c.sendParticipantDetails(hdrs, "33611d6d-2826-4c3e-a777-3f0397e283fc", participant)

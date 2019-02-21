@@ -32,7 +32,7 @@ func (c Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult
 		return
 	}
 
-	details, docfile := prepareCustomerData(customer)
+	details, docfiles := prepareCustomerData(customer)
 
 	headers := headers()
 
@@ -69,8 +69,9 @@ func (c Coinfirm) CheckCustomer(customer *common.UserData) (res common.KYCResult
 		return
 	}
 
-	if docfile != nil {
-		code, err = c.sendDocFile(headers, participant.UUID, docfile)
+	// We wouldn't use parallel upload due to possible throttling as we upload from the same IP.
+	for _, docfile := range docfiles {
+		code, err = c.sendDocFile(headers, participant.UUID, &docfile)
 		if err != nil {
 			if code != nil {
 				res.ErrorCode = strconv.Itoa(*code)
