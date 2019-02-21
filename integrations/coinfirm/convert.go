@@ -214,6 +214,17 @@ func prepareCompanyDocuments(customer *common.UserData) (idnum string, docfiles 
 			})
 		}
 	}
+	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil {
+		filetype := commonDocTypeToFileType(utilityBill)
+		ext := extFromContentType(customer.UtilityBill.Image.ContentType)
+		if len(ext) > 0 && model.IsAcceptedFileExt(ext) && len(filetype) > 0 {
+			docfiles = append(docfiles, model.File{
+				Type:       filetype,
+				Extension:  ext,
+				DataBase64: base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data),
+			})
+		}
+	}
 
 	return
 }
