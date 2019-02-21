@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrepareCustomerData(t *testing.T) {
+func TestPrepareCustomerDataForIndividual(t *testing.T) {
 	assert := assert.New(t)
 
 	customer := &common.UserData{
@@ -53,7 +53,7 @@ func TestPrepareCustomerData(t *testing.T) {
 		},
 	}
 
-	details, docfile := prepareCustomerData(customer)
+	details, docfiles := prepareCustomerData(customer)
 
 	assert.Equal(customer.IPaddress, details.UserIP)
 	assert.Equal(model.Individual, details.Type)
@@ -63,13 +63,13 @@ func TestPrepareCustomerData(t *testing.T) {
 	assert.Equal(customer.Email, details.Email)
 	assert.Equal(common.CountryAlpha2ToAlpha3[customer.Nationality], details.Nationality)
 	assert.Equal(customer.Phone, details.Phone)
-	assert.Equal(common.CountryAlpha2ToAlpha3[customer.CountryAlpha2], details.Country)
+	assert.Equal(common.CountryAlpha2ToAlpha3[customer.CountryAlpha2], details.CountryAlpha3)
 	assert.Equal(customer.CurrentAddress.PostCode, details.Postcode)
 	assert.Equal(customer.CurrentAddress.Town, details.City)
 	assert.Equal(customer.CurrentAddress.Street, details.Street)
 	assert.Equal("1975-09-21", details.BirthDate)
 	assert.Equal(customer.Passport.Number, details.IDNumber)
-	assert.NotNil(docfile)
+	assert.NotNil(docfiles)
 
 	customer.Phone = ""
 
@@ -78,7 +78,59 @@ func TestPrepareCustomerData(t *testing.T) {
 	assert.Equal(customer.MobilePhone, details.Phone)
 }
 
-func TestPrepareCustomerDocument(t *testing.T) {
+func TestPrepareCustomerDataForCompany(t *testing.T) {
+	assert := assert.New(t)
+
+	customer := &common.UserData{
+		IsCompany:     true,
+		Website:       "company.com",
+		IPaddress:     "192.168.0.137",
+		Email:         "john.doe@mail.com",
+		CountryAlpha2: "US",
+		DateOfBirth:   common.Time(time.Date(1975, 9, 21, 0, 0, 0, 0, time.UTC)),
+		CurrentAddress: common.Address{
+			Town:     "Pittsburgh",
+			Street:   "Gifford St",
+			PostCode: "15212",
+		},
+		Passport: &common.Passport{
+			Number:        "987654321",
+			CountryAlpha2: "US",
+			IssuedDate:    common.Time(time.Date(2015, 06, 15, 0, 0, 0, 0, time.UTC)),
+			ValidUntil:    common.Time(time.Date(2025, 06, 14, 0, 0, 0, 0, time.UTC)),
+			Image: &common.DocumentFile{
+				Filename:    "passport.jpg",
+				ContentType: "image/jpeg",
+				Data:        []byte(`Fake passport image data`),
+			},
+		},
+		CompanyBoard: &common.CompanyBoard{
+			Filename:    "board.png",
+			ContentType: "image/png",
+			Data:        []byte(`Fake board image data`),
+		},
+		CompanyRegistration: &common.CompanyRegistration{
+			Filename:    "registration.png",
+			ContentType: "image/png",
+			Data:        []byte(`Fake company registration image data`),
+		},
+	}
+
+	details, docfiles := prepareCustomerData(customer)
+
+	assert.Equal(customer.IPaddress, details.UserIP)
+	assert.Equal(model.Corporate, details.Type)
+	assert.Equal(customer.Email, details.Email)
+	assert.Equal(customer.Website, details.Website)
+	assert.Equal(common.CountryAlpha2ToAlpha3[customer.CountryAlpha2], details.CountryAlpha3)
+	assert.Equal(customer.CurrentAddress.PostCode, details.Postcode)
+	assert.Equal(customer.CurrentAddress.Town, details.City)
+	assert.Equal(customer.CurrentAddress.Street, details.Street)
+	assert.Equal(customer.Passport.Number, details.IDNumber)
+	assert.Len(docfiles, 3)
+}
+
+func TestPrepareIndividualDocuments(t *testing.T) {
 	assert := assert.New(t)
 
 	passport := &common.Passport{
@@ -152,76 +204,173 @@ func TestPrepareCustomerDocument(t *testing.T) {
 	}
 
 	customer := &common.UserData{
-		Passport: passport,
-	}
-
-	docnum, docfile := prepareCustomerDocument(customer)
-
-	assert.Equal(customer.Passport.Number, docnum)
-	assert.NotNil(docfile)
-	assert.Equal(model.FileID, docfile.Type)
-	assert.Equal("jpg", docfile.Extension)
-	assert.Equal(base64.StdEncoding.EncodeToString(customer.Passport.Image.Data), docfile.DataBase64)
-
-	customer = &common.UserData{
-		DriverLicense: drivers,
-	}
-
-	docnum, docfile = prepareCustomerDocument(customer)
-
-	assert.Equal(customer.DriverLicense.Number, docnum)
-	assert.NotNil(docfile)
-	assert.Equal(model.FileID, docfile.Type)
-	assert.Equal("pdf", docfile.Extension)
-	assert.Equal(base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data), docfile.DataBase64)
-
-	customer = &common.UserData{
+		Passport:                 passport,
+		IDCard:                   idcard,
+		SNILS:                    snils,
+		DriverLicense:            drivers,
 		DriverLicenseTranslation: drivertrans,
+		UtilityBill:              utilityBill,
 	}
 
-	docnum, docfile = prepareCustomerDocument(customer)
+	idnum, docfiles := prepareIndividualDocuments(customer)
 
-	assert.Equal(customer.DriverLicenseTranslation.Number, docnum)
-	assert.NotNil(docfile)
-	assert.Equal(model.FileID, docfile.Type)
-	assert.Equal("psd", docfile.Extension)
-	assert.Equal(base64.StdEncoding.EncodeToString(customer.DriverLicenseTranslation.FrontImage.Data), docfile.DataBase64)
+	assert.Equal(customer.Passport.Number, idnum)
+	assert.Len(docfiles, 6)
+	assert.Equal(model.FileID, docfiles[0].Type)
+	assert.Equal("jpg", docfiles[0].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.Passport.Image.Data), docfiles[0].DataBase64)
+
+	assert.Equal(model.FileID, docfiles[1].Type)
+	assert.Equal("pdf", docfiles[1].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data), docfiles[1].DataBase64)
+
+	assert.Equal(model.FileID, docfiles[2].Type)
+	assert.Equal("psd", docfiles[2].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.DriverLicenseTranslation.FrontImage.Data), docfiles[2].DataBase64)
+
+	assert.Equal(model.FileID, docfiles[3].Type)
+	assert.Equal("jpg", docfiles[3].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data), docfiles[3].DataBase64)
+
+	assert.Equal(model.FileID, docfiles[4].Type)
+	assert.Equal("bmp", docfiles[4].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data), docfiles[4].DataBase64)
+
+	assert.Equal(model.FileAddress, docfiles[5].Type)
+	assert.Equal("png", docfiles[5].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data), docfiles[5].DataBase64)
 
 	customer = &common.UserData{
 		IDCard: idcard,
 	}
 
-	docnum, docfile = prepareCustomerDocument(customer)
+	idnum, docfiles = prepareIndividualDocuments(customer)
 
-	assert.Equal(customer.IDCard.Number, docnum)
-	assert.NotNil(docfile)
-	assert.Equal(model.FileID, docfile.Type)
-	assert.Equal("jpg", docfile.Extension)
-	assert.Equal(base64.StdEncoding.EncodeToString(customer.IDCard.Image.Data), docfile.DataBase64)
+	assert.Equal(customer.IDCard.Number, idnum)
+	assert.Len(docfiles, 1)
+	assert.Equal(model.FileID, docfiles[0].Type)
 
 	customer = &common.UserData{
 		SNILS: snils,
 	}
 
-	docnum, docfile = prepareCustomerDocument(customer)
+	idnum, docfiles = prepareIndividualDocuments(customer)
 
-	assert.Equal(customer.SNILS.Number, docnum)
-	assert.NotNil(docfile)
-	assert.Equal(model.FileID, docfile.Type)
-	assert.Equal("bmp", docfile.Extension)
-	assert.Equal(base64.StdEncoding.EncodeToString(customer.SNILS.Image.Data), docfile.DataBase64)
+	assert.Equal(customer.SNILS.Number, idnum)
+	assert.Len(docfiles, 1)
+	assert.Equal(model.FileID, docfiles[0].Type)
 
 	customer = &common.UserData{
-		UtilityBill: utilityBill,
+		DriverLicense: drivers,
 	}
 
-	docnum, docfile = prepareCustomerDocument(customer)
+	idnum, docfiles = prepareIndividualDocuments(customer)
 
-	assert.Empty(docnum)
-	assert.NotNil(docfile)
-	assert.Equal(model.FileAddress, docfile.Type)
-	assert.Equal("png", docfile.Extension)
-	assert.Equal(base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data), docfile.DataBase64)
+	assert.Equal(customer.DriverLicense.Number, idnum)
+	assert.Len(docfiles, 1)
+	assert.Equal(model.FileID, docfiles[0].Type)
+
+	customer = &common.UserData{
+		DriverLicenseTranslation: drivertrans,
+	}
+
+	idnum, docfiles = prepareIndividualDocuments(customer)
+
+	assert.Equal(customer.DriverLicenseTranslation.Number, idnum)
+	assert.Len(docfiles, 1)
+	assert.Equal(model.FileID, docfiles[0].Type)
+}
+
+func TestPrepareCompanyDocuments(t *testing.T) {
+	assert := assert.New(t)
+
+	passport := &common.Passport{
+		Number:        "987654321",
+		CountryAlpha2: "US",
+		IssuedDate:    common.Time(time.Date(2015, 06, 15, 0, 0, 0, 0, time.UTC)),
+		ValidUntil:    common.Time(time.Date(2025, 06, 14, 0, 0, 0, 0, time.UTC)),
+		Image: &common.DocumentFile{
+			Filename:    "passport.jpg",
+			ContentType: "image/jpeg",
+			Data:        []byte(`Fake passport image data`),
+		},
+	}
+	drivers := &common.DriverLicense{
+		Number:        "210901975",
+		CountryAlpha2: "RU",
+		IssuedDate:    common.Time(time.Date(2010, 10, 7, 0, 0, 0, 0, time.UTC)),
+		ValidUntil:    common.Time(time.Date(2020, 10, 6, 0, 0, 0, 0, time.UTC)),
+		FrontImage: &common.DocumentFile{
+			Filename:    "drivers_front.pdf",
+			ContentType: "application/pdf",
+			Data:        []byte(`Smile, - it is a fake drivers front image data`),
+		},
+		BackImage: &common.DocumentFile{
+			Filename:    "drivers_back.jpg",
+			ContentType: "image/jpeg",
+			Data:        []byte(`Smile, - it is a fake drivers back image data`),
+		},
+	}
+	board := &common.CompanyBoard{
+		Filename:    "board.png",
+		ContentType: "image/png",
+		Data:        []byte(`Fake board image data`),
+	}
+	reg := &common.CompanyRegistration{
+		Filename:    "registration.png",
+		ContentType: "image/png",
+		Data:        []byte(`Fake company registration image data`),
+	}
+	utilityBill := &common.UtilityBill{
+		CountryAlpha2: "US",
+		Image: &common.DocumentFile{
+			Filename:    "ub.png",
+			ContentType: "image/png",
+			Data:        []byte(`Fake utility bill permit image data`),
+		},
+	}
+
+	customer := &common.UserData{
+		Passport:            passport,
+		DriverLicense:       drivers,
+		UtilityBill:         utilityBill,
+		CompanyBoard:        board,
+		CompanyRegistration: reg,
+	}
+
+	idnum, docfiles := prepareCompanyDocuments(customer)
+
+	assert.Equal(customer.Passport.Number, idnum)
+	assert.Len(docfiles, 5)
+	assert.Equal(model.FileID, docfiles[0].Type)
+	assert.Equal("jpg", docfiles[0].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.Passport.Image.Data), docfiles[0].DataBase64)
+
+	assert.Equal(model.FileID, docfiles[1].Type)
+	assert.Equal("pdf", docfiles[1].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.DriverLicense.FrontImage.Data), docfiles[1].DataBase64)
+
+	assert.Equal(model.FileBoard, docfiles[2].Type)
+	assert.Equal("png", docfiles[2].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.CompanyBoard.Data), docfiles[2].DataBase64)
+
+	assert.Equal(model.FileRegister, docfiles[3].Type)
+	assert.Equal("png", docfiles[3].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.CompanyRegistration.Data), docfiles[3].DataBase64)
+
+	assert.Equal(model.FileAddress, docfiles[4].Type)
+	assert.Equal("png", docfiles[4].Extension)
+	assert.Equal(base64.StdEncoding.EncodeToString(customer.UtilityBill.Image.Data), docfiles[4].DataBase64)
+
+	customer = &common.UserData{
+		DriverLicense: drivers,
+	}
+
+	idnum, docfiles = prepareCompanyDocuments(customer)
+
+	assert.Equal(customer.DriverLicense.Number, idnum)
+	assert.Len(docfiles, 1)
+	assert.Equal(model.FileID, docfiles[0].Type)
 }
 
 func TestToResult(t *testing.T) {
