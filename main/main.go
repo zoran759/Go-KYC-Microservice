@@ -2,8 +2,11 @@ package main
 
 import (
 	"flag"
+	"github.com/fsnotify/fsnotify"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
@@ -31,6 +34,12 @@ func main() {
 	// if DevEnv == "false" {
 	// 	client.ValidateLicenseOrFail()
 	// }
+	file, err := os.OpenFile("logs.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	if err != nil {
+		log.Printf("error opening log file %s\n", err)
+	}
+	mw := io.MultiWriter(os.Stdout, file)
+	log.SetOutput(mw)
 
 	flag.Parse()
 
@@ -48,6 +57,9 @@ func main() {
 	if err := config.FromFile(*cfgFile); err != nil {
 		log.Fatalf("Loading configuration from %s: %s\n", *cfgFile, err)
 	}
+
+	// watch config changes.
+	go watchConfigs()
 
 	createHandlers()
 
@@ -76,4 +88,33 @@ func createHandlers() {
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
 	http.HandleFunc("/Provider", handlers.IsProviderImplemented)
+}
+
+// Watch config file and update configs when events happen.
+func watchConfigs() {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Println("file watcher can not be created")
+	}
+	err = watcher.Add(*cfgFile)
+	if err != nil {
+		log.Fatalf("Watching configuration from %s: %s\n", *cfgFile, err)
+	}
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if ok && event.Op.String() == "WRITE" {
+					if err := config.FromFile(*cfgFile); err != nil {
+						log.Printf("Reloading configuration from %s: %s\n", *cfgFile, err)
+					} else {
+						log.Printf("Reloading configuration from %s\n", *cfgFile)
+					}
+				}
+			case err, _ := <-watcher.Errors:
+				log.Println("error watching config file:", err)
+			}
+		}
+	}()
+	<-make(chan struct{})
 }

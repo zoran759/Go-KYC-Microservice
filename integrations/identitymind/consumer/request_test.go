@@ -298,5 +298,75 @@ var _ = Describe("Request", func() {
 			Expect(r.ApplicantSSN).To(Equal(idcard.CountryAlpha2 + ":" + idcard.Number))
 			Expect(r.ApplicantSSNLast4).To(Equal(idcard.Number[len(idcard.Number)-4:]))
 		})
+
+		It("should properly populate fields from an abstract document", func() {
+			idcard := &common.Document{
+				Type:          common.IDCardType,
+				Number:        "0123456789",
+				CountryAlpha2: "US",
+				Image: &common.DocumentFile{
+					Filename:    "document.jpg",
+					ContentType: "image/jpeg",
+					Data:        []byte("Fake document image data"),
+				},
+			}
+
+			passport := &common.Document{
+				Type:          common.PassportType,
+				Number:        "0123456789",
+				CountryAlpha2: "US",
+				Image: &common.DocumentFile{
+					Filename:    "document.jpg",
+					ContentType: "image/jpeg",
+					Data:        []byte("Fake document image data"),
+				},
+			}
+
+			r := &KYCRequestData{}
+			customer := &common.UserData{
+				Document: idcard,
+			}
+			err := r.populateFields(customer)
+
+			Expect(err).ToNot(HaveOccurred())
+			scanData, _ := toBase64(idcard.Image)
+			Expect(r.ScanData).To(Equal(scanData))
+			Expect(r.BacksideImageData).To(BeEmpty())
+			Expect(r.DocumentCountry).To(Equal(idcard.CountryAlpha2))
+			Expect(r.DocumentType).To(Equal(GovernmentIssuedIDCard))
+			Expect(r.ApplicantSSN).To(Equal(idcard.CountryAlpha2 + ":" + idcard.Number))
+			Expect(r.ApplicantSSNLast4).To(Equal(idcard.Number[len(idcard.Number)-4:]))
+
+			r = &KYCRequestData{}
+			customer.Document = passport
+			err = r.populateFields(customer)
+
+			Expect(err).ToNot(HaveOccurred())
+			scanData, _ = toBase64(passport.Image)
+			Expect(r.ScanData).To(Equal(scanData))
+			Expect(r.BacksideImageData).To(BeEmpty())
+			Expect(r.DocumentCountry).To(Equal(passport.CountryAlpha2))
+			Expect(r.DocumentType).To(Equal(Passport))
+			Expect(r.ApplicantSSN).To(BeEmpty())
+			Expect(r.ApplicantSSNLast4).To(BeEmpty())
+		})
+
+		It("should fail due to document image encoding error", func() {
+			customer := &common.UserData{
+				Document: &common.Document{
+					Image: &common.DocumentFile{
+						Filename:    "big_selfie",
+						ContentType: "application/octet-stream",
+						Data:        make([]byte, maxImageDataLength+1),
+					},
+				},
+			}
+
+			r := &KYCRequestData{}
+			err := r.populateFields(customer)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("during encoding document image: too large image file"))
+		})
 	})
 })

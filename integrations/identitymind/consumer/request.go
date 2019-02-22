@@ -1,6 +1,7 @@
 package consumer
 
 import (
+	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -156,8 +157,10 @@ func (r *KYCRequestData) setApplicantSSN(ssn *common.IDCard) {
 // populateFields populate the fields of the request object with input data.
 func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	if len(customer.AccountName) == 0 {
-		err = errors.New("missing required account name of the customer")
-		return
+		// customer.AccountName must be unique for every unique customer.
+		// So we will use a hash for the data combination nearly unique for any man.
+		hstring := customer.FirstName + customer.LastName + customer.DateOfBirth.Format("2006.01.02")
+		customer.AccountName = fmt.Sprintf("%x", md5.Sum([]byte(hstring)))
 	}
 	if len(customer.AccountName) > maxAccountNameLength {
 		err = fmt.Errorf("account length %d exceeded limit of %d symbols", len(customer.AccountName), maxAccountNameLength)
@@ -180,7 +183,7 @@ func (r *KYCRequestData) populateFields(customer *common.UserData) (err error) {
 	r.BillingMiddleName = customer.MiddleName
 	r.BillingLastName = customer.LastName
 	r.BillingStreet = billingStreet
-	r.BillingCountryAlpha2 = customer.CountryAlpha2
+	r.BillingCountryAlpha2 = customer.CurrentAddress.CountryAlpha2
 	r.BillingPostalCode = customer.CurrentAddress.PostCode
 	r.BillingCity = customer.CurrentAddress.Town
 	r.BillingState = customer.CurrentAddress.State
@@ -216,6 +219,26 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 			return
 		}
 		r.FaceImages = append(r.FaceImages, face)
+	}
+
+	if customer.Document != nil && customer.Document.Image != nil {
+		r.ScanData, err = toBase64(customer.Document.Image)
+		if err != nil {
+			err = fmt.Errorf("during encoding document image: %s", err)
+			return
+		}
+		switch customer.Document.Type {
+		case common.IDCardType:
+			r.ApplicantSSN = customer.Document.CountryAlpha2 + ":" + customer.Document.Number
+			if len(customer.Document.Number) > 4 {
+				r.ApplicantSSNLast4 = customer.Document.Number[len(customer.Document.Number)-4:]
+			}
+			r.DocumentType = GovernmentIssuedIDCard
+		case common.PassportType:
+			r.DocumentType = Passport
+		}
+		r.DocumentCountry = customer.Document.CountryAlpha2
+		return
 	}
 
 	if customer.Passport != nil && customer.Passport.Image != nil {
@@ -301,7 +324,6 @@ func (r *KYCRequestData) populateDocumentFields(customer *common.UserData) (err 
 // createRequestBody creates request body from the object data.
 func (r *KYCRequestData) createRequestBody() (body []byte, err error) {
 	body, err = json.Marshal(r)
-
 	return
 }
 
