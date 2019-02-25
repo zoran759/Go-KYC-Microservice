@@ -83,6 +83,7 @@ func TestPrepareCustomerDataForCompany(t *testing.T) {
 
 	customer := &common.UserData{
 		IsCompany:     true,
+		CompanyName:   "Foobar",
 		Website:       "company.com",
 		IPaddress:     "192.168.0.137",
 		Email:         "john.doe@mail.com",
@@ -120,6 +121,7 @@ func TestPrepareCustomerDataForCompany(t *testing.T) {
 
 	assert.Equal(customer.IPaddress, details.UserIP)
 	assert.Equal(model.Corporate, details.Type)
+	assert.Equal(customer.CompanyName, details.CompanyName)
 	assert.Equal(customer.Email, details.Email)
 	assert.Equal(customer.Website, details.Website)
 	assert.Equal(common.CountryAlpha2ToAlpha3[customer.CountryAlpha2], details.CountryAlpha3)
