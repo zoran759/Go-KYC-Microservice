@@ -50,6 +50,11 @@ func ServicePort() (port string) {
 
 // Update updates the config with the options provided.
 func Update(c Config) (updated bool, errs []string) {
+	if len(c) == 0 {
+		errs = append(errs, "no config update data provided")
+		return
+	}
+
 	cfg.Lock()
 	defer cfg.Unlock()
 
