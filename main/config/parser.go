@@ -32,7 +32,7 @@ type kind int
 
 // parseConfig reads string by string from the input and parses it
 // into valid Config or returns an error if occured.
-func parseConfig(r io.Reader) (privconfig, error) {
+func parseConfig(r io.Reader) (Config, error) {
 	if r == nil {
 		return nil, errors.New("the config source is nil")
 	}
@@ -40,7 +40,7 @@ func parseConfig(r io.Reader) (privconfig, error) {
 	scanner := bufio.NewScanner(r)
 
 	logprefix := "[config parser]"
-	cfg := privconfig{}
+	cfg := Config{}
 	opts := Options{}
 	name := ""
 	s := ""

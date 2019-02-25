@@ -39,357 +39,314 @@ var validConfig = Config{
 }
 
 func TestVerifySuccess(t *testing.T) {
-	err := validate(validConfig)
+	assert := assert.New(t)
 
-	assert.NoError(t, err)
+	for p, oo := range validConfig {
+		err := validateProvider(common.KYCProvider(p), oo)
+		assert.NoError(err)
+	}
 }
 
 func TestVerifyComplyAdvantage(t *testing.T) {
 	assert := assert.New(t)
 
-	config := Config{
-		string(common.ComplyAdvantage): Options{
-			"APIkey":    "key",
-			"Fuzziness": "0",
-		},
+	opts := Options{
+		"APIkey":    "key",
+		"Fuzziness": "0",
 	}
 
-	err := validate(config)
+	err := validateProvider(common.ComplyAdvantage, opts)
 
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(`ComplyAdvantage configuration error: missing or empty option 'Host'`, err.Error())
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the ComplyAdvantage provider`, err.Error())
 
-	config = Config{
-		string(common.ComplyAdvantage): Options{
-			"Host":      "host",
-			"Fuzziness": "0",
-		},
+	opts = Options{
+		"Host":      "host",
+		"Fuzziness": "0",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.ComplyAdvantage, opts)
 	assert.Error(err)
-	assert.Equal(`ComplyAdvantage configuration error: missing or empty option 'APIkey'`, err.Error())
+	assert.Equal(`missing or empty option 'APIkey' for the ComplyAdvantage provider`, err.Error())
 
-	config = Config{
-		string(common.ComplyAdvantage): Options{
-			"Host":   "host",
-			"APIkey": "key",
-		},
+	opts = Options{
+		"Host":   "host",
+		"APIkey": "key",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.ComplyAdvantage, opts)
 	assert.Error(err)
-	assert.Equal(`ComplyAdvantage configuration error: missing or empty option 'Fuzziness'`, err.Error())
+	assert.Equal(`missing or empty option 'Fuzziness' for the ComplyAdvantage provider`, err.Error())
 }
 
 func TestVerifyIdentityMind(t *testing.T) {
-	config := Config{
-		string(common.IdentityMind): Options{
-			"Username": "fakeuser",
-			"Password": "fakepassword",
-		},
+	assert := assert.New(t)
+
+	opts := Options{
+		"Username": "fakeuser",
+		"Password": "fakepassword",
 	}
 
-	err := validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(t, `IdentityMind configuration error: missing or empty option 'Host'`, err.Error())
+	err := validateProvider(common.IdentityMind, opts)
+	assert.NotNil(err)
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the IdentityMind provider`, err.Error())
 
-	config = Config{
-		string(common.IdentityMind): Options{
-			"Host":     "host",
-			"Password": "fakepassword",
-		},
+	opts = Options{
+		"Host":     "host",
+		"Password": "fakepassword",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `IdentityMind configuration error: missing or empty option 'Username'`, err.Error())
+	err = validateProvider(common.IdentityMind, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'Username' for the IdentityMind provider`, err.Error())
 
-	config = Config{
-		string(common.IdentityMind): Options{
-			"Host":     "host",
-			"Username": "fakeuser",
-		},
+	opts = Options{
+		"Host":     "host",
+		"Username": "fakeuser",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `IdentityMind configuration error: missing or empty option 'Password'`, err.Error())
+	err = validateProvider(common.IdentityMind, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'Password' for the IdentityMind provider`, err.Error())
 }
 
 func TestVerifyIDology(t *testing.T) {
-	config := Config{
-		string(common.IDology): Options{
-			"Username":         "fakeuser",
-			"Password":         "fakepassword",
-			"UseSummaryResult": "false",
-		},
+	assert := assert.New(t)
+
+	opts := Options{
+		"Username":         "fakeuser",
+		"Password":         "fakepassword",
+		"UseSummaryResult": "false",
 	}
 
-	err := validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(t, `IDology configuration error: missing or empty option 'Host'`, err.Error())
+	err := validateProvider(common.IDology, opts)
+	assert.NotNil(err)
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the IDology provider`, err.Error())
 
-	config = Config{
-		string(common.IDology): Options{
-			"Host":             "host",
-			"Password":         "fakepassword",
-			"UseSummaryResult": "false",
-		},
+	opts = Options{
+		"Host":             "host",
+		"Password":         "fakepassword",
+		"UseSummaryResult": "false",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `IDology configuration error: missing or empty option 'Username'`, err.Error())
+	err = validateProvider(common.IDology, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'Username' for the IDology provider`, err.Error())
 
-	config = Config{
-		string(common.IDology): Options{
-			"Host":             "host",
-			"Username":         "fakeuser",
-			"UseSummaryResult": "false",
-		},
+	opts = Options{
+		"Host":             "host",
+		"Username":         "fakeuser",
+		"UseSummaryResult": "false",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `IDology configuration error: missing or empty option 'Password'`, err.Error())
+	err = validateProvider(common.IDology, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'Password' for the IDology provider`, err.Error())
 
-	config = Config{
-		string(common.IDology): Options{
-			"Host":     "host",
-			"Username": "fakeuser",
-			"Password": "fakepassword",
-		},
+	opts = Options{
+		"Host":     "host",
+		"Username": "fakeuser",
+		"Password": "fakepassword",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `IDology configuration error: missing or empty option 'UseSummaryResult'`, err.Error())
+	err = validateProvider(common.IDology, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'UseSummaryResult' for the IDology provider`, err.Error())
 }
 
 func TestVerifyJumio(t *testing.T) {
 	assert := assert.New(t)
 
-	config := Config{
-		string(common.Jumio): Options{
-			"Token":  "token",
-			"Secret": "secret",
-		},
+	opts := Options{
+		"Token":  "token",
+		"Secret": "secret",
 	}
 
-	err := validate(config)
+	err := validateProvider(common.Jumio, opts)
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(`Jumio configuration error: missing or empty option 'BaseURL'`, err.Error())
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'BaseURL' for the Jumio provider`, err.Error())
 
-	config = Config{
-		string(common.Jumio): Options{
-			"BaseURL": "base_url",
-			"Secret":  "secret",
-		},
+	opts = Options{
+		"BaseURL": "base_url",
+		"Secret":  "secret",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.Jumio, opts)
 	assert.Error(err)
-	assert.Equal(`Jumio configuration error: missing or empty option 'Token'`, err.Error())
+	assert.Equal(`missing or empty option 'Token' for the Jumio provider`, err.Error())
 
-	config = Config{
-		string(common.Jumio): Options{
-			"BaseURL": "base_url",
-			"Token":   "token",
-		},
+	opts = Options{
+		"BaseURL": "base_url",
+		"Token":   "token",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.Jumio, opts)
 	assert.Error(err)
-	assert.Equal(`Jumio configuration error: missing or empty option 'Secret'`, err.Error())
+	assert.Equal(`missing or empty option 'Secret' for the Jumio provider`, err.Error())
 }
 
 func TestVerifyShuftiPro(t *testing.T) {
-	config := Config{
-		string(common.ShuftiPro): Options{
-			"ClientID":    "fakeid",
-			"SecretKey":   "fakekey",
-			"RedirectURL": "host",
-		},
+	assert := assert.New(t)
+
+	opts := Options{
+		"ClientID":    "fakeid",
+		"SecretKey":   "fakekey",
+		"RedirectURL": "host",
 	}
 
-	err := validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'Host'`, err.Error())
+	err := validateProvider(common.ShuftiPro, opts)
+	assert.NotNil(err)
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the ShuftiPro provider`, err.Error())
 
-	config = Config{
-		string(common.ShuftiPro): Options{
-			"Host":        "host",
-			"SecretKey":   "fakekey",
-			"RedirectURL": "host",
-		},
+	opts = Options{
+		"Host":        "host",
+		"SecretKey":   "fakekey",
+		"RedirectURL": "host",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'ClientID'`, err.Error())
+	err = validateProvider(common.ShuftiPro, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'ClientID' for the ShuftiPro provider`, err.Error())
 
-	config = Config{
-		string(common.ShuftiPro): Options{
-			"Host":        "host",
-			"ClientID":    "fakeid",
-			"RedirectURL": "host",
-		},
+	opts = Options{
+		"Host":        "host",
+		"ClientID":    "fakeid",
+		"RedirectURL": "host",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'SecretKey'`, err.Error())
+	err = validateProvider(common.ShuftiPro, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'SecretKey' for the ShuftiPro provider`, err.Error())
 
-	config = Config{
-		string(common.ShuftiPro): Options{
-			"Host":      "host",
-			"ClientID":  "fakeid",
-			"SecretKey": "fakekey",
-		},
+	opts = Options{
+		"Host":      "host",
+		"ClientID":  "fakeid",
+		"SecretKey": "fakekey",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'RedirectURL'`, err.Error())
+	err = validateProvider(common.ShuftiPro, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'RedirectURL' for the ShuftiPro provider`, err.Error())
 }
 
 func TestVerifySumSub(t *testing.T) {
-	config := Config{
-		string(common.SumSub): Options{
-			"APIKey": "fakekey",
-		},
+	assert := assert.New(t)
+
+	opts := Options{
+		"APIKey": "fakekey",
 	}
 
-	err := validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(t, `Sum&Substance configuration error: missing or empty option 'Host'`, err.Error())
+	err := validateProvider(common.SumSub, opts)
+	assert.NotNil(err)
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the Sum&Substance provider`, err.Error())
 
-	config = Config{
-		string(common.SumSub): Options{
-			"Host": "host",
-		},
+	opts = Options{
+		"Host": "host",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `Sum&Substance configuration error: missing or empty option 'APIKey'`, err.Error())
+	err = validateProvider(common.SumSub, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'APIKey' for the Sum&Substance provider`, err.Error())
 }
 
 func TestVerifySynapseFI(t *testing.T) {
 	assert := assert.New(t)
 
-	config := Config{
-		string(common.SynapseFI): Options{
-			"ClientID":     "clientID",
-			"ClientSecret": "secret",
-		},
+	opts := Options{
+		"ClientID":     "clientID",
+		"ClientSecret": "secret",
 	}
 
-	err := validate(config)
+	err := validateProvider(common.SynapseFI, opts)
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(`SynapseFI configuration error: missing or empty option 'Host'`, err.Error())
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the SynapseFI provider`, err.Error())
 
-	config = Config{
-		string(common.SynapseFI): Options{
-			"Host":         "host",
-			"ClientSecret": "secret",
-		},
+	opts = Options{
+		"Host":         "host",
+		"ClientSecret": "secret",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.SynapseFI, opts)
 	assert.Error(err)
-	assert.Equal(`SynapseFI configuration error: missing or empty option 'ClientID'`, err.Error())
+	assert.Equal(`missing or empty option 'ClientID' for the SynapseFI provider`, err.Error())
 
-	config = Config{
-		string(common.SynapseFI): Options{
-			"Host":     "host",
-			"ClientID": "clientID",
-		},
+	opts = Options{
+		"Host":     "host",
+		"ClientID": "clientID",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.SynapseFI, opts)
 	assert.Error(err)
-	assert.Equal(`SynapseFI configuration error: missing or empty option 'ClientSecret'`, err.Error())
+	assert.Equal(`missing or empty option 'ClientSecret' for the SynapseFI provider`, err.Error())
 }
 
 func TestVerifyThomsonReuters(t *testing.T) {
 	assert := assert.New(t)
 
-	config := Config{
-		string(common.ThomsonReuters): Options{
-			"APIkey":    "key",
-			"APIsecret": "secret",
-		},
+	opts := Options{
+		"APIkey":    "key",
+		"APIsecret": "secret",
 	}
 
-	err := validate(config)
+	err := validateProvider(common.ThomsonReuters, opts)
 	assert.Error(err)
-	assert.Equal(reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(`ThomsonReuters configuration error: missing or empty option 'Host'`, err.Error())
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the ThomsonReuters provider`, err.Error())
 
-	config = Config{
-		string(common.ThomsonReuters): Options{
-			"Host":      "host",
-			"APIsecret": "secret",
-		},
+	opts = Options{
+		"Host":      "host",
+		"APIsecret": "secret",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.ThomsonReuters, opts)
 	assert.Error(err)
-	assert.Equal(`ThomsonReuters configuration error: missing or empty option 'APIkey'`, err.Error())
+	assert.Equal(`missing or empty option 'APIkey' for the ThomsonReuters provider`, err.Error())
 
-	config = Config{
-		string(common.ThomsonReuters): Options{
-			"Host":   "host",
-			"APIkey": "key",
-		},
+	opts = Options{
+		"Host":   "host",
+		"APIkey": "key",
 	}
 
-	err = validate(config)
+	err = validateProvider(common.ThomsonReuters, opts)
 	assert.Error(err)
-	assert.Equal(`ThomsonReuters configuration error: missing or empty option 'APIsecret'`, err.Error())
+	assert.Equal(`missing or empty option 'APIsecret' for the ThomsonReuters provider`, err.Error())
 }
 
 func TestVerifyTrulioo(t *testing.T) {
-	config := Config{
-		string(common.Trulioo): Options{
-			"NAPILogin":    "fakelogin",
-			"NAPIPassword": "fakepassword",
-		},
+	assert := assert.New(t)
+
+	opts := Options{
+		"NAPILogin":    "fakelogin",
+		"NAPIPassword": "fakepassword",
 	}
 
-	err := validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(ErrMissingOption{}), reflect.TypeOf(err))
-	assert.Equal(t, `Trulioo configuration error: missing or empty option 'Host'`, err.Error())
+	err := validateProvider(common.Trulioo, opts)
+	assert.NotNil(err)
+	assert.Equal(reflect.TypeOf(MissingOptionError{}), reflect.TypeOf(err))
+	assert.Equal(`missing or empty option 'Host' for the Trulioo provider`, err.Error())
 
-	config = Config{
-		string(common.Trulioo): Options{
-			"Host":         "host",
-			"NAPIPassword": "fakepassword",
-		},
+	opts = Options{
+		"Host":         "host",
+		"NAPIPassword": "fakepassword",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `Trulioo configuration error: missing or empty option 'NAPILogin'`, err.Error())
+	err = validateProvider(common.Trulioo, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'NAPILogin' for the Trulioo provider`, err.Error())
 
-	config = Config{
-		string(common.Trulioo): Options{
-			"Host":      "host",
-			"NAPILogin": "fakelogin",
-		},
+	opts = Options{
+		"Host":      "host",
+		"NAPILogin": "fakelogin",
 	}
 
-	err = validate(config)
-	assert.NotNil(t, err)
-	assert.Equal(t, `Trulioo configuration error: missing or empty option 'NAPIPassword'`, err.Error())
+	err = validateProvider(common.Trulioo, opts)
+	assert.NotNil(err)
+	assert.Equal(`missing or empty option 'NAPIPassword' for the Trulioo provider`, err.Error())
 }

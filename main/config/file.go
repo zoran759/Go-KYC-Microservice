@@ -8,18 +8,22 @@ import (
 	"time"
 )
 
+const maxFileSize = 1 << 20
+
 // Load loads the configuration from the specified file.
 func Load(filename string) {
-	cfg.Lock()
-	defer cfg.Unlock()
-
-	cfg.filename = filename
-
 	info, err := os.Stat(filename)
 	if err != nil {
+		log.Println(err)
 		return
 	}
-	if info.Size() == 0 {
+	size := info.Size()
+	if size == 0 {
+		log.Printf("WARNING! '%s' configuration file is empty. No config loaded\n", filename)
+		return
+	}
+	if size > maxFileSize {
+		log.Printf("WARNING! '%s' size %v exceeded the limit of 1 Mb. No config loaded\n", filename, size)
 		return
 	}
 
@@ -29,12 +33,19 @@ func Load(filename string) {
 	}
 	defer file.Close()
 
-	privcfg, err := parseConfig(file)
+	c, err := parseConfig(file)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	cfg.config = privcfg
+	setFilename(filename)
+	_, errs := Update(c)
+	if errs != nil {
+		for _, e := range errs {
+			log.Println(e)
+		}
+	}
 
 	return
 }
@@ -71,4 +82,10 @@ func Save() {
 	if err != nil {
 		log.Println("Error saving the config to the file:", err)
 	}
+}
+
+func setFilename(filename string) {
+	cfg.Lock()
+	cfg.filename = filename
+	cfg.Unlock()
 }

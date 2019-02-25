@@ -187,7 +187,7 @@ If a **KYC provider** doesn't support the instant result response then check and
 | -------- | ---------------------------------------------------------------------------------------------------------------- |
 | **200**  | A request has been successfully processed. The response should be inspected for possible KYC verification errors |
 | **400**  | It happens when something wrong with the request. If the request is somehow malformed or missed a required param |
-| **404**  | It happens when a KYC provider in the request is unknown for the API                                             |
+| **404**  | It happens when a KYC provider in the request is unknown for the API or it wasn't properly configured            |
 | **422**  | It happens when a KYC provider doesn't support requested method or it isn't implemented yet                      |
 | **500**  | It happens when something goes wrong in the server (serialization errors, KYC config's errors, etc...)           |
 

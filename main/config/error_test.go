@@ -6,13 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestErrMissingOption(t *testing.T) {
-	err := ErrMissingOption{
+func TestMissingOptionError(t *testing.T) {
+	err := MissingOptionError{
 		provider: "Foobar",
 		option:   "Barbaz",
 	}
 
-	text := "Foobar configuration error: missing or empty option 'Barbaz'"
+	text := "missing or empty option 'Barbaz' for the Foobar provider"
 
 	assert.Equal(t, text, err.Error())
 }

@@ -7,7 +7,7 @@ import (
 	"sort"
 
 	"modulus/kyc/common"
-	"modulus/kyc/main/handlers/providers"
+	"modulus/kyc/main/config/providers"
 )
 
 type isProviderImplementedResp struct {
@@ -41,8 +41,8 @@ func IsProviderImplemented(w http.ResponseWriter, r *http.Request) {
 }
 
 // providerList forms the list of implemented providers.
-func providerList() (list providers.ProviderList) {
-	for p := range common.KYCProviders {
+func providerList() (list providers.List) {
+	for p := range providers.Providers {
 		list = append(list, p)
 	}
 	sort.Sort(list)

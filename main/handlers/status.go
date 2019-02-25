@@ -3,19 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"modulus/kyc/common"
-	"modulus/kyc/integrations/coinfirm"
-	"modulus/kyc/integrations/example"
-	"modulus/kyc/integrations/identitymind"
-	"modulus/kyc/integrations/jumio"
-	"modulus/kyc/integrations/sumsub"
-	"modulus/kyc/integrations/synapsefi"
-	"modulus/kyc/main/config"
+	"modulus/kyc/main/config/providers"
 )
 
 // CheckStatus handles requests for a status check.
@@ -49,9 +42,9 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	service, err1 := createStatusChecker(req.Provider)
+	service, err1 := providers.GetPlatform(req.Provider)
 	if err1 != nil {
-		writeErrorResponse(w, err1.status, err1)
+		writeErrorResponse(w, http.StatusNotFound, err1)
 		return
 	}
 
@@ -71,74 +64,4 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("CheckCustomer Response: ", string(resp))
 	w.Write(resp)
-}
-
-// createStatusChecker returns the KYCPlatform object for the specified provider or an error if occurred.
-func createStatusChecker(provider common.KYCProvider) (service common.KYCPlatform, err *serviceError) {
-	if provider == common.Example {
-		service = example.Example{}
-		return
-	}
-
-	if !common.KYCProviders[provider] {
-		err = &serviceError{
-			status:  http.StatusNotFound,
-			message: fmt.Sprintf("unknown KYC provider in the request: %s", provider),
-		}
-		return
-	}
-
-	cfg, ok := config.Cfg[string(provider)]
-	if !ok {
-		err = &serviceError{
-			status:  http.StatusInternalServerError,
-			message: fmt.Sprintf("missing config for %s", provider),
-		}
-		return
-	}
-
-	switch provider {
-	case common.ComplyAdvantage, common.IDology, common.ShuftiPro, common.ThomsonReuters, common.Trulioo:
-		err = &serviceError{
-			status:  http.StatusUnprocessableEntity,
-			message: fmt.Sprintf("%s doesn't support status polling", provider),
-		}
-	case common.Coinfirm:
-		service = coinfirm.New(coinfirm.Config{
-			Host:     cfg["Host"],
-			Email:    cfg["Email"],
-			Password: cfg["Password"],
-			Company:  cfg["Company"],
-		})
-	case common.IdentityMind:
-		service = identitymind.New(identitymind.Config{
-			Host:     cfg["Host"],
-			Username: cfg["Username"],
-			Password: cfg["Password"],
-		})
-	case common.Jumio:
-		service = jumio.New(jumio.Config{
-			BaseURL: cfg["BaseURL"],
-			Token:   cfg["Token"],
-			Secret:  cfg["Secret"],
-		})
-	case common.SumSub:
-		service = sumsub.New(sumsub.Config{
-			Host:   cfg["Host"],
-			APIKey: cfg["APIKey"],
-		})
-	case common.SynapseFI:
-		service = synapsefi.New(synapsefi.Config{
-			Host:         cfg["Host"],
-			ClientID:     cfg["ClientID"],
-			ClientSecret: cfg["ClientSecret"],
-		})
-	default:
-		err = &serviceError{
-			status:  http.StatusUnprocessableEntity,
-			message: fmt.Sprintf("KYC provider not implemented yet: %s", provider),
-		}
-	}
-
-	return
 }

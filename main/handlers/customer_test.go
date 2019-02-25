@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
 
@@ -132,10 +133,12 @@ var truliooResponse = []byte(`
 	"Errors": [{"Code": "400", "Message": "Test error"}]
 }`)
 
+var once sync.Once
+
 func init() {
-	if config.Cfg == nil {
-		config.Cfg = cfg
-	}
+	once.Do(func() {
+		config.Update(cfg)
+	})
 }
 
 func TestCheckCustomer(t *testing.T) {
@@ -286,7 +289,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NoError(err)
 	assert.Nil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("unknown KYC provider in the request: Nonexistent Provider", resp.Error)
+	assert.Equal("the provider 'Nonexistent Provider' is unknown or not configured in the service", resp.Error)
 
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -306,7 +309,7 @@ func TestCheckCustomer(t *testing.T) {
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(http.StatusInternalServerError, w.Code)
+	assert.Equal(http.StatusNotFound, w.Code)
 	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
@@ -316,7 +319,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NoError(err)
 	assert.Nil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("missing config for Provider Without Config", resp.Error)
+	assert.Equal("the provider 'Provider Without Config' is unknown or not configured in the service", resp.Error)
 
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -330,14 +333,18 @@ func TestCheckCustomer(t *testing.T) {
 	if !common.KYCProviders["Not Implemented Provider"] {
 		common.KYCProviders["Not Implemented Provider"] = true
 	}
-	config.Cfg["Not Implemented Provider"] = map[string]string{"test": "test"}
+	config.Update(config.Config{
+		"Not Implemented Provider": config.Options{
+			"test": "test",
+		},
+	})
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckCustomer(w, req)
 
-	assert.Equal(http.StatusUnprocessableEntity, w.Code)
+	assert.Equal(http.StatusNotFound, w.Code)
 	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
@@ -347,7 +354,7 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NoError(err)
 	assert.Nil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("KYC provider not implemented yet: Not Implemented Provider", resp.Error)
+	assert.Equal("the provider 'Not Implemented Provider' is unknown or not configured in the service", resp.Error)
 
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckCustomerRequest{
@@ -558,37 +565,4 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Nil(resp.Result.StatusCheck)
 	assert.NotEmpty(resp.Error)
 	assert.Equal("Test error;", resp.Error)
-
-	// Testing IDology config error.
-	request, err = json.Marshal(&common.CheckCustomerRequest{
-		Provider: common.IDology,
-		UserData: &common.UserData{},
-	})
-
-	assert.NoError(err)
-	assert.NotEmpty(request)
-	assert.NotEmpty(response)
-
-	config.Cfg[string(common.IDology)] = map[string]string{
-		"Host":     "https://web.idologylive.com/api/idiq.svc",
-		"Username": "fakeuser",
-		"Password": "fakepassword",
-	}
-
-	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
-	w = httptest.NewRecorder()
-
-	handlers.CheckCustomer(w, req)
-
-	assert.Equal(http.StatusInternalServerError, w.Code)
-	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
-
-	resp = common.KYCResponse{}
-
-	err = json.Unmarshal(w.Body.Bytes(), &resp)
-
-	assert.NoError(err)
-	assert.Nil(resp.Result)
-	assert.NotEmpty(resp.Error)
-	assert.Equal(`IDology config error: strconv.ParseBool: parsing "": invalid syntax`, resp.Error)
 }

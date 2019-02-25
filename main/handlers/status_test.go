@@ -73,9 +73,9 @@ var errorResponse = []byte(`
 }`)
 
 func init() {
-	if config.Cfg == nil {
-		config.Cfg = cfg
-	}
+	once.Do(func() {
+		config.Update(cfg)
+	})
 }
 
 type FailedReader struct{}
@@ -87,9 +87,9 @@ func (r FailedReader) Read(p []byte) (n int, err error) {
 func TestCheckStatus(t *testing.T) {
 	assert := assert.New(t)
 
-	cfg := config.Cfg[string(common.SumSub)]
+	c := cfg[string(common.SumSub)]
 
-	assert.NotNil(cfg)
+	assert.NotNil(c)
 
 	referenceID := "testID"
 
@@ -107,7 +107,7 @@ func TestCheckStatus(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], referenceID, cfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", c["Host"], referenceID, c["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusOK, response),
 	)
 
@@ -263,7 +263,7 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(err)
 	assert.Nil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("unknown KYC provider in the request: Nonexistent Provider", resp.Error)
+	assert.Equal("the provider 'Nonexistent Provider' is unknown or not configured in the service", resp.Error)
 
 	// Testing KYC provider without config.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -283,7 +283,7 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(http.StatusInternalServerError, w.Code)
+	assert.Equal(http.StatusNotFound, w.Code)
 	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
@@ -293,7 +293,7 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(err)
 	assert.Nil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("missing config for Fake Provider", resp.Error)
+	assert.Equal("the provider 'Fake Provider' is unknown or not configured in the service", resp.Error)
 
 	// Testing KYC provider that doesn't support status polling.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -309,7 +309,7 @@ func TestCheckStatus(t *testing.T) {
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(http.StatusUnprocessableEntity, w.Code)
+	assert.Equal(http.StatusOK, w.Code)
 	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
@@ -317,9 +317,9 @@ func TestCheckStatus(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 
 	assert.Nil(err)
-	assert.Nil(resp.Result)
+	assert.NotNil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("IDology doesn't support status polling", resp.Error)
+	assert.Equal("IDology doesn't support a verification status check", resp.Error)
 
 	// Testing KYC provider not implemented yet.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -330,14 +330,18 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(err)
 	assert.NotEmpty(request)
 
-	config.Cfg["Fake Provider"] = map[string]string{"test": "test"}
+	config.Update(config.Config{
+		"Fake Provider": config.Options{
+			"test": "test",
+		},
+	})
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
 	handlers.CheckStatus(w, req)
 
-	assert.Equal(http.StatusUnprocessableEntity, w.Code)
+	assert.Equal(http.StatusNotFound, w.Code)
 	assert.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	resp = common.KYCResponse{}
@@ -347,7 +351,7 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(err)
 	assert.Nil(resp.Result)
 	assert.NotEmpty(resp.Error)
-	assert.Equal("KYC provider not implemented yet: Fake Provider", resp.Error)
+	assert.Equal("the provider 'Fake Provider' is unknown or not configured in the service", resp.Error)
 
 	// Testing error response from the KYC provider.
 	request, err = json.Marshal(&common.CheckStatusRequest{
@@ -357,7 +361,7 @@ func TestCheckStatus(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", cfg["Host"], referenceID, cfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/%s/status?key=%s", c["Host"], referenceID, c["APIKey"]),
 		httpmock.NewBytesResponder(http.StatusForbidden, errorResponse),
 	)
 
@@ -384,9 +388,9 @@ func TestCheckStatus(t *testing.T) {
 	assert.Equal("Access denied", resp.Error)
 
 	// Testing IdentityMind.
-	cfg = config.Cfg[string(common.IdentityMind)]
+	c = cfg[string(common.IdentityMind)]
 
-	assert.NotNil(cfg)
+	assert.NotNil(c)
 
 	request, err = json.Marshal(&common.CheckStatusRequest{
 		Provider:    common.IdentityMind,
@@ -402,7 +406,7 @@ func TestCheckStatus(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		fmt.Sprintf("%s/account/consumer/v2/%s", cfg["Host"], referenceID),
+		fmt.Sprintf("%s/account/consumer/v2/%s", c["Host"], referenceID),
 		httpmock.NewBytesResponder(http.StatusOK, identitymindResponse),
 	)
 

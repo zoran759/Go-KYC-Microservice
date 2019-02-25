@@ -2,19 +2,15 @@ package main
 
 import (
 	"flag"
-	"github.com/fsnotify/fsnotify"
 	"io"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/fsnotify/fsnotify"
+
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
-)
-
-const (
-	prodCfgFile = "kyc.cfg"
-	devCfgFile  = "kyc_dev.cfg"
 )
 
 // DevEnv is the flag to manage prod/dev builds.
@@ -49,14 +45,12 @@ func main() {
 	if len(*cfgFile) == 0 {
 		switch DevEnv {
 		case "true":
-			*cfgFile = devCfgFile
+			*cfgFile = config.DefaultDevFile
 		default:
-			*cfgFile = prodCfgFile
+			*cfgFile = config.DefaultFile
 		}
 	}
-	if err := config.FromFile(*cfgFile); err != nil {
-		log.Fatalf("Loading configuration from %s: %s\n", *cfgFile, err)
-	}
+	config.Load(*cfgFile)
 
 	// watch config changes.
 	go watchConfigs()
@@ -67,7 +61,7 @@ func main() {
 	// If the command line flag is set its value will be used for the listening port
 	// otherwise the option from the service config will be used.
 	if len(*port) == 0 {
-		*port = config.Cfg.ServicePort()
+		*port = config.ServicePort()
 	}
 
 	log.Printf("Listen on :%v", *port)
@@ -105,11 +99,8 @@ func watchConfigs() {
 			select {
 			case event, ok := <-watcher.Events:
 				if ok && event.Op.String() == "WRITE" {
-					if err := config.FromFile(*cfgFile); err != nil {
-						log.Printf("Reloading configuration from %s: %s\n", *cfgFile, err)
-					} else {
-						log.Printf("Reloading configuration from %s\n", *cfgFile)
-					}
+					config.Load(*cfgFile)
+					log.Printf("Reloading configuration from %s\n", *cfgFile)
 				}
 			case err, _ := <-watcher.Errors:
 				log.Println("error watching config file:", err)

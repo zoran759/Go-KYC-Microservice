@@ -2,17 +2,31 @@ package config
 
 import (
 	"fmt"
+
+	"modulus/kyc/common"
 )
 
-// ErrMissingOption defines an error of the missing config option.
-type ErrMissingOption struct {
-	provider string
+// MissingOptionError defines an error of the missing config option.
+type MissingOptionError struct {
+	provider common.KYCProvider
 	option   string
 }
 
-// Error implements error interface for ErrMissingOption.
-func (e ErrMissingOption) Error() string {
-	return fmt.Sprintf("%s configuration error: missing or empty option '%s'", e.provider, e.option)
+// Error implements error interface for MissingOptionError.
+func (e MissingOptionError) Error() string {
+	return fmt.Sprintf("missing or empty option '%s' for the %s provider", e.option, e.provider)
+}
+
+// OptionError represents an option error.
+type OptionError struct {
+	provider common.KYCProvider
+	option   string
+	text     string
+}
+
+// Error implements error interface for OptionError.
+func (e OptionError) Error() string {
+	return fmt.Sprintf("%s '%s' option error: %s", e.provider, e.option, e.text)
 }
 
 // ParseError represents a config parser error.

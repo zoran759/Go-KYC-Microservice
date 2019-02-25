@@ -1,6 +1,10 @@
 package config
 
-import "sync"
+import (
+	"modulus/kyc/common"
+	"modulus/kyc/main/config/providers"
+	"sync"
+)
 
 const (
 	// ServiceSection is the hardcoded value of the KYC service config section name.
@@ -19,56 +23,81 @@ const (
 // cfg holds the current config for the KYC service.
 var cfg config
 
-// config represents the configuration for the service.
+// config represents the global configuration for the service.
 type config struct {
 	sync.RWMutex
 	filename string
-	config   privconfig
+	config   Config
 }
 
-type privconfig map[string]Options
+// Config represents a config.
+type Config map[string]Options
 
-// Options represents the configuration options for the KYC provider.
+// Options represents configuration options.
 type Options map[string]string
-
-// Option tries to retrieve requested option from the specified config section.
-// If the option doesn't exist the empty value is returned.
-func Option(section, option string) (opt string) {
-	cfg.Lock()
-	s, ok := cfg.config[section]
-	if ok {
-		opt = s[option]
-	}
-	cfg.Unlock()
-	return
-}
 
 // ServicePort returns the KYC service port.
 func ServicePort() (port string) {
-	if port = Option(ServiceSection, "Port"); len(port) == 0 {
+	cfg.Lock()
+	opts := cfg.config[ServiceSection]
+	port = opts["Port"]
+	if len(port) == 0 {
 		port = DefaultPort
 	}
+	cfg.Unlock()
 	return
 }
 
-// Update updates the provided section in the config with the provided options.
-// If the section doesn't exist it will be created.
-func Update(section string, opts Options) {
+// Update updates the config with the options provided.
+func Update(c Config) (updated bool, errs []string) {
 	cfg.Lock()
-	copts := cfg.config[section]
-	switch copts == nil {
-	case true:
-		cfg.config[section] = opts
-	case false:
-		for k, v := range opts {
-			copts[k] = v
+	defer cfg.Unlock()
+
+	updlist := []common.KYCProvider{}
+
+	for sect, opts := range c {
+		if unknownSection(sect) {
+			errs = append(errs, "unknown config section: "+sect)
+			continue
 		}
-		cfg.config[section] = copts
+		if len(opts) == 0 {
+			errs = append(errs, "empty config section: "+sect)
+			continue
+		}
+		if sect != ServiceSection {
+			updlist = append(updlist, common.KYCProvider(sect))
+		}
+		oo := cfg.config[sect]
+		if oo == nil {
+			oo = Options{}
+		}
+		for o, v := range opts {
+			oo[o] = v
+		}
+		cfg.config[sect] = oo
 	}
-	cfg.Unlock()
+
+	if len(updlist) > 0 {
+		updated = true
+		for _, p := range updlist {
+			platform, err := createPlatform(p)
+			if err != nil {
+				errs = append(errs, err.Error())
+				continue
+			}
+			providers.StorePlatform(p, platform)
+		}
+	}
+
+	return
+}
+
+// unknownSection returns the result of check whether the given section name is unknown to the service.
+func unknownSection(sect string) bool {
+	return !providers.Providers[common.KYCProvider(sect)] && sect != ServiceSection
 }
 
 func init() {
 	cfg.filename = DefaultDevFile
-	cfg.config = privconfig{}
+	cfg.config = Config{}
 }
