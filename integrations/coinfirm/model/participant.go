@@ -42,6 +42,7 @@ type ParticipantDetails struct {
 	City          string          `json:"city,omitempty"`
 	Street        string          `json:"street,omitempty"`
 	BirthDate     string          `json:"bdate,omitempty"`
+	CompanyName   string          `json:"full_name,omitempty"`
 	FileFundsText string          `json:"fileFundsText,omitempty"`
 	Sow           *Sow            `json:"sow,omitempty"`
 	Beneficials   []Beneficial    `json:"beneficials,omitempty"`
