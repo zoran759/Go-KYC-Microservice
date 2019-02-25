@@ -63,6 +63,7 @@ func prepareIndividualData(customer *common.UserData) (details model.Participant
 func prepareCompanyData(customer *common.UserData) (details model.ParticipantDetails, docfiles []model.File) {
 	details.UserIP = customer.IPaddress
 	details.Type = model.Corporate
+	details.CompanyName = customer.CompanyName
 	details.Email = customer.Email
 	details.Website = customer.Website
 	details.CountryAlpha3 = common.CountryAlpha2ToAlpha3[customer.CountryAlpha2]
