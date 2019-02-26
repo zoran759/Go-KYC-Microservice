@@ -314,6 +314,7 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
 | **VideoAuth**                | _***[VideoAuth](#videoauth-fields-description)**_             | Short authorization video of the customer (up to 5 seconds)    |
 | **IsCompany**                | _**bool**_                         | Indicates when a Company data is provided for KYC onboarding          |
+| **CompanyName**              | _**string**_                       | Company full name                                                     |
 | **Website**                  | _**string**_                       | Company's website URL                                                 |
 | **CompanyBoard**             | _***CompanyBoard**_                | A certified document containing a list of members of company's board of directors (e.g. an extract from company register or an officially certified document) |
 | **CompanyRegistration**      | _***CompanyRegistration**_         | A certificate of company registration                                 |
@@ -605,8 +606,6 @@ The verification response consist of two elements: a result and an error if occu
 | **DriverLicenseTranslation** | _*DriverLicenseTranslation_ | __*__ (see comment)  |                                |
 | UtilityBill                  | _*UtilityBill_   |                     |                                            |
 
-> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
-
 [**Address**](#address-fields-description) mandatory fields:
 
 | **Name**              | **Type** |
@@ -615,23 +614,28 @@ The verification response consist of two elements: a result and an error if occu
 | **Street**            | _string_ |
 | **PostCode**          | _string_ |
 
+> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
+
 #### **Company KYC onboarding**
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**                     | **Type**               | **Required**         | **Comment**                                 |
-| ---------------------------- | ---------------------- | :------------------: | ------------------------------------------- |
-| **Email**                    | _string_               | **Yes**              |                                             |
-| IPaddress                    | _string_               |                      |                                             |
-| **CountryAlpha2**            | _string_               | **Yes**              |                                             |
-| **CurrentAddress**           | _Address_              | **Yes**              | As for Individual                           |
-| **Passport**                 | _*Passport_            | __*__ (see comment)  | __*__ Provide anyone of required documents  |
-| **IDCard**                   | _*IDCard_              | __*__ (see comment)  |                                             |
-| **DriverLicense**            | _*DriverLicense_       | __*__ (see comment)  |                                             |
-| **IsCompany**                | _bool_                 | **Yes**              | Must be set to "true"                       |
-| **Website**                  | _string_               |                      |                                             |
-| **CompanyBoard**             | _*CompanyBoard_        | __**__ (see comment) | __**__ Provide anyone of required documents |
-| **CompanyRegistration**      | _*CompanyRegistration_ | __**__ (see comment) |                                             |
+| **Name**                | **Type**               | **Required**         | **Comment**                                 |
+| ----------------------- | ---------------------- | :------------------: | ------------------------------------------- |
+| **Email**               | _string_               | **Yes**              |                                             |
+| IPaddress               | _string_               |                      |                                             |
+| **CountryAlpha2**       | _string_               | **Yes**              |                                             |
+| **CurrentAddress**      | _Address_              | **Yes**              | As for Individual                           |
+| **Passport**            | _*Passport_            | __*__ (see comment)  | __*__ Provide anyone of required documents  |
+| **IDCard**              | _*IDCard_              | __*__ (see comment)  |                                             |
+| **DriverLicense**       | _*DriverLicense_       | __*__ (see comment)  |                                             |
+| **IsCompany**           | _bool_                 | **Yes**              | Must be set to "true"                       |
+| **CompanyName**         | _string_               | **Yes**              |                                             |
+| **Website**             | _string_               |                      |                                             |
+| **CompanyBoard**        | _*CompanyBoard_        | __**__ (see comment) | __**__ Provide anyone of required documents |
+| **CompanyRegistration** | _*CompanyRegistration_ | __**__ (see comment) |                                             |
+
+> **DOCUMENTS NOTE:** Supported extensions for document files: **"jpg", "jpeg", "png", "gif", "bmp", "svg", "psd", "tif", "tiff", "webp", "pdf"**.
 
 ### **ComplyAdvantage**
 
