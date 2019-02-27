@@ -10,7 +10,7 @@ import (
 
 const (
 	// ServiceSection is the hardcoded value of the KYC service config section name.
-	ServiceSection = "Service"
+	ServiceSection = "Config"
 
 	// DefaultPort is default port of the KYC service.
 	DefaultPort = "8080"

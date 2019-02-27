@@ -45,7 +45,8 @@ build:prod:windows:
     - git clone https://gitlab.com/lambospeed/licensing-client.git $GOPATH/src/modulus/common/licensing-client
     - go get -d -v ./...
     - cd main
-    - env GOOS=windows GOARCH=amd64 go build -ldflags "-X main.DevEnv=false" -o kyc.exe -v
+    # No need to set a value, being empty is ok.
+    - env GOOS=windows GOARCH=amd64 go build -ldflags "-X main.DevEnv=" -o kyc.exe -v
     - cp kyc.exe ../
     - cp kyc.cfg ../
   artifacts:

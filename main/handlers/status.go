@@ -9,11 +9,23 @@ import (
 
 	"modulus/kyc/common"
 	"modulus/kyc/main/config/providers"
+	"modulus/kyc/main/license"
 )
 
 // CheckStatus handles requests for a status check.
 func CheckStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	if !license.Valid() {
+		writeErrorResponse(w, http.StatusForbidden, license.ErrNoValidLicense)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		writeErrorResponse(w, http.StatusMethodNotAllowed, errors.New("used method not allowed for this endpoint"))
+		return
+	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

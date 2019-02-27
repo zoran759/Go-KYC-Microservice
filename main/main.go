@@ -11,31 +11,35 @@ import (
 
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
+	"modulus/kyc/main/license"
 )
 
-// DevEnv is the flag to manage prod/dev builds.
-// For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
-var DevEnv = "true"
+// devbuild holds the hardcoded value of the DevEnv flag for dev builds.
+const devbuild = "D"
 
+// DevEnv is the flag to manage prod/dev builds.
+// For a production build, set its value to something other than its default upon compilation time using: -ldflags "-X main.DevEnv="
+var DevEnv = devbuild
+
+// Command line flags supported by the service.
 var (
-	cfgFile = flag.String("config", "", "Load the service configuration from the file specified")
+	cfgFile = flag.String("config", "", "Use the specified file for the service configuration")
 	port    = flag.String("port", "", "Listen on the port specified")
 )
 
 func main() {
-
-	// FIXME: temporarily turned off license check.
-	// Validate license in production environment.
-	// Do os.Exit if failed.
-	// if DevEnv == "false" {
-	// 	client.ValidateLicenseOrFail()
-	// }
 	file, err := os.OpenFile("logs.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
 		log.Printf("error opening log file %s\n", err)
 	}
 	mw := io.MultiWriter(os.Stdout, file)
 	log.SetOutput(mw)
+
+	// Turn the license control off in development environment.
+	if DevEnv == devbuild {
+		license.SetDevMode()
+		log.Println("WARNING! Development mode is ON")
+	}
 
 	flag.Parse()
 
@@ -44,7 +48,7 @@ func main() {
 	// a predefined file name will be used depending on the value of DevEnv variable.
 	if len(*cfgFile) == 0 {
 		switch DevEnv {
-		case "true":
+		case devbuild:
 			*cfgFile = config.DefaultDevFile
 		default:
 			*cfgFile = config.DefaultFile
