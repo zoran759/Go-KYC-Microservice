@@ -16,8 +16,8 @@ type license struct {
 	valid bool
 }
 
-// UpdateLicense updates the license.
-func UpdateLicense(newlic string) {
+// Update updates the license.
+func Update(newlic string) error {
 	err := client.ValidateClientLicense(newlic)
 	if err != nil {
 		log.Println("The license is invalid:", err)
@@ -27,12 +27,11 @@ func UpdateLicense(newlic string) {
 	lic.data = newlic
 	lic.valid = err == nil
 	lic.Unlock()
+
+	return err
 }
 
 // Valid returns current state of the license.
 func Valid() bool {
-	lic.Lock()
-	valid := lic.valid
-	lic.Unlock()
-	return valid
+	return lic.valid
 }
