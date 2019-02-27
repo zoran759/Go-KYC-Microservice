@@ -21,7 +21,7 @@ func TestServicePort(t *testing.T) {
 		},
 	})
 
-	assert.False(updated)
+	assert.True(updated)
 	assert.Empty(errs)
 
 	port = config.ServicePort()

@@ -1,9 +1,11 @@
 package config
 
 import (
+	"sync"
+
 	"modulus/kyc/common"
 	"modulus/kyc/main/config/providers"
-	"sync"
+	"modulus/kyc/main/license"
 )
 
 const (
@@ -41,10 +43,11 @@ func ServicePort() (port string) {
 	cfg.Lock()
 	opts := cfg.config[ServiceSection]
 	port = opts["Port"]
+	cfg.Unlock()
+
 	if len(port) == 0 {
 		port = DefaultPort
 	}
-	cfg.Unlock()
 	return
 }
 
@@ -69,7 +72,21 @@ func Update(c Config) (updated bool, errs []string) {
 			errs = append(errs, "empty config section: "+sect)
 			continue
 		}
-		if sect != ServiceSection {
+		errs1 := filterOptions(common.KYCProvider(sect), opts)
+		if errs1 != nil {
+			errs = append(errs, errs1...)
+		}
+		if len(opts) == 0 {
+			continue
+		}
+		if sect == ServiceSection {
+			lic, ok := opts["License"]
+			if ok {
+				if err := license.Update(lic); err != nil {
+					errs = append(errs, err.Error())
+				}
+			}
+		} else {
 			updlist = append(updlist, common.KYCProvider(sect))
 		}
 		oo := cfg.config[sect]
@@ -80,10 +97,12 @@ func Update(c Config) (updated bool, errs []string) {
 			oo[o] = v
 		}
 		cfg.config[sect] = oo
+		if !updated {
+			updated = true
+		}
 	}
 
 	if len(updlist) > 0 {
-		updated = true
 		for _, p := range updlist {
 			platform, err := createPlatform(p)
 			if err != nil {

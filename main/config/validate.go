@@ -1,116 +1,101 @@
 package config
 
-import "modulus/kyc/common"
+import (
+	"fmt"
+
+	"modulus/kyc/common"
+)
+
+// knownOptions keeps the collection of valid option names for each config section.
+var knownOptions = map[common.KYCProvider]validOptions{
+	common.Coinfirm: validOptions{
+		"Host":     true,
+		"Email":    true,
+		"Password": true,
+		"Company":  true,
+	},
+	common.ComplyAdvantage: validOptions{
+		"Host":      true,
+		"APIkey":    true,
+		"Fuzziness": true,
+	},
+	common.IdentityMind: validOptions{
+		"Host":     true,
+		"Username": true,
+		"Password": true,
+	},
+	common.IDology: validOptions{
+		"Host":             true,
+		"Username":         true,
+		"Password":         true,
+		"UseSummaryResult": true,
+	},
+	common.Jumio: validOptions{
+		"BaseURL": true,
+		"Token":   true,
+		"Secret":  true,
+	},
+	common.ShuftiPro: validOptions{
+		"Host":        true,
+		"SecretKey":   true,
+		"ClientID":    true,
+		"RedirectURL": true,
+	},
+	common.SumSub: validOptions{
+		"Host":   true,
+		"APIKey": true,
+	},
+	common.SynapseFI: validOptions{
+		"Host":         true,
+		"ClientID":     true,
+		"ClientSecret": true,
+	},
+	common.ThomsonReuters: validOptions{
+		"Host":      true,
+		"APIkey":    true,
+		"APIsecret": true,
+	},
+	common.Trulioo: validOptions{
+		"Host":         true,
+		"NAPILogin":    true,
+		"NAPIPassword": true,
+	},
+	common.KYCProvider(ServiceSection): validOptions{
+		"Port":    true,
+		"License": true,
+	},
+}
+
+// validOptions represents a list of valid option names.
+type validOptions map[string]bool
+
+// filterOptions filters the provided options from unknown ones.
+func filterOptions(provider common.KYCProvider, opts Options) (errs []string) {
+	kopts := knownOptions[provider]
+	if kopts == nil {
+		return []string{string(provider) + " is missing configuration validation"}
+
+	}
+	for name := range opts {
+		if !kopts[name] {
+			delete(opts, name)
+			errs = append(errs, fmt.Sprintf("%s: unknown option '%s' was filtered out", provider, name))
+		}
+	}
+	return
+}
 
 // validateProvider checks the config correctness for the KYC provider.
 func validateProvider(provider common.KYCProvider, opts Options) error {
-	switch provider {
-	case common.Coinfirm:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
+	kopts := knownOptions[provider]
+	if kopts == nil {
+		return fmt.Errorf("%s provider is missing configuration validation", provider)
+	}
+	for name := range kopts {
+		if len(opts[name]) == 0 {
+			return MissingOptionError{provider: provider, option: name}
 		}
-		if len(opts["Email"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Email"}
-		}
-		if len(opts["Password"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Password"}
-		}
-		if len(opts["Company"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Company"}
-		}
-	case common.ComplyAdvantage:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["APIkey"]) == 0 {
-			return MissingOptionError{provider: provider, option: "APIkey"}
-		}
-		if len(opts["Fuzziness"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Fuzziness"}
-		}
-	case common.IdentityMind:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["Username"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Username"}
-		}
-		if len(opts["Password"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Password"}
-		}
-	case common.IDology:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["Username"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Username"}
-		}
-		if len(opts["Password"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Password"}
-		}
-		if len(opts["UseSummaryResult"]) == 0 {
-			return MissingOptionError{provider: provider, option: "UseSummaryResult"}
-		}
-	case common.Jumio:
-		if len(opts["BaseURL"]) == 0 {
-			return MissingOptionError{provider: provider, option: "BaseURL"}
-		}
-		if len(opts["Token"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Token"}
-		}
-		if len(opts["Secret"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Secret"}
-		}
-	case common.ShuftiPro:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["SecretKey"]) == 0 {
-			return MissingOptionError{provider: provider, option: "SecretKey"}
-		}
-		if len(opts["ClientID"]) == 0 {
-			return MissingOptionError{provider: provider, option: "ClientID"}
-		}
-		if len(opts["RedirectURL"]) == 0 {
-			return MissingOptionError{provider: provider, option: "RedirectURL"}
-		}
-	case common.SumSub:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["APIKey"]) == 0 {
-			return MissingOptionError{provider: provider, option: "APIKey"}
-		}
-	case common.SynapseFI:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["ClientID"]) == 0 {
-			return MissingOptionError{provider: provider, option: "ClientID"}
-		}
-		if len(opts["ClientSecret"]) == 0 {
-			return MissingOptionError{provider: provider, option: "ClientSecret"}
-		}
-	case common.ThomsonReuters:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["APIkey"]) == 0 {
-			return MissingOptionError{provider: provider, option: "APIkey"}
-		}
-		if len(opts["APIsecret"]) == 0 {
-			return MissingOptionError{provider: provider, option: "APIsecret"}
-		}
-	case common.Trulioo:
-		if len(opts["Host"]) == 0 {
-			return MissingOptionError{provider: provider, option: "Host"}
-		}
-		if len(opts["NAPILogin"]) == 0 {
-			return MissingOptionError{provider: provider, option: "NAPILogin"}
-		}
-		if len(opts["NAPIPassword"]) == 0 {
-			return MissingOptionError{provider: provider, option: "NAPIPassword"}
-		}
+
 	}
 	return nil
 }

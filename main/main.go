@@ -87,6 +87,9 @@ func createHandlers() {
 
 // Watch config file and update configs when events happen.
 func watchConfigs() {
+	if _, err := os.Stat(*cfgFile); os.IsNotExist(err) {
+		os.Create(*cfgFile)
+	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Println("file watcher can not be created")
@@ -95,18 +98,15 @@ func watchConfigs() {
 	if err != nil {
 		log.Fatalf("Watching configuration from %s: %s\n", *cfgFile, err)
 	}
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if ok && event.Op.String() == "WRITE" {
-					config.Load(*cfgFile)
-					log.Printf("Reloading configuration from %s\n", *cfgFile)
-				}
-			case err, _ := <-watcher.Errors:
-				log.Println("error watching config file:", err)
+	for {
+		select {
+		case event, ok := <-watcher.Events:
+			if ok && event.Op.String() == "WRITE" {
+				config.Load(*cfgFile)
+				log.Printf("Reloading configuration from %s\n", *cfgFile)
 			}
+		case err, _ := <-watcher.Errors:
+			log.Println("error watching config file:", err)
 		}
-	}()
-	<-make(chan struct{})
+	}
 }

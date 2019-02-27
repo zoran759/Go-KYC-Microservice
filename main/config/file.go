@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,6 +30,7 @@ func Load(filename string) {
 
 	file, err := os.Open(filename)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	defer file.Close()
@@ -51,13 +53,14 @@ func Load(filename string) {
 }
 
 // Save saves the config to the file.
-func Save() {
+func Save() error {
 	cfg.Lock()
 	defer cfg.Unlock()
 
 	if len(cfg.filename) == 0 {
-		log.Println("Error saving the config to the file: missing filename")
-		return
+		err := errors.New("Error saving the config to the file: missing filename")
+		log.Println(err)
+		return err
 	}
 
 	content := bytes.Buffer{}
@@ -65,16 +68,19 @@ func Save() {
 	content.WriteByte(' ')
 	content.WriteString("Updated at ")
 	content.WriteString(time.Now().Format(time.RFC850))
+	content.WriteString("\n")
 
 	for sect, opts := range cfg.config {
 		content.WriteString("\n")
 		content.WriteByte(namestart)
 		content.WriteString(sect)
 		content.WriteByte(namestop)
+		content.WriteString("\n")
 		for opt, val := range opts {
 			content.WriteString(opt)
 			content.WriteByte(sep)
 			content.WriteString(val)
+			content.WriteString("\n")
 		}
 	}
 
@@ -82,6 +88,8 @@ func Save() {
 	if err != nil {
 		log.Println("Error saving the config to the file:", err)
 	}
+
+	return err
 }
 
 func setFilename(filename string) {

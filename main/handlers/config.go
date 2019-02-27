@@ -10,14 +10,10 @@ import (
 	"modulus/kyc/main/config"
 )
 
-// ConfigRequest represents a configuration change request.
-type ConfigRequest struct {
-	Config config.Config
-}
-
 // ConfigResponse represents a configuration change response.
 type ConfigResponse struct {
-	Errors []string `json:",omitempty"`
+	Updated bool
+	Errors  []string
 }
 
 // UpdateConfig handles requests for config updates.
@@ -34,7 +30,7 @@ func UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := ConfigRequest{}
+	req := config.Config{}
 
 	err = json.Unmarshal(body, &req)
 	if err != nil {
@@ -42,14 +38,21 @@ func UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updated, errs := config.Update(req.Config)
-
+	updated, errs := config.Update(req)
 	if updated {
-		config.Save()
+		err = config.Save()
+	}
+
+	if err != nil {
+		errs = append(errs, err.Error())
+	}
+	if errs == nil {
+		errs = []string{}
 	}
 
 	resp := ConfigResponse{
-		Errors: errs,
+		Updated: updated,
+		Errors:  errs,
 	}
 
 	err = json.NewEncoder(w).Encode(resp)
