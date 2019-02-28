@@ -16,6 +16,7 @@
   * **[Trulioo](#trulioo-configuration-options)**
 * **[REST API](#rest-api)**
   * **[Endpoints](#endpoints)**
+  * **[Configuration and license management](#configuration-and-license-management)**
   * **[Customer verification request](#checkcustomer-request-fields-description)**
   * **[Customer verification status request](#checkstatus-request-fields-description)**
   * **[API response](#api-response-fields-description)**
@@ -36,13 +37,16 @@ The service supports the following command line options:
 | `config` | Specifies the file to use for configuration.                                                 |
 | `port`   | Specifies the port for the service to listen for incoming requests. The default port is 8080 |
 
+> **WARNING!** If the file specified in the `config` command line option doesn't exists it will be created. If you accidentally provide an important file as a config it will be overwritten on first configuration update. If parsing of the provided file failed the service will have empty config with very basic functionality such as supported providers list, alive check and configuration management. It will be used to save future configuration updates and will be overwritten. It is recommended to use default configuration file.
+
 ### **Configuration file options**
 
 All options must be placed under the **`Config`** section of the configuration file. The service supports the following options in the configuration file:
 
-| **Name** | **Description**                                            |
-| -------- | ---------------------------------------------------------- |
-| `Port`   | Has the same meaning as the command-line **`port`** option |
+| **Name**  | **Description**                                            |
+| --------- | ---------------------------------------------------------- |
+| `Port`    | Has the same meaning as the command-line **`port`** option |
+| `License` | License key for the KYC service                            |
 
 > **WARNING!** If a command line option is specified its value overrides the configuration file value for that option.
 
@@ -149,8 +153,83 @@ Our API makes available the following Endpoints:
 | GET        | `/Provider`      | Check whether a specified provider is implemented      |
 | POST       | `/CheckCustomer` | Send KYC verification requests                         |
 | POST       | `/CheckStatus`   | Send KYC verification current status check requests    |
+| POST       | `/Config`        | Configuration management                               |
 
 The models for requests and responses are provided.
+
+### **Configuration and license management**
+
+The Configuration management API allows to manage [KYC service configuration](#kyc-service-configuration) and [KYC providers configuration](#kyc-providers-configuration-options) without the burden of maintenance of the configuration file in the correct state due to manual editing.
+
+As the integral part of the service, the Configuration management too uses JSON format for requests and responses.
+
+What is important to note you aren't obliged to provide all available options for a provider or the service in each update request. Include only options you're intended to update. Nonetheless, for the initial request of provider configuration update when there is no configuration for that provider yet, provide all options of it. Otherwise, the provider will not be initialized and the error list will be returned in the response.
+
+If it is required to add or update the license key for the KYC service it is managed using this interface too.
+
+The example of the configuration update request for a KYC provider:
+
+```json
+{
+    "Coinfirm": {
+        "Email": "john@doe.com",
+        "Company": "Foobar"
+    }
+}
+```
+
+You may provide the options for a few providers at once:
+
+```json
+{
+    "IdentityMind": {
+        "Host": "https://staging.identitymind.com/im",
+        "Username": "johndoe",
+        "Password": "c27c6fec117414d119022bacc0df35cb5466d6f8"
+    },
+    "Jumio": {
+        "BaseURL": "https://lon.netverify.com/api/netverify/v2",
+        "Token": "b4b6e792-5e0b-4aed-8189-617821a48951",
+        "Secret": "SN5WkYRWscnBcazMNYx3vnwWYWMaEhEj"
+    },
+    "Sum&Substance": {
+        "Host": "https://test-api.sumsub.com",
+        "APIKey": "AJUZWUDMBAJSEY"
+    }
+}
+```
+
+The example of the configuration update request for the service:
+
+```json
+{
+    "Config": {
+        "Port": "8088",
+        "License": "license key data"
+    }
+}
+```
+
+The example of the license update request for the service:
+
+```json
+{
+    "Config": {
+        "License": "updated license key data"
+    }
+}
+```
+
+> **WARNING!** If the KYC service port was updated the service must be restarted for the option to take effect. Currently, the service doesn't support automatic service restart.
+
+### **The Configuration management API response fields description**
+
+| **Name**    | **Type**       | **Description**                                               |
+| ----------- | -------------- | ------------------------------------------------------------- |
+| **Updated** | _**bool**_     | It will contain `true` if an update was applied to the configuration |
+| **Errors**  | _**[ ]string**_ | List of errors happened during configuration update process. If no errors happened it will be empty, **not `null`** |
+
+The service is resilient to options mismatches in a request. It accepts all known settings provided in the request omitting all unknown, generating corresponding errors in the response. If all options provided in the request are valid the API will return the response with empty error list.
 
 ### **[CheckCustomer request](common/rest.go#L6) fields description**
 
@@ -187,7 +266,9 @@ If a **KYC provider** doesn't support the instant result response then check and
 | -------- | ---------------------------------------------------------------------------------------------------------------- |
 | **200**  | A request has been successfully processed. The response should be inspected for possible KYC verification errors |
 | **400**  | It happens when something wrong with the request. If the request is somehow malformed or missed a required param |
+| **403**  | It happens when a valid license for the KYC service is missing                                                   |
 | **404**  | It happens when a KYC provider in the request is unknown for the API or it wasn't properly configured            |
+| **405**  | It happens when a wrong HTTP method is used in requesting API                                                    |
 | **422**  | It happens when a KYC provider doesn't support requested method or it isn't implemented yet                      |
 | **500**  | It happens when something goes wrong in the server (serialization errors, KYC config's errors, etc...)           |
 
