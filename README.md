@@ -27,6 +27,8 @@
 
 ## **KYC service configuration**
 
+> **IMPORTANT NOTE:** Currently the size of the configuration file is limited to 1 Mb for reasons of common sense. Actually, this is the size way larger than required.
+
 ### **Command line options**
 
 The service supports the following command line options:

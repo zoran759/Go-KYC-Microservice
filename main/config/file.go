@@ -13,9 +13,19 @@ const maxFileSize = 1 << 20
 
 // Load loads the configuration from the specified file.
 func Load(filename string) {
+	setFilename(filename)
+
 	info, err := os.Stat(filename)
 	if err != nil {
-		log.Println(err)
+		if !os.IsNotExist(err) {
+			log.Println(err)
+			return
+		}
+		if _, err = os.Create(filename); err != nil {
+			log.Println(err)
+			return
+		}
+		log.Printf("INFO: '%s' empty configuration file created. No config loaded\n", filename)
 		return
 	}
 	size := info.Size()
@@ -41,7 +51,6 @@ func Load(filename string) {
 		return
 	}
 
-	setFilename(filename)
 	_, errs := Update(c)
 	if errs != nil {
 		for _, e := range errs {

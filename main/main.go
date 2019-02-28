@@ -91,9 +91,6 @@ func createHandlers() {
 
 // Watch config file and update configs when events happen.
 func watchConfigs() {
-	if _, err := os.Stat(*cfgFile); os.IsNotExist(err) {
-		os.Create(*cfgFile)
-	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Println("file watcher can not be created")
