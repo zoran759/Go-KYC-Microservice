@@ -1,15 +1,10 @@
 package common
 
-// CustomerChecker represents a KYC verificator.
-// CheckCustomer verifies the given UserData using a specified KYC provider's API.
-// It returns verification result as the KYCResult and an error if occurred.
-type CustomerChecker interface {
+// KYCPlatform describes KYC provider platform.
+//
+// * CheckCustomer verifies the given UserData using a specified KYC provider's API.
+// * CheckStatus checks the status of the existing KYC verification.
+type KYCPlatform interface {
 	CheckCustomer(customer *UserData) (KYCResult, error)
-}
-
-// StatusChecker represents a KYC verification status checker.
-// CheckStatus checks the status of the KYC verification using the data provided in KYCStatusCheck.
-// It returns verification result as the KYCResult and an error if occurred.
-type StatusChecker interface {
 	CheckStatus(referenceID string) (KYCResult, error)
 }

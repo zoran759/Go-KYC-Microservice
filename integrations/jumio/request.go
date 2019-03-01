@@ -88,6 +88,7 @@ func (r *Request) populateFields(customer *common.UserData) (err error) {
 	r.MerchantIDScanReference = uuid.New().String()
 	r.FirstName = customer.FirstName
 	r.LastName = customer.LastName
+	r.Country = common.CountryAlpha2ToAlpha3[customer.CountryAlpha2]
 	r.DOB = customer.DateOfBirth.Format(dateFormat)
 
 	return
@@ -119,11 +120,10 @@ func (r *Request) populateDocumentFields(customer *common.UserData) (err error) 
 			return
 		}
 		r.FrontsideImageMimeType = customer.Passport.Image.ContentType
-		r.Country = common.CountryAlpha2ToAlpha3[customer.Passport.CountryAlpha2]
 		r.IDType = Passport
 		r.Expiry = customer.Passport.ValidUntil.Format(dateFormat)
 		r.Number = customer.Passport.Number
-		if customer.Passport.CountryAlpha2 == "US" {
+		if customer.CountryAlpha2 == "US" {
 			r.USState = customer.Passport.State
 		}
 
@@ -153,11 +153,10 @@ func (r *Request) populateDocumentFields(customer *common.UserData) (err error) 
 			}
 			r.BacksideImageMimeType = customer.DriverLicense.BackImage.ContentType
 		}
-		r.Country = common.CountryAlpha2ToAlpha3[customer.DriverLicense.CountryAlpha2]
 		r.IDType = DrivingLicense
 		r.Expiry = customer.DriverLicense.ValidUntil.Format(dateFormat)
 		r.Number = customer.DriverLicense.Number
-		if customer.DriverLicense.CountryAlpha2 == "US" {
+		if customer.CountryAlpha2 == "US" {
 			r.USState = customer.DriverLicense.State
 		}
 
@@ -175,7 +174,6 @@ func (r *Request) populateDocumentFields(customer *common.UserData) (err error) 
 			return
 		}
 		r.FrontsideImageMimeType = customer.IDCard.Image.ContentType
-		r.Country = common.CountryAlpha2ToAlpha3[customer.IDCard.CountryAlpha2]
 		r.IDType = IDCard
 		r.Number = customer.IDCard.Number
 
@@ -193,7 +191,6 @@ func (r *Request) populateDocumentFields(customer *common.UserData) (err error) 
 			return
 		}
 		r.FrontsideImageMimeType = customer.SNILS.Image.ContentType
-		r.Country = "RUS"
 		r.IDType = IDCard
 		r.Number = customer.SNILS.Number
 

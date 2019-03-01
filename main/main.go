@@ -2,7 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/fsnotify/fsnotify"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,26 +12,67 @@ import (
 	"modulus/kyc/main/handlers"
 )
 
-var configFile = flag.String("config", "kyc.cfg", "Configuration file for KYC providers")
+const (
+	prodCfgFile = "kyc.cfg"
+	devCfgFile  = "kyc_dev.cfg"
+)
+
+// DevEnv is the flag to manage prod/dev builds.
+// For a production build, this flag value should be set to "false" upon compilation time using: [-ldflags "-X main.DevEnv=false"]
+var DevEnv = "true"
+
+var (
+	cfgFile = flag.String("config", "", "Load the service configuration from the file specified")
+	port    = flag.String("port", "", "Listen on the port specified")
+)
 
 func main() {
+
+	// FIXME: temporarily turned off license check.
+	// Validate license in production environment.
+	// Do os.Exit if failed.
+	// if DevEnv == "false" {
+	// 	client.ValidateLicenseOrFail()
+	// }
+	file, err := os.OpenFile("logs.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	if err != nil {
+		log.Printf("error opening log file %s\n", err)
+	}
+	mw := io.MultiWriter(os.Stdout, file)
+	log.SetOutput(mw)
+
 	flag.Parse()
 
-	if err := config.FromFile(*configFile); err != nil {
-		log.Fatalln("Loading configuration:", err)
+	// Load config from the file.
+	// If the command line flag is set its value will be used as the config file name otherwise
+	// a predefined file name will be used depending on the value of DevEnv variable.
+	if len(*cfgFile) == 0 {
+		switch DevEnv {
+		case "true":
+			*cfgFile = devCfgFile
+		default:
+			*cfgFile = prodCfgFile
+		}
 	}
+	if err := config.FromFile(*cfgFile); err != nil {
+		log.Fatalf("Loading configuration from %s: %s\n", *cfgFile, err)
+	}
+
+	// watch config changes.
+	go watchConfigs()
 
 	createHandlers()
 
-	var port string
-
-	if port = os.Getenv("KYC_PORT"); len(port) == 0 {
-		port = "8080"
+	// Set the listening port for the service.
+	// If the command line flag is set its value will be used for the listening port
+	// otherwise the option from the service config will be used.
+	if len(*port) == 0 {
+		*port = config.Cfg.ServicePort()
 	}
 
-	log.Printf("Listen on :%v", port)
+	log.Printf("Listen on :%v", *port)
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
+	if err := http.ListenAndServe(":"+*port, nil); err != nil {
 		log.Fatalln("ListenAndServe:", err)
 	}
 }
@@ -45,4 +87,34 @@ func createHandlers() {
 	})
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
+	http.HandleFunc("/Provider", handlers.IsProviderImplemented)
+}
+
+// Watch config file and update configs when events happen.
+func watchConfigs() {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Println("file watcher can not be created")
+	}
+	err = watcher.Add(*cfgFile)
+	if err != nil {
+		log.Fatalf("Watching configuration from %s: %s\n", *cfgFile, err)
+	}
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if ok && event.Op.String() == "WRITE" {
+					if err := config.FromFile(*cfgFile); err != nil {
+						log.Printf("Reloading configuration from %s: %s\n", *cfgFile, err)
+					} else {
+						log.Printf("Reloading configuration from %s\n", *cfgFile)
+					}
+				}
+			case err, _ := <-watcher.Errors:
+				log.Println("error watching config file:", err)
+			}
+		}
+	}()
+	<-make(chan struct{})
 }

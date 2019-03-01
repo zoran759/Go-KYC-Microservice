@@ -2,6 +2,7 @@ package complyadvantage
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	stdhttp "net/http"
 
@@ -9,26 +10,24 @@ import (
 	"modulus/kyc/http"
 )
 
-// service represents the service.
-type service struct {
-	host      string
-	key       string
-	fuzziness float32
+var _ common.KYCPlatform = ComplyAdvantage{}
+
+// ComplyAdvantage represents the ComplyAdvantage KYC service.
+type ComplyAdvantage struct {
+	config Config
 }
 
 // New returns a new verification service object.
-func New(c Config) common.CustomerChecker {
-	return service{
-		host:      c.Host,
-		key:       c.APIkey,
-		fuzziness: c.Fuzziness,
+func New(config Config) ComplyAdvantage {
+	return ComplyAdvantage{
+		config: config,
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for the ComplyAdvantage.
-func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
-	r := s.newRequest(customer)
-	resp, status, err := s.performSearch(r)
+// CheckCustomer implements KYCPlatform interface for the ComplyAdvantage.
+func (c ComplyAdvantage) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
+	r := c.newRequest(customer)
+	resp, status, err := c.performSearch(r)
 	if err != nil {
 		if status != nil {
 			result.ErrorCode = fmt.Sprintf("%d", *status)
@@ -42,7 +41,7 @@ func (s service) CheckCustomer(customer *common.UserData) (result common.KYCResu
 }
 
 // performSearch performs a search request to the ComplyAdvantage API.
-func (s service) performSearch(r Request) (response *Response, status *int, err error) {
+func (c ComplyAdvantage) performSearch(r Request) (response Response, status *int, err error) {
 	body, err := json.Marshal(r)
 	if err != nil {
 		return
@@ -50,10 +49,10 @@ func (s service) performSearch(r Request) (response *Response, status *int, err 
 
 	headers := http.Headers{
 		"Content-Type":  "application/json; charset=utf-8",
-		"Authorization": "Token " + s.key,
+		"Authorization": "Token " + c.config.APIkey,
 	}
 
-	code, resp, err := http.Post(s.host+"/searches", headers, body)
+	code, resp, err := http.Post(c.config.Host+"/searches", headers, body)
 	if err != nil {
 		return
 	}
@@ -71,9 +70,15 @@ func (s service) performSearch(r Request) (response *Response, status *int, err 
 		return
 	}
 
-	response = &Response{}
+	response = Response{}
 
-	err = json.Unmarshal(resp, response)
+	err = json.Unmarshal(resp, &response)
 
+	return
+}
+
+// CheckStatus implements KYCPlatform interface for the ComplyAdvantage.
+func (c ComplyAdvantage) CheckStatus(referenceID string) (res common.KYCResult, err error) {
+	err = errors.New("ComplyAdvantage doesn't support a verification status check")
 	return
 }

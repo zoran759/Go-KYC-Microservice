@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var _ common.KYCPlatform = SynapseFI{}
+
 // SynapseFI represents the verification service.
 type SynapseFI struct {
 	verification verification.Verification
@@ -21,7 +23,7 @@ func New(config Config) SynapseFI {
 	}
 }
 
-// CheckCustomer implements CustomerChecker interface for the SynapseFI.
+// CheckCustomer implements KYCPlatform interface for the SynapseFI.
 func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
@@ -73,7 +75,7 @@ func (service SynapseFI) CheckCustomer(customer *common.UserData) (result common
 	return
 }
 
-// CheckStatus implements StatusChecker interface for the SynapseFI.
+// CheckStatus implements KYCPlatform interface for the SynapseFI.
 func (service SynapseFI) CheckStatus(refID string) (result common.KYCResult, err error) {
 	resp, code, err := service.verification.GetUser(refID)
 	if err != nil {

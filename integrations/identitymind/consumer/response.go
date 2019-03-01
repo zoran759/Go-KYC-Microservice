@@ -13,8 +13,8 @@ type ApplicationResponseData struct {
 	CurrentUserReputation EDNAPolicyResult `json:"user"`
 	// The previous reputation of the User, that is, the reputation of the user the last time that it was evaluated.
 	PreviousUserReputation EDNAPolicyResult `json:"upr"`
-	// FIXME: do we really need this?
-	// ednaScoreCard:	ExternalizedTransactionScorecard{...}
+	// The score card for the current transaction.
+	EdnaScoreCard ExternalizedTransactionScorecard `json:"ednaScoreCard"`
 	// The name of the fraud rule that fired.
 	FraudRuleName string `json:"frn"`
 	// Result of fraud evaluation.
@@ -22,7 +22,7 @@ type ApplicationResponseData struct {
 	// The description of the fraud rule that fired.
 	FraudRuleDescription string `json:"frd"`
 	// Result of automated review evaluation.
-	ARPResult AutomatedReviewPolicyResult `json:"arpr"`
+	ARPResult ReviewResult `json:"arpr"`
 	// The description, if any, of the automated review rule that fired.
 	ARPDescription string `json:"arpd"`
 	// The id, if any, of the automated review rule that fired.
@@ -54,6 +54,70 @@ type ApplicationResponseData struct {
 	ErrorMessage string `json:"error_message"`
 }
 
+// ExternalizedTransactionScorecard represents the score card for the current transaction.
+type ExternalizedTransactionScorecard struct {
+	// The test results for this transaction.
+	ScoreCard []ConditionResult `json:"sc"`
+	// The evaluated test results for this transaction.
+	EvaluatedTestResults []ConditionResult            `json:"etr"`
+	AutomatedResult      AutomatedReviewEngineResult  `json:"ar"`
+	EvaluationResult     ExternalizedEvaluationResult `json:"er"`
+}
+
+// ConditionResult represents the result of the evaluation of a condition in a rule or security test.
+type ConditionResult struct {
+	// The id of security test or the key of the transaction data to which the condition applied.
+	Test string `json:"test"`
+	// Whether the condition fired or not.
+	Fired bool `json:"fired"`
+	// Textual result of the condition.
+	Details string `json:"details"`
+	// Indicates that the result is waiting for an asynchronous response from the customer and/or a third party service.
+	WaitingForData bool `json:"waitingForData"`
+	// The time in milliseconds UTC at which the result was created. Is only present in the result of Consumer and Merchant KYC.
+	Timestamp int64 `json:"ts"`
+	// The stage during which this result was created. Is only present in the result of Consumer and Merchant KYC.
+	Stage string `json:"stage"`
+}
+
+// AutomatedReviewEngineResult represents the result of the automated review policy for this transaction.
+type AutomatedReviewEngineResult struct {
+	// Result of rule.
+	Result ReviewResult `json:"result"`
+	// The unique rule identifier.
+	RuleID string `json:"ruleId"`
+	// The rule name.
+	RuleName string `json:"ruleName"`
+	// The rule description.
+	RuleDescription string `json:"ruleDescription"`
+}
+
+// ExternalizedEvaluationResult represents the result of the fraud policy evaluation for this transaction.
+type ExternalizedEvaluationResult struct {
+	// If multiple rules fired during evaluation then this is complete set of rules that fired. Otherwise it is absent.
+	FiredRules []Rule `json:"firedRules"`
+	// A rule that fired for the current transaction.
+	ReportedRule Rule `json:"reportedRule"`
+	// The name of the profile used for evaluation.
+	Profile string `json:"profile"`
+}
+
+// Rule represents a rule that fired for the current transaction.
+type Rule struct {
+	// The rule description.
+	Description string `json:"description"`
+	// The unique rule identifier.
+	RuleID int `json:"ruleId"`
+	// Result of rule.
+	ResultCode FraudPolicyResult `json:"resultCode"`
+	// Details of the evaluation of this rule for the current transaction.
+	Details string `json:"details"`
+	// The results of the individual assertions of the rule.
+	TestResults []ConditionResult `json:"testResults"`
+	// The rule name.
+	Name string `json:"name"`
+}
+
 // DocumentVerification is the part of ApplicationResponseData.
 type DocumentVerification struct {
 	RedirectURL string `json:"redirectURL"`
@@ -63,40 +127,57 @@ type DocumentVerification struct {
 // toResult processes the response and generates the verification result.
 func (r *ApplicationResponseData) toResult() (result common.KYCResult, err error) {
 	switch r.State {
-	case UnderReview:
-		result.Status = common.Unclear
-		result.StatusCheck = &common.KYCStatusCheck{
-			Provider:    common.IdentityMind,
-			ReferenceID: r.KYCTxID,
-			LastCheck:   time.Now(),
-		}
-		return
 	case Accepted:
 		result.Status = common.Approved
+		return
 	case Rejected:
+		result.Status = common.Denied
+	case UnderReview:
+		if r.EdnaScoreCard.EvaluationResult.ReportedRule.ResultCode == Accept {
+			result.Status = common.Unclear
+			result.StatusCheck = &common.KYCStatusCheck{
+				Provider:    common.IdentityMind,
+				ReferenceID: r.KYCTxID,
+				LastCheck:   time.Now(),
+			}
+			return
+		}
 		result.Status = common.Denied
 	default:
 		err = fmt.Errorf("unknown state of the verification from the API: %s", r.State)
+		return
 	}
 
-	details := &common.KYCDetails{}
+	reasons := []string{}
 
+	if r.EdnaScoreCard.EvaluationResult.ReportedRule.ResultCode == ManualReview {
+		reasons = append(reasons, "MANUAL REVIEW REQUIRED")
+	}
 	if len(r.CurrentUserReputation) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Customer reputation: %s", r.CurrentUserReputation))
-	}
-	if len(r.FraudPolicyResult) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Fraud policy evaluation result: %s", r.FraudPolicyResult))
+		reasons = append(reasons, fmt.Sprintf("Customer reputation: %s", r.CurrentUserReputation))
 	}
 	if len(r.ReputationReasonDescription) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Customer reputation reason: %s", r.ReputationReasonDescription))
+		reasons = append(reasons, fmt.Sprintf("Reputation reason: %s", r.ReputationReasonDescription))
+	}
+	if len(r.FraudPolicyResult) > 0 {
+		reasons = append(reasons, fmt.Sprintf("Fraud policy evaluation result: %s", r.FraudPolicyResult))
 	}
 	if len(r.Result) > 0 {
-		details.Reasons = append(details.Reasons, fmt.Sprintf("Combined fraud and automated review evaluations result: %s", r.Result))
+		reasons = append(reasons, fmt.Sprintf("Combined fraud and automated review evaluations result: %s", r.Result))
 	}
 
-	if len(details.Reasons) > 0 {
-		result.Details = details
+	reasons = append(reasons, fmt.Sprintf("Triggered status: %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.ResultCode))
+	reasons = append(reasons, "Profile: "+r.EdnaScoreCard.EvaluationResult.Profile)
+	reasons = append(reasons, fmt.Sprintf("Rule: id %d | %s", r.EdnaScoreCard.EvaluationResult.ReportedRule.RuleID, r.EdnaScoreCard.EvaluationResult.ReportedRule.Description))
+	for _, tr := range r.EdnaScoreCard.EvaluationResult.ReportedRule.TestResults {
+		if !tr.Fired {
+			continue
+		}
+		reasons = append(reasons, fmt.Sprintf("Test: '%s' | %s", tr.Test, tr.Details))
 	}
+	reasons = append(reasons, "Application id: "+r.KYCTxID)
+
+	result.Details = &common.KYCDetails{Reasons: reasons}
 
 	return
 }
