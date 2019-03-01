@@ -1,2 +1,5 @@
 main/kyc
 c.out
+*.exe
+.idea
+main/logs.log

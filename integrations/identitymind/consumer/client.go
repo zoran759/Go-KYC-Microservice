@@ -27,15 +27,15 @@ type Client struct {
 }
 
 // NewClient constructs new client object.
-func NewClient(config Config) *Client {
-	return &Client{
+func NewClient(config Config) Client {
+	return Client{
 		host:        config.Host,
 		credentials: "Basic " + base64.StdEncoding.EncodeToString([]byte(config.Username+":"+config.Password)),
 	}
 }
 
 // CheckCustomer implements customer verification using IdentityMind API.
-func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
+func (c Client) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
 		err = errors.New("no customer supplied")
 		return
@@ -69,7 +69,7 @@ func (c *Client) CheckCustomer(customer *common.UserData) (result common.KYCResu
 
 // sendRequest sends a vefirication request into the API.
 // It returns a response from the API or the error if occured.
-func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, errorCode *int, err error) {
+func (c Client) sendRequest(body []byte) (response *ApplicationResponseData, errorCode *int, err error) {
 	headers := http.Headers{
 		"Content-Type":  contentType,
 		"Authorization": c.credentials,
@@ -87,13 +87,16 @@ func (c *Client) sendRequest(body []byte) (response *ApplicationResponseData, er
 
 	response = &ApplicationResponseData{}
 	err = json.Unmarshal(resp, response)
+	if len(response.ErrorMessage) > 0 {
+		err = errors.New(response.ErrorMessage)
+	}
 
 	return
 }
 
 // CheckStatus queries IDM API for the current state of a consumer KYC.
 // If the application is not found then an error message is provided in the response.
-func (c *Client) CheckStatus(referenceID string) (result common.KYCResult, err error) {
+func (c Client) CheckStatus(referenceID string) (result common.KYCResult, err error) {
 	headers := http.Headers{
 		"Authorization": c.credentials,
 	}

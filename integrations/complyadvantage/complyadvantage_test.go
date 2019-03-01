@@ -561,16 +561,15 @@ func TestNew(t *testing.T) {
 		APIkey: "fake",
 	}
 
-	srv := New(cfg)
-	srv2 := service{
-		host: cfg.Host,
-		key:  cfg.APIkey,
+	svc := New(cfg)
+	svc2 := ComplyAdvantage{
+		config: cfg,
 	}
 
 	assert := assert.New(t)
 
-	assert.Equal(reflect.TypeOf(service{}), reflect.TypeOf(srv))
-	assert.Equal(common.CustomerChecker(srv2), srv)
+	assert.Equal(reflect.TypeOf(ComplyAdvantage{}), reflect.TypeOf(svc))
+	assert.Equal(svc2, svc)
 }
 
 func TestCheckCustomerApproved(t *testing.T) {
@@ -667,11 +666,23 @@ func TestCheckCustomerOtherErrors(t *testing.T) {
 
 	_, err := s.CheckCustomer(&common.UserData{})
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 
 	httpmock.RegisterResponder(http.MethodPost, "host2/searches", httpmock.NewBytesResponder(http.StatusBadRequest, []byte(`unexpected response format`)))
 
 	_, err = s.CheckCustomer(&common.UserData{})
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
+}
+
+func TestCheckStatus(t *testing.T) {
+	assert := assert.New(t)
+
+	s := ComplyAdvantage{}
+
+	res, err := s.CheckStatus("")
+
+	assert.Equal(common.Error, res.Status)
+	assert.Error(err)
+	assert.Equal("ComplyAdvantage doesn't support a verification status check", err.Error())
 }
