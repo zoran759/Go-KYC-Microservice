@@ -6,6 +6,7 @@ type Config struct {
 	SecretKey   string
 	ClientID    string
 	RedirectURL string
+	CallbackURL string
 }
 
 // Verification defines the interface for the verification services.
