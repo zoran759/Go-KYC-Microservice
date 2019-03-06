@@ -397,9 +397,6 @@ func TestCheckStatus(t *testing.T) {
 	assert.NotEmpty(request)
 	assert.NotEmpty(response)
 
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
 	httpmock.RegisterResponder(
 		http.MethodGet,
 		fmt.Sprintf("%s/account/consumer/v2/%s", cfg["Host"], referenceID),
