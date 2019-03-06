@@ -4,7 +4,7 @@ stages:
 
 test:
   stage: test
-  image: golang:stretch
+  image: golang:1.11.5-stretch
   script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
