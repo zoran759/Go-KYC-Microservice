@@ -8,7 +8,7 @@ import (
 
 	"modulus/kyc/integrations/coinfirm/model"
 
-	"github.com/jarcoal/httpmock"
+	"gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
 )
 
