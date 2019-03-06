@@ -54,7 +54,6 @@ type UserData struct {
 	VideoAuth                *VideoAuth
 	Document                 *Document
 	// Company type fields.
-	IsCompany           bool
 	CompanyName         string
 	Website             string
 	CompanyBoard        *CompanyBoard
