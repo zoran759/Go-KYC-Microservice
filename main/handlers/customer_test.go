@@ -486,7 +486,12 @@ func TestCheckCustomer(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
-		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending?reason=docs_sent\u0026key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending?reason=docs_sent&key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
+		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
+	)
+	httpmock.RegisterResponder(
+		http.MethodPost,
+		fmt.Sprintf(`%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending?reason=docs_sent\u0026key=%s`, sumsubCfg["Host"], sumsubCfg["APIKey"]),
 		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
 	)
 
