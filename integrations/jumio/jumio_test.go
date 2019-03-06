@@ -12,7 +12,7 @@ import (
 	"modulus/kyc/common"
 	mhttp "modulus/kyc/http"
 
-	"github.com/jarcoal/httpmock"
+	"gopkg.in/jarcoal/httpmock.v1"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
