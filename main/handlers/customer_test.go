@@ -13,8 +13,8 @@ import (
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
-	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/jarcoal/httpmock"
 )
 
 var identitymindResponse = []byte(`
@@ -458,8 +458,6 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Empty(resp.Error)
 
 	// Testing Sum&Substance.
-	httpmock.Reset()
-
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.SumSub,
 		UserData: &common.UserData{
