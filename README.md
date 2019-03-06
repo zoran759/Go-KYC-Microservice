@@ -313,7 +313,6 @@ For the verification request use a request of the [**common.UserData**](#userdat
 | **Avatar**                   | _***[Avatar](#avatar-fields-description)**_                   | A profile image aka avatar of the customer |
 | **Other**                    | _***[Other](#other-fields-description)**_                     | Other document (should be used only when nothing else applies) |
 | **VideoAuth**                | _***[VideoAuth](#videoauth-fields-description)**_             | Short authorization video of the customer (up to 5 seconds)    |
-| **IsCompany**                | _**bool**_                         | Indicates when a Company data is provided for KYC onboarding          |
 | **CompanyName**              | _**string**_                       | Company full name                                                     |
 | **Website**                  | _**string**_                       | Company's website URL                                                 |
 | **CompanyBoard**             | _***CompanyBoard**_                | A certified document containing a list of members of company's board of directors (e.g. an extract from company register or an officially certified document) |
@@ -629,7 +628,6 @@ The verification response consist of two elements: a result and an error if occu
 | **Passport**            | _*Passport_            | __*__ (see comment)  | __*__ Provide anyone of required documents  |
 | **IDCard**              | _*IDCard_              | __*__ (see comment)  |                                             |
 | **DriverLicense**       | _*DriverLicense_       | __*__ (see comment)  |                                             |
-| **IsCompany**           | _bool_                 | **Yes**              | Must be set to "true"                       |
 | **CompanyName**         | _string_               | **Yes**              |                                             |
 | **Website**             | _string_               |                      |                                             |
 | **CompanyBoard**        | _*CompanyBoard_        | __**__ (see comment) | __**__ Provide anyone of required documents |
