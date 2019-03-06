@@ -13,8 +13,8 @@ import (
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
-	"gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 var identitymindResponse = []byte(`
@@ -471,6 +471,8 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NotEmpty(request)
 
 	sumsubCfg := cfg[string(common.SumSub)]
+
+	httpmock.Reset()
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
