@@ -458,6 +458,8 @@ func TestCheckCustomer(t *testing.T) {
 	assert.Empty(resp.Error)
 
 	// Testing Sum&Substance.
+	httpmock.Reset()
+
 	request, err = json.Marshal(&common.CheckCustomerRequest{
 		Provider: common.SumSub,
 		UserData: &common.UserData{
