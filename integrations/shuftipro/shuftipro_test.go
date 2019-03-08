@@ -36,8 +36,8 @@ func TestNew(t *testing.T) {
 func TestShuftiPro_CheckCustomer(t *testing.T) {
 	service := ShuftiPro{
 		verification: verification.Mock{
-			VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
-				return &verification.Response{
+			VerifyFn: func(request verification.OldRequest) (*verification.OldResponse, error) {
+				return &verification.OldResponse{
 					StatusCode: "SP0",
 					Message:    "Not verified",
 				}, nil
@@ -52,8 +52,8 @@ func TestShuftiPro_CheckCustomer(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
-			return &verification.Response{
+		VerifyFn: func(request verification.OldRequest) (*verification.OldResponse, error) {
+			return &verification.OldResponse{
 				StatusCode: "SP1",
 				Message:    "Verified",
 			}, nil
@@ -70,8 +70,8 @@ func TestShuftiPro_CheckCustomer(t *testing.T) {
 func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 	service := ShuftiPro{
 		verification: verification.Mock{
-			VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
-				return &verification.Response{
+			VerifyFn: func(request verification.OldRequest) (*verification.OldResponse, error) {
+				return &verification.OldResponse{
 					StatusCode: "SP22",
 					Message:    "Invalid checksum value.",
 				}, nil
@@ -87,8 +87,8 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
-			return &verification.Response{
+		VerifyFn: func(request verification.OldRequest) (*verification.OldResponse, error) {
+			return &verification.OldResponse{
 				StatusCode: "SP2",
 			}, nil
 		},
@@ -102,7 +102,7 @@ func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
 	}
 
 	service.verification = verification.Mock{
-		VerifyFn: func(request verification.OldRequest) (*verification.Response, error) {
+		VerifyFn: func(request verification.OldRequest) (*verification.OldResponse, error) {
 			return nil, errors.New("test_error")
 		},
 	}

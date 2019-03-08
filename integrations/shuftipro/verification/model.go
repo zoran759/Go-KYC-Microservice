@@ -31,8 +31,8 @@ type Data struct {
 	UtilityBill string `json:"document_address_image,omitempty"`
 }
 
-// Response represents the response of the verification API.
-type Response struct {
+// OldResponse represents the response of the verification API.
+type OldResponse struct {
 	StatusCode string `json:"status_code"`
 	Message    string `json:"message"`
 	Reference  string `json:"reference"`

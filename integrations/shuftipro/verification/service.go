@@ -24,7 +24,7 @@ func NewService(config Config) Verification {
 	}
 }
 
-func (service service) Verify(request OldRequest) (*Response, error) {
+func (service service) Verify(request OldRequest) (*OldResponse, error) {
 	servicesBytes, err := json.Marshal(request.VerificationServices)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (service service) Verify(request OldRequest) (*Response, error) {
 		return nil, err
 	}
 
-	response := new(Response)
+	response := new(OldResponse)
 	if err := json.Unmarshal(responseBytes, response); err != nil {
 		return nil, err
 	}
