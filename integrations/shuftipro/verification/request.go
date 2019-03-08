@@ -39,27 +39,6 @@ const (
 	TaxBill            DocumentType = "tax_bill"
 )
 
-// Supported document types for document verification.
-var docTypes = map[DocumentType]bool{
-	Passport:          true,
-	IDcard:            true,
-	DrivingLicense:    true,
-	CreditOrDebitCard: true,
-}
-
-// Supported types for address verification.
-var addressDocTypes = map[DocumentType]bool{
-	IDcard:             true,
-	Passport:           true,
-	DrivingLicense:     true,
-	UtilityBill:        true,
-	BankStatement:      true,
-	RentAgreement:      true,
-	EmployerLetter:     true,
-	InsuranceAgreement: true,
-	TaxBill:            true,
-}
-
 // ConsentType represents a type of consent.
 type ConsentType string
 
