@@ -11,15 +11,15 @@ type Config struct {
 
 // Verification defines the interface for the verification services.
 type Verification interface {
-	Verify(request OldRequest) (*Response, error)
+	Verify(request OldRequest) (*OldResponse, error)
 }
 
 // Mock represents the mock of the service for tests.
 type Mock struct {
-	VerifyFn func(request OldRequest) (*Response, error)
+	VerifyFn func(request OldRequest) (*OldResponse, error)
 }
 
 // Verify implements Verification interface for Mock.
-func (mock Mock) Verify(request OldRequest) (*Response, error) {
+func (mock Mock) Verify(request OldRequest) (*OldResponse, error) {
 	return mock.VerifyFn(request)
 }
