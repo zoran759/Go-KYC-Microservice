@@ -158,7 +158,7 @@ func createCustomerChecker(provider common.KYCProvider) (service common.KYCPlatf
 			Host:        cfg["Host"],
 			SecretKey:   cfg["SecretKey"],
 			ClientID:    cfg["ClientID"],
-			RedirectURL: cfg["RedirectURL"],
+			CallbackURL: cfg["RedirectURL"],
 		})
 	case common.SumSub:
 		service = sumsub.New(sumsub.Config{
