@@ -1,13 +1,9 @@
 package shuftipro
 
-import "modulus/kyc/integrations/shuftipro/verification"
-
-// Config represents the service config.
-type Config verification.Config
-
-// Verification result codes from the API.
-const (
-	NotVerified = "SP0"
-	Verified    = "SP1"
-	Success     = "SP2"
-)
+// Config represents the configuration for the service.
+type Config struct {
+	Host        string
+	ClientID    string
+	SecretKey   string
+	CallbackURL string
+}

@@ -1,4 +1,4 @@
-package verification
+package shuftipro
 
 import (
 	"encoding/base64"

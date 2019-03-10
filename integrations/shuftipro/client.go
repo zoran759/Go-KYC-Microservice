@@ -1,4 +1,4 @@
-package verification
+package shuftipro
 
 import (
 	"encoding/base64"
@@ -19,8 +19,8 @@ type Client struct {
 	callbackURL string
 }
 
-// New constructs new Client object.
-func New(config Config) Client {
+// NewClient constructs new Client object.
+func NewClient(config Config) Client {
 	return Client{
 		host: config.Host,
 		headers: http.Headers{
