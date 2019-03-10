@@ -1,6 +1,9 @@
 package verification
 
-import "strings"
+import (
+	"fmt"
+	"modulus/kyc/common"
+)
 
 // List of ResultValue values.
 const (
@@ -16,10 +19,14 @@ const (
 	StatusChanged   Event = "verification.status.changed"
 	ReqPending      Event = "request.pending"
 	ReqInvalid      Event = "request.invalid"
-	ReqTimeout      Event = "request.timeout"
 	ReqUnauthorized Event = "request.unauthorized"
 	ReqDeleted      Event = "request.deleted"
 )
+
+var event2description = map[Event]string{
+	ReqInvalid:      "request parameters provided in the request are invalid; ",
+	ReqUnauthorized: "the information provided in authorization header is invalid; ",
+}
 
 // Response represents a response of the Shufti Pro Verification API.
 type Response struct {
@@ -78,36 +85,26 @@ type BackgroundChecksResult struct {
 	DateOfBirth *ResultValue `json:"dob"`
 }
 
-// Error represents an error.
-type Error struct {
-	Service string `json:"service"`
-	Key     string `json:"key"`
-	Message string `json:"message"`
-}
+// ToKYCResult converts Shufti Pro API response to the KYC result.
+func (r Response) ToKYCResult() common.KYCResult {
+	res := common.KYCResult{}
 
-// Error implements the error interface for the Error.
-func (e Error) Error() string {
-	b := strings.Builder{}
-
-	if len(e.Service) > 0 {
-		b.WriteString("service: '")
-		b.WriteString(e.Service)
-		b.WriteByte('\'')
-	}
-	if len(e.Key) > 0 {
-		if b.Len() > 0 {
-			b.WriteString(" | ")
+	switch r.Event {
+	case Accepted:
+		res.Status = common.Approved
+	case Declined:
+		res.Status = common.Denied
+		if len(r.DeclinedReason) > 0 {
+			res.Details = &common.KYCDetails{
+				Reasons: []string{r.DeclinedReason},
+			}
 		}
-		b.WriteString("key: '")
-		b.WriteString(e.Key)
-		b.WriteByte('\'')
+	default:
+		res.Status = common.Denied
+		res.Details = &common.KYCDetails{
+			Reasons: []string{fmt.Sprintf("Returned event cannot be processed: '%s'", r.Event)},
+		}
 	}
-	if b.Len() > 0 {
-		b.WriteString(" | ")
-	}
-	b.WriteString("message: '")
-	b.WriteString(e.Message)
-	b.WriteByte('\'')
 
-	return b.String()
+	return res
 }
