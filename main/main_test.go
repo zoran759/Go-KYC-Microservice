@@ -93,7 +93,7 @@ func Test_Shufti(t *testing.T) {
 		Host:        "https://api.shuftipro.com",
 		ClientID:    "ac93f3a0fee5afa2d9399d5d0f257dc92bbde89b1e48452e1bfac3c5c1dc99db",
 		SecretKey:   "lq34eOTxDe1e6G8a1P7Igqo5YK3ABCDF",
-		RedirectURL: "https://api.shuftipro.com",
+		CallbackURL: "https://api.shuftipro.com",
 	})
 
 	log.Println(service.CheckCustomer(customer))
