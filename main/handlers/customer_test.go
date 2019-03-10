@@ -74,7 +74,63 @@ var idologyErrorResponse = []byte(`
 	<error>Invalid username and password</error>
 </response>`)
 
-var shuftiproResponse = []byte(`{"status_code": "SP1", "message": "Verified", "reference": "tester", "signature": "sig"}`)
+var shuftiproResponse = `
+{
+    "reference": "17374217",
+    "event": "verification.accepted",
+    "error": "",
+    "verification_url": "",
+    "verification_result": {
+        "document": {
+            "name": 1,
+            "dob": 1,
+            "expiry_date": 1,
+            "issue_date": 1,
+            "document_number": 1,
+            "document": 1
+        },
+        "address": {
+            "name": 1,
+            "full_address": 1
+        }
+    },
+    "verification_data": {
+        "document": {
+            "name": {
+                "first_name": "John",
+                "middle_name": "Carter",
+                "last_name": "Doe"
+            },
+            "dob": "1978-03-13",
+            "issue_date": "2015-10-10",
+            "expiry_date": "2025-12-31",
+            "document_number": "1456-0989-5567-0909",
+            "selected_type": [
+                "id_card"
+            ],
+            "supported_types": [
+                "id_card",
+                "driving_license",
+                "passport"
+            ]
+        },
+        "address": {
+            "name": {
+                "first_name": "John",
+                "middle_name": "Carter",
+                "last_name": "Doe"
+            },
+            "full_address": "3339 Maryland Avenue, Largo, Florida",
+            "selected_type": [
+                "id_card"
+            ],
+            "supported_types": [
+                "id_card",
+                "bank_statement"
+            ]
+        }
+    }
+}`
 
 var sumsubResponse = []byte(`
 {
@@ -434,7 +490,7 @@ func TestCheckCustomer(t *testing.T) {
 	httpmock.RegisterResponder(
 		http.MethodPost,
 		"https://api.shuftipro.com",
-		httpmock.NewBytesResponder(http.StatusOK, shuftiproResponse),
+		httpmock.NewStringResponder(http.StatusOK, shuftiproResponse),
 	)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
