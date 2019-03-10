@@ -51,7 +51,7 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 	}
 
 	response := Response{}
-	err = json.Unmarshal(resp, response)
+	err = json.Unmarshal(resp, &response)
 	if err != nil {
 		return
 	}
