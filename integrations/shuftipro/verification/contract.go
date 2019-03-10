@@ -3,8 +3,8 @@ package verification
 // Config represents the configuration for the service.
 type Config struct {
 	Host        string
-	SecretKey   string
 	ClientID    string
+	SecretKey   string
 	RedirectURL string
 	CallbackURL string
 }

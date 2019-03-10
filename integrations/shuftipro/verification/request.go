@@ -113,7 +113,7 @@ func (c Client) NewRequest(customer *common.UserData) (r *Request, err error) {
 	r.Reference = fmt.Sprintf("%x", id[:])
 	r.Country = customer.CountryAlpha2
 	r.Email = customer.Email
-	r.CallbackURL = c.config.CallbackURL
+	r.CallbackURL = c.callbackURL
 
 	if !time.Time(customer.DateOfBirth).IsZero() {
 		r.BackgroundChecks = &BackgroundChecks{
