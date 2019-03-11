@@ -3,6 +3,7 @@ package shuftipro
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	stdhttp "net/http"
 	"strconv"
@@ -57,16 +58,24 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 	}
 
 	if code != stdhttp.StatusOK {
-		e, ok := response.Error.(Error)
-		if ok {
-			err = e
+		if _, ok := response.Error.(map[string]interface{}); !ok {
+			err = fmt.Errorf("%scheck the error code in the result", event2description[response.Event])
 			return
 		}
-		err = fmt.Errorf("%scheck the error code in the result", event2description[response.Event])
+		err = errorFromResponse(resp)
 		return
 	}
 
 	res = response.ToKYCResult()
 
 	return
+}
+
+// errorFromResponse is a helper function that extracts an error from the API response.
+func errorFromResponse(response []byte) error {
+	efield := errorField{}
+	if err := json.Unmarshal(response, &efield); err != nil {
+		return errors.New("unexpected format of the returned error: please, report to developers")
+	}
+	return efield.Error
 }

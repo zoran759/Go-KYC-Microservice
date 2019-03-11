@@ -2,6 +2,11 @@ package shuftipro
 
 import "strings"
 
+// errorField represents the error field in the response when it isn't empty.
+type errorField struct {
+	Error Error `json:"error"`
+}
+
 // Error represents an error.
 type Error struct {
 	Service string `json:"service"`
