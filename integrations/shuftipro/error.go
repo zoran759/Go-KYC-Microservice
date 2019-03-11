@@ -31,12 +31,14 @@ func (e Error) Error() string {
 		b.WriteString(e.Key)
 		b.WriteByte('\'')
 	}
-	if b.Len() > 0 {
-		b.WriteString(" | ")
+	if len(e.Message) > 0 {
+		if b.Len() > 0 {
+			b.WriteString(" | ")
+		}
+		b.WriteString("message: '")
+		b.WriteString(e.Message)
+		b.WriteByte('\'')
 	}
-	b.WriteString("message: '")
-	b.WriteString(e.Message)
-	b.WriteByte('\'')
 
 	return b.String()
 }
