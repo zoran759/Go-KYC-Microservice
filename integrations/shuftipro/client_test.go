@@ -299,7 +299,7 @@ func TestCheckCustomer(t *testing.T) {
 			res, err := client.CheckCustomer(customer)
 			assert := assert.New(t)
 			assert.Equal(tc.result, res)
-			if err != nil {
+			if tc.err != nil {
 				assert.Equal(tc.err.Error(), err.Error())
 			} else {
 				assert.Equal(tc.err, err)
