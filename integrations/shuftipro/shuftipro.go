@@ -1,9 +1,9 @@
 package shuftipro
 
 import (
-	"modulus/kyc/common"
+	"errors"
 
-	"github.com/pkg/errors"
+	"modulus/kyc/common"
 )
 
 var _ common.KYCPlatform = ShuftiPro{}

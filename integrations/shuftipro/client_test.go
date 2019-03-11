@@ -250,7 +250,6 @@ func TestCheckCustomer(t *testing.T) {
 			result: common.KYCResult{
 				Status: common.Approved,
 			},
-			err: nil,
 		},
 		testCase{
 			name:      "Declined verification 200",
@@ -261,13 +260,11 @@ func TestCheckCustomer(t *testing.T) {
 					Reasons: []string{"Face is not verified."},
 				},
 			},
-			err: nil,
 		},
 		testCase{
-			name:      "Error no responder",
-			responder: nil,
-			result:    common.KYCResult{},
-			err:       errors.New("Post https://shuftipro.com/api: no responder found"),
+			name:   "Error no responder",
+			result: common.KYCResult{},
+			err:    errors.New("Post https://shuftipro.com/api: no responder found"),
 		},
 		testCase{
 			name:      "Test changed response format",

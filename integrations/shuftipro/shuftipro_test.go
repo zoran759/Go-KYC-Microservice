@@ -2,10 +2,13 @@ package shuftipro
 
 import (
 	"errors"
-	"modulus/kyc/common"
+	stdhttp "net/http"
 	"testing"
 
+	"modulus/kyc/common"
+
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestNew(t *testing.T) {
@@ -26,6 +29,9 @@ func TestNew(t *testing.T) {
 }
 
 func TestShuftiProCheckCustomer(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
 	s := New(Config{
 		Host:        "https://shuftipro.com/api",
 		ClientID:    "client_id",
@@ -34,10 +40,11 @@ func TestShuftiProCheckCustomer(t *testing.T) {
 	})
 
 	type testCase struct {
-		name     string
-		customer *common.UserData
-		result   common.KYCResult
-		err      error
+		name      string
+		customer  *common.UserData
+		responder httpmock.Responder
+		result    common.KYCResult
+		err       error
 	}
 
 	testCases := []testCase{
@@ -47,10 +54,22 @@ func TestShuftiProCheckCustomer(t *testing.T) {
 			result:   common.KYCResult{},
 			err:      errors.New("No customer supplied"),
 		},
+		testCase{
+			name: "Approved result",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+			},
+			responder: httpmock.NewStringResponder(stdhttp.StatusOK, reqAcceptedResponse),
+			result: common.KYCResult{
+				Status: common.Approved,
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponder(stdhttp.MethodPost, s.client.host, tc.responder)
 			res, err := s.CheckCustomer(tc.customer)
 			assert := assert.New(t)
 			assert.Equal(tc.result, res)
