@@ -74,7 +74,7 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 // errorFromResponse is a helper function that extracts an error from the API response.
 func errorFromResponse(response []byte) error {
 	efield := errorField{}
-	if err := json.Unmarshal(response, &efield); err != nil {
+	if err := json.Unmarshal(response, &efield); err != nil || (efield == errorField{}) {
 		return errors.New("unexpected format of the returned error: please, report to developers")
 	}
 	return efield.Error
