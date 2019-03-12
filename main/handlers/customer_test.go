@@ -13,8 +13,8 @@ import (
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
-	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 var identitymindResponse = []byte(`
@@ -540,9 +540,14 @@ func TestCheckCustomer(t *testing.T) {
 		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
 	)
 
-	httpmock.RegisterResponder(
+	expectedQuery := map[string]string{
+		"reason": "docs_sent",
+		"key":    sumsubCfg["APIKey"],
+	}
+	httpmock.RegisterResponderWithQuery(
 		http.MethodPost,
-		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending?reason=docs_sent&key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending", sumsubCfg["Host"]),
+		expectedQuery,
 		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
 	)
 
