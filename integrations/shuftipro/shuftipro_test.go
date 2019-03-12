@@ -2,14 +2,20 @@ package shuftipro
 
 import (
 	"errors"
+	"flag"
+	"io/ioutil"
 	stdhttp "net/http"
 	"testing"
+	"time"
 
 	"modulus/kyc/common"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/jarcoal/httpmock.v1"
 )
+
+var demo = flag.Bool("demo", false, "Test integration with Shufti Pro API using the demo")
 
 func TestNew(t *testing.T) {
 	config := Config{
@@ -33,7 +39,7 @@ func TestShuftiProCheckCustomer(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	s := New(Config{
-		Host:        "https://shuftipro.com/api",
+		Host:        "https://shuftipro.com/api/",
 		ClientID:    "client_id",
 		SecretKey:   "secret_key",
 		CallbackURL: "callback_url",
@@ -49,10 +55,8 @@ func TestShuftiProCheckCustomer(t *testing.T) {
 
 	testCases := []testCase{
 		testCase{
-			name:     "Nil customer",
-			customer: nil,
-			result:   common.KYCResult{},
-			err:      errors.New("No customer supplied"),
+			name: "Nil customer",
+			err:  errors.New("No customer supplied"),
 		},
 		testCase{
 			name: "Approved result",
@@ -87,4 +91,137 @@ func TestShuftiProCheckStatus(t *testing.T) {
 	res, err := ShuftiPro{}.CheckStatus("")
 	assert.Equal(t, result, res)
 	assert.Equal(t, "Shufti Pro doesn't support a verification status check", err.Error())
+}
+
+func TestShuftiProIntegration(t *testing.T) {
+	if !*demo {
+		t.Skip("Use -demo command line flag to test the demo")
+
+	}
+
+	require := require.New(t)
+
+	realFace, err := ioutil.ReadFile("../../test_data/real-face.jpg")
+	require.NoError(err)
+	realIDcard, err := ioutil.ReadFile("../../test_data/real-id-card.jpg")
+	require.NoError(err)
+	fakeFace, err := ioutil.ReadFile("../../test_data/fake-face.jpg")
+	require.NoError(err)
+	fakeIDcard, err := ioutil.ReadFile("../../test_data/fake-id-card.jpg")
+	require.NoError(err)
+
+	require.NotEmpty(realFace)
+	require.NotEmpty(realIDcard)
+	require.NotEmpty(fakeFace)
+	require.NotEmpty(fakeIDcard)
+
+	s := New(Config{
+		Host:        "https://shuftipro.com/api/",
+		ClientID:    "d76612f86d26846065f5c37dfef7a7dd04eaa724f923773fe02f9d8b0bec0877",
+		SecretKey:   "5gCvERlJy4w6Lf1Bcn6ztQSKP0Lrqxhp",
+		CallbackURL: "https://shuftipro.com/api",
+	})
+
+	type testCase struct {
+		name     string
+		customer *common.UserData
+		result   common.KYCResult
+		err      error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name: "Approved result",
+			customer: &common.UserData{
+				FirstName:     "John",
+				LastName:      "Livone",
+				DateOfBirth:   common.Time(time.Date(1989, 9, 6, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "GB",
+				Email:         "john.livone@example.com",
+				CurrentAddress: common.Address{
+					CountryAlpha2:  "GB",
+					County:         "Westminster",
+					Town:           "London",
+					Street:         "Downing St",
+					BuildingNumber: "10",
+					PostCode:       "SW1A 2AA",
+				},
+				IDCard: &common.IDCard{
+					Number:     "A123456",
+					IssuedDate: common.Time(time.Date(2001, 5, 22, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2025, 9, 13, 0, 0, 0, 0, time.UTC)),
+					Image: &common.DocumentFile{
+						Filename:    "real-id-card.jpg",
+						ContentType: "image/jpeg",
+						Data:        realIDcard,
+					},
+				},
+				Selfie: &common.Selfie{
+					Image: &common.DocumentFile{
+						Filename:    "real-face.jpg",
+						ContentType: "image/jpeg",
+						Data:        realFace,
+					},
+				},
+			},
+			result: common.KYCResult{
+				Status: common.Approved,
+			},
+		},
+		testCase{
+			name: "Denied result",
+			customer: &common.UserData{
+				FirstName:     "John",
+				LastName:      "Doe",
+				DateOfBirth:   common.Time(time.Date(1989, 9, 6, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "GB",
+				Email:         "john.doe@example.com",
+				Phone:         "+440000000000",
+				CurrentAddress: common.Address{
+					CountryAlpha2:  "GB",
+					County:         "Westminster",
+					Town:           "London",
+					Street:         "Downing St",
+					BuildingNumber: "10",
+					PostCode:       "SW1A 2AA",
+				},
+				IDCard: &common.IDCard{
+					Number:     "A123456",
+					IssuedDate: common.Time(time.Date(2001, 5, 22, 0, 0, 0, 0, time.UTC)),
+					ValidUntil: common.Time(time.Date(2025, 9, 13, 0, 0, 0, 0, time.UTC)),
+					Image: &common.DocumentFile{
+						Filename:    "fake-id-card.jpg",
+						ContentType: "image/jpeg",
+						Data:        fakeIDcard,
+					},
+				},
+				Selfie: &common.Selfie{
+					Image: &common.DocumentFile{
+						Filename:    "fake-face.jpg",
+						ContentType: "image/jpeg",
+						Data:        fakeFace,
+					},
+				},
+			},
+			result: common.KYCResult{
+				Status: common.Denied,
+				Details: &common.KYCDetails{
+					Reasons: []string{"Face is not verified."},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := s.CheckCustomer(tc.customer)
+			assert := assert.New(t)
+			assert.Equal(tc.result, res)
+			if tc.err != nil {
+				assert.Equal(tc.err.Error(), err.Error())
+			} else {
+				assert.Equal(tc.err, err)
+			}
+		})
+	}
 }
