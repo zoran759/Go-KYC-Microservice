@@ -47,10 +47,10 @@ type ResultValue int
 
 // Result represents verification result.
 type Result struct {
-	Face             *ResultValue            `json:"face"`
-	Document         *DocumentResult         `json:"document"`
-	Address          *AddressResult          `json:"address"`
-	BackgroundChecks *BackgroundChecksResult `json:"background_checks"`
+	Address  *AddressResult  `json:"address"`
+	Document *DocumentResult `json:"document"`
+	BgChecks *ResultValue    `json:"background_checks"`
+	Face     *ResultValue    `json:"face"`
 }
 
 // DocumentResult represents document verification result.
@@ -78,12 +78,6 @@ type AddressResult struct {
 	DocumentMustNotBeExpired *ResultValue `json:"address_document_must_not_be_expired"`
 	DocumentCountry          *ResultValue `json:"address_document_country"`
 	Document                 *ResultValue `json:"address_document"`
-}
-
-// BackgroundChecksResult represents background checks result.
-type BackgroundChecksResult struct {
-	Name        *ResultValue `json:"name"`
-	DateOfBirth *ResultValue `json:"dob"`
 }
 
 // ToKYCResult converts Shufti Pro API response to the KYC result.
