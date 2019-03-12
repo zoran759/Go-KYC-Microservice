@@ -82,7 +82,6 @@ func TestPrepareCustomerDataForCompany(t *testing.T) {
 	assert := assert.New(t)
 
 	customer := &common.UserData{
-		IsCompany:     true,
 		CompanyName:   "Foobar",
 		Website:       "company.com",
 		IPaddress:     "192.168.0.137",

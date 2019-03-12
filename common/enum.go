@@ -46,6 +46,7 @@ const (
 	SynapseFI       KYCProvider = "SynapseFI"
 	ThomsonReuters  KYCProvider = "ThomsonReuters"
 	Trulioo         KYCProvider = "Trulioo"
+	CipherTrace     KYCProvider = "CipherTrace"
 )
 
 // KYCProviders enumerates the implemented KYC providers.
@@ -60,4 +61,5 @@ var KYCProviders = map[KYCProvider]bool{
 	SynapseFI:       true,
 	ThomsonReuters:  true,
 	Trulioo:         true,
+	CipherTrace:     true,
 }

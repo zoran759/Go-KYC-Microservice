@@ -528,6 +528,8 @@ func TestCheckCustomer(t *testing.T) {
 
 	sumsubCfg := cfg[string(common.SumSub)]
 
+	httpmock.Reset()
+
 	httpmock.RegisterResponder(
 		http.MethodPost,
 		fmt.Sprintf("%s/resources/applicants?key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
