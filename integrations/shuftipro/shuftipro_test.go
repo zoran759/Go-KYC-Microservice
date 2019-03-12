@@ -4,207 +4,181 @@ import (
 	"errors"
 	"flag"
 	"io/ioutil"
+	stdhttp "net/http"
 	"testing"
 	"time"
 
 	"modulus/kyc/common"
-	"modulus/kyc/integrations/shuftipro/verification"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
-var testImageUpload = flag.Bool("use-images", false, "test document images uploading")
+var demo = flag.Bool("demo", false, "Test integration with Shufti Pro API using the demo")
 
 func TestNew(t *testing.T) {
-	assert := assert.New(t)
-
-	cfg := Config{
-		Host:        "host",
-		SecretKey:   "key",
-		ClientID:    "client",
-		RedirectURL: "url",
-	}
-
-	svc := New(cfg)
-	svc2 := ShuftiPro{
-		verification: verification.NewService(verification.Config(cfg)),
-	}
-
-	assert.Equal(svc, svc2)
-}
-
-func TestShuftiPro_CheckCustomer(t *testing.T) {
-	service := ShuftiPro{
-		verification: verification.Mock{
-			VerifyFn: func(request verification.Request) (*verification.Response, error) {
-				return &verification.Response{
-					StatusCode: "SP0",
-					Message:    "Not verified",
-				}, nil
-			},
-		},
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) {
-		assert.Equal(t, common.Denied, result.Status)
-		assert.Nil(t, result.Details)
-	}
-
-	service.verification = verification.Mock{
-		VerifyFn: func(request verification.Request) (*verification.Response, error) {
-			return &verification.Response{
-				StatusCode: "SP1",
-				Message:    "Verified",
-			}, nil
-		},
-	}
-
-	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.NoError(t, err) {
-		assert.Equal(t, common.Approved, result.Status)
-		assert.Nil(t, result.Details)
-	}
-}
-
-func TestShuftiPro_CheckCustomer_Error(t *testing.T) {
-	service := ShuftiPro{
-		verification: verification.Mock{
-			VerifyFn: func(request verification.Request) (*verification.Response, error) {
-				return &verification.Response{
-					StatusCode: "SP22",
-					Message:    "Invalid checksum value.",
-				}, nil
-			},
-		},
-	}
-
-	result, err := service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result.Status)
-		assert.Nil(t, result.Details)
-		assert.Equal(t, "Invalid checksum value.", err.Error())
-	}
-
-	service.verification = verification.Mock{
-		VerifyFn: func(request verification.Request) (*verification.Response, error) {
-			return &verification.Response{
-				StatusCode: "SP2",
-			}, nil
-		},
-	}
-
-	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result.Status)
-		assert.Nil(t, result.Details)
-		assert.Equal(t, "There are no documents provided or they are invalid", err.Error())
-	}
-
-	service.verification = verification.Mock{
-		VerifyFn: func(request verification.Request) (*verification.Response, error) {
-			return nil, errors.New("test_error")
-		},
-	}
-
-	result, err = service.CheckCustomer(&common.UserData{})
-	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result.Status)
-		assert.Nil(t, result.Details)
-		assert.Equal(t, "test_error", err.Error())
-	}
-
-	result, err = service.CheckCustomer(nil)
-	if assert.Error(t, err) {
-		assert.Equal(t, common.Error, result.Status)
-		assert.Nil(t, result.Details)
-		assert.Equal(t, "No customer supplied", err.Error())
-	}
-}
-
-func TestShuftiProImageUpload(t *testing.T) {
-	if !*testImageUpload {
-		t.Skip("use '-use-images' flag to activate images uploading test")
-	}
-
-	testIDCard, _ := ioutil.ReadFile("../../test_data/realId.jpg")
-	testSelfie, _ := ioutil.ReadFile("../../test_data/realFace.jpg")
-
-	assert := assert.New(t)
-
-	if !assert.NotEmpty(testIDCard, "testIDCard must contain the content of the image data file 'realId.jpg'") {
-		return
-	}
-	if !assert.NotEmpty(testSelfie, "testSelfie must contain the content of the image data file 'realFace.jpg'") {
-		return
-	}
-
-	customer := &common.UserData{
-		FirstName:     "John",
-		LastName:      "Doe",
-		Email:         "jd@email.com",
-		DateOfBirth:   common.Time(time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)),
-		CountryAlpha2: "GB",
-		Phone:         "+440000000000",
-		CurrentAddress: common.Address{
-			CountryAlpha2:  "GB",
-			County:         "Westminster",
-			Town:           "London",
-			Street:         "Downing St.",
-			BuildingNumber: "10",
-			PostCode:       "SW1A 2AA",
-		},
-		IDCard: &common.IDCard{
-			Number: "6980XYZ4521XYZ",
-			Image: &common.DocumentFile{
-				Filename:    "realId.jpg",
-				ContentType: "image/jpeg",
-				Data:        testIDCard,
-			},
-		},
-		UtilityBill: &common.UtilityBill{
-			Image: &common.DocumentFile{
-				Filename:    "util_bill.jpg",
-				ContentType: "image/jpeg",
-				Data:        testIDCard,
-			},
-		},
-		Selfie: &common.Selfie{
-			Image: &common.DocumentFile{
-				Filename:    "realFace.png",
-				ContentType: "image/jpeg",
-				Data:        testSelfie,
-			},
-		},
-	}
-
 	config := Config{
-		Host:        "https://api.shuftipro.com",
-		ClientID:    "ac93f3a0fee5afa2d9399d5d0f257dc92bbde89b1e48452e1bfac3c5c1dc99db",
-		SecretKey:   "lq34eOTxDe1e6G8a1P7Igqo5YK3ABCDF",
-		RedirectURL: "https://api.shuftipro.com",
+		Host:        "host",
+		ClientID:    "client_id",
+		SecretKey:   "secret_key",
+		CallbackURL: "callback_url",
 	}
 
-	service := New(config)
+	sh1 := ShuftiPro{
+		client: NewClient(config),
+	}
 
-	result, err := service.CheckCustomer(customer)
+	sh2 := New(config)
 
-	if assert.Nil(err) {
-		assert.Equal(common.Approved, result.Status)
-		assert.Nil(result.Details)
-		assert.Empty(result.ErrorCode)
-		assert.Nil(result.StatusCheck)
+	assert.Equal(t, sh1, sh2)
+}
+
+func TestShuftiProCheckCustomer(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	s := New(Config{
+		Host:        "https://shuftipro.com/api/",
+		ClientID:    "client_id",
+		SecretKey:   "secret_key",
+		CallbackURL: "callback_url",
+	})
+
+	type testCase struct {
+		name      string
+		customer  *common.UserData
+		responder httpmock.Responder
+		result    common.KYCResult
+		err       error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name: "Nil customer",
+			err:  errors.New("No customer supplied"),
+		},
+		testCase{
+			name: "Approved result",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+			},
+			responder: httpmock.NewStringResponder(stdhttp.StatusOK, reqAcceptedResponse),
+			result: common.KYCResult{
+				Status: common.Approved,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponder(stdhttp.MethodPost, s.client.host, tc.responder)
+			res, err := s.CheckCustomer(tc.customer)
+			assert := assert.New(t)
+			assert.Equal(tc.result, res)
+			if tc.err != nil {
+				assert.Equal(tc.err.Error(), err.Error())
+			} else {
+				assert.Equal(tc.err, err)
+			}
+		})
 	}
 }
 
-func TestCheckStatus(t *testing.T) {
-	assert := assert.New(t)
+func TestShuftiProCheckStatus(t *testing.T) {
+	result := common.KYCResult{}
+	res, err := ShuftiPro{}.CheckStatus("")
+	assert.Equal(t, result, res)
+	assert.Equal(t, "Shufti Pro doesn't support a verification status check", err.Error())
+}
 
-	service := ShuftiPro{}
+func TestShuftiProIntegration(t *testing.T) {
+	if !*demo {
+		t.Skip("Use -demo command line flag to test the demo")
 
-	res, err := service.CheckStatus("")
+	}
 
-	assert.Equal(common.Error, res.Status)
-	assert.Error(err)
-	assert.Equal("Shufti Pro doesn't support a verification status check", err.Error())
+	require := require.New(t)
+
+	realFace, err := ioutil.ReadFile("../../test_data/real-face.jpg")
+	require.NoError(err)
+	fakeFace, err := ioutil.ReadFile("../../test_data/fake-face.jpg")
+	require.NoError(err)
+
+	require.NotEmpty(realFace)
+	require.NotEmpty(fakeFace)
+
+	s := New(Config{
+		Host:        "https://shuftipro.com/api/",
+		ClientID:    "d76612f86d26846065f5c37dfef7a7dd04eaa724f923773fe02f9d8b0bec0877",
+		SecretKey:   "5gCvERlJy4w6Lf1Bcn6ztQSKP0Lrqxhp",
+		CallbackURL: "https://shuftipro.com/api",
+	})
+
+	type testCase struct {
+		name     string
+		customer *common.UserData
+		result   common.KYCResult
+		err      error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name: "Approved result",
+			customer: &common.UserData{
+				FirstName:     "John",
+				LastName:      "Livone",
+				DateOfBirth:   common.Time(time.Date(1989, 9, 6, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "GB",
+				Email:         "john.livone@example.com",
+				Selfie: &common.Selfie{
+					Image: &common.DocumentFile{
+						Filename:    "real-face.jpg",
+						ContentType: "image/jpeg",
+						Data:        realFace,
+					},
+				},
+			},
+			result: common.KYCResult{
+				Status: common.Approved,
+			},
+		},
+		testCase{
+			name: "Denied result",
+			customer: &common.UserData{
+				FirstName:     "John",
+				LastName:      "Doe",
+				DateOfBirth:   common.Time(time.Date(1989, 9, 6, 0, 0, 0, 0, time.UTC)),
+				CountryAlpha2: "GB",
+				Email:         "john.doe@example.com",
+				Selfie: &common.Selfie{
+					Image: &common.DocumentFile{
+						Filename:    "fake-face.jpg",
+						ContentType: "image/jpeg",
+						Data:        fakeFace,
+					},
+				},
+			},
+			result: common.KYCResult{
+				Status: common.Denied,
+				Details: &common.KYCDetails{
+					Reasons: []string{"Face is not verified."},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := s.CheckCustomer(tc.customer)
+			assert := assert.New(t)
+			assert.Equal(tc.result, res)
+			if tc.err != nil {
+				assert.Equal(tc.err.Error(), err.Error())
+			} else {
+				assert.Equal(tc.err, err)
+			}
+		})
+	}
 }

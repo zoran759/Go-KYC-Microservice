@@ -124,6 +124,7 @@ type IDCard struct {
 	Number        string
 	CountryAlpha2 string
 	IssuedDate    Time
+	ValidUntil    Time
 	Image         *DocumentFile
 }
 

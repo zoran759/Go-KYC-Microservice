@@ -721,23 +721,23 @@ The verification response consist of two elements: a result and an error if occu
 
 [**UserData**](#userdata-fields-description) applicable fields:
 
-| **Name**             | **Type**         | **Required**       | **Comment**                                                       |
-| -------------------- | ---------------- | :----------------: | ----------------------------------------------------------------- |
-| **FirstName**        | _string_         | **Yes**            |                                                                   |
-| **LastName**         | _string_         | **Yes**            |                                                                   |
-| MiddleName           | _string_         |                    |                                                                   |
-| Email                | _string_         |                    |                                                                   |
-| DateOfBirth          | _Time_           |                    |                                                                   |
-| **CountryAlpha2**    | _string_         | **Yes**            |                                                                   |
-| **Phone**            | _string_         | **Yes**            | Customer’s phone number with country code. Example: +440000000000 |
-| CurrentAddress       | _Address_        |                    |                                                                   |
-| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk                       |
-| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                                                   |
-| SNILS                | _*SNILS_         |                    |                                                                   |
-| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                                                   |
-| **CreditCard**(*)    | _*CreditCard_    | **(*)**            |                                                                   |
-| UtilityBill          | _*UtilityBill_   |                    |                                                                   |
-| **Selfie**           | _*Selfie_        | **Yes**            |                                                                   |
+| **Name**             | **Type**         | **Required**       | **Comment**                                 |
+| -------------------- | ---------------- | :----------------: | ------------------------------------------- |
+| **FirstName**        | _string_         | **Yes**            |                                             |
+| **LastName**         | _string_         | **Yes**            |                                             |
+| MiddleName           | _string_         |                    |                                             |
+| **Email**            | _string_         |                    |                                             |
+| **DateOfBirth**      | _Time_           |                    |                                             |
+| **CountryAlpha2**    | _string_         | **Yes**            |                                             |
+| CurrentAddress       | _Address_        |                    |                                             |
+| **Passport**(*)      | _*Passport_      | **See comment(*)** | (*)Anyone of documents marked with asterisk |
+| **IDCard**(*)        | _*IDCard_        | **(*)**            |                                             |
+| SNILS                | _*SNILS_         |                    |                                             |
+| **DriverLicense**(*) | _*DriverLicense_ | **(*)**            |                                             |
+| **CreditCard**(*)    | _*CreditCard_    | **(*)**            |                                             |
+| **DebitCard**(*)     | _*DebitCard_     |                    |                                             |
+| UtilityBill          | _*UtilityBill_   |                    | Can be used in case of address verification |
+| **Selfie**           | _*Selfie_        | **Yes**            |                                             |
 
 > **DOCUMENTS NOTE:** Include image file(s) for the document used for the verification.
 
@@ -881,7 +881,7 @@ KYC providers may require various set of `common.UserData` fields depending on t
 
 ### **Shufti Pro covered countries**
 
-* International (the list of supported country codes is similar to ISO 3166-1 alpha-2)
+* International (["Shufti Pro provides support for all countries"](https://github.com/shuftipro/RESTful-API-v1.3/blob/master/off-site_without_ocr/countries.md#supported-countries))
 * No fields variations found in the docs
 
 ### **Sum&Substance covered countries**
