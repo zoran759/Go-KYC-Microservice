@@ -13,7 +13,7 @@ import (
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
-	"github.com/jarcoal/httpmock"
+	"gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -396,9 +396,6 @@ func TestCheckStatus(t *testing.T) {
 	assert.Nil(err)
 	assert.NotEmpty(request)
 	assert.NotEmpty(response)
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(
 		http.MethodGet,

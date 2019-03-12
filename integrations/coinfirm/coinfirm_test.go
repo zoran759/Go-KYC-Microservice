@@ -6,7 +6,7 @@ import (
 
 	"modulus/kyc/common"
 
-	"github.com/jarcoal/httpmock"
+	"gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
 )
 
