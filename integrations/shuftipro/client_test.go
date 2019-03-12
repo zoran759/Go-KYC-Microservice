@@ -205,7 +205,7 @@ func TestCheckCustomer(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	client := NewClient(Config{
-		Host:        "https://shuftipro.com/api",
+		Host:        "https://shuftipro.com/api/",
 		ClientID:    "ClientID",
 		SecretKey:   "SecretKey",
 		CallbackURL: "callback_url",
@@ -239,8 +239,6 @@ func TestCheckCustomer(t *testing.T) {
 				ErrorCode: "401",
 			},
 			err: Error{
-				Service: "",
-				Key:     "",
 				Message: "Authorization keys are missing/invalid.",
 			},
 		},
@@ -262,14 +260,12 @@ func TestCheckCustomer(t *testing.T) {
 			},
 		},
 		testCase{
-			name:   "Error no responder",
-			result: common.KYCResult{},
-			err:    errors.New("Post https://shuftipro.com/api: no responder found"),
+			name: "Error no responder",
+			err:  errors.New("Post https://shuftipro.com/api/: no responder found"),
 		},
 		testCase{
 			name:      "Test changed response format",
 			responder: httpmock.NewStringResponder(stdhttp.StatusOK, changedResponse),
-			result:    common.KYCResult{},
 			err:       errors.New("json: cannot unmarshal number into Go struct field Response.event of type shuftipro.Event"),
 		},
 		testCase{

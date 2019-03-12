@@ -48,7 +48,7 @@ type DocumentType string
 // Request represents a verification request.
 type Request struct {
 	Reference        string            `json:"reference"`
-	Country          string            `json:"country"`
+	CountryAlpha2    string            `json:"country"`
 	Language         string            `json:"language,omitempty"`
 	Email            string            `json:"email"`
 	CallbackURL      string            `json:"callback_url"`
@@ -111,7 +111,7 @@ func (c Client) NewRequest(customer *common.UserData) (r *Request, err error) {
 
 	id := uuid.New()
 	r.Reference = fmt.Sprintf("%x", id[:])
-	r.Country = customer.CountryAlpha2
+	r.CountryAlpha2 = customer.CountryAlpha2
 	r.Email = customer.Email
 	r.CallbackURL = c.callbackURL
 
@@ -177,20 +177,21 @@ func getDocument(customer *common.UserData) *Document {
 		d.SupportedTypes = []DocumentType{IDcard}
 		d.Number = customer.IDCard.Number
 		d.IssueDate = customer.IDCard.IssuedDate.Format(dateFormat)
+		d.ExpiryDate = customer.IDCard.ValidUntil.Format(dateFormat)
 		return d
 	}
 	if customer.CreditCard != nil && customer.CreditCard.Image != nil && len(customer.CreditCard.Image.Data) > 0 {
 		d.Proof = toBase64(customer.CreditCard.Image)
 		d.SupportedTypes = []DocumentType{CreditOrDebitCard}
 		d.Number = customer.CreditCard.Number
-		d.IssueDate = customer.CreditCard.ValidUntil.Format(dateFormat)
+		d.ExpiryDate = customer.CreditCard.ValidUntil.Format(dateFormat)
 		return d
 	}
 	if customer.DebitCard != nil && customer.DebitCard.Image != nil && len(customer.DebitCard.Image.Data) > 0 {
 		d.Proof = toBase64(customer.DebitCard.Image)
 		d.SupportedTypes = []DocumentType{CreditOrDebitCard}
 		d.Number = customer.DebitCard.Number
-		d.IssueDate = customer.DebitCard.ValidUntil.Format(dateFormat)
+		d.ExpiryDate = customer.DebitCard.ValidUntil.Format(dateFormat)
 		return d
 	}
 
@@ -215,6 +216,11 @@ func getAddress(customer *common.UserData) *Address {
 	if customer.UtilityBill != nil && customer.UtilityBill.Image != nil && len(customer.UtilityBill.Image.Data) > 0 {
 		a.Proof = toBase64(customer.UtilityBill.Image)
 		a.SupportedTypes = []DocumentType{UtilityBill}
+		return a
+	}
+	if customer.IDCard != nil && customer.IDCard.Image != nil && len(customer.IDCard.Image.Data) > 0 {
+		a.Proof = toBase64(customer.IDCard.Image)
+		a.SupportedTypes = []DocumentType{IDcard}
 		return a
 	}
 
