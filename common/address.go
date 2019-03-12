@@ -102,8 +102,12 @@ func (a Address) String() string {
 	}
 	if len(a.CountryAlpha2) > 0 {
 		insertWhitespace(b)
-		if a3, ok := CountryAlpha2ToAlpha3[a.CountryAlpha2]; ok {
-			b.WriteString(a3)
+		if a.CountryAlpha2 == "GB" {
+			b.WriteString("UK")
+		} else {
+			if a3, ok := CountryAlpha2ToAlpha3[a.CountryAlpha2]; ok {
+				b.WriteString(a3)
+			}
 		}
 	}
 

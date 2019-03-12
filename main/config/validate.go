@@ -72,8 +72,8 @@ func validate(config Config) (err error) {
 			if len(options["ClientID"]) == 0 {
 				return ErrMissingOption{provider: provider, option: "ClientID"}
 			}
-			if len(options["RedirectURL"]) == 0 {
-				return ErrMissingOption{provider: provider, option: "RedirectURL"}
+			if len(options["CallbackURL"]) == 0 {
+				return ErrMissingOption{provider: provider, option: "CallbackURL"}
 			}
 		case common.SumSub:
 			if len(options["Host"]) == 0 {

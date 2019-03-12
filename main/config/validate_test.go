@@ -25,7 +25,7 @@ var validConfig = Config{
 		"Host":        "host",
 		"ClientID":    "fakeid",
 		"SecretKey":   "fakekey",
-		"RedirectURL": "host",
+		"CallbackURL": "host",
 	},
 	string(common.SumSub): Options{
 		"Host":   "host",
@@ -256,7 +256,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 
 	err = validate(config)
 	assert.NotNil(t, err)
-	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'RedirectURL'`, err.Error())
+	assert.Equal(t, `ShuftiPro configuration error: missing or empty option 'CallbackURL'`, err.Error())
 }
 
 func TestVerifySumSub(t *testing.T) {

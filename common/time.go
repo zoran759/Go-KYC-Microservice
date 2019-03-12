@@ -13,6 +13,9 @@ func (t Time) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements the json.Unmarshaler interface for the common.Time type.
 // The time is expected to be a quoted string in RFC 3339 format.
 func (t *Time) UnmarshalJSON(data []byte) error {
+	if string(data) == `""` {
+		return nil
+	}
 	return (*time.Time)(t).UnmarshalJSON(data)
 }
 
