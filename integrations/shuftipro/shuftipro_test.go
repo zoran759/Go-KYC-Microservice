@@ -103,17 +103,11 @@ func TestShuftiProIntegration(t *testing.T) {
 
 	realFace, err := ioutil.ReadFile("../../test_data/real-face.jpg")
 	require.NoError(err)
-	realIDcard, err := ioutil.ReadFile("../../test_data/real-id-card.jpg")
-	require.NoError(err)
 	fakeFace, err := ioutil.ReadFile("../../test_data/fake-face.jpg")
-	require.NoError(err)
-	fakeIDcard, err := ioutil.ReadFile("../../test_data/fake-id-card.jpg")
 	require.NoError(err)
 
 	require.NotEmpty(realFace)
-	require.NotEmpty(realIDcard)
 	require.NotEmpty(fakeFace)
-	require.NotEmpty(fakeIDcard)
 
 	s := New(Config{
 		Host:        "https://shuftipro.com/api/",
@@ -138,24 +132,6 @@ func TestShuftiProIntegration(t *testing.T) {
 				DateOfBirth:   common.Time(time.Date(1989, 9, 6, 0, 0, 0, 0, time.UTC)),
 				CountryAlpha2: "GB",
 				Email:         "john.livone@example.com",
-				CurrentAddress: common.Address{
-					CountryAlpha2:  "GB",
-					County:         "Westminster",
-					Town:           "London",
-					Street:         "Downing St",
-					BuildingNumber: "10",
-					PostCode:       "SW1A 2AA",
-				},
-				IDCard: &common.IDCard{
-					Number:     "A123456",
-					IssuedDate: common.Time(time.Date(2001, 5, 22, 0, 0, 0, 0, time.UTC)),
-					ValidUntil: common.Time(time.Date(2025, 9, 13, 0, 0, 0, 0, time.UTC)),
-					Image: &common.DocumentFile{
-						Filename:    "real-id-card.jpg",
-						ContentType: "image/jpeg",
-						Data:        realIDcard,
-					},
-				},
 				Selfie: &common.Selfie{
 					Image: &common.DocumentFile{
 						Filename:    "real-face.jpg",
@@ -176,25 +152,6 @@ func TestShuftiProIntegration(t *testing.T) {
 				DateOfBirth:   common.Time(time.Date(1989, 9, 6, 0, 0, 0, 0, time.UTC)),
 				CountryAlpha2: "GB",
 				Email:         "john.doe@example.com",
-				Phone:         "+440000000000",
-				CurrentAddress: common.Address{
-					CountryAlpha2:  "GB",
-					County:         "Westminster",
-					Town:           "London",
-					Street:         "Downing St",
-					BuildingNumber: "10",
-					PostCode:       "SW1A 2AA",
-				},
-				IDCard: &common.IDCard{
-					Number:     "A123456",
-					IssuedDate: common.Time(time.Date(2001, 5, 22, 0, 0, 0, 0, time.UTC)),
-					ValidUntil: common.Time(time.Date(2025, 9, 13, 0, 0, 0, 0, time.UTC)),
-					Image: &common.DocumentFile{
-						Filename:    "fake-id-card.jpg",
-						ContentType: "image/jpeg",
-						Data:        fakeIDcard,
-					},
-				},
 				Selfie: &common.Selfie{
 					Image: &common.DocumentFile{
 						Filename:    "fake-face.jpg",
