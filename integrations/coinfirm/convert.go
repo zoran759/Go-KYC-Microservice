@@ -26,7 +26,7 @@ type commonDocType int
 
 // prepareCustomerData prepares customer data for KYC process.
 func prepareCustomerData(customer *common.UserData) (details model.ParticipantDetails, docfiles []model.File) {
-	if customer.IsCompany {
+	if len(customer.CompanyName) > 0 {
 		details, docfiles = prepareCompanyData(customer)
 		return
 	}

@@ -10,7 +10,7 @@ test:
   - git clone -b $CI_COMMIT_REF_NAME $CI_REPOSITORY_URL $GOPATH/src/modulus/$CI_PROJECT_NAME
   - git clone https://gitlab.com/lambospeed/licensing-client.git $GOPATH/src/modulus/common/licensing-client
   - go get -d -v ./...
-  - go get github.com/jarcoal/httpmock github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/... github.com/stretchr/testify gopkg.in/jarcoal/httpmock.v1
+  - go get gopkg.in/jarcoal/httpmock.v1 github.com/onsi/ginkgo/ginkgo github.com/onsi/gomega/... github.com/stretchr/testify
   - cd $GOPATH/src/modulus/$CI_PROJECT_NAME
   - go test -cover ./...
 

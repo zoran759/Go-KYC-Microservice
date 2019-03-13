@@ -14,8 +14,8 @@ import (
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
 
-	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 var identitymindResponse = []byte(`
@@ -75,7 +75,63 @@ var idologyErrorResponse = []byte(`
 	<error>Invalid username and password</error>
 </response>`)
 
-var shuftiproResponse = []byte(`{"status_code": "SP1", "message": "Verified", "reference": "tester", "signature": "sig"}`)
+var shuftiproResponse = `
+{
+    "reference": "17374217",
+    "event": "verification.accepted",
+    "error": "",
+    "verification_url": "",
+    "verification_result": {
+        "document": {
+            "name": 1,
+            "dob": 1,
+            "expiry_date": 1,
+            "issue_date": 1,
+            "document_number": 1,
+            "document": 1
+        },
+        "address": {
+            "name": 1,
+            "full_address": 1
+        }
+    },
+    "verification_data": {
+        "document": {
+            "name": {
+                "first_name": "John",
+                "middle_name": "Carter",
+                "last_name": "Doe"
+            },
+            "dob": "1978-03-13",
+            "issue_date": "2015-10-10",
+            "expiry_date": "2025-12-31",
+            "document_number": "1456-0989-5567-0909",
+            "selected_type": [
+                "id_card"
+            ],
+            "supported_types": [
+                "id_card",
+                "driving_license",
+                "passport"
+            ]
+        },
+        "address": {
+            "name": {
+                "first_name": "John",
+                "middle_name": "Carter",
+                "last_name": "Doe"
+            },
+            "full_address": "3339 Maryland Avenue, Largo, Florida",
+            "selected_type": [
+                "id_card"
+            ],
+            "supported_types": [
+                "id_card",
+                "bank_statement"
+            ]
+        }
+    }
+}`
 
 var sumsubResponse = []byte(`
 {
@@ -441,7 +497,7 @@ func TestCheckCustomer(t *testing.T) {
 	httpmock.RegisterResponder(
 		http.MethodPost,
 		"https://api.shuftipro.com",
-		httpmock.NewBytesResponder(http.StatusOK, shuftiproResponse),
+		httpmock.NewStringResponder(http.StatusOK, shuftiproResponse),
 	)
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
@@ -479,6 +535,8 @@ func TestCheckCustomer(t *testing.T) {
 
 	sumsubCfg := cfg[string(common.SumSub)]
 
+	httpmock.Reset()
+
 	httpmock.RegisterResponder(
 		http.MethodPost,
 		fmt.Sprintf("%s/resources/applicants?key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
@@ -491,9 +549,14 @@ func TestCheckCustomer(t *testing.T) {
 		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
 	)
 
-	httpmock.RegisterResponder(
+	expectedQuery := map[string]string{
+		"reason": "docs_sent",
+		"key":    sumsubCfg["APIKey"],
+	}
+	httpmock.RegisterResponderWithQuery(
 		http.MethodPost,
-		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending?reason=docs_sent&key=%s", sumsubCfg["Host"], sumsubCfg["APIKey"]),
+		fmt.Sprintf("%s/resources/applicants/596eb3c93a0eb985b8ade34d/status/pending", sumsubCfg["Host"]),
+		expectedQuery,
 		httpmock.NewStringResponder(http.StatusOK, `{"ok":1}`),
 	)
 

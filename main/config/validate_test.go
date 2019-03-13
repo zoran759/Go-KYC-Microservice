@@ -25,7 +25,7 @@ var validConfig = Config{
 		"Host":        "host",
 		"ClientID":    "fakeid",
 		"SecretKey":   "fakekey",
-		"RedirectURL": "host",
+		"CallbackURL": "host",
 	},
 	string(common.SumSub): Options{
 		"Host":   "host",

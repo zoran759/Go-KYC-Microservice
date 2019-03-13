@@ -87,6 +87,7 @@ func createHandlers() {
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
 	http.HandleFunc("/Provider", handlers.IsProviderImplemented)
 	http.HandleFunc("/Config", handlers.UpdateConfig)
+	http.HandleFunc("/cipherTrace", handlers.CipherTraceCheck)
 }
 
 // Watch config file and update configs when events happen.
