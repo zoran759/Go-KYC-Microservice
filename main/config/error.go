@@ -14,7 +14,7 @@ type MissingOptionError struct {
 
 // Error implements error interface for MissingOptionError.
 func (e MissingOptionError) Error() string {
-	return fmt.Sprintf("missing or empty option '%s' for the %s provider", e.option, e.provider)
+	return fmt.Sprintf("missing or empty option '%s' for the %s", e.option, e.provider)
 }
 
 // OptionError represents an option error.

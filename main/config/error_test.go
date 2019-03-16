@@ -12,7 +12,7 @@ func TestMissingOptionError(t *testing.T) {
 		option:   "Barbaz",
 	}
 
-	text := "missing or empty option 'Barbaz' for the Foobar provider"
+	text := "missing or empty option 'Barbaz' for the Foobar"
 
 	assert.Equal(t, text, err.Error())
 }

@@ -12,9 +12,10 @@ import (
 	"modulus/kyc/common"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
+	"modulus/kyc/main/license"
 
-	"gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 var cfg = config.Config{
@@ -33,7 +34,7 @@ var cfg = config.Config{
 		"Host":        "https://api.shuftipro.com",
 		"ClientID":    "fakeID",
 		"SecretKey":   "fakeKey",
-		"RedirectURL": "https://api.shuftipro.com",
+		"CallbackURL": "https://api.shuftipro.com",
 	},
 	string(common.SumSub): {
 		"Host":   "https://test-api.sumsub.com",
@@ -75,6 +76,7 @@ var errorResponse = []byte(`
 func init() {
 	once.Do(func() {
 		config.Update(cfg)
+		license.SetDevMode()
 	})
 }
 

@@ -13,6 +13,7 @@ import (
 	"modulus/kyc/common"
 	"modulus/kyc/main/config"
 	"modulus/kyc/main/handlers"
+	"modulus/kyc/main/license"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
@@ -194,6 +195,7 @@ var once sync.Once
 func init() {
 	once.Do(func() {
 		config.Update(cfg)
+		license.SetDevMode()
 	})
 }
 

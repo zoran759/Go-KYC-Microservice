@@ -37,9 +37,9 @@ var knownOptions = map[common.KYCProvider]validOptions{
 	},
 	common.ShuftiPro: validOptions{
 		"Host":        true,
-		"SecretKey":   true,
 		"ClientID":    true,
-		"RedirectURL": true,
+		"SecretKey":   true,
+		"CallbackURL": true,
 	},
 	common.SumSub: validOptions{
 		"Host":   true,
@@ -60,6 +60,13 @@ var knownOptions = map[common.KYCProvider]validOptions{
 		"NAPILogin":    true,
 		"NAPIPassword": true,
 	},
+	// These aren't KYC providers.
+	common.CipherTrace: validOptions{
+		"URL":      true,
+		"Key":      true,
+		"Username": true,
+	},
+	// These are the options of the KYC service itself.
 	common.KYCProvider(ServiceSection): validOptions{
 		"Port":    true,
 		"License": true,
@@ -89,7 +96,7 @@ func filterOptions(provider common.KYCProvider, opts Options) (errs []string) {
 func validateProvider(provider common.KYCProvider, opts Options) error {
 	kopts := knownOptions[provider]
 	if kopts == nil {
-		return fmt.Errorf("%s provider is missing configuration validation", provider)
+		return fmt.Errorf("%s is missing configuration validation", provider)
 	}
 	for name := range kopts {
 		if len(opts[name]) == 0 {

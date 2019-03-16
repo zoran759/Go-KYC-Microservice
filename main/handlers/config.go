@@ -16,8 +16,8 @@ type ConfigResponse struct {
 	Errors  []string
 }
 
-// UpdateConfig handles requests for config updates.
-func UpdateConfig(w http.ResponseWriter, r *http.Request) {
+// ConfigHandler handles requests for config management.
+func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if r.Method != http.MethodPost {
@@ -65,4 +65,12 @@ func UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Config:", err)
 	}
+}
+
+func updateConfig(r *http.Request) {
+
+}
+
+func getConfig() {
+
 }

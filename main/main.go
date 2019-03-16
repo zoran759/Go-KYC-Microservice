@@ -86,7 +86,7 @@ func createHandlers() {
 	http.HandleFunc("/CheckCustomer", handlers.CheckCustomer)
 	http.HandleFunc("/CheckStatus", handlers.CheckStatus)
 	http.HandleFunc("/Provider", handlers.IsProviderImplemented)
-	http.HandleFunc("/Config", handlers.UpdateConfig)
+	http.HandleFunc("/Config", handlers.ConfigHandler)
 	http.HandleFunc("/cipherTrace", handlers.CipherTraceCheck)
 }
 

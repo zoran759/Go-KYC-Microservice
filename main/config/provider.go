@@ -17,6 +17,12 @@ import (
 	"modulus/kyc/integrations/trulioo"
 )
 
+// notProvider keeps names of non- KYC providers in the config.
+var notProvider = map[string]bool{
+	ServiceSection:             true,
+	string(common.CipherTrace): true,
+}
+
 // createPlatform constructs the new KYC verification platform.
 func createPlatform(provider common.KYCProvider) (platform common.KYCPlatform, err error) {
 	opts := cfg.config[string(provider)]
@@ -78,9 +84,9 @@ func createPlatform(provider common.KYCProvider) (platform common.KYCPlatform, e
 	case common.ShuftiPro:
 		platform = shuftipro.New(shuftipro.Config{
 			Host:        opts["Host"],
-			SecretKey:   opts["SecretKey"],
 			ClientID:    opts["ClientID"],
-			RedirectURL: opts["RedirectURL"],
+			SecretKey:   opts["SecretKey"],
+			CallbackURL: opts["CallbackURL"],
 		})
 	case common.SumSub:
 		platform = sumsub.New(sumsub.Config{
