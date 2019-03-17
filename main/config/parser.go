@@ -7,8 +7,6 @@ import (
 	"io"
 	"log"
 	"strings"
-
-	"modulus/kyc/common"
 )
 
 // These are config keywords.
@@ -131,9 +129,5 @@ func validName(name string) bool {
 	if len(name) == 0 {
 		return false
 	}
-	if name != ServiceSection && !common.KYCProviders[common.KYCProvider(name)] {
-		return false
-	}
-
-	return true
+	return !unknownSection(name)
 }

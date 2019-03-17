@@ -10,8 +10,8 @@ import (
 	"modulus/kyc/main/config"
 )
 
-// ConfigResponse represents a configuration change response.
-type ConfigResponse struct {
+// ConfigUpdateResponse represents a configuration change response.
+type ConfigUpdateResponse struct {
 	Updated bool
 	Errors  []string
 }
@@ -20,19 +20,44 @@ type ConfigResponse struct {
 func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
+	var (
+		resp   interface{}
+		status int
+		err    error
+	)
+
+	switch r.Method {
+	case http.MethodGet:
+		resp = getConfig()
+	case http.MethodPost:
+		resp, status, err = updateConfig(r)
+	default:
+		w.Header().Set("Allow", http.MethodGet+", "+http.MethodPost)
 		writeErrorResponse(w, http.StatusMethodNotAllowed, errors.New("used method not allowed for this endpoint"))
 		return
 	}
 
+	if err != nil {
+		writeErrorResponse(w, status, err)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		log.Println("Config:", err)
+	}
+}
+
+func updateConfig(r *http.Request) (resp ConfigUpdateResponse, status int, err error) {
+	status = http.StatusBadRequest
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		writeErrorResponse(w, http.StatusInternalServerError, err)
+		status = http.StatusInternalServerError
 		return
 	}
 	if len(body) == 0 {
-		writeErrorResponse(w, http.StatusBadRequest, errors.New("empty request"))
+		err = errors.New("empty request")
 		return
 	}
 
@@ -40,7 +65,6 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(body, &req)
 	if err != nil {
-		writeErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -51,26 +75,20 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		errs = append(errs, err.Error())
+		err = nil
 	}
 	if errs == nil {
 		errs = []string{}
 	}
 
-	resp := ConfigResponse{
+	resp = ConfigUpdateResponse{
 		Updated: updated,
 		Errors:  errs,
 	}
 
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		log.Println("Config:", err)
-	}
+	return
 }
 
-func updateConfig(r *http.Request) {
-
-}
-
-func getConfig() {
-
+func getConfig() config.Config {
+	return config.GetConfig()
 }

@@ -119,7 +119,7 @@ func Update(c Config) (updated bool, errs []string) {
 
 // unknownSection returns the result of check whether the given section name is unknown to the service.
 func unknownSection(sect string) bool {
-	return !providers.Providers[common.KYCProvider(sect)] && sect != ServiceSection
+	return !providers.Providers[common.KYCProvider(sect)] && !notProvider[sect]
 }
 
 // GetOptions returns the Options of the configuration section specified or nil if the section isn't exist.
@@ -128,6 +128,14 @@ func GetOptions(section string) Options {
 	opts := cfg.config[section]
 	cfg.Unlock()
 	return opts
+}
+
+// GetConfig returns current configuration.
+func GetConfig() Config {
+	cfg.Lock()
+	c := cfg.config
+	cfg.Unlock()
+	return c
 }
 
 func init() {
