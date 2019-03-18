@@ -166,7 +166,7 @@ The Configuration management API allows to manage [KYC service configuration](#k
 
 As the integral part of the service, the Configuration management too uses JSON format for requests and responses.
 
-To get the current configuration no parameters required. The format of returned configuration is similar to update requests with the difference it returns full actual configuration.
+To get the current configuration no parameters required. The format of returned configuration is similar to update requests with the difference it includes full actual configuration.
 
 For configuration updates, what is important to note you aren't obliged to provide all available options for a provider or the service in each update request. Include only options you're intended to update. Nonetheless, for the initial request of provider configuration update when there is no configuration for that provider yet, provide all options of it. Otherwise, the provider will not be initialized and the error list will be returned in the response.
 
