@@ -25,10 +25,6 @@ var ErrNoValidLicense = errors.New("missing or invalid license for the KYC servi
 
 // Update updates the license.
 func Update(newlic string) error {
-	if devmode {
-		return nil
-	}
-
 	err := client.ValidateClientLicense(newlic)
 	if err != nil {
 		log.Println("The license is invalid:", err)
