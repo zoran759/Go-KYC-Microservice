@@ -35,6 +35,8 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestValid(t *testing.T) {
+	Update("invalid license")
+
 	valid := Valid()
 	assert.False(t, valid)
 

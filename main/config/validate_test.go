@@ -206,7 +206,7 @@ func TestVerifyShuftiPro(t *testing.T) {
 	opts = Options{
 		"Host":        "host",
 		"SecretKey":   "fakekey",
-		"RedirectURL": "host",
+		"CallbackURL": "host",
 	}
 
 	err = validateProvider(common.ShuftiPro, opts)
