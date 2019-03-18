@@ -155,6 +155,7 @@ Our API makes available the following Endpoints:
 | GET        | `/Provider`      | Check whether a specified provider is implemented      |
 | POST       | `/CheckCustomer` | Send KYC verification requests                         |
 | POST       | `/CheckStatus`   | Send KYC verification current status check requests    |
+| GET        | `/Config`        | Returns the current configuration                      |
 | POST       | `/Config`        | Configuration management                               |
 
 The models for requests and responses are provided.
@@ -165,7 +166,9 @@ The Configuration management API allows to manage [KYC service configuration](#k
 
 As the integral part of the service, the Configuration management too uses JSON format for requests and responses.
 
-What is important to note you aren't obliged to provide all available options for a provider or the service in each update request. Include only options you're intended to update. Nonetheless, for the initial request of provider configuration update when there is no configuration for that provider yet, provide all options of it. Otherwise, the provider will not be initialized and the error list will be returned in the response.
+To get the current configuration no parameters required. The format of returned configuration is similar to update requests with the difference it returns full actual configuration.
+
+For configuration updates, what is important to note you aren't obliged to provide all available options for a provider or the service in each update request. Include only options you're intended to update. Nonetheless, for the initial request of provider configuration update when there is no configuration for that provider yet, provide all options of it. Otherwise, the provider will not be initialized and the error list will be returned in the response.
 
 If it is required to add or update the license key for the KYC service it is managed using this interface too.
 
@@ -224,7 +227,7 @@ The example of the license update request for the service:
 
 > **WARNING!** If the KYC service port was updated the service must be restarted for the option to take effect. Currently, the service doesn't support automatic service restart.
 
-### **The Configuration management API response fields description**
+### **The configuration update response fields description**
 
 | **Name**    | **Type**       | **Description**                                               |
 | ----------- | -------------- | ------------------------------------------------------------- |
