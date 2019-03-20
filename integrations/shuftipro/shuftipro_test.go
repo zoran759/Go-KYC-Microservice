@@ -90,7 +90,7 @@ func TestShuftiProCheckStatus(t *testing.T) {
 	result := common.KYCResult{}
 	res, err := ShuftiPro{}.CheckStatus("")
 	assert.Equal(t, result, res)
-	assert.Equal(t, "Shufti Pro doesn't support a verification status check", err.Error())
+	assert.Equal(t, "No referenceID supplied", err.Error())
 }
 
 func TestShuftiProIntegration(t *testing.T) {

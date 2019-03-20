@@ -52,8 +52,9 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 	go func() {
 		defer close(done)
 
-		code, resp, err := http.Post(c.host, c.headers, body)
-		if err != nil {
+		code, resp, err1 := http.Post(c.host, c.headers, body)
+		if err1 != nil {
+			err = err1
 			return
 		}
 		if code != stdhttp.StatusOK {
