@@ -10,7 +10,7 @@ import (
 
 // defaultHTTPTimeout holds the default value for a HTTP request timeout.
 // Currently, the timeout value for requests isn't configurable.
-var defaultHTTPTimeout = time.Minute * 10
+var defaultHTTPTimeout = time.Minute * 5
 
 // Headers represents a HTTP request headers.
 type Headers map[string]string
