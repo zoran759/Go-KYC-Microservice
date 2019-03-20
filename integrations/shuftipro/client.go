@@ -7,6 +7,7 @@ import (
 	"fmt"
 	stdhttp "net/http"
 	"strconv"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/http"
@@ -45,30 +46,47 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 		return
 	}
 
-	code, resp, err := http.Post(c.host, c.headers, body)
-	if err != nil {
-		return
-	}
-	if code != stdhttp.StatusOK {
-		res.ErrorCode = strconv.Itoa(code)
-	}
+	done := make(chan struct{})
 
-	response := Response{}
-	err = json.Unmarshal(resp, &response)
-	if err != nil {
-		return
-	}
+	go func() {
+		defer close(done)
 
-	if code != stdhttp.StatusOK {
-		if _, ok := response.Error.(map[string]interface{}); !ok {
-			err = fmt.Errorf("%scheck the error code in the result", event2description[response.Event])
+		code, resp, err := http.Post(c.host, c.headers, body)
+		if err != nil {
 			return
 		}
-		err = errorFromResponse(resp)
-		return
-	}
+		if code != stdhttp.StatusOK {
+			res.ErrorCode = strconv.Itoa(code)
+		}
 
-	res = response.ToKYCResult()
+		response := Response{}
+		err = json.Unmarshal(resp, &response)
+		if err != nil {
+			return
+		}
+
+		if code != stdhttp.StatusOK {
+			if _, ok := response.Error.(map[string]interface{}); !ok {
+				err = fmt.Errorf("%scheck the error code in the result", event2description[response.Event])
+				return
+			}
+			err = errorFromResponse(resp)
+			return
+		}
+
+		res = response.ToKYCResult()
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(time.Minute):
+		res.Status = common.Unclear
+		res.StatusCheck = &common.KYCStatusCheck{
+			Provider:    common.ShuftiPro,
+			ReferenceID: req.Reference,
+			LastCheck:   time.Now(),
+		}
+	}
 
 	return
 }
