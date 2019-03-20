@@ -46,6 +46,7 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 		return
 	}
 
+	timer := time.NewTimer(time.Minute)
 	done := make(chan struct{})
 
 	go func() {
@@ -79,7 +80,8 @@ func (c Client) CheckCustomer(customer *common.UserData) (res common.KYCResult, 
 
 	select {
 	case <-done:
-	case <-time.After(time.Minute):
+		timer.Stop()
+	case <-timer.C:
 		res.Status = common.Unclear
 		res.StatusCheck = &common.KYCStatusCheck{
 			Provider:    common.ShuftiPro,
