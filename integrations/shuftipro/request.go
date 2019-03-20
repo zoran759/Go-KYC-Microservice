@@ -194,6 +194,26 @@ func getDocument(customer *common.UserData) *Document {
 		d.ExpiryDate = customer.DebitCard.ValidUntil.Format(dateFormat)
 		return d
 	}
+	// While we have no document selection functionality this kludge, borrowed from IdentityMind implementation, will serve us.
+	if customer.Document != nil && customer.Document.Image != nil && len(customer.Document.Image.Data) > 0 {
+		d.Proof = toBase64(customer.Document.Image)
+		d.Number = customer.Document.Number
+		d.IssueDate = customer.Document.IssuedDate.Format(dateFormat)
+		d.ExpiryDate = customer.Document.ValidUntil.Format(dateFormat)
+		switch customer.Document.Type {
+		case common.IDCardType:
+			d.SupportedTypes = []DocumentType{IDcard}
+		case common.PassportType:
+			d.SupportedTypes = []DocumentType{Passport}
+		case common.DriverLicenseType:
+			d.SupportedTypes = []DocumentType{DrivingLicense}
+		case common.CreditCardType:
+			fallthrough
+		case common.DebitCardType:
+			d.SupportedTypes = []DocumentType{CreditOrDebitCard}
+		}
+		return d
+	}
 
 	return nil
 }

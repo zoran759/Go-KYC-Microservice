@@ -2,8 +2,11 @@ package common
 
 // List of available values of DocumentType.
 const (
-	IDCardType   DocumentType = "idcard"
-	PassportType DocumentType = "passport"
+	IDCardType        DocumentType = "idcard"
+	PassportType      DocumentType = "passport"
+	DriverLicenseType DocumentType = "drivers"
+	CreditCardType    DocumentType = "credit_card"
+	DebitCardType     DocumentType = "debit_card"
 )
 
 // DocumentType defines a document type.
@@ -14,5 +17,7 @@ type Document struct {
 	Type          DocumentType
 	Number        string
 	CountryAlpha2 string
+	IssuedDate    Time
+	ValidUntil    Time
 	Image         *DocumentFile
 }
