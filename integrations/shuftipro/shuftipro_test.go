@@ -56,7 +56,7 @@ func TestShuftiProCheckCustomer(t *testing.T) {
 	testCases := []testCase{
 		testCase{
 			name: "Nil customer",
-			err:  errors.New("No customer supplied"),
+			err:  errors.New("no customer supplied"),
 		},
 		testCase{
 			name: "Approved result",
@@ -87,10 +87,52 @@ func TestShuftiProCheckCustomer(t *testing.T) {
 }
 
 func TestShuftiProCheckStatus(t *testing.T) {
-	result := common.KYCResult{}
-	res, err := ShuftiPro{}.CheckStatus("")
-	assert.Equal(t, result, res)
-	assert.Equal(t, "No referenceID supplied", err.Error())
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	s := New(Config{
+		Host:        "https://shuftipro.com/api/",
+		ClientID:    "client_id",
+		SecretKey:   "secret_key",
+		CallbackURL: "callback_url",
+	})
+
+	type testCase struct {
+		name      string
+		refID     string
+		responder httpmock.Responder
+		result    common.KYCResult
+		err       error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name: "Empty reference id",
+			err:  errors.New("no referenceID supplied"),
+		},
+		testCase{
+			name:      "Approved result",
+			refID:     "17374217",
+			responder: httpmock.NewStringResponder(stdhttp.StatusOK, reqAcceptedResponse),
+			result: common.KYCResult{
+				Status: common.Approved,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponder(stdhttp.MethodPost, s.client.host+statusEndpoint, tc.responder)
+			res, err := s.CheckStatus(tc.refID)
+			assert := assert.New(t)
+			assert.Equal(tc.result, res)
+			if tc.err != nil {
+				assert.Equal(tc.err.Error(), err.Error())
+			} else {
+				assert.Equal(tc.err, err)
+			}
+		})
+	}
 }
 
 func TestShuftiProIntegration(t *testing.T) {

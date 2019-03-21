@@ -23,7 +23,7 @@ func New(config Config) ShuftiPro {
 // CheckCustomer implements KYCPlatform interface for ShuftiPro.
 func (s ShuftiPro) CheckCustomer(customer *common.UserData) (result common.KYCResult, err error) {
 	if customer == nil {
-		err = errors.New("No customer supplied")
+		err = errors.New("no customer supplied")
 		return
 	}
 
@@ -35,7 +35,7 @@ func (s ShuftiPro) CheckCustomer(customer *common.UserData) (result common.KYCRe
 // CheckStatus implements KYCPlatform interface for the ShuftiPro.
 func (s ShuftiPro) CheckStatus(referenceID string) (result common.KYCResult, err error) {
 	if len(referenceID) == 0 {
-		err = errors.New("No referenceID supplied")
+		err = errors.New("no referenceID supplied")
 		return
 	}
 
