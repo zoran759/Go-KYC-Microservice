@@ -100,6 +100,64 @@ func TestNewRequest(t *testing.T) {
 		PostCode:       "SW1A 2AA",
 	}
 
+	documentIDcard := &common.Document{
+		Type:       common.IDCardType,
+		Number:     "789 123 654",
+		IssuedDate: common.Time(time.Date(1985, 9, 21, 0, 0, 0, 0, time.UTC)),
+		ValidUntil: common.Time(time.Date(2025, 9, 20, 0, 0, 0, 0, time.UTC)),
+		Image: &common.DocumentFile{
+			Filename:    "idcard.jpg",
+			ContentType: "image/jpeg",
+			Data:        []byte("fake image data"),
+		},
+	}
+
+	documentPassport := &common.Document{
+		Type:       common.PassportType,
+		Number:     "123456",
+		IssuedDate: common.Time(time.Date(2000, 9, 23, 0, 0, 0, 0, time.UTC)),
+		ValidUntil: common.Time(time.Date(2025, 8, 28, 0, 0, 0, 0, time.UTC)),
+		Image: &common.DocumentFile{
+			Filename:    "passport.png",
+			ContentType: "image/png",
+			Data:        []byte("fake image data"),
+		},
+	}
+
+	documentDriverLicense := &common.Document{
+		Type:       common.DriverLicenseType,
+		Number:     "ABC456798",
+		IssuedDate: common.Time(time.Date(2015, 5, 15, 0, 0, 0, 0, time.UTC)),
+		ValidUntil: common.Time(time.Date(2025, 5, 14, 0, 0, 0, 0, time.UTC)),
+		Image: &common.DocumentFile{
+			Filename:    "driver_front.jpg",
+			ContentType: "image/jpeg",
+			Data:        []byte("fake image data"),
+		},
+	}
+
+	documentCreditCard := &common.Document{
+		Type:       common.CreditCardType,
+		Number:     "4000 1234 5678 9010",
+		ValidUntil: common.Time(time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC)),
+		Image: &common.DocumentFile{
+			Filename:    "ccard.jpg",
+			ContentType: "image/jpeg",
+			Data:        []byte("fake image data"),
+		},
+	}
+
+	documentDebitCard := &common.Document{
+		Type:       common.DebitCardType,
+		Number:     "4000 1234 5678 9010",
+		ValidUntil: common.Time(time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC)),
+		Image: &common.DocumentFile{
+			Filename:    "dcard.jpg",
+			ContentType: "image/jpeg",
+			Data:        []byte("fake image data"),
+		},
+	}
+
 	type testCase struct {
 		name     string
 		customer *common.UserData
@@ -333,6 +391,116 @@ func TestNewRequest(t *testing.T) {
 			},
 			request: &Request{
 				CallbackURL: c.callbackURL,
+			},
+		},
+		testCase{
+			name: "Document/ID card",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+				Document:  documentIDcard,
+			},
+			request: &Request{
+				CallbackURL: c.callbackURL,
+				Document: &Document{
+					Proof:          toBase64(documentIDcard.Image),
+					SupportedTypes: []DocumentType{IDcard},
+					Name: &Name{
+						FirstName: "John",
+						LastName:  "Doe",
+					},
+					Number:     documentIDcard.Number,
+					IssueDate:  documentIDcard.IssuedDate.Format(dateFormat),
+					ExpiryDate: documentIDcard.ValidUntil.Format(dateFormat),
+				},
+			},
+		},
+		testCase{
+			name: "Document/Passport",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+				Document:  documentPassport,
+			},
+			request: &Request{
+				CallbackURL: c.callbackURL,
+				Document: &Document{
+					Proof:          toBase64(documentPassport.Image),
+					SupportedTypes: []DocumentType{Passport},
+					Name: &Name{
+						FirstName: "John",
+						LastName:  "Doe",
+					},
+					Number:     documentPassport.Number,
+					IssueDate:  documentPassport.IssuedDate.Format(dateFormat),
+					ExpiryDate: documentPassport.ValidUntil.Format(dateFormat),
+				},
+			},
+		},
+		testCase{
+			name: "Document/Driver license",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+				Document:  documentDriverLicense,
+			},
+			request: &Request{
+				CallbackURL: c.callbackURL,
+				Document: &Document{
+					Proof:          toBase64(documentDriverLicense.Image),
+					SupportedTypes: []DocumentType{DrivingLicense},
+					Name: &Name{
+						FirstName: "John",
+						LastName:  "Doe",
+					},
+					Number:     documentDriverLicense.Number,
+					IssueDate:  documentDriverLicense.IssuedDate.Format(dateFormat),
+					ExpiryDate: documentDriverLicense.ValidUntil.Format(dateFormat),
+				},
+			},
+		},
+		testCase{
+			name: "Document/Credit card",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+				Document:  documentCreditCard,
+			},
+			request: &Request{
+				CallbackURL: c.callbackURL,
+				Document: &Document{
+					Proof:          toBase64(documentCreditCard.Image),
+					SupportedTypes: []DocumentType{CreditOrDebitCard},
+					Name: &Name{
+						FirstName: "John",
+						LastName:  "Doe",
+					},
+					Number:     documentCreditCard.Number,
+					IssueDate:  documentCreditCard.IssuedDate.Format(dateFormat),
+					ExpiryDate: documentCreditCard.ValidUntil.Format(dateFormat),
+				},
+			},
+		},
+		testCase{
+			name: "Document/Debit card",
+			customer: &common.UserData{
+				FirstName: "John",
+				LastName:  "Doe",
+				Document:  documentDebitCard,
+			},
+			request: &Request{
+				CallbackURL: c.callbackURL,
+				Document: &Document{
+					Proof:          toBase64(documentDebitCard.Image),
+					SupportedTypes: []DocumentType{CreditOrDebitCard},
+					Name: &Name{
+						FirstName: "John",
+						LastName:  "Doe",
+					},
+					Number:     documentDebitCard.Number,
+					IssueDate:  documentDebitCard.IssuedDate.Format(dateFormat),
+					ExpiryDate: documentDebitCard.ValidUntil.Format(dateFormat),
+				},
 			},
 		},
 	}

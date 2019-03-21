@@ -2,6 +2,7 @@ package shuftipro
 
 import (
 	"fmt"
+	"time"
 
 	"modulus/kyc/common"
 )
@@ -93,6 +94,13 @@ func (r Response) ToKYCResult() common.KYCResult {
 			res.Details = &common.KYCDetails{
 				Reasons: []string{r.DeclinedReason},
 			}
+		}
+	case "":
+		res.Status = common.Unclear
+		res.StatusCheck = &common.KYCStatusCheck{
+			Provider:    common.ShuftiPro,
+			ReferenceID: r.Reference,
+			LastCheck:   time.Now(),
 		}
 	default:
 		res.Status = common.Denied
