@@ -2,13 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
+	"net/http"
+
 	"modulus/kyc/integrations/ciphertrace"
 	"modulus/kyc/main/config"
-	"net/http"
+
+	"github.com/pkg/errors"
 )
 
-// Check txHash for BTC and ETH.
+// CipherTraceCheck checks txHash for BTC and ETH.
 func CipherTraceCheck(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Coin   string `json:"coin"`
