@@ -3,8 +3,12 @@ package shuftipro
 import (
 	"encoding/base64"
 	"errors"
+	"flag"
+	"fmt"
 	stdhttp "net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"modulus/kyc/common"
 	"modulus/kyc/http"
@@ -12,6 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
 )
+
+var timeout = flag.Bool("ttimeout", false, "Test request timeout simulation")
 
 var reqInvalidResponse = `{
     "reference": "17374217",
@@ -297,6 +303,117 @@ func TestCheckCustomer(t *testing.T) {
 			} else {
 				assert.Equal(tc.err, err)
 			}
+		})
+	}
+}
+
+func TestCheckCustomerWithTimeout(t *testing.T) {
+	if !*timeout {
+		t.Skip("Use -ttimeout command line flag to test the timeout simulation")
+
+	}
+
+	ts := httptest.NewServer(stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
+		time.Sleep(time.Minute + time.Second)
+		fmt.Fprintln(w, "Hello, client")
+	}))
+	defer ts.Close()
+
+	client := NewClient(Config{
+		Host:        ts.URL,
+		ClientID:    "client_id",
+		SecretKey:   "secret_key",
+		CallbackURL: "callback_url",
+	})
+
+	res, err := client.CheckCustomer(&common.UserData{})
+
+	assert := assert.New(t)
+	assert.NoError(err)
+	assert.Equal(common.Unclear, res.Status)
+	assert.Equal(common.Unclear, res.Status)
+	assert.Nil(res.Details)
+	assert.Empty(res.ErrorCode)
+	assert.NotNil(res.StatusCheck)
+	assert.Equal(common.ShuftiPro, res.StatusCheck.Provider)
+	assert.NotEmpty(res.StatusCheck.ReferenceID)
+	assert.NotZero(res.StatusCheck.LastCheck)
+}
+
+func TestCheckStatus(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	client := NewClient(Config{
+		Host:        "https://shuftipro.com/api/",
+		ClientID:    "ClientID",
+		SecretKey:   "SecretKey",
+		CallbackURL: "callback_url",
+	})
+	refID := "17374217"
+
+	type testCase struct {
+		name      string
+		refID     string
+		responder httpmock.Responder
+		result    common.KYCResult
+		err       error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name:      "Unauthorized request 401",
+			refID:     refID,
+			responder: httpmock.NewStringResponder(stdhttp.StatusUnauthorized, reqUnauthorizedResponse),
+			result: common.KYCResult{
+				ErrorCode: "401",
+			},
+			err: Error{
+				Message: "Authorization keys are missing/invalid.",
+			},
+		},
+		testCase{
+			name:      "Accepted status 200",
+			refID:     refID,
+			responder: httpmock.NewStringResponder(stdhttp.StatusOK, reqAcceptedResponse),
+			result: common.KYCResult{
+				Status: common.Approved,
+			},
+		},
+		testCase{
+			name:  "Error no responder",
+			refID: refID,
+			err:   fmt.Errorf("Post https://shuftipro.com/api/%s: no responder found", statusEndpoint),
+		},
+		testCase{
+			name:      "Test changed response format",
+			refID:     refID,
+			responder: httpmock.NewStringResponder(stdhttp.StatusOK, changedResponse),
+			err:       errors.New("json: cannot unmarshal number into Go struct field Response.event of type shuftipro.Event"),
+		},
+		testCase{
+			name:      "Test changed error field format",
+			refID:     refID,
+			responder: httpmock.NewStringResponder(stdhttp.StatusBadRequest, changedErrorFormatResponse),
+			result: common.KYCResult{
+				ErrorCode: "400",
+			},
+			err: errors.New("request parameters provided in the request are invalid; check the error code in the result"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponder(stdhttp.MethodPost, client.host+statusEndpoint, tc.responder)
+			res, err := client.CheckStatus(tc.refID)
+			assert := assert.New(t)
+			assert.Equal(tc.result, res)
+			if tc.err != nil {
+				assert.Equal(tc.err.Error(), err.Error())
+			} else {
+				assert.Equal(tc.err, err)
+			}
+
 		})
 	}
 }
