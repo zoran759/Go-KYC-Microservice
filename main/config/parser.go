@@ -23,10 +23,13 @@ const (
 	isname
 	isopt
 	iserror
+	issecterror
 )
 
 // kind represents a kind of read string.
 type kind int
+
+var parserLogPrefix = "[config parser]"
 
 // parseConfig reads string by string from the input and parses it
 // into valid Config or returns an error if occured.
@@ -37,7 +40,6 @@ func parseConfig(r io.Reader) (Config, error) {
 
 	scanner := bufio.NewScanner(r)
 
-	logprefix := "[config parser]"
 	cfg := Config{}
 	opts := Options{}
 	name := ""
@@ -56,19 +58,12 @@ func parseConfig(r io.Reader) (Config, error) {
 		case isname:
 			// We will omit empty sections because it doesn't make sense to keep them.
 			// If the section is wrong it will be skipped with all belonged options.
-			if len(opts) > 0 {
-				if validName(name) {
-					cfg[name] = opts
-				} else {
-					log.Printf("%s unknown or empty section name '%s'\n", logprefix, name)
-				}
-				opts = Options{}
-			}
+			addSectionIfValid(cfg, name, &opts)
 			name = s[1 : len(s)-1]
 		case isopt:
 			// Skip standalone options.
 			if len(name) == 0 {
-				log.Printf("%s missing section name for the option at line %d: '%s'\n", logprefix, count, s)
+				log.Printf("%s missing section name for the option at line %d: '%s'\n", parserLogPrefix, count, s)
 				continue
 			}
 			i := bytes.IndexByte([]byte(s), sep)
@@ -78,9 +73,14 @@ func parseConfig(r io.Reader) (Config, error) {
 				val = s[i+1:]
 			}
 			opts[key] = val
+		case issecterror:
+			// If line seems like malformed section name,
+			// save current section to prevent options mixing.
+			addSectionIfValid(cfg, name, &opts)
+			name = ""
 		case iserror:
 			// Skip errors, make the parser fault tolerant.
-			log.Printf("%s error at line %d: '%s'\n", logprefix, count, s)
+			log.Printf("%s error at line %d: '%s'\n", parserLogPrefix, count, s)
 			continue
 		}
 	}
@@ -92,13 +92,9 @@ func parseConfig(r io.Reader) (Config, error) {
 		}
 		return nil, err
 	}
-	if len(opts) > 0 {
-		if validName(name) {
-			cfg[name] = opts
-		} else {
-			log.Printf("%s unknown section name '%s'\n", logprefix, name)
-		}
-	}
+
+	addSectionIfValid(cfg, name, &opts)
+
 	if len(cfg) == 0 {
 		return nil, errors.New("config doesn't contains a proper configuration")
 	}
@@ -113,7 +109,7 @@ func kindOf(s string) kind {
 	}
 	if s[0] == namestart {
 		if s[len(s)-1] != namestop {
-			return iserror
+			return issecterror
 		}
 		return isname
 	}
@@ -126,8 +122,18 @@ func kindOf(s string) kind {
 
 // validName checks if the KYC provider name is valid.
 func validName(name string) bool {
-	if len(name) == 0 {
-		return false
-	}
 	return !unknownSection(name)
+}
+
+// addSectionIfValid adds new section into the configuration if all provided data is acceptable.
+func addSectionIfValid(conf Config, name string, opts *Options) {
+	if len(*opts) == 0 {
+		return
+	}
+	if validName(name) {
+		conf[name] = *opts
+	} else {
+		log.Printf("%s unknown section name '%s'\n", parserLogPrefix, name)
+	}
+	*opts = Options{}
 }

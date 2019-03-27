@@ -8,7 +8,7 @@ import (
 	"modulus/kyc/integrations/example"
 )
 
-// pvs keeps the pool of active providers.
+// providers keeps the pool of active providers.
 var providers activeProviders
 
 // activeProviders represents the pool of active providers.

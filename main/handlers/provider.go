@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"modulus/kyc/common"
+	"modulus/kyc/main/config"
 	"modulus/kyc/main/config/providers"
 )
 
@@ -34,7 +35,7 @@ func IsProviderImplemented(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := isProviderImplementedResp{
-		Implemented: name == string(common.Example) || common.KYCProviders[common.KYCProvider(name)],
+		Implemented: config.IsKnownName(name),
 	}
 
 	json.NewEncoder(w).Encode(res)
@@ -45,6 +46,12 @@ func providerList() (list providers.List) {
 	for p := range providers.Providers {
 		list = append(list, p)
 	}
+	for np := range config.NotProviders {
+		if np != config.ServiceSection {
+			list = append(list, common.KYCProvider(np))
+		}
+	}
+
 	sort.Sort(list)
 	return
 }

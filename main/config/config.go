@@ -87,7 +87,7 @@ func Update(c Config) (updated bool, errs []string) {
 				}
 			}
 		}
-		if !notProvider[sect] {
+		if !NotProviders[sect] {
 			updlist = append(updlist, common.KYCProvider(sect))
 		}
 		oo := cfg.config[sect]
@@ -119,7 +119,12 @@ func Update(c Config) (updated bool, errs []string) {
 
 // unknownSection returns the result of check whether the given section name is unknown to the service.
 func unknownSection(sect string) bool {
-	return !providers.Providers[common.KYCProvider(sect)] && !notProvider[sect]
+	return !providers.Providers[common.KYCProvider(sect)] && !NotProviders[sect]
+}
+
+// IsKnownName returns the result of check whether the given name is known to the service.
+func IsKnownName(name string) bool {
+	return providers.Providers[common.KYCProvider(name)] || (NotProviders[name] && name != ServiceSection)
 }
 
 // GetOptions returns the Options of the configuration section specified or nil if the section isn't exist.

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -349,4 +350,111 @@ func TestVerifyTrulioo(t *testing.T) {
 	err = validateProvider(common.Trulioo, opts)
 	assert.Error(err)
 	assert.Equal(`missing or empty option 'NAPIPassword' for the Trulioo`, err.Error())
+}
+
+func TestFilterOptions(t *testing.T) {
+	type testCase struct {
+		name     string
+		provider common.KYCProvider
+		opts     Options
+		errs     []string
+	}
+
+	testCases := []testCase{
+		testCase{
+			name:     "All valid options",
+			provider: common.Coinfirm,
+			opts: Options{
+				"Host":     "Host",
+				"Email":    "Email",
+				"Password": "Password",
+				"Company":  "Company",
+			},
+		},
+		testCase{
+			name:     "Not provider",
+			provider: common.KYCProvider("Fake"),
+			opts: Options{
+				"Host":     "Host",
+				"Email":    "Email",
+				"Password": "Password",
+				"Company":  "Company",
+			},
+			errs: []string{
+				"Fake is missing configuration validation",
+			},
+		},
+		testCase{
+			name:     "Filtered options",
+			provider: common.Coinfirm,
+			opts: Options{
+				"Host":    "Host",
+				"Email":   "Email",
+				"FakeOpt": "FakeOpt value",
+			},
+			errs: []string{
+				"Coinfirm: unknown option 'FakeOpt' was filtered out",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			errs := filterOptions(tc.provider, tc.opts)
+			assert.Equal(t, tc.errs, errs)
+		})
+	}
+}
+
+func TestValidateProvider(t *testing.T) {
+	type testCase struct {
+		name     string
+		provider common.KYCProvider
+		opts     Options
+		err      error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name:     "All valid options",
+			provider: common.Coinfirm,
+			opts: Options{
+				"Host":     "Host",
+				"Email":    "Email",
+				"Password": "Password",
+				"Company":  "Company",
+			},
+		},
+		testCase{
+			name:     "Not provider",
+			provider: common.KYCProvider("Fake"),
+			opts: Options{
+				"Host":     "Host",
+				"Email":    "Email",
+				"Password": "Password",
+				"Company":  "Company",
+			},
+			err: errors.New("Fake is missing configuration validation"),
+		},
+		testCase{
+			name:     "Missing option",
+			provider: common.Coinfirm,
+			opts: Options{
+				"Host":     "Host",
+				"Email":    "Email",
+				"Password": "Password",
+			},
+			err: MissingOptionError{
+				provider: common.Coinfirm,
+				option:   "Company",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateProvider(tc.provider, tc.opts)
+			assert.Equal(t, tc.err, err)
+		})
+	}
 }

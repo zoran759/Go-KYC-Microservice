@@ -11,6 +11,7 @@ import (
 
 	"modulus/kyc/common"
 	"modulus/kyc/main/config"
+	"modulus/kyc/main/config/providers"
 	"modulus/kyc/main/handlers"
 	"modulus/kyc/main/license"
 
@@ -279,8 +280,8 @@ func TestCheckStatus(t *testing.T) {
 	req = httptest.NewRequest(http.MethodPost, "/CheckStatus", bytes.NewReader(request))
 	w = httptest.NewRecorder()
 
-	if !common.KYCProviders["Fake Provider"] {
-		common.KYCProviders["Fake Provider"] = true
+	if !providers.Providers["Fake Provider"] {
+		providers.Providers["Fake Provider"] = true
 	}
 
 	handlers.CheckStatus(w, req)

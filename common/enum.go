@@ -48,18 +48,3 @@ const (
 	Trulioo         KYCProvider = "Trulioo"
 	CipherTrace     KYCProvider = "CipherTrace"
 )
-
-// KYCProviders enumerates the implemented KYC providers.
-var KYCProviders = map[KYCProvider]bool{
-	Coinfirm:        true,
-	ComplyAdvantage: true,
-	IdentityMind:    true,
-	IDology:         true,
-	Jumio:           true,
-	ShuftiPro:       true,
-	SumSub:          true,
-	SynapseFI:       true,
-	ThomsonReuters:  true,
-	Trulioo:         true,
-	CipherTrace:     true,
-}

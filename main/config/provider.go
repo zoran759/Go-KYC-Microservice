@@ -17,8 +17,8 @@ import (
 	"modulus/kyc/integrations/trulioo"
 )
 
-// notProvider keeps names of non- KYC providers in the config.
-var notProvider = map[string]bool{
+// NotProviders keeps names of non- KYC providers in the config.
+var NotProviders = map[string]bool{
 	ServiceSection:             true,
 	string(common.CipherTrace): true,
 }

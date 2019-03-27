@@ -12,6 +12,7 @@ import (
 
 	"modulus/kyc/common"
 	"modulus/kyc/main/config"
+	"modulus/kyc/main/config/providers"
 	"modulus/kyc/main/handlers"
 	"modulus/kyc/main/license"
 
@@ -358,8 +359,8 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NoError(err)
 	assert.NotEmpty(request)
 
-	if !common.KYCProviders["Provider Without Config"] {
-		common.KYCProviders["Provider Without Config"] = true
+	if !providers.Providers["Provider Without Config"] {
+		providers.Providers["Provider Without Config"] = true
 	}
 
 	req = httptest.NewRequest(http.MethodPost, "/CheckCustomer", bytes.NewReader(request))
@@ -388,8 +389,8 @@ func TestCheckCustomer(t *testing.T) {
 	assert.NoError(err)
 	assert.NotEmpty(request)
 
-	if !common.KYCProviders["Not Implemented Provider"] {
-		common.KYCProviders["Not Implemented Provider"] = true
+	if !providers.Providers["Not Implemented Provider"] {
+		providers.Providers["Not Implemented Provider"] = true
 	}
 	config.Update(config.Config{
 		"Not Implemented Provider": config.Options{
