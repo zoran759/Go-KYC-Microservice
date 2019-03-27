@@ -104,11 +104,6 @@ func TestLoad(t *testing.T) {
 			logs:     []byte(time.Now().Format("2006/01/02") + " open FAKE/fake: no such file or directory\n"),
 		},
 		testCase{
-			name:     "Inaccessible file",
-			filename: "/root/test",
-			logs:     []byte(time.Now().Format("2006/01/02") + " stat /root/test: permission denied\n"),
-		},
-		testCase{
 			name:     "Empty file",
 			filename: zerofile,
 			logs:     []byte(time.Now().Format("2006/01/02") + " WARNING! '../empty' configuration file is empty. No config loaded\n"),
