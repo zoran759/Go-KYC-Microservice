@@ -1,14 +1,14 @@
-package config_test
+package config
 
 import (
 	"bytes"
+	"errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 	"testing"
 	"time"
-
-	"modulus/kyc/main/config"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -75,7 +75,7 @@ func TestLoad(t *testing.T) {
 	testCases := []testCase{
 		testCase{
 			name:     "Valid file",
-			filename: "../" + config.DefaultDevFile,
+			filename: "../" + DefaultDevFile,
 		},
 		testCase{
 			name:     "Invalid file",
@@ -118,8 +118,52 @@ func TestLoad(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			log.SetOutput(&tc.logger)
-			config.Load(tc.filename)
+			Load(tc.filename)
 			assert.Equal(t, tc.logs, tc.logger.Bytes())
+		})
+	}
+}
+
+func TestSave(t *testing.T) {
+	Update(validConfig)
+
+	testfile, err := ioutil.TempFile("", "test_save_cfg_")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(testfile.Name())
+
+	type testCase struct {
+		name     string
+		filename string
+		err      error
+	}
+
+	testCases := []testCase{
+		testCase{
+			name: "Empty file name",
+			err:  errors.New("error saving the config to the file: missing filename"),
+		},
+		testCase{
+			name:     "Wrong file/not file",
+			filename: "../config",
+			err:      errors.New("open ../config: is a directory"),
+		},
+		testCase{
+			name:     "Valid file",
+			filename: testfile.Name(),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			setFilename(tc.filename)
+			err := Save()
+			if err != nil {
+				assert.Equal(t, tc.err.Error(), err.Error())
+			} else {
+				assert.Equal(t, tc.err, err)
+			}
 		})
 	}
 }

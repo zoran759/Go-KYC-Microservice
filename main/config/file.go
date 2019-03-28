@@ -67,7 +67,7 @@ func Save() error {
 	defer cfg.Unlock()
 
 	if len(cfg.filename) == 0 {
-		err := errors.New("Error saving the config to the file: missing filename")
+		err := errors.New("error saving the config to the file: missing filename")
 		log.Println(err)
 		return err
 	}
