@@ -43,8 +43,8 @@ func TestConfigHandler(t *testing.T) {
 		testCase{
 			name:     "Update config with errors",
 			method:   http.MethodPost,
-			body:     []byte(`{"Jumio":{"BaseURL":"https://lon.netverify.com/api/netverify/v2","Token":"4c620e55-3a97-e31e-719f-339b5c9d4b7c"}}`),
-			response: "{\"Updated\":true,\"Errors\":[\"missing or empty option 'Secret' for the Jumio\"]}\n",
+			body:     []byte(`{"ComplyAdvantage":{"Host":"https://api.complyadvantage.com","APIkey":"uihgewnwe78jbIUGFIkbssufKUBkzbjkkb"}}`),
+			response: "{\"Updated\":true,\"Errors\":[\"missing or empty option 'Fuzziness' for the ComplyAdvantage\"]}\n",
 			status:   http.StatusOK,
 		},
 		testCase{
