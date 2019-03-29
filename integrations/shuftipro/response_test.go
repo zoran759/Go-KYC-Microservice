@@ -53,6 +53,19 @@ func TestToKYCResult(t *testing.T) {
 				},
 			},
 		},
+		testCase{
+			name: "Empty event - pending verification",
+			response: Response{
+				Reference: "777",
+			},
+			result: common.KYCResult{
+				Status: common.Unclear,
+				StatusCheck: &common.KYCStatusCheck{
+					Provider:    common.ShuftiPro,
+					ReferenceID: "777",
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -60,6 +73,9 @@ func TestToKYCResult(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			res := tc.response.ToKYCResult()
+			if tc.result.StatusCheck != nil {
+				tc.result.StatusCheck.LastCheck = res.StatusCheck.LastCheck
+			}
 			assert.Equal(t, tc.result, res)
 		})
 	}
